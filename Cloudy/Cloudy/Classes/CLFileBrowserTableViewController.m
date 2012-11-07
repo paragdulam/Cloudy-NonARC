@@ -13,12 +13,23 @@
 @end
 
 @implementation CLFileBrowserTableViewController
+@synthesize hidesFiles;
+@synthesize excludedFolders;
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
         // Custom initialization
+    }
+    return self;
+}
+
+-(id) initWithTableViewStyle:(UITableViewStyle)style WhereHidesFiles:(BOOL) aBool andExcludedFolders:(NSArray *) folders
+{
+    if (self = [super initWithTableViewStyle:style]) {
+        self.hidesFiles = aBool;
+        self.excludedFolders = folders;
     }
     return self;
 }
@@ -33,6 +44,13 @@
 {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
+}
+
+-(void) dealloc
+{
+    [excludedFolders release];
+    excludedFolders = nil;
+    [super dealloc];
 }
 
 @end

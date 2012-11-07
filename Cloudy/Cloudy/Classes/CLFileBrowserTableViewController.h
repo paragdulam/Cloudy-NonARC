@@ -9,5 +9,14 @@
 #import "CLBaseTableViewController.h"
 
 @interface CLFileBrowserTableViewController : CLBaseTableViewController
+{
+    BOOL hidesFiles;
+    NSArray *excludedFolders;
+}
+
+
+@property(nonatomic,assign) BOOL hidesFiles;
+@property(nonatomic,retain) NSArray *excludedFolders;
+
 
 @end
