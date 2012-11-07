@@ -27,6 +27,8 @@
 {
     [super viewDidLoad];
 	// Do any additional setup after loading the view.
+    self.navigationController.navigationBar.tintColor = [UIColor blackColor];
+    self.view.backgroundColor = [UIColor scrollViewTexturedBackgroundColor];
 }
 
 - (void)didReceiveMemoryWarning

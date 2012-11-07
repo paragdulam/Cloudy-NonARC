@@ -8,6 +8,16 @@
 
 #import "CLBaseViewController.h"
 
-@interface CLBaseTableViewController : CLBaseViewController
+@interface CLBaseTableViewController : CLBaseViewController<UITableViewDataSource,UITableViewDelegate>
+{
+    NSMutableArray *tableDataArray;
+    UITableView *dataTableView;
+    UITableViewStyle tableViewStyle;
+}
+
+@property(nonatomic,assign) UITableViewStyle tableViewStyle;
+
+-(id) initWithTableViewStyle:(UITableViewStyle) style;
+-(void) updateView;
 
 @end

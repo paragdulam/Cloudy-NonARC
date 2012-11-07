@@ -23,6 +23,8 @@
 		F194DB41164A676700631792 /* CLPathSelectionViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F194DB40164A676700631792 /* CLPathSelectionViewController.m */; };
 		F194DB51164A6B1D00631792 /* DDMenuController.m in Sources */ = {isa = PBXBuildFile; fileRef = F194DB50164A6B1D00631792 /* DDMenuController.m */; };
 		F194DB53164A720F00631792 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F194DB52164A720F00631792 /* QuartzCore.framework */; };
+		F194DB55164A87F100631792 /* nav_menu_icon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = F194DB54164A87F100631792 /* nav_menu_icon@2x.png */; };
+		F194DB57164A8AFF00631792 /* button_background_base.png in Resources */ = {isa = PBXBuildFile; fileRef = F194DB56164A8AFF00631792 /* button_background_base.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -53,6 +55,8 @@
 		F194DB4F164A6B1D00631792 /* DDMenuController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDMenuController.h; sourceTree = "<group>"; };
 		F194DB50164A6B1D00631792 /* DDMenuController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDMenuController.m; sourceTree = "<group>"; };
 		F194DB52164A720F00631792 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
+		F194DB54164A87F100631792 /* nav_menu_icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "nav_menu_icon@2x.png"; sourceTree = "<group>"; };
+		F194DB56164A8AFF00631792 /* button_background_base.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = button_background_base.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -155,6 +159,7 @@
 		F194DB2F164A659300631792 /* Normal */ = {
 			isa = PBXGroup;
 			children = (
+				F194DB56164A8AFF00631792 /* button_background_base.png */,
 			);
 			path = Normal;
 			sourceTree = "<group>";
@@ -162,6 +167,7 @@
 		F194DB30164A659300631792 /* Retina */ = {
 			isa = PBXGroup;
 			children = (
+				F194DB54164A87F100631792 /* nav_menu_icon@2x.png */,
 			);
 			path = Retina;
 			sourceTree = "<group>";
@@ -238,6 +244,8 @@
 				F194DB23164A64BC00631792 /* Default.png in Resources */,
 				F194DB25164A64BC00631792 /* Default@2x.png in Resources */,
 				F194DB27164A64BC00631792 /* Default-568h@2x.png in Resources */,
+				F194DB55164A87F100631792 /* nav_menu_icon@2x.png in Resources */,
+				F194DB57164A8AFF00631792 /* button_background_base.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

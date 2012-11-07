@@ -421,7 +421,19 @@
     }
     
     if (_menuFlags.canShowLeft) {
-        UIBarButtonItem *button = [[barButtonItemClass alloc] initWithImage:[UIImage imageNamed:@"nav_menu_icon.png"] style:UIBarButtonItemStyleBordered target:self action:@selector(showLeft:)];
+        UIImage *buttonBaseImage = [UIImage imageNamed:@"button_background_base.png"];
+        UIImage *barImage = [buttonBaseImage resizableImageWithCapInsets:UIEdgeInsetsMake(0, 12, 0, 12)];
+        UIButton *barButton = [UIButton buttonWithType:UIButtonTypeCustom];
+        [barButton.titleLabel setFont:[UIFont boldSystemFontOfSize:14.f]];
+        [barButton setTitle:@"Left" forState:UIControlStateNormal];
+        [barButton setFrame:CGRectMake(0, 0, 35, 30)];
+        [barButton setBackgroundImage:barImage forState:UIControlStateNormal];
+        [barButton setImage:[UIImage imageNamed:@"nav_menu_icon.png"]
+                   forState:UIControlStateNormal];
+        [barButton addTarget:self
+                      action:@selector(showLeft:)
+            forControlEvents:UIControlEventTouchUpInside];
+        UIBarButtonItem *button = [[barButtonItemClass alloc] initWithCustomView:barButton];
         topController.navigationItem.leftBarButtonItem = button;
     } else {
 		if(topController.navigationItem.leftBarButtonItem.target == self) {
@@ -509,13 +521,13 @@
 
     UIView *view = self.leftViewController.view;
 	CGRect frame = self.view.bounds;
-	frame.size.width = kMenuFullWidth;
+	frame.size.width = kMenuDisplayedWidth;
     view.frame = frame;
     [self.view insertSubview:view atIndex:0];
     [self.leftViewController viewWillAppear:animated];
     
     frame = _root.view.frame;
-    frame.origin.x = CGRectGetMaxX(view.frame) - (kMenuFullWidth - kMenuDisplayedWidth);
+    frame.origin.x = CGRectGetMaxX(view.frame); //- (kMenuFullWidth - kMenuDisplayedWidth);
     
     BOOL _enabled = [UIView areAnimationsEnabled];
     if (!animated) {

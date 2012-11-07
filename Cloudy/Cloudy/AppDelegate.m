@@ -34,14 +34,14 @@
     self.menuController = aController;
     [aController release];
     
-    CLAccountsTableViewController *accountsTableViewController = [[CLAccountsTableViewController alloc] init];
+    CLAccountsTableViewController *accountsTableViewController = [[CLAccountsTableViewController alloc] initWithTableViewStyle:UITableViewStyleGrouped];
     UINavigationController *leftNavController = [[UINavigationController alloc] initWithRootViewController:accountsTableViewController];
     [accountsTableViewController release];
     
     [menuController setLeftViewController:leftNavController];
     [leftNavController release];
     
-    CLFileBrowserTableViewController *fileBrowserViewController = [[CLFileBrowserTableViewController alloc] init];
+    CLFileBrowserTableViewController *fileBrowserViewController = [[CLFileBrowserTableViewController alloc] initWithTableViewStyle:UITableViewStylePlain];
     UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:fileBrowserViewController];
     [fileBrowserViewController release];
     
