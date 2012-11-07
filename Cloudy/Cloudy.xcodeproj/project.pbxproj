@@ -25,7 +25,74 @@
 		F194DB53164A720F00631792 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F194DB52164A720F00631792 /* QuartzCore.framework */; };
 		F194DB55164A87F100631792 /* nav_menu_icon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = F194DB54164A87F100631792 /* nav_menu_icon@2x.png */; };
 		F194DB57164A8AFF00631792 /* button_background_base.png in Resources */ = {isa = PBXBuildFile; fileRef = F194DB56164A8AFF00631792 /* button_background_base.png */; };
+		F194DBB1164AECF300631792 /* AGImagePickerController+Constants.m in Sources */ = {isa = PBXBuildFile; fileRef = F194DB5A164AECF300631792 /* AGImagePickerController+Constants.m */; };
+		F194DBB2164AECF300631792 /* AGImagePickerController.m in Sources */ = {isa = PBXBuildFile; fileRef = F194DB5C164AECF300631792 /* AGImagePickerController.m */; };
+		F194DBB3164AECF300631792 /* AGIPC-Checkmark-iPad.png in Resources */ = {isa = PBXBuildFile; fileRef = F194DB5D164AECF300631792 /* AGIPC-Checkmark-iPad.png */; };
+		F194DBB4164AECF300631792 /* AGIPC-Checkmark-iPhone.png in Resources */ = {isa = PBXBuildFile; fileRef = F194DB5E164AECF300631792 /* AGIPC-Checkmark-iPhone.png */; };
+		F194DBB5164AECF300631792 /* AGIPC-Checkmark-iPhone@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = F194DB5F164AECF300631792 /* AGIPC-Checkmark-iPhone@2x.png */; };
+		F194DBB6164AECF300631792 /* AGIPCAlbumsController.m in Sources */ = {isa = PBXBuildFile; fileRef = F194DB61164AECF300631792 /* AGIPCAlbumsController.m */; };
+		F194DBB7164AECF300631792 /* AGIPCAlbumsController_iPad.xib in Resources */ = {isa = PBXBuildFile; fileRef = F194DB62164AECF300631792 /* AGIPCAlbumsController_iPad.xib */; };
+		F194DBB8164AECF300631792 /* AGIPCAlbumsController_iPhone.xib in Resources */ = {isa = PBXBuildFile; fileRef = F194DB63164AECF300631792 /* AGIPCAlbumsController_iPhone.xib */; };
+		F194DBB9164AECF300631792 /* AGIPCAssetsController.m in Sources */ = {isa = PBXBuildFile; fileRef = F194DB65164AECF300631792 /* AGIPCAssetsController.m */; };
+		F194DBBA164AECF300631792 /* AGIPCAssetsController_iPad.xib in Resources */ = {isa = PBXBuildFile; fileRef = F194DB66164AECF300631792 /* AGIPCAssetsController_iPad.xib */; };
+		F194DBBB164AECF300631792 /* AGIPCAssetsController_iPhone.xib in Resources */ = {isa = PBXBuildFile; fileRef = F194DB67164AECF300631792 /* AGIPCAssetsController_iPhone.xib */; };
+		F194DBBC164AECF300631792 /* AGIPCGridCell.m in Sources */ = {isa = PBXBuildFile; fileRef = F194DB69164AECF300631792 /* AGIPCGridCell.m */; };
+		F194DBBD164AECF300631792 /* AGIPCGridItem.m in Sources */ = {isa = PBXBuildFile; fileRef = F194DB6B164AECF300631792 /* AGIPCGridItem.m */; };
+		F194DBBE164AECF300631792 /* AGIPCToolbarItem.m in Sources */ = {isa = PBXBuildFile; fileRef = F194DB6D164AECF300631792 /* AGIPCToolbarItem.m */; };
+		F194DBBF164AECF300631792 /* ALAsset+AGIPC.m in Sources */ = {isa = PBXBuildFile; fileRef = F194DB6F164AECF300631792 /* ALAsset+AGIPC.m */; };
+		F194DBC0164AECF300631792 /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = F194DB70164AECF300631792 /* LICENSE */; };
+		F194DBC1164AECF300631792 /* JsonParser.m in Sources */ = {isa = PBXBuildFile; fileRef = F194DB76164AECF300631792 /* JsonParser.m */; };
+		F194DBC2164AECF300631792 /* JsonWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = F194DB78164AECF300631792 /* JsonWriter.m */; };
+		F194DBC3164AECF300631792 /* LiveApiHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = F194DB7A164AECF300631792 /* LiveApiHelper.m */; };
+		F194DBC4164AECF300631792 /* LiveAuthHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = F194DB7C164AECF300631792 /* LiveAuthHelper.m */; };
+		F194DBC5164AECF300631792 /* LiveConnectionHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = F194DB7F164AECF300631792 /* LiveConnectionHelper.m */; };
+		F194DBC6164AECF300631792 /* StreamReader.m in Sources */ = {isa = PBXBuildFile; fileRef = F194DB81164AECF300631792 /* StreamReader.m */; };
+		F194DBC7164AECF300631792 /* StringHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = F194DB83164AECF300631792 /* StringHelper.m */; };
+		F194DBC8164AECF300631792 /* UrlHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = F194DB85164AECF300631792 /* UrlHelper.m */; };
+		F194DBC9164AECF300631792 /* LiveAuthDialog.m in Sources */ = {isa = PBXBuildFile; fileRef = F194DB87164AECF300631792 /* LiveAuthDialog.m */; };
+		F194DBCA164AECF300631792 /* LiveAuthDialog_iPad.xib in Resources */ = {isa = PBXBuildFile; fileRef = F194DB88164AECF300631792 /* LiveAuthDialog_iPad.xib */; };
+		F194DBCB164AECF300631792 /* LiveAuthDialog_iPhone.xib in Resources */ = {isa = PBXBuildFile; fileRef = F194DB89164AECF300631792 /* LiveAuthDialog_iPhone.xib */; };
+		F194DBCC164AECF300631792 /* LiveAuthRefreshRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = F194DB8C164AECF300631792 /* LiveAuthRefreshRequest.m */; };
+		F194DBCD164AECF300631792 /* LiveAuthRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = F194DB8E164AECF300631792 /* LiveAuthRequest.m */; };
+		F194DBCE164AECF300631792 /* LiveAuthStorage.m in Sources */ = {isa = PBXBuildFile; fileRef = F194DB90164AECF300631792 /* LiveAuthStorage.m */; };
+		F194DBCF164AECF300631792 /* LiveConnectClientCore.m in Sources */ = {isa = PBXBuildFile; fileRef = F194DB92164AECF300631792 /* LiveConnectClientCore.m */; };
+		F194DBD0164AECF300631792 /* LiveDownloadOperationCore.m in Sources */ = {isa = PBXBuildFile; fileRef = F194DB95164AECF300631792 /* LiveDownloadOperationCore.m */; };
+		F194DBD1164AECF300631792 /* LiveOperationCore.m in Sources */ = {isa = PBXBuildFile; fileRef = F194DB98164AECF300631792 /* LiveOperationCore.m */; };
+		F194DBD2164AECF300631792 /* LiveUploadOperationCore.m in Sources */ = {isa = PBXBuildFile; fileRef = F194DB9B164AECF300631792 /* LiveUploadOperationCore.m */; };
+		F194DBD3164AECF300631792 /* backArrow_black.png in Resources */ = {isa = PBXBuildFile; fileRef = F194DB9D164AECF300631792 /* backArrow_black.png */; };
+		F194DBD4164AECF300631792 /* LiveConnectClient.m in Sources */ = {isa = PBXBuildFile; fileRef = F194DBA1164AECF300631792 /* LiveConnectClient.m */; };
+		F194DBD5164AECF300631792 /* LiveConnectSession.m in Sources */ = {isa = PBXBuildFile; fileRef = F194DBA3164AECF300631792 /* LiveConnectSession.m */; };
+		F194DBD6164AECF300631792 /* LiveDownloadOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = F194DBA6164AECF300631792 /* LiveDownloadOperation.m */; };
+		F194DBD7164AECF300631792 /* LiveOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = F194DBA9164AECF300631792 /* LiveOperation.m */; };
+		F194DBD8164AECF300631792 /* LiveOperationProgress.m in Sources */ = {isa = PBXBuildFile; fileRef = F194DBAC164AECF300631792 /* LiveOperationProgress.m */; };
+		F194DBD9164AECF300631792 /* backArrow_black.png in Resources */ = {isa = PBXBuildFile; fileRef = F194DBB0164AECF300631792 /* backArrow_black.png */; };
+		F194DBE9164AED3D00631792 /* libSDropboxSDK.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F194DBE6164AED2800631792 /* libSDropboxSDK.a */; };
+		F194DBEB164AED8900631792 /* AssetsLibrary.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F194DBEA164AED8900631792 /* AssetsLibrary.framework */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		F194DBE3164AED2800631792 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F194DBDA164AED2800631792 /* DropboxSDK.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D3196B831412FE180060E7C6;
+			remoteInfo = DropboxSDK;
+		};
+		F194DBE5164AED2800631792 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F194DBDA164AED2800631792 /* DropboxSDK.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D3933BE5145F12AD00E15FA7;
+			remoteInfo = SDropboxSDK;
+		};
+		F194DBE7164AED2800631792 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F194DBDA164AED2800631792 /* DropboxSDK.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D36931CC15088350003FBA23;
+			remoteInfo = DropboxOSX;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		F194DB0C164A64BC00631792 /* Cloudy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Cloudy.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -57,6 +124,89 @@
 		F194DB52164A720F00631792 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		F194DB54164A87F100631792 /* nav_menu_icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "nav_menu_icon@2x.png"; sourceTree = "<group>"; };
 		F194DB56164A8AFF00631792 /* button_background_base.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = button_background_base.png; sourceTree = "<group>"; };
+		F194DB59164AECF300631792 /* AGImagePickerController+Constants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "AGImagePickerController+Constants.h"; sourceTree = "<group>"; };
+		F194DB5A164AECF300631792 /* AGImagePickerController+Constants.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "AGImagePickerController+Constants.m"; sourceTree = "<group>"; };
+		F194DB5B164AECF300631792 /* AGImagePickerController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AGImagePickerController.h; sourceTree = "<group>"; };
+		F194DB5C164AECF300631792 /* AGImagePickerController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AGImagePickerController.m; sourceTree = "<group>"; };
+		F194DB5D164AECF300631792 /* AGIPC-Checkmark-iPad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AGIPC-Checkmark-iPad.png"; sourceTree = "<group>"; };
+		F194DB5E164AECF300631792 /* AGIPC-Checkmark-iPhone.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AGIPC-Checkmark-iPhone.png"; sourceTree = "<group>"; };
+		F194DB5F164AECF300631792 /* AGIPC-Checkmark-iPhone@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AGIPC-Checkmark-iPhone@2x.png"; sourceTree = "<group>"; };
+		F194DB60164AECF300631792 /* AGIPCAlbumsController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AGIPCAlbumsController.h; sourceTree = "<group>"; };
+		F194DB61164AECF300631792 /* AGIPCAlbumsController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AGIPCAlbumsController.m; sourceTree = "<group>"; };
+		F194DB62164AECF300631792 /* AGIPCAlbumsController_iPad.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = AGIPCAlbumsController_iPad.xib; sourceTree = "<group>"; };
+		F194DB63164AECF300631792 /* AGIPCAlbumsController_iPhone.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = AGIPCAlbumsController_iPhone.xib; sourceTree = "<group>"; };
+		F194DB64164AECF300631792 /* AGIPCAssetsController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AGIPCAssetsController.h; sourceTree = "<group>"; };
+		F194DB65164AECF300631792 /* AGIPCAssetsController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AGIPCAssetsController.m; sourceTree = "<group>"; };
+		F194DB66164AECF300631792 /* AGIPCAssetsController_iPad.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = AGIPCAssetsController_iPad.xib; sourceTree = "<group>"; };
+		F194DB67164AECF300631792 /* AGIPCAssetsController_iPhone.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = AGIPCAssetsController_iPhone.xib; sourceTree = "<group>"; };
+		F194DB68164AECF300631792 /* AGIPCGridCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AGIPCGridCell.h; sourceTree = "<group>"; };
+		F194DB69164AECF300631792 /* AGIPCGridCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AGIPCGridCell.m; sourceTree = "<group>"; };
+		F194DB6A164AECF300631792 /* AGIPCGridItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AGIPCGridItem.h; sourceTree = "<group>"; };
+		F194DB6B164AECF300631792 /* AGIPCGridItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AGIPCGridItem.m; sourceTree = "<group>"; };
+		F194DB6C164AECF300631792 /* AGIPCToolbarItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AGIPCToolbarItem.h; sourceTree = "<group>"; };
+		F194DB6D164AECF300631792 /* AGIPCToolbarItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AGIPCToolbarItem.m; sourceTree = "<group>"; };
+		F194DB6E164AECF300631792 /* ALAsset+AGIPC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "ALAsset+AGIPC.h"; sourceTree = "<group>"; };
+		F194DB6F164AECF300631792 /* ALAsset+AGIPC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "ALAsset+AGIPC.m"; sourceTree = "<group>"; };
+		F194DB70164AECF300631792 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
+		F194DB75164AECF300631792 /* JsonParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JsonParser.h; sourceTree = "<group>"; };
+		F194DB76164AECF300631792 /* JsonParser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JsonParser.m; sourceTree = "<group>"; };
+		F194DB77164AECF300631792 /* JsonWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JsonWriter.h; sourceTree = "<group>"; };
+		F194DB78164AECF300631792 /* JsonWriter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JsonWriter.m; sourceTree = "<group>"; };
+		F194DB79164AECF300631792 /* LiveApiHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LiveApiHelper.h; sourceTree = "<group>"; };
+		F194DB7A164AECF300631792 /* LiveApiHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LiveApiHelper.m; sourceTree = "<group>"; };
+		F194DB7B164AECF300631792 /* LiveAuthHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LiveAuthHelper.h; sourceTree = "<group>"; };
+		F194DB7C164AECF300631792 /* LiveAuthHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LiveAuthHelper.m; sourceTree = "<group>"; };
+		F194DB7D164AECF300631792 /* LiveConnectionCreatorDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LiveConnectionCreatorDelegate.h; sourceTree = "<group>"; };
+		F194DB7E164AECF300631792 /* LiveConnectionHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LiveConnectionHelper.h; sourceTree = "<group>"; };
+		F194DB7F164AECF300631792 /* LiveConnectionHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LiveConnectionHelper.m; sourceTree = "<group>"; };
+		F194DB80164AECF300631792 /* StreamReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StreamReader.h; sourceTree = "<group>"; };
+		F194DB81164AECF300631792 /* StreamReader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StreamReader.m; sourceTree = "<group>"; };
+		F194DB82164AECF300631792 /* StringHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StringHelper.h; sourceTree = "<group>"; };
+		F194DB83164AECF300631792 /* StringHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StringHelper.m; sourceTree = "<group>"; };
+		F194DB84164AECF300631792 /* UrlHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UrlHelper.h; sourceTree = "<group>"; };
+		F194DB85164AECF300631792 /* UrlHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UrlHelper.m; sourceTree = "<group>"; };
+		F194DB86164AECF300631792 /* LiveAuthDialog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LiveAuthDialog.h; sourceTree = "<group>"; };
+		F194DB87164AECF300631792 /* LiveAuthDialog.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LiveAuthDialog.m; sourceTree = "<group>"; };
+		F194DB88164AECF300631792 /* LiveAuthDialog_iPad.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = LiveAuthDialog_iPad.xib; sourceTree = "<group>"; };
+		F194DB89164AECF300631792 /* LiveAuthDialog_iPhone.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = LiveAuthDialog_iPhone.xib; sourceTree = "<group>"; };
+		F194DB8A164AECF300631792 /* LiveAuthDialogDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LiveAuthDialogDelegate.h; sourceTree = "<group>"; };
+		F194DB8B164AECF300631792 /* LiveAuthRefreshRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LiveAuthRefreshRequest.h; sourceTree = "<group>"; };
+		F194DB8C164AECF300631792 /* LiveAuthRefreshRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LiveAuthRefreshRequest.m; sourceTree = "<group>"; };
+		F194DB8D164AECF300631792 /* LiveAuthRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LiveAuthRequest.h; sourceTree = "<group>"; };
+		F194DB8E164AECF300631792 /* LiveAuthRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LiveAuthRequest.m; sourceTree = "<group>"; };
+		F194DB8F164AECF300631792 /* LiveAuthStorage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LiveAuthStorage.h; sourceTree = "<group>"; };
+		F194DB90164AECF300631792 /* LiveAuthStorage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LiveAuthStorage.m; sourceTree = "<group>"; };
+		F194DB91164AECF300631792 /* LiveConnectClientCore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LiveConnectClientCore.h; sourceTree = "<group>"; };
+		F194DB92164AECF300631792 /* LiveConnectClientCore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LiveConnectClientCore.m; sourceTree = "<group>"; };
+		F194DB93164AECF300631792 /* LiveConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LiveConstants.h; sourceTree = "<group>"; };
+		F194DB94164AECF300631792 /* LiveDownloadOperationCore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LiveDownloadOperationCore.h; sourceTree = "<group>"; };
+		F194DB95164AECF300631792 /* LiveDownloadOperationCore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LiveDownloadOperationCore.m; sourceTree = "<group>"; };
+		F194DB96164AECF300631792 /* LiveDownloadOperationInternal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LiveDownloadOperationInternal.h; sourceTree = "<group>"; };
+		F194DB97164AECF300631792 /* LiveOperationCore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LiveOperationCore.h; sourceTree = "<group>"; };
+		F194DB98164AECF300631792 /* LiveOperationCore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LiveOperationCore.m; sourceTree = "<group>"; };
+		F194DB99164AECF300631792 /* LiveOperationInternal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LiveOperationInternal.h; sourceTree = "<group>"; };
+		F194DB9A164AECF300631792 /* LiveUploadOperationCore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LiveUploadOperationCore.h; sourceTree = "<group>"; };
+		F194DB9B164AECF300631792 /* LiveUploadOperationCore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LiveUploadOperationCore.m; sourceTree = "<group>"; };
+		F194DB9D164AECF300631792 /* backArrow_black.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = backArrow_black.png; sourceTree = "<group>"; };
+		F194DB9F164AECF300631792 /* LiveAuthDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LiveAuthDelegate.h; sourceTree = "<group>"; };
+		F194DBA0164AECF300631792 /* LiveConnectClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LiveConnectClient.h; sourceTree = "<group>"; };
+		F194DBA1164AECF300631792 /* LiveConnectClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LiveConnectClient.m; sourceTree = "<group>"; };
+		F194DBA2164AECF300631792 /* LiveConnectSession.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LiveConnectSession.h; sourceTree = "<group>"; };
+		F194DBA3164AECF300631792 /* LiveConnectSession.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LiveConnectSession.m; sourceTree = "<group>"; };
+		F194DBA4164AECF300631792 /* LiveConnectSessionStatus.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LiveConnectSessionStatus.h; sourceTree = "<group>"; };
+		F194DBA5164AECF300631792 /* LiveDownloadOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LiveDownloadOperation.h; sourceTree = "<group>"; };
+		F194DBA6164AECF300631792 /* LiveDownloadOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LiveDownloadOperation.m; sourceTree = "<group>"; };
+		F194DBA7164AECF300631792 /* LiveDownloadOperationDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LiveDownloadOperationDelegate.h; sourceTree = "<group>"; };
+		F194DBA8164AECF300631792 /* LiveOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LiveOperation.h; sourceTree = "<group>"; };
+		F194DBA9164AECF300631792 /* LiveOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LiveOperation.m; sourceTree = "<group>"; };
+		F194DBAA164AECF300631792 /* LiveOperationDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LiveOperationDelegate.h; sourceTree = "<group>"; };
+		F194DBAB164AECF300631792 /* LiveOperationProgress.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LiveOperationProgress.h; sourceTree = "<group>"; };
+		F194DBAC164AECF300631792 /* LiveOperationProgress.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LiveOperationProgress.m; sourceTree = "<group>"; };
+		F194DBAD164AECF300631792 /* LiveUploadOperationDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LiveUploadOperationDelegate.h; sourceTree = "<group>"; };
+		F194DBAE164AECF300631792 /* LiveUploadOverwriteOption.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LiveUploadOverwriteOption.h; sourceTree = "<group>"; };
+		F194DBB0164AECF300631792 /* backArrow_black.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = backArrow_black.png; sourceTree = "<group>"; };
+		F194DBDA164AED2800631792 /* DropboxSDK.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = DropboxSDK.xcodeproj; path = DropboxSDK/DropboxSDK.xcodeproj; sourceTree = "<group>"; };
+		F194DBEA164AED8900631792 /* AssetsLibrary.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AssetsLibrary.framework; path = System/Library/Frameworks/AssetsLibrary.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -64,6 +214,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F194DBEB164AED8900631792 /* AssetsLibrary.framework in Frameworks */,
+				F194DBE9164AED3D00631792 /* libSDropboxSDK.a in Frameworks */,
 				F194DB53164A720F00631792 /* QuartzCore.framework in Frameworks */,
 				F194DB11164A64BC00631792 /* UIKit.framework in Frameworks */,
 				F194DB13164A64BC00631792 /* Foundation.framework in Frameworks */,
@@ -94,6 +246,7 @@
 		F194DB0F164A64BC00631792 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				F194DBEA164AED8900631792 /* AssetsLibrary.framework */,
 				F194DB52164A720F00631792 /* QuartzCore.framework */,
 				F194DB10164A64BC00631792 /* UIKit.framework */,
 				F194DB12164A64BC00631792 /* Foundation.framework */,
@@ -175,6 +328,9 @@
 		F194DB31164A65AB00631792 /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
+				F194DBDA164AED2800631792 /* DropboxSDK.xcodeproj */,
+				F194DB58164AECF200631792 /* AGImagePickerController */,
+				F194DB71164AECF300631792 /* SkydriveSDK */,
 				F194DB4E164A6B0800631792 /* DDMenuController */,
 			);
 			path = Utilities;
@@ -187,6 +343,159 @@
 				F194DB50164A6B1D00631792 /* DDMenuController.m */,
 			);
 			path = DDMenuController;
+			sourceTree = "<group>";
+		};
+		F194DB58164AECF200631792 /* AGImagePickerController */ = {
+			isa = PBXGroup;
+			children = (
+				F194DB59164AECF300631792 /* AGImagePickerController+Constants.h */,
+				F194DB5A164AECF300631792 /* AGImagePickerController+Constants.m */,
+				F194DB5B164AECF300631792 /* AGImagePickerController.h */,
+				F194DB5C164AECF300631792 /* AGImagePickerController.m */,
+				F194DB5D164AECF300631792 /* AGIPC-Checkmark-iPad.png */,
+				F194DB5E164AECF300631792 /* AGIPC-Checkmark-iPhone.png */,
+				F194DB5F164AECF300631792 /* AGIPC-Checkmark-iPhone@2x.png */,
+				F194DB60164AECF300631792 /* AGIPCAlbumsController.h */,
+				F194DB61164AECF300631792 /* AGIPCAlbumsController.m */,
+				F194DB62164AECF300631792 /* AGIPCAlbumsController_iPad.xib */,
+				F194DB63164AECF300631792 /* AGIPCAlbumsController_iPhone.xib */,
+				F194DB64164AECF300631792 /* AGIPCAssetsController.h */,
+				F194DB65164AECF300631792 /* AGIPCAssetsController.m */,
+				F194DB66164AECF300631792 /* AGIPCAssetsController_iPad.xib */,
+				F194DB67164AECF300631792 /* AGIPCAssetsController_iPhone.xib */,
+				F194DB68164AECF300631792 /* AGIPCGridCell.h */,
+				F194DB69164AECF300631792 /* AGIPCGridCell.m */,
+				F194DB6A164AECF300631792 /* AGIPCGridItem.h */,
+				F194DB6B164AECF300631792 /* AGIPCGridItem.m */,
+				F194DB6C164AECF300631792 /* AGIPCToolbarItem.h */,
+				F194DB6D164AECF300631792 /* AGIPCToolbarItem.m */,
+				F194DB6E164AECF300631792 /* ALAsset+AGIPC.h */,
+				F194DB6F164AECF300631792 /* ALAsset+AGIPC.m */,
+				F194DB70164AECF300631792 /* LICENSE */,
+			);
+			path = AGImagePickerController;
+			sourceTree = "<group>";
+		};
+		F194DB71164AECF300631792 /* SkydriveSDK */ = {
+			isa = PBXGroup;
+			children = (
+				F194DB72164AECF300631792 /* Library */,
+			);
+			path = SkydriveSDK;
+			sourceTree = "<group>";
+		};
+		F194DB72164AECF300631792 /* Library */ = {
+			isa = PBXGroup;
+			children = (
+				F194DB73164AECF300631792 /* Internal */,
+				F194DB9E164AECF300631792 /* Public */,
+				F194DBAF164AECF300631792 /* Resources */,
+			);
+			path = Library;
+			sourceTree = "<group>";
+		};
+		F194DB73164AECF300631792 /* Internal */ = {
+			isa = PBXGroup;
+			children = (
+				F194DB74164AECF300631792 /* Helpers */,
+				F194DB86164AECF300631792 /* LiveAuthDialog.h */,
+				F194DB87164AECF300631792 /* LiveAuthDialog.m */,
+				F194DB88164AECF300631792 /* LiveAuthDialog_iPad.xib */,
+				F194DB89164AECF300631792 /* LiveAuthDialog_iPhone.xib */,
+				F194DB8A164AECF300631792 /* LiveAuthDialogDelegate.h */,
+				F194DB8B164AECF300631792 /* LiveAuthRefreshRequest.h */,
+				F194DB8C164AECF300631792 /* LiveAuthRefreshRequest.m */,
+				F194DB8D164AECF300631792 /* LiveAuthRequest.h */,
+				F194DB8E164AECF300631792 /* LiveAuthRequest.m */,
+				F194DB8F164AECF300631792 /* LiveAuthStorage.h */,
+				F194DB90164AECF300631792 /* LiveAuthStorage.m */,
+				F194DB91164AECF300631792 /* LiveConnectClientCore.h */,
+				F194DB92164AECF300631792 /* LiveConnectClientCore.m */,
+				F194DB93164AECF300631792 /* LiveConstants.h */,
+				F194DB94164AECF300631792 /* LiveDownloadOperationCore.h */,
+				F194DB95164AECF300631792 /* LiveDownloadOperationCore.m */,
+				F194DB96164AECF300631792 /* LiveDownloadOperationInternal.h */,
+				F194DB97164AECF300631792 /* LiveOperationCore.h */,
+				F194DB98164AECF300631792 /* LiveOperationCore.m */,
+				F194DB99164AECF300631792 /* LiveOperationInternal.h */,
+				F194DB9A164AECF300631792 /* LiveUploadOperationCore.h */,
+				F194DB9B164AECF300631792 /* LiveUploadOperationCore.m */,
+				F194DB9C164AECF300631792 /* Resources */,
+			);
+			path = Internal;
+			sourceTree = "<group>";
+		};
+		F194DB74164AECF300631792 /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				F194DB75164AECF300631792 /* JsonParser.h */,
+				F194DB76164AECF300631792 /* JsonParser.m */,
+				F194DB77164AECF300631792 /* JsonWriter.h */,
+				F194DB78164AECF300631792 /* JsonWriter.m */,
+				F194DB79164AECF300631792 /* LiveApiHelper.h */,
+				F194DB7A164AECF300631792 /* LiveApiHelper.m */,
+				F194DB7B164AECF300631792 /* LiveAuthHelper.h */,
+				F194DB7C164AECF300631792 /* LiveAuthHelper.m */,
+				F194DB7D164AECF300631792 /* LiveConnectionCreatorDelegate.h */,
+				F194DB7E164AECF300631792 /* LiveConnectionHelper.h */,
+				F194DB7F164AECF300631792 /* LiveConnectionHelper.m */,
+				F194DB80164AECF300631792 /* StreamReader.h */,
+				F194DB81164AECF300631792 /* StreamReader.m */,
+				F194DB82164AECF300631792 /* StringHelper.h */,
+				F194DB83164AECF300631792 /* StringHelper.m */,
+				F194DB84164AECF300631792 /* UrlHelper.h */,
+				F194DB85164AECF300631792 /* UrlHelper.m */,
+			);
+			path = Helpers;
+			sourceTree = "<group>";
+		};
+		F194DB9C164AECF300631792 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				F194DB9D164AECF300631792 /* backArrow_black.png */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		F194DB9E164AECF300631792 /* Public */ = {
+			isa = PBXGroup;
+			children = (
+				F194DB9F164AECF300631792 /* LiveAuthDelegate.h */,
+				F194DBA0164AECF300631792 /* LiveConnectClient.h */,
+				F194DBA1164AECF300631792 /* LiveConnectClient.m */,
+				F194DBA2164AECF300631792 /* LiveConnectSession.h */,
+				F194DBA3164AECF300631792 /* LiveConnectSession.m */,
+				F194DBA4164AECF300631792 /* LiveConnectSessionStatus.h */,
+				F194DBA5164AECF300631792 /* LiveDownloadOperation.h */,
+				F194DBA6164AECF300631792 /* LiveDownloadOperation.m */,
+				F194DBA7164AECF300631792 /* LiveDownloadOperationDelegate.h */,
+				F194DBA8164AECF300631792 /* LiveOperation.h */,
+				F194DBA9164AECF300631792 /* LiveOperation.m */,
+				F194DBAA164AECF300631792 /* LiveOperationDelegate.h */,
+				F194DBAB164AECF300631792 /* LiveOperationProgress.h */,
+				F194DBAC164AECF300631792 /* LiveOperationProgress.m */,
+				F194DBAD164AECF300631792 /* LiveUploadOperationDelegate.h */,
+				F194DBAE164AECF300631792 /* LiveUploadOverwriteOption.h */,
+			);
+			path = Public;
+			sourceTree = "<group>";
+		};
+		F194DBAF164AECF300631792 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				F194DBB0164AECF300631792 /* backArrow_black.png */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		F194DBDB164AED2800631792 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				F194DBE4164AED2800631792 /* DropboxSDK.framework */,
+				F194DBE6164AED2800631792 /* libSDropboxSDK.a */,
+				F194DBE8164AED2800631792 /* DropboxOSX.framework */,
+			);
+			name = Products;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -228,12 +537,42 @@
 			mainGroup = F194DB01164A64BC00631792;
 			productRefGroup = F194DB0D164A64BC00631792 /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = F194DBDB164AED2800631792 /* Products */;
+					ProjectRef = F194DBDA164AED2800631792 /* DropboxSDK.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				F194DB0B164A64BC00631792 /* Cloudy */,
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		F194DBE4164AED2800631792 /* DropboxSDK.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = DropboxSDK.framework;
+			remoteRef = F194DBE3164AED2800631792 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		F194DBE6164AED2800631792 /* libSDropboxSDK.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libSDropboxSDK.a;
+			remoteRef = F194DBE5164AED2800631792 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		F194DBE8164AED2800631792 /* DropboxOSX.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = DropboxOSX.framework;
+			remoteRef = F194DBE7164AED2800631792 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		F194DB0A164A64BC00631792 /* Resources */ = {
@@ -246,6 +585,18 @@
 				F194DB27164A64BC00631792 /* Default-568h@2x.png in Resources */,
 				F194DB55164A87F100631792 /* nav_menu_icon@2x.png in Resources */,
 				F194DB57164A8AFF00631792 /* button_background_base.png in Resources */,
+				F194DBB3164AECF300631792 /* AGIPC-Checkmark-iPad.png in Resources */,
+				F194DBB4164AECF300631792 /* AGIPC-Checkmark-iPhone.png in Resources */,
+				F194DBB5164AECF300631792 /* AGIPC-Checkmark-iPhone@2x.png in Resources */,
+				F194DBB7164AECF300631792 /* AGIPCAlbumsController_iPad.xib in Resources */,
+				F194DBB8164AECF300631792 /* AGIPCAlbumsController_iPhone.xib in Resources */,
+				F194DBBA164AECF300631792 /* AGIPCAssetsController_iPad.xib in Resources */,
+				F194DBBB164AECF300631792 /* AGIPCAssetsController_iPhone.xib in Resources */,
+				F194DBC0164AECF300631792 /* LICENSE in Resources */,
+				F194DBCA164AECF300631792 /* LiveAuthDialog_iPad.xib in Resources */,
+				F194DBCB164AECF300631792 /* LiveAuthDialog_iPhone.xib in Resources */,
+				F194DBD3164AECF300631792 /* backArrow_black.png in Resources */,
+				F194DBD9164AECF300631792 /* backArrow_black.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -264,6 +615,35 @@
 				F194DB3E164A671A00631792 /* CLFileBrowserTableViewController.m in Sources */,
 				F194DB41164A676700631792 /* CLPathSelectionViewController.m in Sources */,
 				F194DB51164A6B1D00631792 /* DDMenuController.m in Sources */,
+				F194DBB1164AECF300631792 /* AGImagePickerController+Constants.m in Sources */,
+				F194DBB2164AECF300631792 /* AGImagePickerController.m in Sources */,
+				F194DBB6164AECF300631792 /* AGIPCAlbumsController.m in Sources */,
+				F194DBB9164AECF300631792 /* AGIPCAssetsController.m in Sources */,
+				F194DBBC164AECF300631792 /* AGIPCGridCell.m in Sources */,
+				F194DBBD164AECF300631792 /* AGIPCGridItem.m in Sources */,
+				F194DBBE164AECF300631792 /* AGIPCToolbarItem.m in Sources */,
+				F194DBBF164AECF300631792 /* ALAsset+AGIPC.m in Sources */,
+				F194DBC1164AECF300631792 /* JsonParser.m in Sources */,
+				F194DBC2164AECF300631792 /* JsonWriter.m in Sources */,
+				F194DBC3164AECF300631792 /* LiveApiHelper.m in Sources */,
+				F194DBC4164AECF300631792 /* LiveAuthHelper.m in Sources */,
+				F194DBC5164AECF300631792 /* LiveConnectionHelper.m in Sources */,
+				F194DBC6164AECF300631792 /* StreamReader.m in Sources */,
+				F194DBC7164AECF300631792 /* StringHelper.m in Sources */,
+				F194DBC8164AECF300631792 /* UrlHelper.m in Sources */,
+				F194DBC9164AECF300631792 /* LiveAuthDialog.m in Sources */,
+				F194DBCC164AECF300631792 /* LiveAuthRefreshRequest.m in Sources */,
+				F194DBCD164AECF300631792 /* LiveAuthRequest.m in Sources */,
+				F194DBCE164AECF300631792 /* LiveAuthStorage.m in Sources */,
+				F194DBCF164AECF300631792 /* LiveConnectClientCore.m in Sources */,
+				F194DBD0164AECF300631792 /* LiveDownloadOperationCore.m in Sources */,
+				F194DBD1164AECF300631792 /* LiveOperationCore.m in Sources */,
+				F194DBD2164AECF300631792 /* LiveUploadOperationCore.m in Sources */,
+				F194DBD4164AECF300631792 /* LiveConnectClient.m in Sources */,
+				F194DBD5164AECF300631792 /* LiveConnectSession.m in Sources */,
+				F194DBD6164AECF300631792 /* LiveDownloadOperation.m in Sources */,
+				F194DBD7164AECF300631792 /* LiveOperation.m in Sources */,
+				F194DBD8164AECF300631792 /* LiveOperationProgress.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -334,6 +714,7 @@
 			buildSettings = {
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Cloudy/Cloudy-Prefix.pch";
+				HEADER_SEARCH_PATHS = "\"$(SRCROOT)/Cloudy/Utilities/DropboxSDK/Classes\"/**";
 				INFOPLIST_FILE = "Cloudy/Cloudy-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
@@ -345,6 +726,7 @@
 			buildSettings = {
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Cloudy/Cloudy-Prefix.pch";
+				HEADER_SEARCH_PATHS = "\"$(SRCROOT)/Cloudy/Utilities/DropboxSDK/Classes\"/**";
 				INFOPLIST_FILE = "Cloudy/Cloudy-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
