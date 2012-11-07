@@ -1,0 +1,279 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		F194DB11164A64BC00631792 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F194DB10164A64BC00631792 /* UIKit.framework */; };
+		F194DB13164A64BC00631792 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F194DB12164A64BC00631792 /* Foundation.framework */; };
+		F194DB15164A64BC00631792 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F194DB14164A64BC00631792 /* CoreGraphics.framework */; };
+		F194DB1B164A64BC00631792 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = F194DB19164A64BC00631792 /* InfoPlist.strings */; };
+		F194DB1D164A64BC00631792 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = F194DB1C164A64BC00631792 /* main.m */; };
+		F194DB21164A64BC00631792 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = F194DB20164A64BC00631792 /* AppDelegate.m */; };
+		F194DB23164A64BC00631792 /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = F194DB22164A64BC00631792 /* Default.png */; };
+		F194DB25164A64BC00631792 /* Default@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = F194DB24164A64BC00631792 /* Default@2x.png */; };
+		F194DB27164A64BC00631792 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = F194DB26164A64BC00631792 /* Default-568h@2x.png */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		F194DB0C164A64BC00631792 /* Cloudy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Cloudy.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		F194DB10164A64BC00631792 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		F194DB12164A64BC00631792 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		F194DB14164A64BC00631792 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		F194DB18164A64BC00631792 /* Cloudy-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Cloudy-Info.plist"; sourceTree = "<group>"; };
+		F194DB1A164A64BC00631792 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		F194DB1C164A64BC00631792 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		F194DB1E164A64BC00631792 /* Cloudy-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Cloudy-Prefix.pch"; sourceTree = "<group>"; };
+		F194DB1F164A64BC00631792 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		F194DB20164A64BC00631792 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		F194DB22164A64BC00631792 /* Default.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Default.png; sourceTree = "<group>"; };
+		F194DB24164A64BC00631792 /* Default@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default@2x.png"; sourceTree = "<group>"; };
+		F194DB26164A64BC00631792 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		F194DB09164A64BC00631792 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F194DB11164A64BC00631792 /* UIKit.framework in Frameworks */,
+				F194DB13164A64BC00631792 /* Foundation.framework in Frameworks */,
+				F194DB15164A64BC00631792 /* CoreGraphics.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		F194DB01164A64BC00631792 = {
+			isa = PBXGroup;
+			children = (
+				F194DB16164A64BC00631792 /* Cloudy */,
+				F194DB0F164A64BC00631792 /* Frameworks */,
+				F194DB0D164A64BC00631792 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		F194DB0D164A64BC00631792 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				F194DB0C164A64BC00631792 /* Cloudy.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F194DB0F164A64BC00631792 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				F194DB10164A64BC00631792 /* UIKit.framework */,
+				F194DB12164A64BC00631792 /* Foundation.framework */,
+				F194DB14164A64BC00631792 /* CoreGraphics.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		F194DB16164A64BC00631792 /* Cloudy */ = {
+			isa = PBXGroup;
+			children = (
+				F194DB1F164A64BC00631792 /* AppDelegate.h */,
+				F194DB20164A64BC00631792 /* AppDelegate.m */,
+				F194DB17164A64BC00631792 /* Supporting Files */,
+			);
+			path = Cloudy;
+			sourceTree = "<group>";
+		};
+		F194DB17164A64BC00631792 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				F194DB18164A64BC00631792 /* Cloudy-Info.plist */,
+				F194DB19164A64BC00631792 /* InfoPlist.strings */,
+				F194DB1C164A64BC00631792 /* main.m */,
+				F194DB1E164A64BC00631792 /* Cloudy-Prefix.pch */,
+				F194DB22164A64BC00631792 /* Default.png */,
+				F194DB24164A64BC00631792 /* Default@2x.png */,
+				F194DB26164A64BC00631792 /* Default-568h@2x.png */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		F194DB0B164A64BC00631792 /* Cloudy */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F194DB2A164A64BC00631792 /* Build configuration list for PBXNativeTarget "Cloudy" */;
+			buildPhases = (
+				F194DB08164A64BC00631792 /* Sources */,
+				F194DB09164A64BC00631792 /* Frameworks */,
+				F194DB0A164A64BC00631792 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Cloudy;
+			productName = Cloudy;
+			productReference = F194DB0C164A64BC00631792 /* Cloudy.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		F194DB03164A64BC00631792 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0450;
+				ORGANIZATIONNAME = "Parag Dulam";
+			};
+			buildConfigurationList = F194DB06164A64BC00631792 /* Build configuration list for PBXProject "Cloudy" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = F194DB01164A64BC00631792;
+			productRefGroup = F194DB0D164A64BC00631792 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				F194DB0B164A64BC00631792 /* Cloudy */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		F194DB0A164A64BC00631792 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F194DB1B164A64BC00631792 /* InfoPlist.strings in Resources */,
+				F194DB23164A64BC00631792 /* Default.png in Resources */,
+				F194DB25164A64BC00631792 /* Default@2x.png in Resources */,
+				F194DB27164A64BC00631792 /* Default-568h@2x.png in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		F194DB08164A64BC00631792 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F194DB1D164A64BC00631792 /* main.m in Sources */,
+				F194DB21164A64BC00631792 /* AppDelegate.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		F194DB19164A64BC00631792 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				F194DB1A164A64BC00631792 /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		F194DB28164A64BC00631792 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+			};
+			name = Debug;
+		};
+		F194DB29164A64BC00631792 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		F194DB2B164A64BC00631792 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "Cloudy/Cloudy-Prefix.pch";
+				INFOPLIST_FILE = "Cloudy/Cloudy-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Debug;
+		};
+		F194DB2C164A64BC00631792 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "Cloudy/Cloudy-Prefix.pch";
+				INFOPLIST_FILE = "Cloudy/Cloudy-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		F194DB06164A64BC00631792 /* Build configuration list for PBXProject "Cloudy" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F194DB28164A64BC00631792 /* Debug */,
+				F194DB29164A64BC00631792 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F194DB2A164A64BC00631792 /* Build configuration list for PBXNativeTarget "Cloudy" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F194DB2B164A64BC00631792 /* Debug */,
+				F194DB2C164A64BC00631792 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = F194DB03164A64BC00631792 /* Project object */;
+}
