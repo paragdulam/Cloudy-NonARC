@@ -21,6 +21,8 @@
 		F194DB3B164A66E800631792 /* CLAccountsTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F194DB3A164A66E800631792 /* CLAccountsTableViewController.m */; };
 		F194DB3E164A671A00631792 /* CLFileBrowserTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F194DB3D164A671A00631792 /* CLFileBrowserTableViewController.m */; };
 		F194DB41164A676700631792 /* CLPathSelectionViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F194DB40164A676700631792 /* CLPathSelectionViewController.m */; };
+		F194DB51164A6B1D00631792 /* DDMenuController.m in Sources */ = {isa = PBXBuildFile; fileRef = F194DB50164A6B1D00631792 /* DDMenuController.m */; };
+		F194DB53164A720F00631792 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F194DB52164A720F00631792 /* QuartzCore.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -48,6 +50,9 @@
 		F194DB3D164A671A00631792 /* CLFileBrowserTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CLFileBrowserTableViewController.m; sourceTree = "<group>"; };
 		F194DB3F164A676700631792 /* CLPathSelectionViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CLPathSelectionViewController.h; sourceTree = "<group>"; };
 		F194DB40164A676700631792 /* CLPathSelectionViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CLPathSelectionViewController.m; sourceTree = "<group>"; };
+		F194DB4F164A6B1D00631792 /* DDMenuController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDMenuController.h; sourceTree = "<group>"; };
+		F194DB50164A6B1D00631792 /* DDMenuController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDMenuController.m; sourceTree = "<group>"; };
+		F194DB52164A720F00631792 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -55,6 +60,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F194DB53164A720F00631792 /* QuartzCore.framework in Frameworks */,
 				F194DB11164A64BC00631792 /* UIKit.framework in Frameworks */,
 				F194DB13164A64BC00631792 /* Foundation.framework in Frameworks */,
 				F194DB15164A64BC00631792 /* CoreGraphics.framework in Frameworks */,
@@ -84,6 +90,7 @@
 		F194DB0F164A64BC00631792 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				F194DB52164A720F00631792 /* QuartzCore.framework */,
 				F194DB10164A64BC00631792 /* UIKit.framework */,
 				F194DB12164A64BC00631792 /* Foundation.framework */,
 				F194DB14164A64BC00631792 /* CoreGraphics.framework */,
@@ -99,8 +106,8 @@
 				F194DB2D164A657B00631792 /* Classes */,
 				F194DB1F164A64BC00631792 /* AppDelegate.h */,
 				F194DB20164A64BC00631792 /* AppDelegate.m */,
-				F194DB17164A64BC00631792 /* Supporting Files */,
 				F194DB32164A661E00631792 /* CLConstants.h */,
+				F194DB17164A64BC00631792 /* Supporting Files */,
 			);
 			path = Cloudy;
 			sourceTree = "<group>";
@@ -162,8 +169,18 @@
 		F194DB31164A65AB00631792 /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
+				F194DB4E164A6B0800631792 /* DDMenuController */,
 			);
 			path = Utilities;
+			sourceTree = "<group>";
+		};
+		F194DB4E164A6B0800631792 /* DDMenuController */ = {
+			isa = PBXGroup;
+			children = (
+				F194DB4F164A6B1D00631792 /* DDMenuController.h */,
+				F194DB50164A6B1D00631792 /* DDMenuController.m */,
+			);
+			path = DDMenuController;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -238,6 +255,7 @@
 				F194DB3B164A66E800631792 /* CLAccountsTableViewController.m in Sources */,
 				F194DB3E164A671A00631792 /* CLFileBrowserTableViewController.m in Sources */,
 				F194DB41164A676700631792 /* CLPathSelectionViewController.m in Sources */,
+				F194DB51164A6B1D00631792 /* DDMenuController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

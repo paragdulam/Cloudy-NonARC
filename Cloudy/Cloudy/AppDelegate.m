@@ -7,11 +7,17 @@
 //
 
 #import "AppDelegate.h"
+#import "CLAccountsTableViewController.h"
+#import "CLFileBrowserTableViewController.h"
 
 @implementation AppDelegate
+@synthesize menuController;
 
 - (void)dealloc
 {
+    [menuController release];
+    menuController = nil;
+    
     [_window release];
     [super dealloc];
 }
@@ -22,6 +28,28 @@
     // Override point for customization after application launch.
     self.window.backgroundColor = [UIColor whiteColor];
     [self.window makeKeyAndVisible];
+    
+    
+    DDMenuController *aController = [[DDMenuController alloc] init];
+    self.menuController = aController;
+    [aController release];
+    
+    CLAccountsTableViewController *accountsTableViewController = [[CLAccountsTableViewController alloc] init];
+    UINavigationController *leftNavController = [[UINavigationController alloc] initWithRootViewController:accountsTableViewController];
+    [accountsTableViewController release];
+    
+    [menuController setLeftViewController:leftNavController];
+    [leftNavController release];
+    
+    CLFileBrowserTableViewController *fileBrowserViewController = [[CLFileBrowserTableViewController alloc] init];
+    UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:fileBrowserViewController];
+    [fileBrowserViewController release];
+    
+    [menuController setRootViewController:navController];
+    [navController release];
+    
+    [self.window setRootViewController:menuController];
+    
     return YES;
 }
 
