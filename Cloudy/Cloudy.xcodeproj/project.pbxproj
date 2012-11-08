@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		F10169C8164B9CE0002AE454 /* CLDictionaryConvertor.m in Sources */ = {isa = PBXBuildFile; fileRef = F10169C5164B9CE0002AE454 /* CLDictionaryConvertor.m */; };
+		F10169C9164B9CE0002AE454 /* CLCacheManager.m in Sources */ = {isa = PBXBuildFile; fileRef = F10169C7164B9CE0002AE454 /* CLCacheManager.m */; };
 		F194DB11164A64BC00631792 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F194DB10164A64BC00631792 /* UIKit.framework */; };
 		F194DB13164A64BC00631792 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F194DB12164A64BC00631792 /* Foundation.framework */; };
 		F194DB15164A64BC00631792 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F194DB14164A64BC00631792 /* CoreGraphics.framework */; };
@@ -95,6 +97,10 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		F10169C4164B9CE0002AE454 /* CLDictionaryConvertor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CLDictionaryConvertor.h; sourceTree = "<group>"; };
+		F10169C5164B9CE0002AE454 /* CLDictionaryConvertor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CLDictionaryConvertor.m; sourceTree = "<group>"; };
+		F10169C6164B9CE0002AE454 /* CLCacheManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CLCacheManager.h; sourceTree = "<group>"; };
+		F10169C7164B9CE0002AE454 /* CLCacheManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CLCacheManager.m; sourceTree = "<group>"; };
 		F194DB0C164A64BC00631792 /* Cloudy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Cloudy.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F194DB10164A64BC00631792 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		F194DB12164A64BC00631792 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -296,6 +302,10 @@
 				F194DB3D164A671A00631792 /* CLFileBrowserTableViewController.m */,
 				F194DB3F164A676700631792 /* CLPathSelectionViewController.h */,
 				F194DB40164A676700631792 /* CLPathSelectionViewController.m */,
+				F10169C4164B9CE0002AE454 /* CLDictionaryConvertor.h */,
+				F10169C5164B9CE0002AE454 /* CLDictionaryConvertor.m */,
+				F10169C6164B9CE0002AE454 /* CLCacheManager.h */,
+				F10169C7164B9CE0002AE454 /* CLCacheManager.m */,
 			);
 			path = Classes;
 			sourceTree = "<group>";
@@ -644,6 +654,8 @@
 				F194DBD6164AECF300631792 /* LiveDownloadOperation.m in Sources */,
 				F194DBD7164AECF300631792 /* LiveOperation.m in Sources */,
 				F194DBD8164AECF300631792 /* LiveOperationProgress.m in Sources */,
+				F10169C8164B9CE0002AE454 /* CLDictionaryConvertor.m in Sources */,
+				F10169C9164B9CE0002AE454 /* CLCacheManager.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
