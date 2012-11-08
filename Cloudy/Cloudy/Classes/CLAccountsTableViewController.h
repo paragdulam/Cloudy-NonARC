@@ -9,5 +9,8 @@
 #import "CLBaseTableViewController.h"
 
 @interface CLAccountsTableViewController : CLBaseTableViewController
+{
+    
+}
 
 @end

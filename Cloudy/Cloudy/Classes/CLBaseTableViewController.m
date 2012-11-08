@@ -43,7 +43,7 @@
                                                  style:tableViewStyle];
     dataTableView.dataSource = self;
     dataTableView.delegate = self;
-    
+    dataTableView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     [self.view addSubview:dataTableView];
     [dataTableView release];
 }

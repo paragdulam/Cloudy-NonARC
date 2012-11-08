@@ -752,6 +752,7 @@
 				F194DB2C164A64BC00631792 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
