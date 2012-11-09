@@ -18,6 +18,7 @@
 
 @property(nonatomic,assign) UITableViewStyle tableViewStyle;
 
+
 -(id) initWithTableViewStyle:(UITableViewStyle) style;
 -(void) updateView;
 

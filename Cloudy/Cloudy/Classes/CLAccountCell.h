@@ -12,4 +12,5 @@
 -(void) startAnimating;
 -(void) stopAnimating;
 -(void) setData:(id) data;
+@property (nonatomic) BOOL isAnimating;
 @end

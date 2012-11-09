@@ -9,6 +9,9 @@
 #import "CLAccountsTableViewController.h"
 
 @interface CLAccountsTableViewController ()
+{
+    UIButton *editButton;
+}
 -(void) initialModelSetup;
 -(void) performTableViewAnimationForIndexPath:(NSIndexPath *) indexPath withAnimationSequence:(NSArray *) sequence;
 -(void) startAnimatingCellAtIndexPath:(NSIndexPath *) indexPath;
@@ -35,6 +38,28 @@
 	// Do any additional setup after loading the view.
     self.view.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
     [self.navigationItem setTitle:@"Accounts"];
+    
+    //Setting Up Edit Button Start
+    
+    editButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    [editButton setTitle:@"Edit" forState:UIControlStateNormal];
+    [editButton setTitle:@"Done" forState:UIControlStateSelected];
+    UIImage *baseImage = [UIImage imageNamed:@"button_background_base.png"];
+    UIImage *buttonImage = [baseImage resizableImageWithCapInsets:UIEdgeInsetsMake(0, 15, 0, 15)];
+    [editButton setBackgroundImage:buttonImage
+                          forState:UIControlStateNormal];
+    [editButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    [editButton addTarget:self
+                   action:@selector(editButtonTapped:)
+         forControlEvents:UIControlEventTouchUpInside];
+    [editButton.titleLabel setFont:[UIFont boldSystemFontOfSize:12.f]];
+    [editButton setFrame:CGRectMake(0, 0, 50, 30)];
+    UIBarButtonItem *editBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:editButton];
+    [self.navigationItem setLeftBarButtonItem:editBarButtonItem];
+    [editBarButtonItem release];
+    
+    //Setting Up Edit Button End
+    
     [self initialModelSetup];
     [self updateView];
 }
@@ -45,6 +70,13 @@
     // Dispose of any resources that can be recreated.
 }
 
+#pragma mark - IBActions
+
+-(void)editButtonTapped:(UIButton *) btn
+{
+    btn.selected = !btn.selected;
+    [dataTableView setEditing:btn.selected animated:YES];
+}
 
 #pragma mark - Helper Methods
 
@@ -112,6 +144,8 @@
     }
     [self updateModel:accounts];
     [accounts release];
+    
+    editButton.hidden = [storedAccounts count] ? NO : YES ;
 }
 
 -(void) updateModel:(NSArray *) model
@@ -172,6 +206,72 @@
 }
 
 
+- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    CLAccountCell *cell = (CLAccountCell *)[tableView cellForRowAtIndexPath:indexPath];
+    return ![[tableDataArray objectAtIndex:indexPath.section] isKindOfClass:[NSString class]] && ![cell isAnimating];
+}
+
+
+
+- (UITableViewCellEditingStyle)tableView:(UITableView *)tableView editingStyleForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    return UITableViewCellEditingStyleDelete;
+}
+
+
+
+- (NSString *)tableView:(UITableView *)tableView titleForDeleteConfirmationButtonForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    NSString *retVal = @"Logout";
+    switch (indexPath.section)
+    {
+        case DROPBOX:
+            retVal = @"UnLink";
+            break;
+            
+        default:
+            break;
+    }
+    return retVal;
+}
+
+
+
+- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    [CLCacheManager deleteAccount:[CLCacheManager getAccountForType:indexPath.section]];
+    [CLCacheManager deleteFileStructureForView:indexPath.section];
+    
+    switch (indexPath.section) {
+        case 0:
+        {
+            [tableDataArray replaceObjectAtIndex:0 withObject:DROPBOX_STRING];
+            DBSession *sharedSession = self.appDelegate.dropboxSession;
+            NSString *userId = [[sharedSession userIds] objectAtIndex:0];
+            [sharedSession unlinkUserId:userId];
+        }
+            break;
+        case 1:
+        {
+            [tableDataArray replaceObjectAtIndex:1 withObject:SKYDRIVE_STRING];
+            [self.appDelegate.liveClient logout];
+        }
+            break;
+        default:
+            break;
+    }
+    NSArray *sequenceArray = [NSArray arrayWithObjects:[NSNumber numberWithInteger:UITableViewRowAnimationRight],[NSNumber numberWithInteger:UITableViewRowAnimationLeft], nil];
+    [self performTableViewAnimationForIndexPath:indexPath withAnimationSequence:sequenceArray];
+    [self editButtonTapped:editButton];
+    
+    if (![[CLCacheManager accounts] count]) {
+        editButton.hidden = YES;
+    }
+}
+
+
+
 #pragma mark - DBRestClientDelegate
 
 - (void)restClient:(DBRestClient*)client loadedAccountInfo:(DBAccountInfo*)info
@@ -190,7 +290,8 @@
 
 - (void)restClient:(DBRestClient*)client loadAccountInfoFailedWithError:(NSError*)error
 {
-    
+    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:0 inSection:DROPBOX];
+    [self stopAnimatingCellAtIndexPath:indexPath];
 }
 
 
@@ -213,7 +314,6 @@
 
 - (void)sessionDidReceiveAuthorizationFailure:(DBSession *)session userId:(NSString *)userId
 {
-    
 }
 
 

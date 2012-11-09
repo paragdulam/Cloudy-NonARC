@@ -62,11 +62,7 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     [CLCacheManager initialSetup];
-    DBSession *aSession = [[DBSession alloc] initWithAppKey:DROPBOX_APP_KEY
-                                                  appSecret:DROPBOX_APP_SECRET_KEY
-                                                       root:kDBRootDropbox];
-    self.dropboxSession = aSession;
-    [aSession release];
+
     
     self.window = [[[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]] autorelease];
     // Override point for customization after application launch.
@@ -83,8 +79,13 @@
     callbackViewController = accountsTableViewController;
     [accountsTableViewController release];
     
-    dropboxSession.delegate = callbackViewController;
+    DBSession *aSession = [[DBSession alloc] initWithAppKey:DROPBOX_APP_KEY
+                                                  appSecret:DROPBOX_APP_SECRET_KEY
+                                                       root:kDBRootDropbox];
+    self.dropboxSession = aSession;
+    [aSession release];
     [DBSession setSharedSession:dropboxSession];
+    dropboxSession.delegate = callbackViewController;
     
     LiveConnectClient *aClient = [[LiveConnectClient alloc] initWithClientId:SKYDRIVE_CLIENT_ID delegate:callbackViewController];
     self.liveClient = aClient;
