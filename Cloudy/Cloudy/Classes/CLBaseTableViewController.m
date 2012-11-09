@@ -47,7 +47,12 @@
     [self.view addSubview:dataTableView];
     [dataTableView release];
     
-    restClient = [[DBRestClient alloc] initWithSession:self.appDelegate.dropboxSession userId:[[self.appDelegate.dropboxSession userIds] objectAtIndex:0]];
+    NSString *userId = nil;
+    NSArray *userIds = [self.appDelegate.dropboxSession userIds];
+    if ([userIds count]) {
+        userId = [userIds objectAtIndex:0];
+    }
+    restClient = [[DBRestClient alloc] initWithSession:self.appDelegate.dropboxSession userId:userId];
 }
 
 - (void)didReceiveMemoryWarning
