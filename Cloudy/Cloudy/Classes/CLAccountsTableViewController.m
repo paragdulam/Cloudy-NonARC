@@ -172,7 +172,9 @@
 
 -(void)authenticationDoneForSession:(DBSession *)session
 {
-    
+    [restClient loadAccountInfo];
+    [self startAnimatingCellAtIndexPath:[NSIndexPath indexPathForRow:0
+                                                           inSection:DROPBOX]];
 }
 
 -(void)  authenticationCancelledManuallyForSession:(DBSession *) session

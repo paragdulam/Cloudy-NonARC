@@ -8,7 +8,7 @@
 
 #import "CLBaseViewController.h"
 
-@interface CLBaseTableViewController : CLBaseViewController<UITableViewDataSource,UITableViewDelegate>
+@interface CLBaseTableViewController : CLBaseViewController<UITableViewDataSource,UITableViewDelegate,DBRestClientDelegate>
 {
     NSMutableArray *tableDataArray;
     UITableView *dataTableView;

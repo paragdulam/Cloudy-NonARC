@@ -53,6 +53,7 @@
         userId = [userIds objectAtIndex:0];
     }
     restClient = [[DBRestClient alloc] initWithSession:self.appDelegate.dropboxSession userId:userId];
+    restClient.delegate = self;
 }
 
 - (void)didReceiveMemoryWarning
