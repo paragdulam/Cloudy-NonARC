@@ -65,7 +65,7 @@
     NSMutableArray *accounts = nil;
     NSArray *storedAccounts = [CLCacheManager accounts];
     if (![storedAccounts count]) {
-        accounts = [[NSMutableArray alloc] initWithObjects:@"Dropbox",@"SkyDrive", nil];
+        accounts = [[NSMutableArray alloc] initWithObjects:DROPBOX_STRING,SKYDRIVE_STRING, nil];
     } else {
         accounts = [[NSMutableArray alloc] initWithArray:storedAccounts];
         switch ([storedAccounts count]) {
@@ -75,10 +75,10 @@
                 VIEW_TYPE accountType = [[account objectForKey:ACCOUNT_TYPE] intValue];
                 switch (accountType) {
                     case DROPBOX:
-                        [accounts insertObject:@"SkyDrive" atIndex:1];
+                        [accounts insertObject:SKYDRIVE_STRING atIndex:1];
                         break;
                     case SKYDRIVE:
-                        [accounts insertObject:@"Dropbox" atIndex:0];
+                        [accounts insertObject:DROPBOX_STRING atIndex:0];
                         break;
                     default:
                         break;
