@@ -739,6 +739,10 @@
 				HEADER_SEARCH_PATHS = "\"$(SRCROOT)/Cloudy/Utilities/DropboxSDK/Classes\"/**";
 				INFOPLIST_FILE = "Cloudy/Cloudy-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				OTHER_LDFLAGS = (
+					"-ObjC",
+					"-all_load",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
@@ -752,6 +756,10 @@
 				HEADER_SEARCH_PATHS = "\"$(SRCROOT)/Cloudy/Utilities/DropboxSDK/Classes\"/**";
 				INFOPLIST_FILE = "Cloudy/Cloudy-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				OTHER_LDFLAGS = (
+					"-ObjC",
+					"-all_load",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
