@@ -27,10 +27,10 @@
     self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
     if (self) {
         // Initialization code
-        activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+        activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
         activityIndicator.hidesWhenStopped = YES;
-        [self setAccessoryView:activityIndicator];
-        [activityIndicator release];
+        self.textLabel.textColor = CELL_TEXTLABEL_COLOR;
+        self.detailTextLabel.textColor = CELL_DETAILTEXTLABEL_COLOR;
     }
     return self;
 }
@@ -42,17 +42,35 @@
     // Configure the view for the selected state
 }
 
+-(void) dealloc
+{
+    [activityIndicator release];
+    activityIndicator = nil;
+    [super dealloc];
+}
+
 
 -(void) startAnimating
 {
+    [self setAccessoryType:UITableViewCellAccessoryNone];
+    [self setAccessoryView:activityIndicator];
     [activityIndicator startAnimating];
     [self setUserInteractionEnabled:NO];
 }
 
--(void) stopAnimating
+-(void) stopAnimating:(BOOL) accountAdded
 {
+    if (accountAdded) {
+        [self setAccessoryView:nil];
+        [self setAccessoryType:UITableViewCellAccessoryDetailDisclosureButton];
+    }
     [activityIndicator stopAnimating];
     [self setUserInteractionEnabled:YES];
+}
+
+-(void) stopAnimating
+{
+    [self stopAnimating:NO];
 }
 
 
@@ -62,12 +80,15 @@
     NSString *detailText = nil;
     if ([data isKindOfClass:[NSString class]]) {
         titleText = (NSString *)data;
+        [self setAccessoryType:UITableViewCellAccessoryNone];
+        [self setAccessoryView:activityIndicator];
     } else if ([data isKindOfClass:[NSDictionary class]]) {
         NSDictionary *dataDictionary = (NSDictionary *)data;
         titleText = [dataDictionary objectForKey:@"displayName"];
         if (!titleText) {
             titleText = [dataDictionary objectForKey:@"name"];
         }
+        [self setAccessoryType:UITableViewCellAccessoryDetailDisclosureButton];
     }
     [self.textLabel setText:titleText];
     [self.detailTextLabel setText:detailText];

@@ -47,13 +47,7 @@
     [self.view addSubview:dataTableView];
     [dataTableView release];
     
-    NSString *userId = nil;
-    NSArray *userIds = [self.appDelegate.dropboxSession userIds];
-    if ([userIds count]) {
-        userId = [userIds objectAtIndex:0];
-    }
-    restClient = [[DBRestClient alloc] initWithSession:self.appDelegate.dropboxSession userId:userId];
-    restClient.delegate = self;
+    
 }
 
 - (void)didReceiveMemoryWarning
@@ -65,9 +59,6 @@
 
 -(void) dealloc
 {
-    [restClient release];
-    restClient = nil;
-    
     tableViewStyle = -9999;
     
     [tableDataArray release];

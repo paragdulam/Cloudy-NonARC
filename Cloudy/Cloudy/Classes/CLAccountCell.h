@@ -7,10 +7,12 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "CLConstants.h"
 
 @interface CLAccountCell : UITableViewCell
 -(void) startAnimating;
 -(void) stopAnimating;
+-(void) stopAnimating:(BOOL) accountAdded;
 -(void) setData:(id) data;
 @property (nonatomic) BOOL isAnimating;
 @end

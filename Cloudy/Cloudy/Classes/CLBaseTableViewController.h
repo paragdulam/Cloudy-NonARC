@@ -13,7 +13,6 @@
     NSMutableArray *tableDataArray;
     UITableView *dataTableView;
     UITableViewStyle tableViewStyle;
-    DBRestClient *restClient;
 }
 
 @property(nonatomic,assign) UITableViewStyle tableViewStyle;

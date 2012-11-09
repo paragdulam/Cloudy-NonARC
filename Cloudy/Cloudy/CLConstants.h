@@ -46,6 +46,12 @@
 #define FILE_STRUCTURE_PLIST @"FILE_STRUCTURE.plist"
 #define FILE_STRUCTURE_STRING @"File_Structure"
 
+//#define NAVBAR_COLOR [UIColor colorWithRed:3.f/255.f green:50.f/255.f blue:65.f/255.f alpha:1.f]
+#define NAVBAR_COLOR [UIColor blackColor]
+#define CELL_BACKGROUND_COLOR NAVBAR_COLOR
+#define CELL_TEXTLABEL_COLOR [UIColor whiteColor]
+#define CELL_DETAILTEXTLABEL_COLOR [UIColor lightGrayColor]
+
 
 typedef enum CLOUD_PROVIDERS {
     DROPBOX = 0,

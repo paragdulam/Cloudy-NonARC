@@ -11,6 +11,7 @@
 @interface CLAccountsTableViewController ()
 {
     UIButton *editButton;
+    DBRestClient *restClient;
 }
 -(void) initialModelSetup;
 -(void) performTableViewAnimationForIndexPath:(NSIndexPath *) indexPath withAnimationSequence:(NSArray *) sequence;
@@ -59,6 +60,14 @@
     [editBarButtonItem release];
     
     //Setting Up Edit Button End
+    
+    NSString *userId = nil;
+    NSArray *userIds = [self.appDelegate.dropboxSession userIds];
+    if ([userIds count]) {
+        userId = [userIds objectAtIndex:0];
+    }
+    restClient = [[DBRestClient alloc] initWithSession:self.appDelegate.dropboxSession userId:userId];
+    restClient.delegate = self;
     
     [self initialModelSetup];
     [self updateView];
@@ -180,9 +189,25 @@
         cell = [[[CLAccountCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:@"CLAccountCell"] autorelease];
     }
     [cell setData:[tableDataArray objectAtIndex:indexPath.section]];
+    switch (indexPath.section) {
+        case DROPBOX:
+            [cell.imageView setImage:[UIImage imageNamed:@"dropbox_cell_Image.png"]];
+            break;
+        case SKYDRIVE:
+            [cell.imageView setImage:[UIImage imageNamed:@"SkyDriveIconWhite_32x32.png"]];
+            break;
+            
+        default:
+            break;
+    }
     return cell;
 }
 
+
+-(void) tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    cell.backgroundColor = CELL_BACKGROUND_COLOR;
+}
 
 -(void) tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
@@ -237,10 +262,17 @@
 }
 
 
+- (void)tableView:(UITableView *)tableView accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath
+{
+    
+}
+
+
 
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    [CLCacheManager deleteAccount:[CLCacheManager getAccountForType:indexPath.section]];
+    NSDictionary *account = [CLCacheManager getAccountForType:indexPath.section];
+    [CLCacheManager deleteAccount:account];
     [CLCacheManager deleteFileStructureForView:indexPath.section];
     
     switch (indexPath.section) {
@@ -286,12 +318,24 @@
         [self performTableViewAnimationForIndexPath:indexPath
                               withAnimationSequence:sequenceArray];
     }
+    editButton.hidden = NO;
 }
 
 - (void)restClient:(DBRestClient*)client loadAccountInfoFailedWithError:(NSError*)error
 {
     NSIndexPath *indexPath = [NSIndexPath indexPathForRow:0 inSection:DROPBOX];
     [self stopAnimatingCellAtIndexPath:indexPath];
+    
+    UIView *alert = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 200,200)];
+    alert.backgroundColor = [UIColor blackColor];
+    alert.center = self.view.center;
+    [self.view addSubview:alert];
+    [alert release];
+    
+    [UIView beginAnimations:nil context:NULL];
+    [UIView setAnimationDuration:1.f];
+    alert.alpha = 0.f;
+    [UIView commitAnimations];
 }
 
 
@@ -342,19 +386,24 @@
 - (void) liveOperationSucceeded:(LiveOperation *)operation
 {
     NSDictionary *accountDictionary = [CLDictionaryConvertor dictionaryFromAccountInfo:operation.result];
-    [CLCacheManager storeAccount:accountDictionary];
+    BOOL isAccountStored = [CLCacheManager storeAccount:accountDictionary];
     NSIndexPath *indexPath = [NSIndexPath indexPathForRow:0 inSection:SKYDRIVE];
-    [self stopAnimatingCellAtIndexPath:indexPath];
-    [tableDataArray replaceObjectAtIndex:SKYDRIVE withObject:accountDictionary];
-    NSArray *sequenceArray = [NSArray arrayWithObjects:[NSNumber numberWithInteger:UITableViewRowAnimationLeft],[NSNumber numberWithInteger:UITableViewRowAnimationRight], nil];
-    [self performTableViewAnimationForIndexPath:indexPath
-                          withAnimationSequence:sequenceArray];
+    CLAccountCell *cell = [self cellAtIndexPath:indexPath];
+    [cell stopAnimating:YES];
+    if (isAccountStored) {
+        [tableDataArray replaceObjectAtIndex:SKYDRIVE withObject:accountDictionary];
+        NSArray *sequenceArray = [NSArray arrayWithObjects:[NSNumber numberWithInteger:UITableViewRowAnimationLeft],[NSNumber numberWithInteger:UITableViewRowAnimationRight], nil];
+        [self performTableViewAnimationForIndexPath:indexPath
+                              withAnimationSequence:sequenceArray];
+    }
+    editButton.hidden = NO;
 }
 
 - (void) liveOperationFailed:(NSError *)error
                    operation:(LiveOperation*)operation
 {
-    
+    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:0 inSection:SKYDRIVE];
+    [self stopAnimatingCellAtIndexPath:indexPath];
 }
 
 

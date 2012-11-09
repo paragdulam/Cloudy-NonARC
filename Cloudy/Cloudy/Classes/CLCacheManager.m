@@ -88,7 +88,7 @@
             [retVal addObject:string];
         }
     }
-    return retVal;
+    return [retVal autorelease];
 }
 
 
@@ -97,7 +97,7 @@
 
 +(NSArray *) accounts
 {
-    NSDictionary *accountsDictionary = [[NSDictionary alloc] initWithContentsOfFile:[NSString stringWithFormat:@"%@/%@",[CLCacheManager getAppCacheFolderPath],ACCOUNTS_PLIST]];
+    NSDictionary *accountsDictionary = [NSDictionary dictionaryWithContentsOfFile:[NSString stringWithFormat:@"%@/%@",[CLCacheManager getAppCacheFolderPath],ACCOUNTS_PLIST]];
     return [accountsDictionary objectForKey:ACCOUNTS];
 }
 
@@ -110,7 +110,7 @@
     } else {
         [accounts addObject:account];
     }
-    NSDictionary *accountsDictionary = [[NSDictionary alloc] initWithObjectsAndKeys:accounts,ACCOUNTS, nil];
+    NSDictionary *accountsDictionary = [NSDictionary dictionaryWithObjectsAndKeys:accounts,ACCOUNTS, nil];
     return [accountsDictionary writeToFile:[NSString stringWithFormat:@"%@/%@",[CLCacheManager getAppCacheFolderPath],ACCOUNTS_PLIST] atomically:YES];
 }
 
@@ -119,7 +119,7 @@
 {
     NSMutableArray *accounts = [NSMutableArray arrayWithArray:[CLCacheManager accounts]];
     [accounts removeObject:account];
-    NSDictionary *accountsDictionary = [[NSDictionary alloc] initWithObjectsAndKeys:accounts,ACCOUNTS, nil];
+    NSDictionary *accountsDictionary = [[[NSDictionary alloc] initWithObjectsAndKeys:accounts,ACCOUNTS, nil] autorelease];
     if (![accounts count])
     {
         [[NSFileManager defaultManager] removeItemAtPath:[NSString stringWithFormat:@"%@/%@",[CLCacheManager getAppCacheFolderPath],ACCOUNTS_PLIST]
@@ -137,10 +137,10 @@
     [accounts enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
         NSDictionary *objDict = (NSDictionary *)obj;
         if ([[objDict objectForKey:ACCOUNT_TYPE] integerValue] == type) {
-            retVal = [NSDictionary dictionaryWithDictionary:objDict];
+            retVal = [objDict retain];
         }
     }];
-    return retVal;
+    return retVal ? [retVal autorelease] : retVal;
 }
 
 #pragma mark - Initial Setup
@@ -188,7 +188,7 @@
     switch (type) {
         case DROPBOX:
         {
-            NSDictionary *fileStructure = [[NSDictionary alloc] initWithContentsOfFile:[CLCacheManager getFileStructurePath:DROPBOX]];
+            NSDictionary *fileStructure = [[[NSDictionary alloc] initWithContentsOfFile:[CLCacheManager getFileStructurePath:DROPBOX]] autorelease];
             NSMutableArray *components = [CLCacheManager removeEmptyStringsForArray:[NSMutableArray arrayWithArray:[path componentsSeparatedByString:@"/"]]];
             NSDictionary *traversingDict = fileStructure;
             for (int j = 0;j < [components count] ;j++) {
@@ -211,7 +211,7 @@
         case SKYDRIVE:
         {
             NSString *folderId = [[path componentsSeparatedByString:@"/"] objectAtIndex:0];
-            NSDictionary *fileStructure = [[NSDictionary alloc] initWithContentsOfFile:[CLCacheManager getFileStructurePath:SKYDRIVE]];
+            NSDictionary *fileStructure = [[[NSDictionary alloc] initWithContentsOfFile:[CLCacheManager getFileStructurePath:SKYDRIVE]] autorelease];
             if ([folderId isEqualToString:@"me"]) {
                 return fileStructure;
             }
@@ -222,13 +222,13 @@
                     [objArray enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
                         NSMutableDictionary *objDict = (NSMutableDictionary *)obj;
                         if ([[objDict objectForKey:@"id"] isEqualToString:folderId]) {
-                            retVal = [NSDictionary dictionaryWithDictionary:objDict];
+                            retVal = [objDict retain];
                         }
                     }];
                 }
             }];
 
-            return retVal;
+            return [retVal autorelease];
         }
             break;
 
@@ -247,8 +247,8 @@
         case DROPBOX:
         {
             NSString *path = [metaDataDict objectForKey:@"path"];
-            NSDictionary *fileStructure = [[NSDictionary alloc] initWithContentsOfFile:[CLCacheManager getFileStructurePath:DROPBOX]];
-            NSMutableDictionary *mutableFileStructure = (__bridge NSMutableDictionary *)CFPropertyListCreateDeepCopy(kCFAllocatorDefault, (CFDictionaryRef)fileStructure, kCFPropertyListMutableContainers);
+            NSDictionary *fileStructure = [[[NSDictionary alloc] initWithContentsOfFile:[CLCacheManager getFileStructurePath:DROPBOX]] autorelease];
+            NSMutableDictionary *mutableFileStructure = CFPropertyListCreateDeepCopy(kCFAllocatorDefault, (CFDictionaryRef)fileStructure, kCFPropertyListMutableContainers);
             
             NSMutableDictionary *traversingDict = mutableFileStructure;
             NSMutableArray *components = [CLCacheManager removeEmptyStringsForArray:[NSMutableArray arrayWithArray:[path componentsSeparatedByString:@"/"]]];
@@ -278,7 +278,7 @@
         case SKYDRIVE:
         {
             NSDictionary *fileStructure = [[NSDictionary alloc] initWithContentsOfFile:[CLCacheManager getFileStructurePath:SKYDRIVE]];
-            NSMutableDictionary *mutableFileStructure = (__bridge NSMutableDictionary *)CFPropertyListCreateDeepCopy(kCFAllocatorDefault, (CFDictionaryRef)fileStructure, kCFPropertyListMutableContainers);
+            NSMutableDictionary *mutableFileStructure = CFPropertyListCreateDeepCopy(kCFAllocatorDefault, (CFDictionaryRef)fileStructure, kCFPropertyListMutableContainers);
             NSString *filePath = [CLCacheManager getFileStructurePath:type];
 
             if (!mutableFileStructure) {

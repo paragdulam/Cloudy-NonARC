@@ -90,8 +90,6 @@
     LiveConnectClient *aClient = [[LiveConnectClient alloc] initWithClientId:SKYDRIVE_CLIENT_ID delegate:callbackViewController];
     self.liveClient = aClient;
     [aClient release];
-
-    
     
     [menuController setLeftViewController:leftNavController];
     [leftNavController release];
