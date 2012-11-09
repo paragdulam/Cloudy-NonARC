@@ -9,5 +9,7 @@
 #import <UIKit/UIKit.h>
 
 @interface CLAccountCell : UITableViewCell
-
+-(void) startAnimating;
+-(void) stopAnimating;
+-(void) setData:(id) data;
 @end

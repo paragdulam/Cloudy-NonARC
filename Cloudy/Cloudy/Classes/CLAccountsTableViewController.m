@@ -11,7 +11,9 @@
 @interface CLAccountsTableViewController ()
 -(void) initialModelSetup;
 -(void) performTableViewAnimationForIndexPath:(NSIndexPath *) indexPath withAnimationSequence:(NSArray *) sequence;
-
+-(void) startAnimatingCellAtIndexPath:(NSIndexPath *) indexPath;
+-(void) stopAnimatingCellAtIndexPath:(NSIndexPath *) indexPath;
+-(CLAccountCell *) cellAtIndexPath:(NSIndexPath *)indexPath;
 @end
 
 @implementation CLAccountsTableViewController
@@ -44,6 +46,23 @@
 
 #pragma mark - Helper Methods
 
+
+-(CLAccountCell *) cellAtIndexPath:(NSIndexPath *)indexPath
+{
+    return (CLAccountCell *)[dataTableView cellForRowAtIndexPath:indexPath];
+}
+
+-(void) startAnimatingCellAtIndexPath:(NSIndexPath *) indexPath
+{
+    CLAccountCell *cell = [self cellAtIndexPath:indexPath];
+    [cell startAnimating];
+}
+
+-(void) stopAnimatingCellAtIndexPath:(NSIndexPath *) indexPath
+{
+    CLAccountCell *cell = [self cellAtIndexPath:indexPath];
+    [cell stopAnimating];
+}
 
 -(void) performTableViewAnimationForIndexPath:(NSIndexPath *) indexPath withAnimationSequence:(NSArray *) sequence
 {
@@ -85,7 +104,6 @@
                 }
             }
                 break;
-                
             default:
                 break;
         }
@@ -116,8 +134,11 @@
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    UITableViewCell *cell = [super tableView:tableView cellForRowAtIndexPath:indexPath];
-    [cell.textLabel setText:[tableDataArray objectAtIndex:indexPath.section]];
+    CLAccountCell *cell = (CLAccountCell *)[tableView dequeueReusableCellWithIdentifier:@"CLAccountCell"];
+    if (!cell) {
+        cell = [[[CLAccountCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:@"CLAccountCell"] autorelease];
+    }
+    [cell setData:[tableDataArray objectAtIndex:indexPath.section]];
     return cell;
 }
 

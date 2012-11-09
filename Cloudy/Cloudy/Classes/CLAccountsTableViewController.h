@@ -7,6 +7,7 @@
 //
 
 #import "CLBaseTableViewController.h"
+#import "CLAccountCell.h"
 
 @interface CLAccountsTableViewController : CLBaseTableViewController
 {
