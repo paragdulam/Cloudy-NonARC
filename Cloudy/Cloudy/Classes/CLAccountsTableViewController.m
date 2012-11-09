@@ -154,17 +154,45 @@
 {
     switch (indexPath.section) {
         case DROPBOX:
-            [self.appDelegate.dropboxSession linkFromController:self.appDelegate.menuController];
+            if (![self.appDelegate.dropboxSession isLinked]) {
+                [self.appDelegate.dropboxSession linkFromController:self.appDelegate.menuController];
+            }
             break;
             
         case SKYDRIVE:
-            [self.appDelegate.liveClient login:self.appDelegate.menuController
-                                      delegate:self];
+            if (self.appDelegate.liveClient.session == nil) {
+                [self.appDelegate.liveClient login:self.appDelegate.menuController
+                                            scopes:SCOPE_ARRAY
+                                          delegate:self];
+            }
             break;
         default:
             break;
     }
 }
+
+
+#pragma mark - DBRestClientDelegate
+
+- (void)restClient:(DBRestClient*)client loadedAccountInfo:(DBAccountInfo*)info
+{
+    NSDictionary *accountDictionary = [CLDictionaryConvertor dictionaryFromAccountInfo:info];
+    BOOL isAccountStored = [CLCacheManager storeAccount:accountDictionary];
+    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:0 inSection:DROPBOX];
+    [self stopAnimatingCellAtIndexPath:indexPath];
+    if (isAccountStored) {
+        [tableDataArray replaceObjectAtIndex:DROPBOX withObject:accountDictionary];
+        NSArray *sequenceArray = [NSArray arrayWithObjects:[NSNumber numberWithInteger:UITableViewRowAnimationLeft],[NSNumber numberWithInteger:UITableViewRowAnimationRight], nil];
+        [self performTableViewAnimationForIndexPath:indexPath
+                              withAnimationSequence:sequenceArray];
+    }
+}
+
+- (void)restClient:(DBRestClient*)client loadAccountInfoFailedWithError:(NSError*)error
+{
+    
+}
+
 
 
 #pragma mark - DBSessionDelegate
@@ -196,7 +224,10 @@
                session: (LiveConnectSession *) session
              userState: (id) userState
 {
-    
+    [self.appDelegate.liveClient getWithPath:@"/me"
+                                    delegate:self];
+    [self startAnimatingCellAtIndexPath:[NSIndexPath indexPathForRow:0
+                                                           inSection:SKYDRIVE]];
 }
 
 - (void) authFailed: (NSError *) error
@@ -210,7 +241,14 @@
 
 - (void) liveOperationSucceeded:(LiveOperation *)operation
 {
-    
+    NSDictionary *accountDictionary = [CLDictionaryConvertor dictionaryFromAccountInfo:operation.result];
+    [CLCacheManager storeAccount:accountDictionary];
+    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:0 inSection:SKYDRIVE];
+    [self stopAnimatingCellAtIndexPath:indexPath];
+    [tableDataArray replaceObjectAtIndex:SKYDRIVE withObject:accountDictionary];
+    NSArray *sequenceArray = [NSArray arrayWithObjects:[NSNumber numberWithInteger:UITableViewRowAnimationLeft],[NSNumber numberWithInteger:UITableViewRowAnimationRight], nil];
+    [self performTableViewAnimationForIndexPath:indexPath
+                          withAnimationSequence:sequenceArray];
 }
 
 - (void) liveOperationFailed:(NSError *)error

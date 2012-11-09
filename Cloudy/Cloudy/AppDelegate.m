@@ -61,6 +61,7 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+    [CLCacheManager initialSetup];
     DBSession *aSession = [[DBSession alloc] initWithAppKey:DROPBOX_APP_KEY
                                                   appSecret:DROPBOX_APP_SECRET_KEY
                                                        root:kDBRootDropbox];
