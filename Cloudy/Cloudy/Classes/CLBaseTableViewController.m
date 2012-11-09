@@ -46,6 +46,8 @@
     dataTableView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     [self.view addSubview:dataTableView];
     [dataTableView release];
+    
+    restClient = [[DBRestClient alloc] initWithSession:self.appDelegate.dropboxSession userId:[[self.appDelegate.dropboxSession userIds] objectAtIndex:0]];
 }
 
 - (void)didReceiveMemoryWarning
@@ -57,6 +59,9 @@
 
 -(void) dealloc
 {
+    [restClient release];
+    restClient = nil;
+    
     tableViewStyle = -9999;
     
     [tableDataArray release];

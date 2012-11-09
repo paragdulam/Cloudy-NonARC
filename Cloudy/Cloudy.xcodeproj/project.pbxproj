@@ -738,6 +738,7 @@
 				GCC_PREFIX_HEADER = "Cloudy/Cloudy-Prefix.pch";
 				HEADER_SEARCH_PATHS = "\"$(SRCROOT)/Cloudy/Utilities/DropboxSDK/Classes\"/**";
 				INFOPLIST_FILE = "Cloudy/Cloudy-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
@@ -750,6 +751,7 @@
 				GCC_PREFIX_HEADER = "Cloudy/Cloudy-Prefix.pch";
 				HEADER_SEARCH_PATHS = "\"$(SRCROOT)/Cloudy/Utilities/DropboxSDK/Classes\"/**";
 				INFOPLIST_FILE = "Cloudy/Cloudy-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
