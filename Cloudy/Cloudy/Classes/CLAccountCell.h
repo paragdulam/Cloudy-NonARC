@@ -1,0 +1,13 @@
+//
+//  CLAccountCell.h
+//  Cloudy
+//
+//  Created by Parag Dulam on 09/11/12.
+//  Copyright (c) 2012 Parag Dulam. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface CLAccountCell : UITableViewCell
+
+@end
