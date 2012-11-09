@@ -154,12 +154,69 @@
 {
     switch (indexPath.section) {
         case DROPBOX:
+            [self.appDelegate.dropboxSession linkFromController:self.appDelegate.menuController];
             break;
             
+        case SKYDRIVE:
+            [self.appDelegate.liveClient login:self.appDelegate.menuController
+                                      delegate:self];
+            break;
         default:
             break;
     }
 }
+
+
+#pragma mark - DBSessionDelegate
+
+
+-(void)authenticationDoneForSession:(DBSession *)session
+{
+    
+}
+
+-(void)  authenticationCancelledManuallyForSession:(DBSession *) session
+{
+}
+
+
+
+- (void)sessionDidReceiveAuthorizationFailure:(DBSession *)session userId:(NSString *)userId
+{
+    
+}
+
+
+#pragma mark - LiveAuthDelegate
+
+
+- (void) authCompleted: (LiveConnectSessionStatus) status
+               session: (LiveConnectSession *) session
+             userState: (id) userState
+{
+    
+}
+
+- (void) authFailed: (NSError *) error
+          userState: (id)userState
+{
+    
+}
+
+
+#pragma mark - LiveOperationDelegate
+
+- (void) liveOperationSucceeded:(LiveOperation *)operation
+{
+    
+}
+
+- (void) liveOperationFailed:(NSError *)error
+                   operation:(LiveOperation*)operation
+{
+    
+}
+
 
 
 @end

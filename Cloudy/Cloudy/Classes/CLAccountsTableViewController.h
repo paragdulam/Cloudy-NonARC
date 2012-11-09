@@ -9,9 +9,7 @@
 #import "CLBaseTableViewController.h"
 #import "CLAccountCell.h"
 
-@interface CLAccountsTableViewController : CLBaseTableViewController
-{
-    
-}
-
+@interface CLAccountsTableViewController : CLBaseTableViewController<DBSessionDelegate,LiveAuthDelegate,LiveOperationDelegate>
+-(void)authenticationDoneForSession:(DBSession *)session;
+-(void)  authenticationCancelledManuallyForSession:(DBSession *) session;
 @end

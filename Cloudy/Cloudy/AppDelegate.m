@@ -10,6 +10,13 @@
 #import "CLAccountsTableViewController.h"
 #import "CLFileBrowserTableViewController.h"
 
+
+@interface AppDelegate()
+{
+    CLAccountsTableViewController *callbackViewController;
+}
+@end
+
 @implementation AppDelegate
 @synthesize menuController;
 @synthesize dropboxSession;
@@ -30,11 +37,35 @@
     [super dealloc];
 }
 
+
+-(BOOL) application:(UIApplication *)application
+            openURL:(NSURL *)url
+  sourceApplication:(NSString *)sourceApplication
+         annotation:(id)annotation
+{
+    if ([dropboxSession handleOpenURL:url]) {
+        if ([dropboxSession isLinked]) {
+            //auth Done
+            if (![[[[url absoluteString] componentsSeparatedByString:@"/"] lastObject] isEqualToString:@"cancel"]) {
+                [callbackViewController authenticationDoneForSession:dropboxSession];
+                return YES;
+            } else {
+                [callbackViewController authenticationCancelledManuallyForSession:dropboxSession];
+                return NO;
+            }
+        }
+    }
+    return NO;
+}
+
+
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     DBSession *aSession = [[DBSession alloc] initWithAppKey:DROPBOX_APP_KEY
                                                   appSecret:DROPBOX_APP_SECRET_KEY
                                                        root:kDBRootDropbox];
+    self.dropboxSession = aSession;
+    [aSession release];
     
     self.window = [[[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]] autorelease];
     // Override point for customization after application launch.
@@ -48,7 +79,17 @@
     
     CLAccountsTableViewController *accountsTableViewController = [[CLAccountsTableViewController alloc] initWithTableViewStyle:UITableViewStyleGrouped];
     UINavigationController *leftNavController = [[UINavigationController alloc] initWithRootViewController:accountsTableViewController];
+    callbackViewController = accountsTableViewController;
     [accountsTableViewController release];
+    
+    dropboxSession.delegate = callbackViewController;
+    [DBSession setSharedSession:dropboxSession];
+    
+    LiveConnectClient *aClient = [[LiveConnectClient alloc] initWithClientId:SKYDRIVE_CLIENT_ID delegate:callbackViewController];
+    self.liveClient = aClient;
+    [aClient release];
+
+    
     
     [menuController setLeftViewController:leftNavController];
     [leftNavController release];
