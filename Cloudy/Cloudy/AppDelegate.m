@@ -12,9 +12,17 @@
 
 @implementation AppDelegate
 @synthesize menuController;
+@synthesize dropboxSession;
+@synthesize liveClient;
 
 - (void)dealloc
 {
+    [dropboxSession release];
+    dropboxSession = nil;
+    
+    [liveClient release];
+    liveClient = nil;
+    
     [menuController release];
     menuController = nil;
     
@@ -24,6 +32,10 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+    DBSession *aSession = [[DBSession alloc] initWithAppKey:DROPBOX_APP_KEY
+                                                  appSecret:DROPBOX_APP_SECRET_KEY
+                                                       root:kDBRootDropbox];
+    
     self.window = [[[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]] autorelease];
     // Override point for customization after application launch.
     self.window.backgroundColor = [UIColor whiteColor];

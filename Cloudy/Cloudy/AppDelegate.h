@@ -8,13 +8,20 @@
 
 #import <UIKit/UIKit.h>
 #import "DDMenuController.h"
+#import "LiveConnectClient.h"
+#import <DropboxSDK/DropboxSDK.h>
 
 @interface AppDelegate : UIResponder <UIApplicationDelegate>
 {
     DDMenuController *menuController;
+    DBSession *dropboxSession;
+    LiveConnectClient *liveClient;
 }
 
 @property (strong, nonatomic) UIWindow *window;
 @property (retain, nonatomic) DDMenuController *menuController;
+@property (retain, nonatomic) DBSession *dropboxSession;
+@property (retain, nonatomic) LiveConnectClient *liveClient;
+
 
 @end
