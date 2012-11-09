@@ -8,7 +8,13 @@
 
 #import <UIKit/UIKit.h>
 #import "CLCacheManager.h"
+#import "AppDelegate.h"
 
 @interface CLBaseViewController : UIViewController
+{
+    AppDelegate *appDelegate;
+}
+
+@property (nonatomic,assign) AppDelegate *appDelegate;
 
 @end

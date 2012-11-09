@@ -14,6 +14,8 @@
 -(void) startAnimatingCellAtIndexPath:(NSIndexPath *) indexPath;
 -(void) stopAnimatingCellAtIndexPath:(NSIndexPath *) indexPath;
 -(CLAccountCell *) cellAtIndexPath:(NSIndexPath *)indexPath;
+-(void) updateModel:(NSArray *) model;
+
 @end
 
 @implementation CLAccountsTableViewController
@@ -108,9 +110,14 @@
                 break;
         }
     }
-    [tableDataArray removeAllObjects];
-    [tableDataArray addObjectsFromArray:accounts];
+    [self updateModel:accounts];
     [accounts release];
+}
+
+-(void) updateModel:(NSArray *) model
+{
+    [tableDataArray removeAllObjects];
+    [tableDataArray addObjectsFromArray:model];
 }
 
 -(void) updateView
@@ -142,6 +149,17 @@
     return cell;
 }
 
+
+-(void) tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    switch (indexPath.section) {
+        case DROPBOX:
+            break;
+            
+        default:
+            break;
+    }
+}
 
 
 @end
