@@ -13,9 +13,11 @@
     NSMutableArray *tableDataArray;
     UITableView *dataTableView;
     UITableViewStyle tableViewStyle;
+    DBRestClient *restClient;
 }
 
 @property(nonatomic,assign) UITableViewStyle tableViewStyle;
+@property(nonatomic,retain) DBRestClient *restClient;
 
 
 -(id) initWithTableViewStyle:(UITableViewStyle) style;

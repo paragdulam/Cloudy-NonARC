@@ -11,7 +11,6 @@
 @interface CLAccountsTableViewController ()
 {
     UIButton *editButton;
-    DBRestClient *restClient;
 }
 -(void) initialModelSetup;
 -(void) performTableViewAnimationForIndexPath:(NSIndexPath *) indexPath withAnimationSequence:(NSArray *) sequence;
@@ -19,6 +18,9 @@
 -(void) stopAnimatingCellAtIndexPath:(NSIndexPath *) indexPath;
 -(CLAccountCell *) cellAtIndexPath:(NSIndexPath *)indexPath;
 -(void) updateModel:(NSArray *) model;
+
+
+
 
 @end
 
@@ -60,14 +62,6 @@
     [editBarButtonItem release];
     
     //Setting Up Edit Button End
-    
-    NSString *userId = nil;
-    NSArray *userIds = [self.appDelegate.dropboxSession userIds];
-    if ([userIds count]) {
-        userId = [userIds objectAtIndex:0];
-    }
-    restClient = [[DBRestClient alloc] initWithSession:self.appDelegate.dropboxSession userId:userId];
-    restClient.delegate = self;
     
     [self initialModelSetup];
     [self updateView];
@@ -131,6 +125,8 @@
     } else {
         accounts = [[NSMutableArray alloc] initWithArray:storedAccounts];
         switch ([storedAccounts count]) {
+            case 0:
+                break;
             case 1:
             {
                 NSDictionary *account = [accounts objectAtIndex:0];
@@ -147,7 +143,22 @@
                 }
             }
                 break;
-            default:
+            case 2:
+            {
+                NSDictionary *account = [accounts objectAtIndex:0];
+                VIEW_TYPE accountType = [[account objectForKey:ACCOUNT_TYPE] intValue];
+                switch (accountType) {
+                    case SKYDRIVE:
+                    {
+                        [accounts exchangeObjectAtIndex:0 withObjectAtIndex:1];
+                    }
+                        break;
+                        
+                    default:
+                        break;
+                }
+
+            }
                 break;
         }
     }
@@ -188,7 +199,8 @@
     if (!cell) {
         cell = [[[CLAccountCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:@"CLAccountCell"] autorelease];
     }
-    [cell setData:[tableDataArray objectAtIndex:indexPath.section]];
+    [cell setData:[tableDataArray objectAtIndex:indexPath.section] forCellAtIndexPath:indexPath];
+    
     switch (indexPath.section) {
         case DROPBOX:
             [cell.imageView setImage:[UIImage imageNamed:@"dropbox_cell_Image.png"]];
@@ -196,7 +208,6 @@
         case SKYDRIVE:
             [cell.imageView setImage:[UIImage imageNamed:@"SkyDriveIconWhite_32x32.png"]];
             break;
-            
         default:
             break;
     }
@@ -213,18 +224,31 @@
 {
     switch (indexPath.section) {
         case DROPBOX:
+        {
             if (![self.appDelegate.dropboxSession isLinked]) {
                 [self.appDelegate.dropboxSession linkFromController:self.appDelegate.menuController];
+            } else {
+                CLAccountCell *cell = [self cellAtIndexPath:indexPath];
+                [self.appDelegate.menuController setLeftButtonImage:[cell.imageView image]];
+
+                [self.appDelegate.menuController setRootController:self.appDelegate.menuController.rootViewController animated:YES];
             }
             break;
-            
+        }
         case SKYDRIVE:
+        {
             if (self.appDelegate.liveClient.session == nil) {
                 [self.appDelegate.liveClient login:self.appDelegate.menuController
                                             scopes:SCOPE_ARRAY
                                           delegate:self];
+            } else {
+                CLAccountCell *cell = [self cellAtIndexPath:indexPath];
+                [self.appDelegate.menuController setLeftButtonImage:[cell.imageView image]];
+
+                [self.appDelegate.menuController setRootController:self.appDelegate.menuController.rootViewController animated:YES];
             }
             break;
+        }
         default:
             break;
     }
@@ -264,7 +288,15 @@
 
 - (void)tableView:(UITableView *)tableView accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath
 {
-    
+    //animate button starts
+//    CLAccountCell *cell = [self cellAtIndexPath:indexPath];
+//    UIButton *disclosureButton = (UIButton *)[cell accessoryView];
+//    
+//    [UIView beginAnimations:nil context:NULL];
+//    [UIView setAnimationDuration:1.f];
+//    disclosureButton.transform = CGAffineTransformMakeRotation(3.142/2);
+//    [UIView commitAnimations];
+    //animate button ends
 }
 
 
@@ -333,7 +365,7 @@
     [alert release];
     
     [UIView beginAnimations:nil context:NULL];
-    [UIView setAnimationDuration:1.f];
+    [UIView setAnimationDuration:3.f];
     alert.alpha = 0.f;
     [UIView commitAnimations];
 }
@@ -345,7 +377,7 @@
 
 -(void)authenticationDoneForSession:(DBSession *)session
 {
-    [restClient loadAccountInfo];
+    [self.restClient loadAccountInfo];
     [self startAnimatingCellAtIndexPath:[NSIndexPath indexPathForRow:0
                                                            inSection:DROPBOX]];
 }
@@ -369,7 +401,8 @@
              userState: (id) userState
 {
     [self.appDelegate.liveClient getWithPath:@"/me"
-                                    delegate:self];
+                                    delegate:self
+                                   userState:@"/me"];
     [self startAnimatingCellAtIndexPath:[NSIndexPath indexPathForRow:0
                                                            inSection:SKYDRIVE]];
 }
@@ -385,18 +418,37 @@
 
 - (void) liveOperationSucceeded:(LiveOperation *)operation
 {
-    NSDictionary *accountDictionary = [CLDictionaryConvertor dictionaryFromAccountInfo:operation.result];
-    BOOL isAccountStored = [CLCacheManager storeAccount:accountDictionary];
-    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:0 inSection:SKYDRIVE];
-    CLAccountCell *cell = [self cellAtIndexPath:indexPath];
-    [cell stopAnimating:YES];
-    if (isAccountStored) {
-        [tableDataArray replaceObjectAtIndex:SKYDRIVE withObject:accountDictionary];
-        NSArray *sequenceArray = [NSArray arrayWithObjects:[NSNumber numberWithInteger:UITableViewRowAnimationLeft],[NSNumber numberWithInteger:UITableViewRowAnimationRight], nil];
-        [self performTableViewAnimationForIndexPath:indexPath
-                              withAnimationSequence:sequenceArray];
+    if ([operation.userState isEqualToString:@"/me"]) {
+        NSDictionary *accountDictionary = [CLDictionaryConvertor dictionaryFromAccountInfo:operation.result];
+        BOOL isAccountStored = [CLCacheManager storeAccount:accountDictionary];
+        NSIndexPath *indexPath = [NSIndexPath indexPathForRow:0 inSection:SKYDRIVE];
+        CLAccountCell *cell = [self cellAtIndexPath:indexPath];
+        [cell stopAnimating:YES];
+        if (isAccountStored) {
+            [tableDataArray replaceObjectAtIndex:SKYDRIVE withObject:accountDictionary];
+            NSArray *sequenceArray = [NSArray arrayWithObjects:[NSNumber numberWithInteger:UITableViewRowAnimationLeft],[NSNumber numberWithInteger:UITableViewRowAnimationRight], nil];
+            [self performTableViewAnimationForIndexPath:indexPath
+                                  withAnimationSequence:sequenceArray];
+        }
+        editButton.hidden = NO;
+        [self.appDelegate.liveClient getWithPath:@"/me/skydrive/quota"
+                                        delegate:self
+                                       userState:@"/me/skydrive/quota"];
+    } else if ([operation.userState isEqualToString:@"/me/skydrive/quota"]) {
+        //read the quota dictionary
+        NSDictionary *quotaDictionary = operation.result;
+        
+        //Read the current skydrive account
+        NSMutableDictionary *skyDriveAccount = [[NSMutableDictionary alloc] initWithDictionary:[CLCacheManager getAccountForType:SKYDRIVE]];
+
+        //Add the quota dictionary to the current skydrive account
+        [skyDriveAccount setObject:quotaDictionary forKey:@"quota"];
+        
+        //update the account dictionary
+        [CLCacheManager updateAccount:skyDriveAccount];
+        [self initialModelSetup];
+        [self updateView];
     }
-    editButton.hidden = NO;
 }
 
 - (void) liveOperationFailed:(NSError *)error

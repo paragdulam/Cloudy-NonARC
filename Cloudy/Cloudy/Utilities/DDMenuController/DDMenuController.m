@@ -50,6 +50,20 @@
 @synthesize pan=_pan;
 
 
+-(void) setLeftButtonImage:(UIImage *)anImage
+{
+    [leftButton setImage:anImage
+                forState:UIControlStateNormal];
+    [leftButton setBackgroundImage:nil
+                          forState:UIControlStateNormal];
+}
+
+
+-(UIImage *) leftButtonImage
+{
+    return leftButton.imageView.image;
+}
+
 - (id)initWithRootViewController:(UIViewController*)controller {
     if ((self = [self init])) {
         _root = controller;
@@ -70,6 +84,9 @@
 
 -(void) dealloc
 {
+    [leftButton release];
+    leftButton = nil;
+    
     delegate = nil;
     _tap = nil;
     _pan = nil;
@@ -100,6 +117,22 @@
         [tap setEnabled:NO];
         _tap = tap;
     }
+    
+    
+    UIImage *buttonBaseImage = [UIImage imageNamed:@"button_background_base.png"];
+    UIImage *barImage = [buttonBaseImage resizableImageWithCapInsets:UIEdgeInsetsMake(0, 12, 0, 12)];
+    UIButton *barButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    [barButton.titleLabel setFont:[UIFont boldSystemFontOfSize:14.f]];
+    [barButton setTitle:@"Left" forState:UIControlStateNormal];
+    [barButton setFrame:CGRectMake(0, 0, 35, 30)];
+    [barButton setBackgroundImage:barImage forState:UIControlStateNormal];
+    [barButton setImage:[UIImage imageNamed:@"nav_menu_icon.png"]
+               forState:UIControlStateNormal];
+    [barButton addTarget:self
+                  action:@selector(showLeft:)
+        forControlEvents:UIControlEventTouchUpInside];
+    leftButton = [barButton retain];
+
     
 }
 
@@ -421,19 +454,20 @@
     }
     
     if (_menuFlags.canShowLeft) {
-        UIImage *buttonBaseImage = [UIImage imageNamed:@"button_background_base.png"];
-        UIImage *barImage = [buttonBaseImage resizableImageWithCapInsets:UIEdgeInsetsMake(0, 12, 0, 12)];
-        UIButton *barButton = [UIButton buttonWithType:UIButtonTypeCustom];
-        [barButton.titleLabel setFont:[UIFont boldSystemFontOfSize:14.f]];
-        [barButton setTitle:@"Left" forState:UIControlStateNormal];
-        [barButton setFrame:CGRectMake(0, 0, 35, 30)];
-        [barButton setBackgroundImage:barImage forState:UIControlStateNormal];
-        [barButton setImage:[UIImage imageNamed:@"nav_menu_icon.png"]
-                   forState:UIControlStateNormal];
-        [barButton addTarget:self
-                      action:@selector(showLeft:)
-            forControlEvents:UIControlEventTouchUpInside];
-        UIBarButtonItem *button = [[barButtonItemClass alloc] initWithCustomView:barButton];
+//        UIImage *buttonBaseImage = [UIImage imageNamed:@"button_background_base.png"];
+//        UIImage *barImage = [buttonBaseImage resizableImageWithCapInsets:UIEdgeInsetsMake(0, 12, 0, 12)];
+//        UIButton *barButton = [UIButton buttonWithType:UIButtonTypeCustom];
+//        [barButton.titleLabel setFont:[UIFont boldSystemFontOfSize:14.f]];
+//        [barButton setTitle:@"Left" forState:UIControlStateNormal];
+//        [barButton setFrame:CGRectMake(0, 0, 35, 30)];
+//        [barButton setBackgroundImage:barImage forState:UIControlStateNormal];
+//        [barButton setImage:[UIImage imageNamed:@"nav_menu_icon.png"]
+//                   forState:UIControlStateNormal];
+//        [barButton addTarget:self
+//                      action:@selector(showLeft:)
+//            forControlEvents:UIControlEventTouchUpInside];
+//        leftButton = barButton;
+        UIBarButtonItem *button = [[barButtonItemClass alloc] initWithCustomView:leftButton];
         topController.navigationItem.leftBarButtonItem = button;
     } else {
 		if(topController.navigationItem.leftBarButtonItem.target == self) {

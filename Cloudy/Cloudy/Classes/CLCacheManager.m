@@ -102,11 +102,49 @@
 }
 
 
+
++(BOOL) updateAccount:(NSDictionary *) account
+{
+    NSMutableArray *accounts = [NSMutableArray arrayWithArray:[CLCacheManager accounts]];
+    int index;
+//    [accounts enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+//        NSDictionary *objDict = (NSDictionary *)obj;
+//        if ([[objDict objectForKey:ACCOUNT_TYPE] integerValue] == [[account objectForKey:ACCOUNT_TYPE] integerValue]) {
+//            index = idx;
+//        }
+//    }];
+    for (NSDictionary *anAccount in accounts) {
+        if ([[anAccount objectForKey:ACCOUNT_TYPE] integerValue] == [[account objectForKey:ACCOUNT_TYPE] integerValue]) {
+            index = [accounts indexOfObject:anAccount];
+            break;
+        }
+    }
+
+    [accounts replaceObjectAtIndex:index withObject:account];
+
+    NSDictionary *accountsDictionary = [NSDictionary dictionaryWithObjectsAndKeys:accounts,ACCOUNTS, nil];
+    return [accountsDictionary writeToFile:[NSString stringWithFormat:@"%@/%@",[CLCacheManager getAppCacheFolderPath],ACCOUNTS_PLIST] atomically:YES];
+}
+
+
 +(BOOL) storeAccount:(NSDictionary *) account
 {
     NSMutableArray *accounts = [NSMutableArray arrayWithArray:[CLCacheManager accounts]];
-    if ([accounts containsObject:account]) {
-        return NO;
+    BOOL retVal = YES;
+//    [accounts enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+//        NSDictionary *objDict = (NSDictionary *)obj;
+//        if ([[objDict objectForKey:ACCOUNT_TYPE] integerValue] == [[account objectForKey:ACCOUNT_TYPE] integerValue]) {
+//            retVal = NO;
+//        }
+//    }];
+    for (NSDictionary *anAccount in accounts) {
+        if ([[anAccount objectForKey:ACCOUNT_TYPE] integerValue] == [[account objectForKey:ACCOUNT_TYPE] integerValue]) {
+            retVal = NO;
+            break;
+        }
+    }
+    if (!retVal) {
+        return retVal;
     } else {
         [accounts addObject:account];
     }

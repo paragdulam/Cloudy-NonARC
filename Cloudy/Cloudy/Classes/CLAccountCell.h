@@ -7,12 +7,13 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <QuartzCore/QuartzCore.h>
 #import "CLConstants.h"
 
 @interface CLAccountCell : UITableViewCell
 -(void) startAnimating;
 -(void) stopAnimating;
 -(void) stopAnimating:(BOOL) accountAdded;
--(void) setData:(id) data;
+-(void) setData:(id) data forCellAtIndexPath:(NSIndexPath *)indexPath;
 @property (nonatomic) BOOL isAnimating;
 @end

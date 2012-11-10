@@ -15,6 +15,8 @@
 		F10169F2164D470D002AE454 /* SkyDriveIconWhite_32x32.png in Resources */ = {isa = PBXBuildFile; fileRef = F10169F0164D470D002AE454 /* SkyDriveIconWhite_32x32.png */; };
 		F10169F3164D470D002AE454 /* dropbox_cell_Image.png in Resources */ = {isa = PBXBuildFile; fileRef = F10169F1164D470D002AE454 /* dropbox_cell_Image.png */; };
 		F10169F5164D48F3002AE454 /* SkyDriveIconBlue_32x32.png in Resources */ = {isa = PBXBuildFile; fileRef = F10169F4164D48F3002AE454 /* SkyDriveIconBlue_32x32.png */; };
+		F16011B7164E1AAF00098D8C /* SkyDriveIconWhite_32x32@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = F16011B6164E1AAF00098D8C /* SkyDriveIconWhite_32x32@2x.png */; };
+		F16011B9164E1BA300098D8C /* dropbox_cell_Image@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = F16011B8164E1BA300098D8C /* dropbox_cell_Image@2x.png */; };
 		F194DB11164A64BC00631792 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F194DB10164A64BC00631792 /* UIKit.framework */; };
 		F194DB13164A64BC00631792 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F194DB12164A64BC00631792 /* Foundation.framework */; };
 		F194DB15164A64BC00631792 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F194DB14164A64BC00631792 /* CoreGraphics.framework */; };
@@ -114,6 +116,8 @@
 		F10169F0164D470D002AE454 /* SkyDriveIconWhite_32x32.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = SkyDriveIconWhite_32x32.png; sourceTree = "<group>"; };
 		F10169F1164D470D002AE454 /* dropbox_cell_Image.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = dropbox_cell_Image.png; sourceTree = "<group>"; };
 		F10169F4164D48F3002AE454 /* SkyDriveIconBlue_32x32.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = SkyDriveIconBlue_32x32.png; sourceTree = "<group>"; };
+		F16011B6164E1AAF00098D8C /* SkyDriveIconWhite_32x32@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "SkyDriveIconWhite_32x32@2x.png"; sourceTree = "<group>"; };
+		F16011B8164E1BA300098D8C /* dropbox_cell_Image@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "dropbox_cell_Image@2x.png"; sourceTree = "<group>"; };
 		F194DB0C164A64BC00631792 /* Cloudy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Cloudy.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F194DB10164A64BC00631792 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		F194DB12164A64BC00631792 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -350,8 +354,10 @@
 		F194DB30164A659300631792 /* Retina */ = {
 			isa = PBXGroup;
 			children = (
+				F16011B8164E1BA300098D8C /* dropbox_cell_Image@2x.png */,
 				F10169EE164D0813002AE454 /* button_background_base@2x.png */,
 				F194DB54164A87F100631792 /* nav_menu_icon@2x.png */,
+				F16011B6164E1AAF00098D8C /* SkyDriveIconWhite_32x32@2x.png */,
 			);
 			path = Retina;
 			sourceTree = "<group>";
@@ -632,6 +638,8 @@
 				F10169F2164D470D002AE454 /* SkyDriveIconWhite_32x32.png in Resources */,
 				F10169F3164D470D002AE454 /* dropbox_cell_Image.png in Resources */,
 				F10169F5164D48F3002AE454 /* SkyDriveIconBlue_32x32.png in Resources */,
+				F16011B7164E1AAF00098D8C /* SkyDriveIconWhite_32x32@2x.png in Resources */,
+				F16011B9164E1BA300098D8C /* dropbox_cell_Image@2x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

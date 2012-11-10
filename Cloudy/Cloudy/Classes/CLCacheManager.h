@@ -24,6 +24,7 @@
 +(BOOL) deleteFileStructureForView:(VIEW_TYPE) type;
 +(NSString *) getTemporaryDirectory;
 +(NSDictionary *) getAccountForType:(VIEW_TYPE) type;
++(BOOL) updateAccount:(NSDictionary *) account;
 
 
 @end

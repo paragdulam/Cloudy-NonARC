@@ -15,6 +15,21 @@
 @implementation CLBaseTableViewController
 @synthesize tableViewStyle;
 
+-(DBRestClient *) restClient
+{
+    if (!restClient) {
+        NSString *userId = nil;
+        NSArray *userIds = [self.appDelegate.dropboxSession userIds];
+        if ([userIds count]) {
+            userId = [userIds objectAtIndex:0];
+        }
+        restClient = [[DBRestClient alloc] initWithSession:self.appDelegate.dropboxSession userId:userId];
+        restClient.delegate = self;
+    }
+    return restClient;
+}
+
+
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
@@ -59,6 +74,9 @@
 
 -(void) dealloc
 {
+    [restClient release];
+    restClient = nil;
+    
     tableViewStyle = -9999;
     
     [tableDataArray release];

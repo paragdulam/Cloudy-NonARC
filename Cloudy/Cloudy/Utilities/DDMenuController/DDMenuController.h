@@ -56,11 +56,13 @@ typedef enum {
         unsigned int canShowLeft:1;
     } _menuFlags;
     
+    UIButton *leftButton;
 }
 
 - (id)initWithRootViewController:(UIViewController*)controller;
 
 @property(nonatomic,assign) id <DDMenuControllerDelegate> delegate;
+@property(nonatomic,assign) UIImage *leftButtonImage;
 
 @property(nonatomic,retain) UIViewController *leftViewController;
 @property(nonatomic,retain) UIViewController *rightViewController;
