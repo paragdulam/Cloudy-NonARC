@@ -75,7 +75,9 @@
     CGRect tableFrame = dataTableView.frame;
     tableFrame.size.height -= TOOLBAR_HEIGHT;
     dataTableView.frame = tableFrame;
+    dataTableView.backgroundColor = [UIColor clearColor];
     dataTableView.allowsMultipleSelectionDuringEditing = YES;
+    dataTableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     
     fileOperationsToolbar = [[UIToolbar alloc] initWithFrame:CGRectMake(0, self.view.frame.size.height - (TOOLBAR_HEIGHT * 2), self.view.frame.size.width, TOOLBAR_HEIGHT)];
     fileOperationsToolbar.barStyle = UIBarStyleBlackOpaque;
@@ -219,7 +221,7 @@
     editingToolBarItems = [[NSArray alloc] initWithArray:items];
     [items release];
     
-    
+    [self loadFilesForPath:path WithInViewType:viewType];
 }
 
 
@@ -279,6 +281,43 @@
 }
 
 
+-(void) tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    if (!dataTableView.editing) {
+        switch (viewType) {
+            case DROPBOX:
+            {
+                NSDictionary *metadata = [tableDataArray objectAtIndex:indexPath.row];
+                if ([[metadata objectForKey:@"isDirectory"] boolValue]) {
+                    CLFileBrowserTableViewController *fileBrowserViewController = [[CLFileBrowserTableViewController alloc] initWithTableViewStyle:UITableViewStylePlain WhereHidesFiles:NO andExcludedFolders:nil andPath:[metadata objectForKey:@"path"] ForViewType:DROPBOX];
+                    [self.navigationController pushViewController:fileBrowserViewController animated:YES];
+                    [fileBrowserViewController release];
+                }
+            }
+                break;
+            case SKYDRIVE:
+            {
+                NSDictionary *metadata = [tableDataArray objectAtIndex:indexPath.row];
+                if ([[metadata objectForKey:@"type"] isEqualToString:@"album"] || [[metadata objectForKey:@"type"] isEqualToString:@"folder"]) {
+                    CLFileBrowserTableViewController *fileBrowserViewController = [[CLFileBrowserTableViewController alloc] initWithTableViewStyle:UITableViewStylePlain WhereHidesFiles:NO andExcludedFolders:nil andPath:[NSString stringWithFormat:@"%@/files",[metadata objectForKey:@"id"]] ForViewType:SKYDRIVE];
+                    [self.navigationController pushViewController:fileBrowserViewController animated:YES];
+                    [fileBrowserViewController release];
+                }
+            }
+                break;
+            default:
+                break;
+        }
+    }
+}
+
+
+
+-(void) tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    cell.backgroundColor = CELL_BACKGROUND_COLOR;
+}
+
 
 #pragma mark - LiveOperationDelegate
 
@@ -289,12 +328,15 @@
                                   ForView:SKYDRIVE];
     
     //Reading Cache is skipped only reading Table Contents Starts
-    NSArray *contents = [operation.result objectForKey:@"data"];
-    if (!hidesFiles && ![excludedFolders count])
-    {
-        [tableDataArray removeAllObjects];
-        [tableDataArray addObjectsFromArray:contents];
-        [dataTableView reloadData];
+    if (viewType == SKYDRIVE) {
+        NSArray *contents = [operation.result objectForKey:@"data"];
+//        [self.navigationItem setTitle:[operation.result objectForKey:@"name"]];
+        if (!hidesFiles && ![excludedFolders count])
+        {
+            [tableDataArray removeAllObjects];
+            [tableDataArray addObjectsFromArray:contents];
+            [dataTableView reloadData];
+        }
     }
     //Reading Cache is skipped only reading Table Contents Ends
 
@@ -325,15 +367,17 @@
     NSDictionary *metadataDictionary = [CLDictionaryConvertor dictionaryFromMetadata:metadata];
     [CLCacheManager updateFolderStructure:metadataDictionary
                                   ForView:DROPBOX];
-    NSLog(@"metadataDictionary %@",metadataDictionary);
     
     //Reading Cache is skipped only reading Table Contents Starts
-    NSArray *contents = [metadataDictionary objectForKey:@"contents"];
-    if (!hidesFiles && ![excludedFolders count])
-    {
-        [tableDataArray removeAllObjects];
-        [tableDataArray addObjectsFromArray:contents];
-        [dataTableView reloadData];
+    if (viewType == DROPBOX) {
+        NSArray *contents = [metadataDictionary objectForKey:@"contents"];
+        [self.navigationItem setTitle:[metadataDictionary objectForKey:@"filename"]];
+        if (!hidesFiles && ![excludedFolders count])
+        {
+            [tableDataArray removeAllObjects];
+            [tableDataArray addObjectsFromArray:contents];
+            [dataTableView reloadData];
+        }
     }
     //Reading Cache is skipped only reading Table Contents Ends
 
@@ -356,6 +400,33 @@
 
 -(void) loadFilesForPath:(NSString *) pathString WithInViewType:(VIEW_TYPE) type
 {
+    if (!pathString) {
+        if (![[CLCacheManager accounts] count]) {
+            UILabel *addAccountLabel = [[UILabel alloc] init];
+            addAccountLabel.text = @"Tap here to add an account";
+            [addAccountLabel setFont:[UIFont boldSystemFontOfSize:16.f]];
+            addAccountLabel.backgroundColor = [UIColor clearColor];
+            addAccountLabel.textColor = [UIColor whiteColor];
+            [addAccountLabel sizeToFit];
+            
+            UIImageView *headerView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"1351499593_arrow_up.png"]];
+            [headerView addSubview:addAccountLabel];
+            addAccountLabel.center = CGPointMake(roundf(headerView.center.x + 150.f), roundf(headerView.center.y));
+            headerView.frame = CGRectMake(0, 0, 320.f, 64.f);
+            headerView.contentMode = UIViewContentModeLeft;
+            dataTableView.tableHeaderView = headerView;
+        }
+        [tableDataArray removeAllObjects];
+        [dataTableView reloadData];
+        uploadButton.hidden = YES;
+        [barItem hideEditButton:YES];
+        [self.navigationItem setTitle:nil];
+        [self.appDelegate.menuController setLeftButtonImage:[UIImage imageNamed:@"nav_menu_icon.png"]];
+        return;
+    }
+    uploadButton.hidden = YES;
+    [barItem hideEditButton:YES];
+    dataTableView.tableHeaderView = nil;
     self.path = pathString;
     self.viewType = type;
     
@@ -364,6 +435,7 @@
         {
             //Read Cache Starts
             NSDictionary *cachedAccount = [CLCacheManager metaDataDictionaryForPath:path ForView:DROPBOX];
+            [self.navigationItem setTitle:[cachedAccount objectForKey:@"filename"]];
             NSArray *contents = [cachedAccount objectForKey:@"contents"];
             if (!hidesFiles && ![excludedFolders count])
             {
@@ -385,6 +457,7 @@
         {
             //Read Cache Starts
             NSDictionary *cachedAccount = [CLCacheManager metaDataDictionaryForPath:path ForView:SKYDRIVE];
+            [self.navigationItem setTitle:[cachedAccount objectForKey:@"name"]];
             NSArray *contents = [cachedAccount objectForKey:@"data"];
             if (!hidesFiles && ![excludedFolders count])
             {

@@ -80,6 +80,7 @@
 		F194DBEB164AED8900631792 /* AssetsLibrary.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F194DBEA164AED8900631792 /* AssetsLibrary.framework */; };
 		F1B7EDCD164F9D7300A9ABE0 /* CLBrowserBarItem.m in Sources */ = {isa = PBXBuildFile; fileRef = F1B7EDCC164F9D7300A9ABE0 /* CLBrowserBarItem.m */; };
 		F1B7EDD0164FA6C500A9ABE0 /* CLFileBrowserCell.m in Sources */ = {isa = PBXBuildFile; fileRef = F1B7EDCF164FA6C500A9ABE0 /* CLFileBrowserCell.m */; };
+		F1B7EDD2164FD88000A9ABE0 /* 1351499593_arrow_up.png in Resources */ = {isa = PBXBuildFile; fileRef = F1B7EDD1164FD88000A9ABE0 /* 1351499593_arrow_up.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -236,6 +237,7 @@
 		F1B7EDCC164F9D7300A9ABE0 /* CLBrowserBarItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CLBrowserBarItem.m; sourceTree = "<group>"; };
 		F1B7EDCE164FA6C500A9ABE0 /* CLFileBrowserCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CLFileBrowserCell.h; sourceTree = "<group>"; };
 		F1B7EDCF164FA6C500A9ABE0 /* CLFileBrowserCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CLFileBrowserCell.m; sourceTree = "<group>"; };
+		F1B7EDD1164FD88000A9ABE0 /* 1351499593_arrow_up.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = 1351499593_arrow_up.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -353,6 +355,7 @@
 		F194DB2F164A659300631792 /* Normal */ = {
 			isa = PBXGroup;
 			children = (
+				F1B7EDD1164FD88000A9ABE0 /* 1351499593_arrow_up.png */,
 				F10169F0164D470D002AE454 /* SkyDriveIconWhite_32x32.png */,
 				F10169F4164D48F3002AE454 /* SkyDriveIconBlue_32x32.png */,
 				F10169F1164D470D002AE454 /* dropbox_cell_Image.png */,
@@ -650,6 +653,7 @@
 				F10169F5164D48F3002AE454 /* SkyDriveIconBlue_32x32.png in Resources */,
 				F16011B7164E1AAF00098D8C /* SkyDriveIconWhite_32x32@2x.png in Resources */,
 				F16011B9164E1BA300098D8C /* dropbox_cell_Image@2x.png in Resources */,
+				F1B7EDD2164FD88000A9ABE0 /* 1351499593_arrow_up.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -28,5 +28,7 @@
 @property (retain, nonatomic) DBSession *dropboxSession;
 @property (retain, nonatomic) LiveConnectClient *liveClient;
 
+-(void) initialSetup;
+
 
 @end

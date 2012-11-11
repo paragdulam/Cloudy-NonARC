@@ -19,7 +19,7 @@
 -(void) startAnimating;
 -(void) stopAnimating;
 -(void) deselectAll;
-
+-(void)hideEditButton:(BOOL) aBool;
 
 @end
 

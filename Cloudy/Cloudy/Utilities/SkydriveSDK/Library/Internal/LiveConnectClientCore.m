@@ -171,7 +171,7 @@
                                                                     userState:userState 
                                                                    liveClient:self] 
                                     autorelease];
-    [operation execute];  
+    [operation execute];
     
     return [[[LiveOperation alloc] initWithOpCore:operation] autorelease];
 }

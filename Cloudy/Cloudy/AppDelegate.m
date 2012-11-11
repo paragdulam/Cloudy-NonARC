@@ -61,6 +61,29 @@
     return NO;
 }
 
+-(void) initialSetup
+{
+    NSArray *accounts = [CLCacheManager accounts];
+    NSString *path = nil;
+    NSDictionary *accountData = nil;
+    if ([accounts count]) {
+        accountData = [accounts objectAtIndex:0];
+        switch ([[accountData objectForKey:ACCOUNT_TYPE] integerValue]) {
+            case DROPBOX:
+                path = @"/";
+                break;
+            case SKYDRIVE:
+                path = [NSString stringWithFormat:@"%@/files",[accountData objectForKey:@"id"]];
+                break;
+    
+            default:
+                break;
+        }
+    }
+    [self.rootFileBrowserViewController loadFilesForPath:path
+                                          WithInViewType:[[accountData objectForKey:ACCOUNT_TYPE] integerValue]];
+}
+
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
@@ -106,7 +129,7 @@
     [navController release];
     
     [self.window setRootViewController:menuController];
-    
+    [self initialSetup];
     return YES;
 }
 

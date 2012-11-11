@@ -54,7 +54,13 @@
 {
     [leftButton setImage:anImage
                 forState:UIControlStateNormal];
-    [leftButton setBackgroundImage:nil
+    UIImage *backgroundImage = nil;
+    if ([anImage isEqual:[UIImage imageNamed:@"nav_menu_icon.png"]]) {
+        UIImage *buttonBaseImage = [UIImage imageNamed:@"button_background_base.png"];
+        backgroundImage = [buttonBaseImage resizableImageWithCapInsets:UIEdgeInsetsMake(0, 12, 0, 12)];
+
+    }
+    [leftButton setBackgroundImage:backgroundImage
                           forState:UIControlStateNormal];
 }
 

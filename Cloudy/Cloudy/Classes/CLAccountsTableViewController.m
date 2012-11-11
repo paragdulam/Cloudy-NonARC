@@ -334,7 +334,7 @@
     NSArray *sequenceArray = [NSArray arrayWithObjects:[NSNumber numberWithInteger:UITableViewRowAnimationRight],[NSNumber numberWithInteger:UITableViewRowAnimationLeft], nil];
     [self performTableViewAnimationForIndexPath:indexPath withAnimationSequence:sequenceArray];
     [self editButtonTapped:editButton];
-    
+    [self.appDelegate initialSetup];
     if (![[CLCacheManager accounts] count]) {
         editButton.hidden = YES;
     }
@@ -357,6 +357,7 @@
                               withAnimationSequence:sequenceArray];
     }
     editButton.hidden = NO;
+    [self tableView:dataTableView didSelectRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:DROPBOX]];
 }
 
 - (void)restClient:(DBRestClient*)client loadAccountInfoFailedWithError:(NSError*)error
@@ -437,6 +438,8 @@
                                   withAnimationSequence:sequenceArray];
         }
         editButton.hidden = NO;
+        [self tableView:dataTableView didSelectRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:SKYDRIVE]];
+
         [self.appDelegate.liveClient getWithPath:@"/me/skydrive/quota"
                                         delegate:self
                                        userState:@"/me/skydrive/quota"];

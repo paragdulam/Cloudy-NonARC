@@ -68,6 +68,11 @@
 }
 
 
+-(void)hideEditButton:(BOOL) aBool
+{
+    editButton.hidden = aBool;
+}
+
 -(void) editButtonClicked:(UIButton *) btn
 {
     if ([delegate respondsToSelector:@selector(editButtonClicked:WithinView:)]) {

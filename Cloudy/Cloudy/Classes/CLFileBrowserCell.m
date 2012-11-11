@@ -15,6 +15,8 @@
     self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
     if (self) {
         // Initialization code
+        self.textLabel.textColor = CELL_TEXTLABEL_COLOR;
+        self.detailTextLabel.textColor = CELL_DETAILTEXTLABEL_COLOR;
     }
     return self;
 }
