@@ -7,6 +7,7 @@
 //
 
 #import "CLAccountsTableViewController.h"
+#import "CLFileBrowserTableViewController.h"
 
 @interface CLAccountsTableViewController ()
 {
@@ -232,6 +233,9 @@
                 [self.appDelegate.menuController setLeftButtonImage:[cell.imageView image]];
 
                 [self.appDelegate.menuController setRootController:self.appDelegate.menuController.rootViewController animated:YES];
+                
+                [self.appDelegate.rootFileBrowserViewController loadFilesForPath:@"/" WithInViewType:DROPBOX];
+                
             }
             break;
         }
@@ -246,6 +250,8 @@
                 [self.appDelegate.menuController setLeftButtonImage:[cell.imageView image]];
 
                 [self.appDelegate.menuController setRootController:self.appDelegate.menuController.rootViewController animated:YES];
+                
+                [self.appDelegate.rootFileBrowserViewController loadFilesForPath:@"me/skydrive/files" WithInViewType:SKYDRIVE];
             }
             break;
         }

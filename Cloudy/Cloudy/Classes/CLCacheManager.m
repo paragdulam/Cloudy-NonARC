@@ -226,6 +226,7 @@
     switch (type) {
         case DROPBOX:
         {
+            path = !path ? @"/" : path;
             NSDictionary *fileStructure = [[[NSDictionary alloc] initWithContentsOfFile:[CLCacheManager getFileStructurePath:DROPBOX]] autorelease];
             NSMutableArray *components = [CLCacheManager removeEmptyStringsForArray:[NSMutableArray arrayWithArray:[path componentsSeparatedByString:@"/"]]];
             NSDictionary *traversingDict = fileStructure;
@@ -248,6 +249,7 @@
             
         case SKYDRIVE:
         {
+            path = !path ? @"me/skydrive/files" : path;
             NSString *folderId = [[path componentsSeparatedByString:@"/"] objectAtIndex:0];
             NSDictionary *fileStructure = [[[NSDictionary alloc] initWithContentsOfFile:[CLCacheManager getFileStructurePath:SKYDRIVE]] autorelease];
             if ([folderId isEqualToString:@"me"]) {

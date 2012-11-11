@@ -11,17 +11,20 @@
 #import "LiveConnectClient.h"
 #import <DropboxSDK/DropboxSDK.h>
 
-
+@class CLFileBrowserTableViewController;
 
 @interface AppDelegate : UIResponder <UIApplicationDelegate>
 {
     DDMenuController *menuController;
+    CLFileBrowserTableViewController *rootFileBrowserViewController;
     DBSession *dropboxSession;
     LiveConnectClient *liveClient;
 }
 
 @property (strong, nonatomic) UIWindow *window;
 @property (retain, nonatomic) DDMenuController *menuController;
+@property (assign, nonatomic) CLFileBrowserTableViewController *rootFileBrowserViewController;
+
 @property (retain, nonatomic) DBSession *dropboxSession;
 @property (retain, nonatomic) LiveConnectClient *liveClient;
 

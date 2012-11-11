@@ -78,6 +78,8 @@
 		F194DBD9164AECF300631792 /* backArrow_black.png in Resources */ = {isa = PBXBuildFile; fileRef = F194DBB0164AECF300631792 /* backArrow_black.png */; };
 		F194DBE9164AED3D00631792 /* libSDropboxSDK.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F194DBE6164AED2800631792 /* libSDropboxSDK.a */; };
 		F194DBEB164AED8900631792 /* AssetsLibrary.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F194DBEA164AED8900631792 /* AssetsLibrary.framework */; };
+		F1B7EDCD164F9D7300A9ABE0 /* CLBrowserBarItem.m in Sources */ = {isa = PBXBuildFile; fileRef = F1B7EDCC164F9D7300A9ABE0 /* CLBrowserBarItem.m */; };
+		F1B7EDD0164FA6C500A9ABE0 /* CLFileBrowserCell.m in Sources */ = {isa = PBXBuildFile; fileRef = F1B7EDCF164FA6C500A9ABE0 /* CLFileBrowserCell.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -230,6 +232,10 @@
 		F194DBB0164AECF300631792 /* backArrow_black.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = backArrow_black.png; sourceTree = "<group>"; };
 		F194DBDA164AED2800631792 /* DropboxSDK.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = DropboxSDK.xcodeproj; path = DropboxSDK/DropboxSDK.xcodeproj; sourceTree = "<group>"; };
 		F194DBEA164AED8900631792 /* AssetsLibrary.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AssetsLibrary.framework; path = System/Library/Frameworks/AssetsLibrary.framework; sourceTree = SDKROOT; };
+		F1B7EDCB164F9D7300A9ABE0 /* CLBrowserBarItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CLBrowserBarItem.h; sourceTree = "<group>"; };
+		F1B7EDCC164F9D7300A9ABE0 /* CLBrowserBarItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CLBrowserBarItem.m; sourceTree = "<group>"; };
+		F1B7EDCE164FA6C500A9ABE0 /* CLFileBrowserCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CLFileBrowserCell.h; sourceTree = "<group>"; };
+		F1B7EDCF164FA6C500A9ABE0 /* CLFileBrowserCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CLFileBrowserCell.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -327,6 +333,10 @@
 				F10169C7164B9CE0002AE454 /* CLCacheManager.m */,
 				F10169DD164CD62F002AE454 /* CLAccountCell.h */,
 				F10169DE164CD62F002AE454 /* CLAccountCell.m */,
+				F1B7EDCB164F9D7300A9ABE0 /* CLBrowserBarItem.h */,
+				F1B7EDCC164F9D7300A9ABE0 /* CLBrowserBarItem.m */,
+				F1B7EDCE164FA6C500A9ABE0 /* CLFileBrowserCell.h */,
+				F1B7EDCF164FA6C500A9ABE0 /* CLFileBrowserCell.m */,
 			);
 			path = Classes;
 			sourceTree = "<group>";
@@ -690,6 +700,8 @@
 				F10169C8164B9CE0002AE454 /* CLDictionaryConvertor.m in Sources */,
 				F10169C9164B9CE0002AE454 /* CLCacheManager.m in Sources */,
 				F10169DF164CD62F002AE454 /* CLAccountCell.m in Sources */,
+				F1B7EDCD164F9D7300A9ABE0 /* CLBrowserBarItem.m in Sources */,
+				F1B7EDD0164FA6C500A9ABE0 /* CLFileBrowserCell.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

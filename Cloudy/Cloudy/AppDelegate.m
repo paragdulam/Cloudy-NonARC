@@ -21,9 +21,12 @@
 @synthesize menuController;
 @synthesize dropboxSession;
 @synthesize liveClient;
+@synthesize rootFileBrowserViewController;
 
 - (void)dealloc
 {
+    rootFileBrowserViewController = nil;
+    
     [dropboxSession release];
     dropboxSession = nil;
     
@@ -95,6 +98,7 @@
     [leftNavController release];
     
     CLFileBrowserTableViewController *fileBrowserViewController = [[CLFileBrowserTableViewController alloc] initWithTableViewStyle:UITableViewStylePlain];
+    self.rootFileBrowserViewController = fileBrowserViewController;
     UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:fileBrowserViewController];
     [fileBrowserViewController release];
     

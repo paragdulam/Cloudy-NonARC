@@ -52,6 +52,8 @@
 #define CELL_TEXTLABEL_COLOR [UIColor whiteColor]
 #define CELL_DETAILTEXTLABEL_COLOR [UIColor lightGrayColor]
 
+#define TOOLBAR_HEIGHT 44.f
+
 
 typedef enum CLOUD_PROVIDERS {
     DROPBOX = 0,
