@@ -22,6 +22,7 @@
 @synthesize dropboxSession;
 @synthesize liveClient;
 @synthesize rootFileBrowserViewController;
+@synthesize liveClientFlag;
 
 - (void)dealloc
 {
@@ -113,6 +114,7 @@
     [DBSession setSharedSession:dropboxSession];
     dropboxSession.delegate = callbackViewController;
     
+    liveClientFlag = YES;
     LiveConnectClient *aClient = [[LiveConnectClient alloc] initWithClientId:SKYDRIVE_CLIENT_ID delegate:callbackViewController];
     self.liveClient = aClient;
     [aClient release];

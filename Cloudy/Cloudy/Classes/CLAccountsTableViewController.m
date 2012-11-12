@@ -407,11 +407,14 @@
                session: (LiveConnectSession *) session
              userState: (id) userState
 {
-    [self.appDelegate.liveClient getWithPath:@"/me"
-                                    delegate:self
-                                   userState:@"/me"];
-    [self startAnimatingCellAtIndexPath:[NSIndexPath indexPathForRow:0
-                                                           inSection:SKYDRIVE]];
+    if (!self.appDelegate.liveClientFlag) {
+        [self.appDelegate.liveClient getWithPath:@"/me"
+                                        delegate:self
+                                       userState:@"/me"];
+        [self startAnimatingCellAtIndexPath:[NSIndexPath indexPathForRow:0
+                                                               inSection:SKYDRIVE]];
+    }
+    self.appDelegate.liveClientFlag = NO;
 }
 
 - (void) authFailed: (NSError *) error
