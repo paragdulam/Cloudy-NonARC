@@ -12,7 +12,6 @@
 
 @interface CLFileBrowserTableViewController ()
 {
-    UIToolbar *fileOperationsToolbar;
     
     UIButton *uploadButton;
     
@@ -78,12 +77,13 @@
     dataTableView.backgroundColor = [UIColor clearColor];
     dataTableView.allowsMultipleSelectionDuringEditing = YES;
     dataTableView.separatorStyle = UITableViewCellSeparatorStyleNone;
-    
+  
     fileOperationsToolbar = [[UIToolbar alloc] initWithFrame:CGRectMake(0, self.view.frame.size.height - (TOOLBAR_HEIGHT * 2), self.view.frame.size.width, TOOLBAR_HEIGHT)];
     fileOperationsToolbar.barStyle = UIBarStyleBlackOpaque;
     [self.view addSubview:fileOperationsToolbar];
     [fileOperationsToolbar release];
     
+    /*
     UIImage *baseImage = [UIImage imageNamed:@"button_background_base.png"];
     UIImage *buttonImage = [baseImage resizableImageWithCapInsets:UIEdgeInsetsMake(0, 15, 0, 15)];
 
@@ -220,7 +220,7 @@
 
     editingToolBarItems = [[NSArray alloc] initWithArray:items];
     [items release];
-    
+    */
     [self loadFilesForPath:path WithInViewType:viewType];
 }
 
@@ -280,7 +280,6 @@
     return cell;
 }
 
-/*
 -(void) tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     if (!dataTableView.editing) {
@@ -310,7 +309,6 @@
         }
     }
 }
-*/
 
 
 -(void) tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
@@ -371,7 +369,7 @@
     //Reading Cache is skipped only reading Table Contents Starts
     if (viewType == DROPBOX) {
         NSArray *contents = [metadataDictionary objectForKey:@"contents"];
-        [self.navigationItem setTitle:[metadataDictionary objectForKey:@"filename"]];
+//        [self.navigationItem setTitle:[metadataDictionary objectForKey:@"filename"]];
         if (!hidesFiles && ![excludedFolders count])
         {
             [tableDataArray removeAllObjects];
@@ -435,7 +433,7 @@
         {
             //Read Cache Starts
             NSDictionary *cachedAccount = [CLCacheManager metaDataDictionaryForPath:path ForView:DROPBOX];
-            [self.navigationItem setTitle:[cachedAccount objectForKey:@"filename"]];
+//            [self.navigationItem setTitle:[cachedAccount objectForKey:@"filename"]];
             NSArray *contents = [cachedAccount objectForKey:@"contents"];
             if (!hidesFiles && ![excludedFolders count])
             {
@@ -459,7 +457,7 @@
         {
             //Read Cache Starts
             NSDictionary *cachedAccount = [CLCacheManager metaDataDictionaryForPath:path ForView:SKYDRIVE];
-            [self.navigationItem setTitle:[cachedAccount objectForKey:@"name"]];
+//            [self.navigationItem setTitle:[cachedAccount objectForKey:@"name"]];
             NSArray *contents = [cachedAccount objectForKey:@"data"];
             if (!hidesFiles && ![excludedFolders count])
             {

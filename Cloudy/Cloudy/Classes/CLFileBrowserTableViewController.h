@@ -15,6 +15,7 @@
     NSArray *excludedFolders;
     NSString *path;
     VIEW_TYPE viewType;
+    UIToolbar *fileOperationsToolbar;
 }
 
 
