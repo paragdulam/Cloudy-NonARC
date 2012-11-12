@@ -7,6 +7,7 @@
 //
 
 #import "CLFileBrowserTableViewController.h"
+#import "CLPathSelectionViewController.h"
 
 @interface CLFileBrowserTableViewController ()
 {
@@ -285,6 +286,12 @@
 
 -(void) moveButtonClicked:(UIButton *) sender
 {
+    CLPathSelectionViewController *pathSelectionViewController = [[CLPathSelectionViewController alloc] initWithTableViewStyle:UITableViewStyleGrouped WherePath:@"/" WithinViewType:DROPBOX];
+    UINavigationController *nController = [[UINavigationController alloc] initWithRootViewController:pathSelectionViewController];
+    [pathSelectionViewController release];
+    
+    [self presentModalViewController:nController animated:YES];
+    [nController release];
 }
 
 -(void) deleteButtonClicked:(UIButton *) sender

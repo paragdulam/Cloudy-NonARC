@@ -135,7 +135,7 @@
             {
                 NSDictionary *metadata = [tableDataArray objectAtIndex:indexPath.row];
                 if ([[metadata objectForKey:@"isDirectory"] boolValue]) {
-                    CLFileBrowserTableViewController *fileBrowserViewController = [[CLFileBrowserTableViewController alloc] initWithTableViewStyle:UITableViewStylePlain WherePath:[metadata objectForKey:@"path"] WithinViewType:DROPBOX];
+                    CLFileBrowserTableViewController *fileBrowserViewController = [[CLFileBrowserTableViewController alloc] initWithTableViewStyle:UITableViewStyleGrouped WherePath:[metadata objectForKey:@"path"] WithinViewType:DROPBOX];
                     [self.navigationController pushViewController:fileBrowserViewController animated:YES];
                     [fileBrowserViewController release];
                 }
@@ -145,7 +145,7 @@
             {
                 NSDictionary *metadata = [tableDataArray objectAtIndex:indexPath.row];
                 if ([[metadata objectForKey:@"type"] isEqualToString:@"album"] || [[metadata objectForKey:@"type"] isEqualToString:@"folder"]) {
-                    CLFileBrowserTableViewController *fileBrowserViewController = [[CLFileBrowserTableViewController alloc] initWithTableViewStyle:UITableViewStylePlain WherePath:[NSString stringWithFormat:@"%@/files",[metadata objectForKey:@"id"]] WithinViewType:SKYDRIVE];
+                    CLFileBrowserTableViewController *fileBrowserViewController = [[CLFileBrowserTableViewController alloc] initWithTableViewStyle:UITableViewStyleGrouped WherePath:[NSString stringWithFormat:@"%@/files",[metadata objectForKey:@"id"]] WithinViewType:SKYDRIVE];
                     [self.navigationController pushViewController:fileBrowserViewController animated:YES];
                     [fileBrowserViewController release];
                 }

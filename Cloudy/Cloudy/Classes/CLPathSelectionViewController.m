@@ -26,6 +26,12 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    
+    CGRect navBarFrame = self.navigationController.navigationBar.frame;
+    navBarFrame.size.height = 60.f;
+    self.navigationController.navigationBar.frame = navBarFrame;
+    
+    [self setTitle:@"abc"];
 	// Do any additional setup after loading the view.
 }
 
