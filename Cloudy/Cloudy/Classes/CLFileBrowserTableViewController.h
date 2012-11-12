@@ -7,7 +7,8 @@
 //
 
 #import "CLFileBrowserBaseTableViewController.h"
+#import "CLPathSelectionViewController.h"
 
-@interface CLFileBrowserTableViewController : CLFileBrowserBaseTableViewController<CLBrowserBarItemDelegate>
+@interface CLFileBrowserTableViewController : CLFileBrowserBaseTableViewController<CLBrowserBarItemDelegate,CLPathSelectionViewControllerDelegate>
 
 @end

@@ -71,6 +71,7 @@ typedef enum FILE_TYPE {
 
 typedef enum FILE_FOLDER_OPERATIONS {
     MOVE,
+    COPY,
     CREATE,
     DELETE,
     SHARE

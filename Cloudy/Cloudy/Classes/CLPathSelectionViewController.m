@@ -19,6 +19,8 @@
 @end
 
 @implementation CLPathSelectionViewController
+@synthesize excludedFolders;
+@synthesize delegate;
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
@@ -28,6 +30,21 @@
     }
     return self;
 }
+
+-(id) initWithTableViewStyle:(UITableViewStyle)style
+                   WherePath:(NSString *) pathString
+              WithinViewType:(VIEW_TYPE) type
+        WhereExcludedFolders:(NSArray *) folders
+{
+    if (self = [super initWithTableViewStyle:style
+                                   WherePath:pathString
+                              WithinViewType:type])
+    {
+        self.excludedFolders = folders;
+    }
+    return self;
+}
+
 
 - (void)viewDidLoad
 {
@@ -86,7 +103,7 @@
                             forState:UIControlStateNormal];
     [selectButton.titleLabel setFont:[UIFont boldSystemFontOfSize:12.f]];
     [selectButton addTarget:self
-                     action:@selector(createFolderButtonClicked:)
+                     action:@selector(selectButtonClicked:)
            forControlEvents:UIControlEventTouchUpInside];
 
     UIBarButtonItem *flexiSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
@@ -115,6 +132,10 @@
 
 -(void) dealloc
 {
+    delegate = nil;
+    
+    [excludedFolders release];
+    excludedFolders = nil;
     
     [super dealloc];
 }
@@ -131,12 +152,18 @@
 
 -(void) updateModel:(NSArray *)model
 {
-    NSMutableArray *computedData = [[NSMutableArray alloc] init];
-    for (NSDictionary *data in model) {
-        if ([[data objectForKey:@"isDirectory"] boolValue] || [[data objectForKey:@"type"] isEqualToString:@"album"] || [[data objectForKey:@"type"] isEqualToString:@"folder"]) {
-            [computedData addObject:data];
+    NSMutableArray *computedData = [[NSMutableArray alloc] initWithArray:model];
+    [computedData removeObjectsInArray:excludedFolders];
+
+    NSMutableArray *files = [[NSMutableArray alloc] init];
+    for (NSDictionary *data in computedData) {
+        if (![[data objectForKey:@"isDirectory"] boolValue])/* || ![[data objectForKey:@"type"] isEqualToString:@"album"] || ![[data objectForKey:@"type"] isEqualToString:@"folder"]) */{
+            [files addObject:data];
         }
     }
+    [computedData removeObjectsInArray:files];
+    [files release];
+    
     [super updateModel:computedData];
     [computedData release];
 }
@@ -160,7 +187,8 @@
         case DROPBOX:
         {
             NSDictionary *metadata = [tableDataArray objectAtIndex:indexPath.row];
-            CLPathSelectionViewController *pathSelectionViewController = [[CLPathSelectionViewController alloc] initWithTableViewStyle:UITableViewStylePlain WherePath:[metadata objectForKey:@"path"] WithinViewType:DROPBOX];
+            CLPathSelectionViewController *pathSelectionViewController = [[CLPathSelectionViewController alloc] initWithTableViewStyle:UITableViewStylePlain WherePath:[metadata objectForKey:@"path"] WithinViewType:DROPBOX WhereExcludedFolders:excludedFolders];
+            pathSelectionViewController.delegate = delegate;
             [self.navigationController pushViewController:pathSelectionViewController animated:YES];
             [pathSelectionViewController release];
         }
@@ -168,7 +196,8 @@
         case SKYDRIVE:
         {
             NSDictionary *metadata = [tableDataArray objectAtIndex:indexPath.row];
-            CLPathSelectionViewController *pathSelectionViewController = [[CLPathSelectionViewController alloc] initWithTableViewStyle:UITableViewStylePlain WherePath:[NSString stringWithFormat:@"%@/files",[metadata objectForKey:@"id"]] WithinViewType:SKYDRIVE];
+            CLPathSelectionViewController *pathSelectionViewController = [[CLPathSelectionViewController alloc] initWithTableViewStyle:UITableViewStylePlain WherePath:[NSString stringWithFormat:@"%@/files",[metadata objectForKey:@"id"]] WithinViewType:SKYDRIVE WhereExcludedFolders:excludedFolders];
+            pathSelectionViewController.delegate = delegate;
             [self.navigationController pushViewController:pathSelectionViewController animated:YES];
             [pathSelectionViewController release];
         }
@@ -193,5 +222,13 @@
     
 }
 
+
+-(void) selectButtonClicked:(UIButton *) btn
+{
+    if ([delegate respondsToSelector:@selector(pathDidSelect:ForViewController:)]) {
+        [delegate pathDidSelect:path
+              ForViewController:self];
+    }
+}
 
 @end
