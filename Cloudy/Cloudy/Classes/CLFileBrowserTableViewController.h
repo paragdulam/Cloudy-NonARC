@@ -8,6 +8,6 @@
 
 #import "CLFileBrowserBaseTableViewController.h"
 
-@interface CLFileBrowserTableViewController : CLFileBrowserBaseTableViewController
+@interface CLFileBrowserTableViewController : CLFileBrowserBaseTableViewController<CLBrowserBarItemDelegate>
 
 @end

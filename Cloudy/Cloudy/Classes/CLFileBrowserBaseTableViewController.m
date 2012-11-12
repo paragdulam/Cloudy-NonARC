@@ -431,37 +431,4 @@
 }
 
 
-
-
-#pragma mark - IBActions
-
--(void) uploadButtonClicked:(UIButton *) btn
-{
-}
-
-
--(void) shareButtonClicked:(UIButton *) sender
-{
-    
-}
-
--(void) copyButtonClicked:(UIButton *) sender
-{
-    
-}
-
-
--(void) moveButtonClicked:(UIButton *) sender
-{
-}
-
--(void) deleteButtonClicked:(UIButton *) sender
-{
-}
-
--(void) editButtonClicked:(UIButton *) sender
-{
-    sender.selected = !sender.selected;
-}
-
 @end

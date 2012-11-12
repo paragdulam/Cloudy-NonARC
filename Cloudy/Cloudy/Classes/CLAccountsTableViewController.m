@@ -448,11 +448,11 @@
         [CLCacheManager updateAccount:skyDriveAccount];
         [self initialModelSetup];
         [self updateView];
+        if (!self.appDelegate.liveClientFlag) {
+            [self tableView:dataTableView didSelectRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:SKYDRIVE]];
+        }
+        self.appDelegate.liveClientFlag = NO;
     }
-    if (!self.appDelegate.liveClientFlag) {
-        [self tableView:dataTableView didSelectRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:SKYDRIVE]];
-    }
-    self.appDelegate.liveClientFlag = NO;
 }
 
 - (void) liveOperationFailed:(NSError *)error
