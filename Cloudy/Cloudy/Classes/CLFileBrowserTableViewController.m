@@ -280,7 +280,7 @@
     return cell;
 }
 
-
+/*
 -(void) tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     if (!dataTableView.editing) {
@@ -310,7 +310,7 @@
         }
     }
 }
-
+*/
 
 
 -(void) tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
@@ -443,6 +443,8 @@
                 [tableDataArray addObjectsFromArray:contents];
                 [dataTableView reloadData];
             }
+            [self.appDelegate.menuController setLeftButtonImage:[UIImage imageNamed:@"dropbox_cell_Image.png"]];
+
             //Read Cache Ends
 
             //Web Request Starts
@@ -465,6 +467,8 @@
                 [tableDataArray addObjectsFromArray:contents];
                 [dataTableView reloadData];
             }
+            [self.appDelegate.menuController setLeftButtonImage:[UIImage imageNamed:@"SkyDriveIconWhite_32x32.png"]];
+
             //Read Cache Ends
             
             //Web Request Starts

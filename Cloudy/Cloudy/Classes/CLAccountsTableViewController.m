@@ -229,13 +229,9 @@
             if (![self.appDelegate.dropboxSession isLinked]) {
                 [self.appDelegate.dropboxSession linkFromController:self.appDelegate.menuController];
             } else {
-                CLAccountCell *cell = [self cellAtIndexPath:indexPath];
-                [self.appDelegate.menuController setLeftButtonImage:[cell.imageView image]];
-
                 [self.appDelegate.menuController setRootController:self.appDelegate.menuController.rootViewController animated:YES];
                 
                 [self.appDelegate.rootFileBrowserViewController loadFilesForPath:@"/" WithInViewType:DROPBOX];
-                
             }
             break;
         }
@@ -246,9 +242,6 @@
                                             scopes:SCOPE_ARRAY
                                           delegate:self];
             } else {
-                CLAccountCell *cell = [self cellAtIndexPath:indexPath];
-                [self.appDelegate.menuController setLeftButtonImage:[cell.imageView image]];
-
                 [self.appDelegate.menuController setRootController:self.appDelegate.menuController.rootViewController animated:YES];
                 
                 [self.appDelegate.rootFileBrowserViewController loadFilesForPath:@"me/skydrive/files" WithInViewType:SKYDRIVE];
