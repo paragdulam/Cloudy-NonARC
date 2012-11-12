@@ -22,6 +22,9 @@
     NSArray *editingToolBarItems;
     CLBrowserBarItem *barItem;
 }
+
+-(void) hideButtons:(NSArray *) buttons;
+-(void) showButtons:(NSArray *) buttons;
 @end
 
 @implementation CLFileBrowserTableViewController
@@ -37,7 +40,6 @@
 
 - (void)viewDidLoad
 {
-    [super viewDidLoad];
 	// Do any additional setup after loading the view.
     
     
@@ -178,6 +180,7 @@
     editingToolBarItems = [[NSArray alloc] initWithArray:items];
     [items release];
 
+    [super viewDidLoad];
     
 }
 
@@ -192,6 +195,65 @@
 {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
+}
+
+
+#pragma mark - Helper Methods
+
+
+-(void) startAnimating
+{
+    [barItem startAnimating];
+}
+
+-(void) stopAnimating
+{
+    [barItem stopAnimating];
+}
+
+-(void) hideButtons:(NSArray *) buttons
+{
+    for (UIButton *button in buttons) {
+        button.hidden = YES;
+    }
+}
+
+-(void) showButtons:(NSArray *) buttons
+{
+    for (UIButton *button in buttons) {
+        button.hidden = NO;
+    }
+}
+
+-(void) loadFilesForPath:(NSString *)pathString WithInViewType:(VIEW_TYPE)type
+{
+    if (!pathString) {
+        if (![[CLCacheManager accounts] count]) {
+            UILabel *addAccountLabel = [[UILabel alloc] init];
+            addAccountLabel.text = @"Tap here to add an account";
+            [addAccountLabel setFont:[UIFont boldSystemFontOfSize:16.f]];
+            addAccountLabel.backgroundColor = [UIColor clearColor];
+            addAccountLabel.textColor = [UIColor whiteColor];
+            [addAccountLabel sizeToFit];
+            
+            UIImageView *headerView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"1351499593_arrow_up.png"]];
+            [headerView addSubview:addAccountLabel];
+            addAccountLabel.center = CGPointMake(roundf(headerView.center.x + 150.f), roundf(headerView.center.y));
+            headerView.frame = CGRectMake(0, 0, 320.f, 64.f);
+            headerView.contentMode = UIViewContentModeLeft;
+            dataTableView.tableHeaderView = headerView;
+        }
+        [tableDataArray removeAllObjects];
+        viewType = INFINITY;
+        [self hideButtons:[NSArray arrayWithObjects:uploadButton, nil]];
+        [barItem hideEditButton:YES];
+        [self updateView];
+        return;
+    }
+    
+    [self showButtons:[NSArray arrayWithObjects:uploadButton, nil]];
+    [barItem hideEditButton:NO];
+    [super loadFilesForPath:pathString WithInViewType:type];
 }
 
 

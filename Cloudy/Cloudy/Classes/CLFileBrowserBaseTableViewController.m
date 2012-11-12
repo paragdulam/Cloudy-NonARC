@@ -8,6 +8,7 @@
 
 #import "CLFileBrowserBaseTableViewController.h"
 #import "CLFileBrowserCell.h"
+#import "CLFileBrowserTableViewController.h"
 
 
 @interface CLFileBrowserBaseTableViewController ()
@@ -25,6 +26,11 @@
 //    NSArray *editingToolBarItems;
 //    CLBrowserBarItem *barItem;
 }
+
+-(void) updateModel:(NSArray *) model;
+-(NSArray *) getCachedTableDataArrayForViewType:(VIEW_TYPE) type;
+-(void) readCacheUpdateView;
+-(NSDictionary *) readCachedFileStructure;
 
 
 @end
@@ -72,144 +78,6 @@
     [self.view addSubview:fileOperationsToolbar];
     [fileOperationsToolbar release];
     
-    /*
-    UIImage *baseImage = [UIImage imageNamed:@"button_background_base.png"];
-    UIImage *buttonImage = [baseImage resizableImageWithCapInsets:UIEdgeInsetsMake(0, 15, 0, 15)];
-
-    barItem = [[CLBrowserBarItem alloc] initWithFrame:CGRectMake(0, 0, 50, 30)];
-    barItem.delegate = self;
-    UIBarButtonItem *barButtonItem = [[UIBarButtonItem alloc] initWithCustomView:barItem];
-    [barItem release];
-    [self.navigationItem setRightBarButtonItem:barButtonItem];
-    [barButtonItem release];
-    
-    
-    uploadButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    uploadButton.frame = CGRectMake(0, 0, 50, 30);
-    [uploadButton setTitle:@"Upload"
-                  forState:UIControlStateNormal];
-    [uploadButton setTitleColor:[UIColor whiteColor]
-                       forState:UIControlStateNormal];
-    [uploadButton setBackgroundImage:buttonImage
-                            forState:UIControlStateNormal];
-    [uploadButton.titleLabel setFont:[UIFont boldSystemFontOfSize:12.f]];
-    [uploadButton addTarget:self
-                     action:@selector(uploadButtonClicked:)
-           forControlEvents:UIControlEventTouchUpInside];
-    
-    NSMutableArray *items = [[NSMutableArray alloc] init];
-    UIBarButtonItem *flexiSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
-    [items addObject:flexiSpace];
-    [flexiSpace release];
-    
-    UIBarButtonItem *uploadBarButton = [[UIBarButtonItem alloc] initWithCustomView:uploadButton];
-    [items addObject:uploadBarButton];
-    [uploadBarButton release];
-
-    toolBarItems = [[NSArray alloc] initWithArray:items];
-    [items release];
-    
-
-    deleteButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    deleteButton.frame = CGRectMake(0, 0, 50, 30);
-    [deleteButton setTitle:@"Delete"
-                  forState:UIControlStateNormal];
-    [deleteButton setTitleColor:[UIColor whiteColor]
-                       forState:UIControlStateNormal];
-    [deleteButton setBackgroundImage:buttonImage
-                            forState:UIControlStateNormal];
-    [deleteButton.titleLabel setFont:[UIFont boldSystemFontOfSize:12.f]];
-    deleteButton.exclusiveTouch = YES;
-    [deleteButton addTarget:self
-                     action:@selector(deleteButtonClicked:)
-           forControlEvents:UIControlEventTouchUpInside];
-    
-    
-    moveButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    moveButton.frame = CGRectMake(0, 0, 50, 30);
-    [moveButton setTitle:@"Move"
-                forState:UIControlStateNormal];
-    [moveButton setTitleColor:[UIColor whiteColor]
-                     forState:UIControlStateNormal];
-    [moveButton setBackgroundImage:buttonImage
-                          forState:UIControlStateNormal];
-    [moveButton.titleLabel setFont:[UIFont boldSystemFontOfSize:12.f]];
-    moveButton.exclusiveTouch = YES;
-    [moveButton addTarget:self
-                   action:@selector(moveButtonClicked:)
-         forControlEvents:UIControlEventTouchUpInside];
-    
-    
-    copyButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    copyButton.frame = CGRectMake(0, 0, 50, 30);
-    [copyButton setTitle:@"Copy"
-                forState:UIControlStateNormal];
-    [copyButton setTitleColor:[UIColor whiteColor]
-                     forState:UIControlStateNormal];
-    [copyButton setBackgroundImage:buttonImage
-                          forState:UIControlStateNormal];
-    [copyButton.titleLabel setFont:[UIFont boldSystemFontOfSize:12.f]];
-    copyButton.exclusiveTouch = YES;
-    [copyButton addTarget:self
-                   action:@selector(copyButtonClicked:)
-         forControlEvents:UIControlEventTouchUpInside];
-    
-    
-    shareButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    shareButton.frame = CGRectMake(0, 0, 50, 30);
-    [shareButton setTitle:@"Share"
-                 forState:UIControlStateNormal];
-    [shareButton setTitleColor:[UIColor whiteColor]
-                      forState:UIControlStateNormal];
-    shareButton.exclusiveTouch = YES;
-    [shareButton setBackgroundImage:buttonImage
-                           forState:UIControlStateNormal];
-    [shareButton.titleLabel setFont:[UIFont boldSystemFontOfSize:12.f]];
-    [shareButton addTarget:self
-                    action:@selector(shareButtonClicked:)
-          forControlEvents:UIControlEventTouchUpInside];
-    
-    items = [[NSMutableArray alloc] init];
-    flexiSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
-    [items addObject:flexiSpace];
-    [flexiSpace release];
-    
-    UIBarButtonItem *deleteBarButton = [[UIBarButtonItem alloc] initWithCustomView:deleteButton];
-    [items addObject:deleteBarButton];
-    [deleteBarButton release];
-    
-    flexiSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
-    [items addObject:flexiSpace];
-    [flexiSpace release];
-    
-    UIBarButtonItem *moveBarButton = [[UIBarButtonItem alloc] initWithCustomView:moveButton];
-    [items addObject:moveBarButton];
-    [moveBarButton release];
-
-    flexiSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
-    [items addObject:flexiSpace];
-    [flexiSpace release];
-    
-    
-    UIBarButtonItem *copyBarButton = [[UIBarButtonItem alloc] initWithCustomView:copyButton];
-    [items addObject:copyBarButton];
-    [copyBarButton release];
-
-    flexiSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
-    [items addObject:flexiSpace];
-    [flexiSpace release];
-
-    UIBarButtonItem *shareBarButton = [[UIBarButtonItem alloc] initWithCustomView:shareButton];
-    [items addObject:shareBarButton];
-    [shareBarButton release];
-    
-    flexiSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
-    [items addObject:flexiSpace];
-    [flexiSpace release];
-
-    editingToolBarItems = [[NSArray alloc] initWithArray:items];
-    [items release];
-    */
     [self loadFilesForPath:path WithInViewType:viewType];
 }
 
@@ -267,7 +135,7 @@
             {
                 NSDictionary *metadata = [tableDataArray objectAtIndex:indexPath.row];
                 if ([[metadata objectForKey:@"isDirectory"] boolValue]) {
-                    CLFileBrowserBaseTableViewController *fileBrowserViewController = [[CLFileBrowserBaseTableViewController alloc] initWithTableViewStyle:UITableViewStylePlain WherePath:[metadata objectForKey:@"path"] WithinViewType:DROPBOX];
+                    CLFileBrowserTableViewController *fileBrowserViewController = [[CLFileBrowserTableViewController alloc] initWithTableViewStyle:UITableViewStylePlain WherePath:[metadata objectForKey:@"path"] WithinViewType:DROPBOX];
                     [self.navigationController pushViewController:fileBrowserViewController animated:YES];
                     [fileBrowserViewController release];
                 }
@@ -277,7 +145,7 @@
             {
                 NSDictionary *metadata = [tableDataArray objectAtIndex:indexPath.row];
                 if ([[metadata objectForKey:@"type"] isEqualToString:@"album"] || [[metadata objectForKey:@"type"] isEqualToString:@"folder"]) {
-                    CLFileBrowserBaseTableViewController *fileBrowserViewController = [[CLFileBrowserBaseTableViewController alloc] initWithTableViewStyle:UITableViewStylePlain WherePath:[NSString stringWithFormat:@"%@/files",[metadata objectForKey:@"id"]] WithinViewType:SKYDRIVE];
+                    CLFileBrowserTableViewController *fileBrowserViewController = [[CLFileBrowserTableViewController alloc] initWithTableViewStyle:UITableViewStylePlain WherePath:[NSString stringWithFormat:@"%@/files",[metadata objectForKey:@"id"]] WithinViewType:SKYDRIVE];
                     [self.navigationController pushViewController:fileBrowserViewController animated:YES];
                     [fileBrowserViewController release];
                 }
@@ -300,17 +168,15 @@
 
 - (void) liveOperationSucceeded:(LiveOperation *)operation
 {
+    [self stopAnimating];
     [CLCacheManager updateFolderStructure:operation.result
                                   ForView:SKYDRIVE];
     
     //Reading Cache is skipped only reading Table Contents Starts
-    if (viewType == SKYDRIVE) {
+    if (viewType == SKYDRIVE) { //cache is not referred
         NSArray *contents = [operation.result objectForKey:@"data"];
-        {
-            [tableDataArray removeAllObjects];
-            [tableDataArray addObjectsFromArray:contents];
-            [dataTableView reloadData];
-        }
+        [self updateModel:contents];
+        [self updateView];
     }
     //Reading Cache is skipped only reading Table Contents Ends
 
@@ -319,7 +185,7 @@
 - (void) liveOperationFailed:(NSError *)error
                    operation:(LiveOperation*)operation
 {
-    
+    [self stopAnimating];
 }
 
 
@@ -330,26 +196,28 @@
 
 - (void)restClient:(DBRestClient*)client loadedMetadata:(DBMetadata*)metadata
 {
+    [self stopAnimating];
     NSDictionary *metadataDictionary = [CLDictionaryConvertor dictionaryFromMetadata:metadata];
     [CLCacheManager updateFolderStructure:metadataDictionary
                                   ForView:DROPBOX];
     
     //Reading Cache is skipped only reading Table Contents Starts
-    if (viewType == DROPBOX) {
+    if (viewType == DROPBOX) { //cache is not referred
         NSArray *contents = [metadataDictionary objectForKey:@"contents"];
-        [tableDataArray removeAllObjects];
-        [tableDataArray addObjectsFromArray:contents];
-        [dataTableView reloadData];
+        [self updateModel:contents];
+        [self updateView];
     }
     //Reading Cache is skipped only reading Table Contents Ends    
 }
 
 - (void)restClient:(DBRestClient*)client metadataUnchangedAtPath:(NSString*)path
 {
+    [self stopAnimating];
 }
 
 - (void)restClient:(DBRestClient*)client loadMetadataFailedWithError:(NSError*)error
 {
+    [self stopAnimating];
 }
 
 
@@ -358,77 +226,107 @@
 
 -(void) loadFilesForPath:(NSString *) pathString WithInViewType:(VIEW_TYPE) type
 {
-    if (!pathString) {
-        if (![[CLCacheManager accounts] count]) {
-            UILabel *addAccountLabel = [[UILabel alloc] init];
-            addAccountLabel.text = @"Tap here to add an account";
-            [addAccountLabel setFont:[UIFont boldSystemFontOfSize:16.f]];
-            addAccountLabel.backgroundColor = [UIColor clearColor];
-            addAccountLabel.textColor = [UIColor whiteColor];
-            [addAccountLabel sizeToFit];
-            
-            UIImageView *headerView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"1351499593_arrow_up.png"]];
-            [headerView addSubview:addAccountLabel];
-            addAccountLabel.center = CGPointMake(roundf(headerView.center.x + 150.f), roundf(headerView.center.y));
-            headerView.frame = CGRectMake(0, 0, 320.f, 64.f);
-            headerView.contentMode = UIViewContentModeLeft;
-            dataTableView.tableHeaderView = headerView;
-        }
-        [tableDataArray removeAllObjects];
-        [dataTableView reloadData];
-        [self.appDelegate.menuController setLeftButtonImage:[UIImage imageNamed:@"nav_menu_icon.png"]];
-        return;
-    }
     dataTableView.tableHeaderView = nil;
     self.path = pathString;
     self.viewType = type;
-    
+
+    //Read Cache Starts
+    [self readCacheUpdateView];
+    //Read Cache Ends
+
+    //Web Request Starts
     switch (viewType) {
         case DROPBOX:
         {
-            //Read Cache Starts
-            NSDictionary *cachedAccount = [CLCacheManager metaDataDictionaryForPath:path ForView:DROPBOX];
-//            [self.navigationItem setTitle:[cachedAccount objectForKey:@"filename"]];
-            NSArray *contents = [cachedAccount objectForKey:@"contents"];
-            [tableDataArray removeAllObjects];
-            [tableDataArray addObjectsFromArray:contents];
-            [dataTableView reloadData];
-            [self.appDelegate.menuController setLeftButtonImage:[UIImage imageNamed:@"dropbox_cell_Image.png"]];
-
-            //Read Cache Ends
-
-            //Web Request Starts
-            NSString *hash = [cachedAccount objectForKey:@"hash"];
+            NSString *hash = [self readCachedHash];
             [self.restClient loadMetadata:path
                                  withHash:hash];
-            //Web Request Ends
         }
             break;
         case SKYDRIVE:
         {
-            //Read Cache Starts
-            NSDictionary *cachedAccount = [CLCacheManager metaDataDictionaryForPath:path ForView:SKYDRIVE];
-//            [self.navigationItem setTitle:[cachedAccount objectForKey:@"name"]];
-            NSArray *contents = [cachedAccount objectForKey:@"data"];
-            [tableDataArray removeAllObjects];
-            [tableDataArray addObjectsFromArray:contents];
-            [dataTableView reloadData];
-            [self.appDelegate.menuController setLeftButtonImage:[UIImage imageNamed:@"SkyDriveIconWhite_32x32.png"]];
-
-            //Read Cache Ends
-            
-            //Web Request Starts
             [self.appDelegate.liveClient getWithPath:path
                                             delegate:self
                                            userState:path];
-            //Web Request Ends
-
         }
             break;
         default:
             break;
     }
+    [self startAnimating];
+    //Web Request Ends
+
 }
+
+
+-(void) updateModel:(NSArray *) model
+{
+    [tableDataArray removeAllObjects];
+    [tableDataArray addObjectsFromArray:model];
+}
+
+-(void) updateView
+{
+    [super updateView];
+    switch (viewType) {
+        case DROPBOX:
+            [self.appDelegate.menuController setLeftButtonImage:[UIImage imageNamed:@"dropbox_cell_Image.png"]];
+            break;
+        case SKYDRIVE:
+            [self.appDelegate.menuController setLeftButtonImage:[UIImage imageNamed:@"SkyDriveIconWhite_32x32.png"]];
+            break;
+        default:
+            [self.appDelegate.menuController setLeftButtonImage:[UIImage imageNamed:@"nav_menu_icon.png"]];
+            break;
+    }
+}
+
+
+-(NSDictionary *) readCachedFileStructure
+{
+    return [CLCacheManager metaDataDictionaryForPath:path ForView:viewType];
+}
+
+-(NSArray *) getCachedTableDataArrayForViewType:(VIEW_TYPE) type
+{
+    NSDictionary *cachedFileStructure = [self readCachedFileStructure];
+    NSArray *contents = nil;
+    switch (type) {
+        case DROPBOX:
+            contents = [cachedFileStructure objectForKey:@"contents"];
+            break;
+        case SKYDRIVE:
+            contents = [cachedFileStructure objectForKey:@"data"];
+            break;
+        default:
+            break;
+    }
+    return contents;
+}
+
+
+-(void) readCacheUpdateView
+{
+    [self updateModel:[self getCachedTableDataArrayForViewType:viewType]];
+    [self updateView];
+}
+
+
+-(NSString *) readCachedHash
+{
+    return [[self readCachedFileStructure] objectForKey:@"hash"];
+}
+
+-(void) startAnimating
+{
+    
+}
+
+-(void) stopAnimating
+{
+    
+}
+
 
 
 @end

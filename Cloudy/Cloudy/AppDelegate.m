@@ -74,7 +74,7 @@
                 path = @"/";
                 break;
             case SKYDRIVE:
-                path = [NSString stringWithFormat:@"%@/files",[accountData objectForKey:@"id"]];
+                path = [NSString stringWithFormat:@"me/skydrive/files"];
                 break;
     
             default:
@@ -115,7 +115,7 @@
     dropboxSession.delegate = callbackViewController;
     
     self.liveClientFlag = YES;
-    LiveConnectClient *aClient = [[LiveConnectClient alloc] initWithClientId:SKYDRIVE_CLIENT_ID delegate:callbackViewController];
+    LiveConnectClient *aClient = [[LiveConnectClient alloc] initWithClientId:SKYDRIVE_CLIENT_ID delegate:callbackViewController userState:@"InitialAllocation"];
     self.liveClient = aClient;
     [aClient release];
     

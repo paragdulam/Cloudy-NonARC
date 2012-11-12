@@ -12,6 +12,7 @@
 @interface CLAccountsTableViewController ()
 {
     UIButton *editButton;
+    NSString *initialUserState;
 }
 -(void) initialModelSetup;
 -(void) performTableViewAnimationForIndexPath:(NSIndexPath *) indexPath withAnimationSequence:(NSArray *) sequence;
@@ -400,6 +401,7 @@
                session: (LiveConnectSession *) session
              userState: (id) userState
 {
+    initialUserState = [userState retain];
     [self.appDelegate.liveClient getWithPath:@"/me"
                                     delegate:self
                                    userState:@"/me"];
@@ -421,7 +423,8 @@
     if ([operation.userState isEqualToString:@"/me"]) {
         NSDictionary *accountDictionary = [CLDictionaryConvertor dictionaryFromAccountInfo:operation.result];
         BOOL isAccountStored = [CLCacheManager storeAccount:accountDictionary];
-        NSIndexPath *indexPath = [NSIndexPath indexPathForRow:0 inSection:SKYDRIVE];
+        NSIndexPath *indexPath = [NSIndexPath indexPathForRow:0
+                                                    inSection:SKYDRIVE];
         CLAccountCell *cell = [self cellAtIndexPath:indexPath];
         [cell stopAnimating:YES];
         if (isAccountStored) {
@@ -448,10 +451,12 @@
         [CLCacheManager updateAccount:skyDriveAccount];
         [self initialModelSetup];
         [self updateView];
-        if (!self.appDelegate.liveClientFlag) {
+        if (![initialUserState isEqualToString:@"InitialAllocation"]) {
             [self tableView:dataTableView didSelectRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:SKYDRIVE]];
+        } else {
+            [initialUserState release];
+            initialUserState = nil;
         }
-        self.appDelegate.liveClientFlag = NO;
     }
 }
 

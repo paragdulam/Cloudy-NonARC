@@ -90,7 +90,7 @@
 
 -(void) updateView
 {
-    
+    [dataTableView reloadData];
 }
 
 #pragma mark - UITableViewDataSource
