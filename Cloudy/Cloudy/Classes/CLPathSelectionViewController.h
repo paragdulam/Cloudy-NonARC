@@ -6,8 +6,8 @@
 //  Copyright (c) 2012 Parag Dulam. All rights reserved.
 //
 
-#import "CLBaseTableViewController.h"
+#import "CLFileBrowserBaseTableViewController.h"
 
-@interface CLPathSelectionViewController : CLBaseTableViewController
+@interface CLPathSelectionViewController : CLFileBrowserBaseTableViewController
 
 @end

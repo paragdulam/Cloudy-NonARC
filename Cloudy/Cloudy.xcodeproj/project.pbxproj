@@ -78,6 +78,7 @@
 		F194DBD9164AECF300631792 /* backArrow_black.png in Resources */ = {isa = PBXBuildFile; fileRef = F194DBB0164AECF300631792 /* backArrow_black.png */; };
 		F194DBE9164AED3D00631792 /* libSDropboxSDK.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F194DBE6164AED2800631792 /* libSDropboxSDK.a */; };
 		F194DBEB164AED8900631792 /* AssetsLibrary.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F194DBEA164AED8900631792 /* AssetsLibrary.framework */; };
+		F19528491650DE8E005EDE2D /* CLFileBrowserTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F19528481650DE8E005EDE2D /* CLFileBrowserTableViewController.m */; };
 		F1B7EDCD164F9D7300A9ABE0 /* CLBrowserBarItem.m in Sources */ = {isa = PBXBuildFile; fileRef = F1B7EDCC164F9D7300A9ABE0 /* CLBrowserBarItem.m */; };
 		F1B7EDD0164FA6C500A9ABE0 /* CLFileBrowserCell.m in Sources */ = {isa = PBXBuildFile; fileRef = F1B7EDCF164FA6C500A9ABE0 /* CLFileBrowserCell.m */; };
 		F1B7EDD2164FD88000A9ABE0 /* 1351499593_arrow_up.png in Resources */ = {isa = PBXBuildFile; fileRef = F1B7EDD1164FD88000A9ABE0 /* 1351499593_arrow_up.png */; };
@@ -233,6 +234,8 @@
 		F194DBB0164AECF300631792 /* backArrow_black.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = backArrow_black.png; sourceTree = "<group>"; };
 		F194DBDA164AED2800631792 /* DropboxSDK.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = DropboxSDK.xcodeproj; path = DropboxSDK/DropboxSDK.xcodeproj; sourceTree = "<group>"; };
 		F194DBEA164AED8900631792 /* AssetsLibrary.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AssetsLibrary.framework; path = System/Library/Frameworks/AssetsLibrary.framework; sourceTree = SDKROOT; };
+		F19528471650DE8D005EDE2D /* CLFileBrowserTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CLFileBrowserTableViewController.h; sourceTree = "<group>"; };
+		F19528481650DE8E005EDE2D /* CLFileBrowserTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CLFileBrowserTableViewController.m; sourceTree = "<group>"; };
 		F1B7EDCB164F9D7300A9ABE0 /* CLBrowserBarItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CLBrowserBarItem.h; sourceTree = "<group>"; };
 		F1B7EDCC164F9D7300A9ABE0 /* CLBrowserBarItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CLBrowserBarItem.m; sourceTree = "<group>"; };
 		F1B7EDCE164FA6C500A9ABE0 /* CLFileBrowserCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CLFileBrowserCell.h; sourceTree = "<group>"; };
@@ -339,6 +342,8 @@
 				F1B7EDCC164F9D7300A9ABE0 /* CLBrowserBarItem.m */,
 				F1B7EDCE164FA6C500A9ABE0 /* CLFileBrowserCell.h */,
 				F1B7EDCF164FA6C500A9ABE0 /* CLFileBrowserCell.m */,
+				F19528471650DE8D005EDE2D /* CLFileBrowserTableViewController.h */,
+				F19528481650DE8E005EDE2D /* CLFileBrowserTableViewController.m */,
 			);
 			path = Classes;
 			sourceTree = "<group>";
@@ -706,6 +711,7 @@
 				F10169DF164CD62F002AE454 /* CLAccountCell.m in Sources */,
 				F1B7EDCD164F9D7300A9ABE0 /* CLBrowserBarItem.m in Sources */,
 				F1B7EDD0164FA6C500A9ABE0 /* CLFileBrowserCell.m in Sources */,
+				F19528491650DE8E005EDE2D /* CLFileBrowserTableViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

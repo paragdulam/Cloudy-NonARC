@@ -400,14 +400,11 @@
                session: (LiveConnectSession *) session
              userState: (id) userState
 {
-    if (!self.appDelegate.liveClientFlag) {
-        [self.appDelegate.liveClient getWithPath:@"/me"
-                                        delegate:self
-                                       userState:@"/me"];
-        [self startAnimatingCellAtIndexPath:[NSIndexPath indexPathForRow:0
-                                                               inSection:SKYDRIVE]];
-    }
-    self.appDelegate.liveClientFlag = NO;
+    [self.appDelegate.liveClient getWithPath:@"/me"
+                                    delegate:self
+                                   userState:@"/me"];
+    [self startAnimatingCellAtIndexPath:[NSIndexPath indexPathForRow:0
+                                                           inSection:SKYDRIVE]];
 }
 
 - (void) authFailed: (NSError *) error
@@ -434,8 +431,6 @@
                                   withAnimationSequence:sequenceArray];
         }
         editButton.hidden = NO;
-        [self tableView:dataTableView didSelectRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:SKYDRIVE]];
-
         [self.appDelegate.liveClient getWithPath:@"/me/skydrive/quota"
                                         delegate:self
                                        userState:@"/me/skydrive/quota"];
@@ -445,7 +440,7 @@
         
         //Read the current skydrive account
         NSMutableDictionary *skyDriveAccount = [[NSMutableDictionary alloc] initWithDictionary:[CLCacheManager getAccountForType:SKYDRIVE]];
-
+        
         //Add the quota dictionary to the current skydrive account
         [skyDriveAccount setObject:quotaDictionary forKey:@"quota"];
         
@@ -454,6 +449,10 @@
         [self initialModelSetup];
         [self updateView];
     }
+    if (!self.appDelegate.liveClientFlag) {
+        [self tableView:dataTableView didSelectRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:SKYDRIVE]];
+    }
+    self.appDelegate.liveClientFlag = NO;
 }
 
 - (void) liveOperationFailed:(NSError *)error

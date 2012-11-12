@@ -341,9 +341,7 @@
         [tableDataArray addObjectsFromArray:contents];
         [dataTableView reloadData];
     }
-    //Reading Cache is skipped only reading Table Contents Ends
-
-    
+    //Reading Cache is skipped only reading Table Contents Ends    
 }
 
 - (void)restClient:(DBRestClient*)client metadataUnchangedAtPath:(NSString*)path
