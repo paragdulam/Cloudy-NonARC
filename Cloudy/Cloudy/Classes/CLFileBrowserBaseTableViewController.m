@@ -6,11 +6,11 @@
 //  Copyright (c) 2012 Parag Dulam. All rights reserved.
 //
 
-#import "CLFileBrowserTableViewController.h"
+#import "CLFileBrowserBaseTableViewController.h"
 #import "CLFileBrowserCell.h"
 
 
-@interface CLFileBrowserTableViewController ()
+@interface CLFileBrowserBaseTableViewController ()
 {
     
 //    UIButton *uploadButton;
@@ -29,7 +29,7 @@
 
 @end
 
-@implementation CLFileBrowserTableViewController
+@implementation CLFileBrowserBaseTableViewController
 @synthesize viewType;
 @synthesize path;
 
@@ -267,7 +267,7 @@
             {
                 NSDictionary *metadata = [tableDataArray objectAtIndex:indexPath.row];
                 if ([[metadata objectForKey:@"isDirectory"] boolValue]) {
-                    CLFileBrowserTableViewController *fileBrowserViewController = [[CLFileBrowserTableViewController alloc] initWithTableViewStyle:UITableViewStylePlain WherePath:[metadata objectForKey:@"path"] WithinViewType:DROPBOX];
+                    CLFileBrowserBaseTableViewController *fileBrowserViewController = [[CLFileBrowserBaseTableViewController alloc] initWithTableViewStyle:UITableViewStylePlain WherePath:[metadata objectForKey:@"path"] WithinViewType:DROPBOX];
                     [self.navigationController pushViewController:fileBrowserViewController animated:YES];
                     [fileBrowserViewController release];
                 }
@@ -277,7 +277,7 @@
             {
                 NSDictionary *metadata = [tableDataArray objectAtIndex:indexPath.row];
                 if ([[metadata objectForKey:@"type"] isEqualToString:@"album"] || [[metadata objectForKey:@"type"] isEqualToString:@"folder"]) {
-                    CLFileBrowserTableViewController *fileBrowserViewController = [[CLFileBrowserTableViewController alloc] initWithTableViewStyle:UITableViewStylePlain WherePath:[NSString stringWithFormat:@"%@/files",[metadata objectForKey:@"id"]] WithinViewType:SKYDRIVE];
+                    CLFileBrowserBaseTableViewController *fileBrowserViewController = [[CLFileBrowserBaseTableViewController alloc] initWithTableViewStyle:UITableViewStylePlain WherePath:[NSString stringWithFormat:@"%@/files",[metadata objectForKey:@"id"]] WithinViewType:SKYDRIVE];
                     [self.navigationController pushViewController:fileBrowserViewController animated:YES];
                     [fileBrowserViewController release];
                 }
@@ -322,13 +322,6 @@
     
 }
 
-
-#pragma mark - CLBrowserBarItemDelegate
-
--(void) editButtonClicked:(UIButton *)btn WithinView:(CLBrowserBarItem *) view
-{
-    [self editButtonClicked:btn];
-}
 
 
 #pragma mark - DBRestClientDelegate

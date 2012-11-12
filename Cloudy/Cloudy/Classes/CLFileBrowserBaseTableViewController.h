@@ -9,7 +9,7 @@
 #import "CLBaseTableViewController.h"
 #import "CLBrowserBarItem.h"
 
-@interface CLFileBrowserTableViewController : CLBaseTableViewController<CLBrowserBarItemDelegate,LiveOperationDelegate>
+@interface CLFileBrowserBaseTableViewController : CLBaseTableViewController<LiveOperationDelegate>
 {
     NSString *path;
     VIEW_TYPE viewType;

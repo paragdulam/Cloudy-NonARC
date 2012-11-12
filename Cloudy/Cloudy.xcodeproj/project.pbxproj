@@ -29,7 +29,7 @@
 		F194DB35164A665400631792 /* CLBaseViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F194DB34164A665400631792 /* CLBaseViewController.m */; };
 		F194DB38164A66C700631792 /* CLBaseTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F194DB37164A66C700631792 /* CLBaseTableViewController.m */; };
 		F194DB3B164A66E800631792 /* CLAccountsTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F194DB3A164A66E800631792 /* CLAccountsTableViewController.m */; };
-		F194DB3E164A671A00631792 /* CLFileBrowserTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F194DB3D164A671A00631792 /* CLFileBrowserTableViewController.m */; };
+		F194DB3E164A671A00631792 /* CLFileBrowserBaseTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F194DB3D164A671A00631792 /* CLFileBrowserBaseTableViewController.m */; };
 		F194DB41164A676700631792 /* CLPathSelectionViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F194DB40164A676700631792 /* CLPathSelectionViewController.m */; };
 		F194DB51164A6B1D00631792 /* DDMenuController.m in Sources */ = {isa = PBXBuildFile; fileRef = F194DB50164A6B1D00631792 /* DDMenuController.m */; };
 		F194DB53164A720F00631792 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F194DB52164A720F00631792 /* QuartzCore.framework */; };
@@ -141,8 +141,8 @@
 		F194DB37164A66C700631792 /* CLBaseTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CLBaseTableViewController.m; sourceTree = "<group>"; };
 		F194DB39164A66E800631792 /* CLAccountsTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CLAccountsTableViewController.h; sourceTree = "<group>"; };
 		F194DB3A164A66E800631792 /* CLAccountsTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CLAccountsTableViewController.m; sourceTree = "<group>"; };
-		F194DB3C164A671A00631792 /* CLFileBrowserTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CLFileBrowserTableViewController.h; sourceTree = "<group>"; };
-		F194DB3D164A671A00631792 /* CLFileBrowserTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CLFileBrowserTableViewController.m; sourceTree = "<group>"; };
+		F194DB3C164A671A00631792 /* CLFileBrowserBaseTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CLFileBrowserBaseTableViewController.h; sourceTree = "<group>"; };
+		F194DB3D164A671A00631792 /* CLFileBrowserBaseTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CLFileBrowserBaseTableViewController.m; sourceTree = "<group>"; };
 		F194DB3F164A676700631792 /* CLPathSelectionViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CLPathSelectionViewController.h; sourceTree = "<group>"; };
 		F194DB40164A676700631792 /* CLPathSelectionViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CLPathSelectionViewController.m; sourceTree = "<group>"; };
 		F194DB4F164A6B1D00631792 /* DDMenuController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDMenuController.h; sourceTree = "<group>"; };
@@ -325,8 +325,8 @@
 				F194DB37164A66C700631792 /* CLBaseTableViewController.m */,
 				F194DB39164A66E800631792 /* CLAccountsTableViewController.h */,
 				F194DB3A164A66E800631792 /* CLAccountsTableViewController.m */,
-				F194DB3C164A671A00631792 /* CLFileBrowserTableViewController.h */,
-				F194DB3D164A671A00631792 /* CLFileBrowserTableViewController.m */,
+				F194DB3C164A671A00631792 /* CLFileBrowserBaseTableViewController.h */,
+				F194DB3D164A671A00631792 /* CLFileBrowserBaseTableViewController.m */,
 				F194DB3F164A676700631792 /* CLPathSelectionViewController.h */,
 				F194DB40164A676700631792 /* CLPathSelectionViewController.m */,
 				F10169C4164B9CE0002AE454 /* CLDictionaryConvertor.h */,
@@ -669,7 +669,7 @@
 				F194DB35164A665400631792 /* CLBaseViewController.m in Sources */,
 				F194DB38164A66C700631792 /* CLBaseTableViewController.m in Sources */,
 				F194DB3B164A66E800631792 /* CLAccountsTableViewController.m in Sources */,
-				F194DB3E164A671A00631792 /* CLFileBrowserTableViewController.m in Sources */,
+				F194DB3E164A671A00631792 /* CLFileBrowserBaseTableViewController.m in Sources */,
 				F194DB41164A676700631792 /* CLPathSelectionViewController.m in Sources */,
 				F194DB51164A6B1D00631792 /* DDMenuController.m in Sources */,
 				F194DBB1164AECF300631792 /* AGImagePickerController+Constants.m in Sources */,

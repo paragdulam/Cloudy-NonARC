@@ -7,7 +7,7 @@
 //
 
 #import "CLAccountsTableViewController.h"
-#import "CLFileBrowserTableViewController.h"
+#import "CLFileBrowserBaseTableViewController.h"
 
 @interface CLAccountsTableViewController ()
 {

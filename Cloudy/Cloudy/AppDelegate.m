@@ -8,7 +8,7 @@
 
 #import "AppDelegate.h"
 #import "CLAccountsTableViewController.h"
-#import "CLFileBrowserTableViewController.h"
+#import "CLFileBrowserBaseTableViewController.h"
 
 
 @interface AppDelegate()
@@ -122,7 +122,7 @@
     [menuController setLeftViewController:leftNavController];
     [leftNavController release];
     
-    CLFileBrowserTableViewController *fileBrowserViewController = [[CLFileBrowserTableViewController alloc] initWithTableViewStyle:UITableViewStylePlain];
+    CLFileBrowserBaseTableViewController *fileBrowserViewController = [[CLFileBrowserBaseTableViewController alloc] initWithTableViewStyle:UITableViewStylePlain];
     self.rootFileBrowserViewController = fileBrowserViewController;
     UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:fileBrowserViewController];
     [fileBrowserViewController release];
