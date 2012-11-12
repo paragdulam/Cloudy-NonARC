@@ -13,25 +13,23 @@
 @interface CLFileBrowserTableViewController ()
 {
     
-    UIButton *uploadButton;
-    
-    UIButton *moveButton;
-    UIButton *copyButton;
-    UIButton *shareButton;
-    UIButton *deleteButton;
-    
-    
-    NSArray *toolBarItems;
-    NSArray *editingToolBarItems;
-    CLBrowserBarItem *barItem;
+//    UIButton *uploadButton;
+//    
+//    UIButton *moveButton;
+//    UIButton *copyButton;
+//    UIButton *shareButton;
+//    UIButton *deleteButton;
+//    
+//    
+//    NSArray *toolBarItems;
+//    NSArray *editingToolBarItems;
+//    CLBrowserBarItem *barItem;
 }
 
 
 @end
 
 @implementation CLFileBrowserTableViewController
-@synthesize hidesFiles;
-@synthesize excludedFolders;
 @synthesize viewType;
 @synthesize path;
 
@@ -45,25 +43,16 @@
     return self;
 }
 
--(id) initWithTableViewStyle:(UITableViewStyle)style WhereHidesFiles:(BOOL) aBool andExcludedFolders:(NSArray *) folders
+-(id) initWithTableViewStyle:(UITableViewStyle)style WherePath:(NSString *) pathString WithinViewType:(VIEW_TYPE) type
 {
     if (self = [super initWithTableViewStyle:style]) {
-        self.hidesFiles = aBool;
-        self.excludedFolders = folders;
+        self.path = pathString;
+        self.viewType = type;
     }
     return self;
 }
 
 
--(id) initWithTableViewStyle:(UITableViewStyle)style WhereHidesFiles:(BOOL) aBool andExcludedFolders:(NSArray *) folders andPath:(NSString *) pString ForViewType:(VIEW_TYPE) type
-{
-    self = [self initWithTableViewStyle:UITableViewStylePlain
-                        WhereHidesFiles:hidesFiles
-                     andExcludedFolders:excludedFolders];
-    self.path = pString;
-    self.viewType = type;
-    return self;
-}
 
 
 - (void)viewDidLoad
@@ -230,7 +219,6 @@
 -(void) viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-    [barItem deselectAll];
 }
 
 - (void)didReceiveMemoryWarning
@@ -243,15 +231,6 @@
 {
     [path release];
     path = nil;
-    
-    [editingToolBarItems release];
-    editingToolBarItems = nil;
-    
-    [toolBarItems release];
-    toolBarItems = nil;
-    
-    [excludedFolders release];
-    excludedFolders = nil;
     [super dealloc];
 }
 
@@ -288,7 +267,7 @@
             {
                 NSDictionary *metadata = [tableDataArray objectAtIndex:indexPath.row];
                 if ([[metadata objectForKey:@"isDirectory"] boolValue]) {
-                    CLFileBrowserTableViewController *fileBrowserViewController = [[CLFileBrowserTableViewController alloc] initWithTableViewStyle:UITableViewStylePlain WhereHidesFiles:NO andExcludedFolders:nil andPath:[metadata objectForKey:@"path"] ForViewType:DROPBOX];
+                    CLFileBrowserTableViewController *fileBrowserViewController = [[CLFileBrowserTableViewController alloc] initWithTableViewStyle:UITableViewStylePlain WherePath:[metadata objectForKey:@"path"] WithinViewType:DROPBOX];
                     [self.navigationController pushViewController:fileBrowserViewController animated:YES];
                     [fileBrowserViewController release];
                 }
@@ -298,7 +277,7 @@
             {
                 NSDictionary *metadata = [tableDataArray objectAtIndex:indexPath.row];
                 if ([[metadata objectForKey:@"type"] isEqualToString:@"album"] || [[metadata objectForKey:@"type"] isEqualToString:@"folder"]) {
-                    CLFileBrowserTableViewController *fileBrowserViewController = [[CLFileBrowserTableViewController alloc] initWithTableViewStyle:UITableViewStylePlain WhereHidesFiles:NO andExcludedFolders:nil andPath:[NSString stringWithFormat:@"%@/files",[metadata objectForKey:@"id"]] ForViewType:SKYDRIVE];
+                    CLFileBrowserTableViewController *fileBrowserViewController = [[CLFileBrowserTableViewController alloc] initWithTableViewStyle:UITableViewStylePlain WherePath:[NSString stringWithFormat:@"%@/files",[metadata objectForKey:@"id"]] WithinViewType:SKYDRIVE];
                     [self.navigationController pushViewController:fileBrowserViewController animated:YES];
                     [fileBrowserViewController release];
                 }
@@ -321,15 +300,12 @@
 
 - (void) liveOperationSucceeded:(LiveOperation *)operation
 {
-    [barItem stopAnimating];
     [CLCacheManager updateFolderStructure:operation.result
                                   ForView:SKYDRIVE];
     
     //Reading Cache is skipped only reading Table Contents Starts
     if (viewType == SKYDRIVE) {
         NSArray *contents = [operation.result objectForKey:@"data"];
-//        [self.navigationItem setTitle:[operation.result objectForKey:@"name"]];
-        if (!hidesFiles && ![excludedFolders count])
         {
             [tableDataArray removeAllObjects];
             [tableDataArray addObjectsFromArray:contents];
@@ -343,7 +319,7 @@
 - (void) liveOperationFailed:(NSError *)error
                    operation:(LiveOperation*)operation
 {
-    [barItem stopAnimating];
+    
 }
 
 
@@ -361,7 +337,6 @@
 
 - (void)restClient:(DBRestClient*)client loadedMetadata:(DBMetadata*)metadata
 {
-    [barItem stopAnimating];
     NSDictionary *metadataDictionary = [CLDictionaryConvertor dictionaryFromMetadata:metadata];
     [CLCacheManager updateFolderStructure:metadataDictionary
                                   ForView:DROPBOX];
@@ -369,13 +344,9 @@
     //Reading Cache is skipped only reading Table Contents Starts
     if (viewType == DROPBOX) {
         NSArray *contents = [metadataDictionary objectForKey:@"contents"];
-//        [self.navigationItem setTitle:[metadataDictionary objectForKey:@"filename"]];
-        if (!hidesFiles && ![excludedFolders count])
-        {
-            [tableDataArray removeAllObjects];
-            [tableDataArray addObjectsFromArray:contents];
-            [dataTableView reloadData];
-        }
+        [tableDataArray removeAllObjects];
+        [tableDataArray addObjectsFromArray:contents];
+        [dataTableView reloadData];
     }
     //Reading Cache is skipped only reading Table Contents Ends
 
@@ -384,12 +355,10 @@
 
 - (void)restClient:(DBRestClient*)client metadataUnchangedAtPath:(NSString*)path
 {
-    [barItem stopAnimating];
 }
 
 - (void)restClient:(DBRestClient*)client loadMetadataFailedWithError:(NSError*)error
 {
-    [barItem stopAnimating];
 }
 
 
@@ -416,14 +385,9 @@
         }
         [tableDataArray removeAllObjects];
         [dataTableView reloadData];
-        uploadButton.hidden = YES;
-        [barItem hideEditButton:YES];
-        [self.navigationItem setTitle:nil];
         [self.appDelegate.menuController setLeftButtonImage:[UIImage imageNamed:@"nav_menu_icon.png"]];
         return;
     }
-    uploadButton.hidden = YES;
-    [barItem hideEditButton:YES];
     dataTableView.tableHeaderView = nil;
     self.path = pathString;
     self.viewType = type;
@@ -435,12 +399,9 @@
             NSDictionary *cachedAccount = [CLCacheManager metaDataDictionaryForPath:path ForView:DROPBOX];
 //            [self.navigationItem setTitle:[cachedAccount objectForKey:@"filename"]];
             NSArray *contents = [cachedAccount objectForKey:@"contents"];
-            if (!hidesFiles && ![excludedFolders count])
-            {
-                [tableDataArray removeAllObjects];
-                [tableDataArray addObjectsFromArray:contents];
-                [dataTableView reloadData];
-            }
+            [tableDataArray removeAllObjects];
+            [tableDataArray addObjectsFromArray:contents];
+            [dataTableView reloadData];
             [self.appDelegate.menuController setLeftButtonImage:[UIImage imageNamed:@"dropbox_cell_Image.png"]];
 
             //Read Cache Ends
@@ -449,7 +410,6 @@
             NSString *hash = [cachedAccount objectForKey:@"hash"];
             [self.restClient loadMetadata:path
                                  withHash:hash];
-            [barItem startAnimating];
             //Web Request Ends
         }
             break;
@@ -459,12 +419,9 @@
             NSDictionary *cachedAccount = [CLCacheManager metaDataDictionaryForPath:path ForView:SKYDRIVE];
 //            [self.navigationItem setTitle:[cachedAccount objectForKey:@"name"]];
             NSArray *contents = [cachedAccount objectForKey:@"data"];
-            if (!hidesFiles && ![excludedFolders count])
-            {
-                [tableDataArray removeAllObjects];
-                [tableDataArray addObjectsFromArray:contents];
-                [dataTableView reloadData];
-            }
+            [tableDataArray removeAllObjects];
+            [tableDataArray addObjectsFromArray:contents];
+            [dataTableView reloadData];
             [self.appDelegate.menuController setLeftButtonImage:[UIImage imageNamed:@"SkyDriveIconWhite_32x32.png"]];
 
             //Read Cache Ends
@@ -473,7 +430,6 @@
             [self.appDelegate.liveClient getWithPath:path
                                             delegate:self
                                            userState:path];
-            [barItem startAnimating];
             //Web Request Ends
 
         }
@@ -515,15 +471,6 @@
 -(void) editButtonClicked:(UIButton *) sender
 {
     sender.selected = !sender.selected;
-
-    if (sender.selected) {
-        [fileOperationsToolbar setItems:editingToolBarItems animated:YES];
-        [dataTableView setEditing:YES animated:YES];
-    } else {
-        [fileOperationsToolbar setItems:toolBarItems animated:YES];
-        [dataTableView setEditing:NO animated:YES];
-    }
-
 }
 
 @end
