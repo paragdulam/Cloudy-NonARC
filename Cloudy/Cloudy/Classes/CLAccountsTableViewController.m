@@ -230,7 +230,9 @@
             if (![self.appDelegate.dropboxSession isLinked]) {
                 [self.appDelegate.dropboxSession linkFromController:self.appDelegate.menuController];
             } else {
-                [self.appDelegate.menuController setRootController:self.appDelegate.menuController.rootViewController animated:YES];
+                UINavigationController *navController = (UINavigationController *)self.appDelegate.menuController.rootViewController;
+                [navController popToRootViewControllerAnimated:NO];
+                [self.appDelegate.menuController setRootController:navController animated:YES];
                 
                 [self.appDelegate.rootFileBrowserViewController loadFilesForPath:@"/" WithInViewType:DROPBOX];
             }
@@ -243,7 +245,9 @@
                                             scopes:SCOPE_ARRAY
                                           delegate:self];
             } else {
-                [self.appDelegate.menuController setRootController:self.appDelegate.menuController.rootViewController animated:YES];
+                UINavigationController *navController = (UINavigationController *)self.appDelegate.menuController.rootViewController;
+                [navController popToRootViewControllerAnimated:NO];
+                [self.appDelegate.menuController setRootController:navController animated:YES];
                 
                 [self.appDelegate.rootFileBrowserViewController loadFilesForPath:@"me/skydrive/files" WithInViewType:SKYDRIVE];
             }

@@ -25,5 +25,8 @@
 -(void) loadFilesForPath:(NSString *) pathString WithInViewType:(VIEW_TYPE) type;
 -(void) startAnimating;
 -(void) stopAnimating;
+-(void) readCacheUpdateView;
+-(void) updateModel:(NSArray *) model;
+
 
 @end

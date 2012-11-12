@@ -286,7 +286,19 @@
 
 -(void) moveButtonClicked:(UIButton *) sender
 {
-    CLPathSelectionViewController *pathSelectionViewController = [[CLPathSelectionViewController alloc] initWithTableViewStyle:UITableViewStyleGrouped WherePath:@"/" WithinViewType:DROPBOX];
+    NSString *pathString = nil;
+    switch (viewType) {
+        case DROPBOX:
+            pathString = @"/";
+            break;
+        case SKYDRIVE:
+            pathString = @"me/skydrive/files";
+            break;
+            
+        default:
+            break;
+    }
+    CLPathSelectionViewController *pathSelectionViewController = [[CLPathSelectionViewController alloc] initWithTableViewStyle:UITableViewStylePlain WherePath:pathString WithinViewType:viewType];
     UINavigationController *nController = [[UINavigationController alloc] initWithRootViewController:pathSelectionViewController];
     [pathSelectionViewController release];
     
