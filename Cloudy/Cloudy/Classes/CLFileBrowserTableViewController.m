@@ -29,6 +29,8 @@
 -(void) hideButtons:(NSArray *) buttons;
 -(void) showButtons:(NSArray *) buttons;
 -(NSArray *) getSelectedDataArray;
+-(void) performFileOperation;
+
 @end
 
 @implementation CLFileBrowserTableViewController
@@ -204,6 +206,8 @@
 
 #pragma mark - DBRestClientDelegate
 
+#pragma mark - Move File Operation Methods
+
 - (void)restClient:(DBRestClient*)client movedPath:(NSString *)from_path to:(DBMetadata *)result
 {
     NSDictionary *metaData = [CLDictionaryConvertor dictionaryFromMetadata:result];
@@ -213,6 +217,20 @@
 }
 
 - (void)restClient:(DBRestClient*)client movePathFailedWithError:(NSError*)error
+{
+    
+}
+
+#pragma mark - Delete File Operation Methods
+
+- (void)restClient:(DBRestClient*)client deletedPath:(NSString *)path
+{
+    [tableDataArray removeObjectsInArray:[self getSelectedDataArray]];
+    [dataTableView deleteRowsAtIndexPaths:[dataTableView indexPathsForSelectedRows]
+                         withRowAnimation:UITableViewRowAnimationLeft];
+}
+
+- (void)restClient:(DBRestClient*)client deletePathFailedWithError:(NSError*)error
 {
     
 }
@@ -257,6 +275,34 @@
 
 
 #pragma mark - Helper Methods
+
+
+-(void) performFileOperation
+{
+    NSArray *selectedData = [self getSelectedDataArray];
+    if ([selectedData count]) {
+        NSString *pathString = nil;
+        switch (viewType) {
+            case DROPBOX:
+                pathString = @"/";
+                break;
+            case SKYDRIVE:
+                pathString = @"me/skydrive/files";
+                break;
+                
+            default:
+                break;
+        }
+        
+        CLPathSelectionViewController *pathSelectionViewController = [[CLPathSelectionViewController alloc] initWithTableViewStyle:UITableViewStylePlain WherePath:pathString WithinViewType:viewType WhereExcludedFolders:selectedData];
+        pathSelectionViewController.delegate = self;
+        UINavigationController *nController = [[UINavigationController alloc] initWithRootViewController:pathSelectionViewController];
+        [pathSelectionViewController release];
+        
+        [self presentModalViewController:nController animated:YES];
+        [nController release];
+    }
+}
 
 -(NSArray *) getSelectedDataArray
 {
@@ -348,44 +394,23 @@
 -(void) copyButtonClicked:(UIButton *) sender
 {
     currentFileOperation = COPY;
+    [self performFileOperation];
 }
 
 
 -(void) moveButtonClicked:(UIButton *) sender
 {
     currentFileOperation = MOVE;
-    NSArray *selectedData = [self getSelectedDataArray];
-    if ([selectedData count]) {
-        NSString *pathString = nil;
-        switch (viewType) {
-            case DROPBOX:
-                pathString = @"/";
-                break;
-            case SKYDRIVE:
-                pathString = @"me/skydrive/files";
-                break;
-                
-            default:
-                break;
-        }
-        
-        CLPathSelectionViewController *pathSelectionViewController = [[CLPathSelectionViewController alloc] initWithTableViewStyle:UITableViewStylePlain WherePath:pathString WithinViewType:viewType WhereExcludedFolders:selectedData];
-        pathSelectionViewController.delegate = self;
-        UINavigationController *nController = [[UINavigationController alloc] initWithRootViewController:pathSelectionViewController];
-        [pathSelectionViewController release];
-        
-        [self presentModalViewController:nController animated:YES];
-        [nController release];
-    }
+    [self performFileOperation];
 }
 
 -(void) deleteButtonClicked:(UIButton *) sender
 {
     currentFileOperation = DELETE;
-//    NSArray *selectedData = [self getSelectedDataArray];
-//    for (NSDictionary *data in selectedData) {
-//        [self.restClient deletePath:[data objectForKey:@"path"]];
-//    }
+    NSArray *selectedData = [self getSelectedDataArray];
+    for (NSDictionary *data in selectedData) {
+        [self.restClient deletePath:[data objectForKey:@"path"]];
+    }
 }
 
 -(void) editButtonClicked:(UIButton *) sender
