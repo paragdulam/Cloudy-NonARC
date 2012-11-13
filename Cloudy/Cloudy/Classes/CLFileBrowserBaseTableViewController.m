@@ -163,8 +163,13 @@
 - (void) liveOperationSucceeded:(LiveOperation *)operation
 {
     [self stopAnimating];
-    [CLCacheManager updateFolderStructure:operation.result
+    NSLog(@"path %@",operation.path);
+    NSMutableDictionary *resultDictionary = [[NSMutableDictionary alloc] init];
+    [resultDictionary setObject:operation.path forKey:PATH];
+    [resultDictionary setObject:operation.result forKey:@"RESULT_DATA"];
+    [CLCacheManager updateFolderStructure:resultDictionary
                                   ForView:SKYDRIVE];
+    [resultDictionary release];
     
     //Reading Cache is skipped only reading Table Contents Starts
     if (viewType == SKYDRIVE) { //cache is not referred

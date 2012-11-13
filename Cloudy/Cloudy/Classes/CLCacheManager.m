@@ -308,7 +308,7 @@
                 }
             }
             NSString *filePath = [CLCacheManager getFileStructurePath:type];
-            if (!traversingDict) {
+            if (!traversingDict || [path isEqualToString:@"/"]) {
                 mutableFileStructure = [NSMutableDictionary dictionaryWithDictionary:metaDataDict];
             }
             retVal = [mutableFileStructure writeToFile:filePath atomically:YES];
@@ -317,16 +317,17 @@
             
         case SKYDRIVE:
         {
+            NSDictionary *resultDictionary = [metaDataDict objectForKey:@"RESULT_DATA"];
             NSDictionary *fileStructure = [[NSDictionary alloc] initWithContentsOfFile:[CLCacheManager getFileStructurePath:SKYDRIVE]];
             NSMutableDictionary *mutableFileStructure = CFPropertyListCreateDeepCopy(kCFAllocatorDefault, (CFDictionaryRef)fileStructure, kCFPropertyListMutableContainers);
             NSString *filePath = [CLCacheManager getFileStructurePath:type];
 
-            if (!mutableFileStructure) {
-                return [metaDataDict writeToFile:filePath atomically:YES];
+            if (!mutableFileStructure || [[metaDataDict objectForKey:PATH] isEqualToString:@"me/skydrive/files"]) {
+                return [resultDictionary writeToFile:filePath atomically:YES];
             }
             
             NSMutableDictionary *traversingDict = mutableFileStructure;
-            NSArray *dataArray = [metaDataDict objectForKey:@"data"];
+            NSArray *dataArray = [resultDictionary objectForKey:@"data"];
             if ([dataArray count]) {
                 NSDictionary *data = [dataArray objectAtIndex:0];
                 [traversingDict enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
