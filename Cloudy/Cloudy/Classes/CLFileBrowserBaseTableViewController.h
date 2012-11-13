@@ -9,11 +9,12 @@
 #import "CLBaseTableViewController.h"
 #import "CLBrowserBarItem.h"
 
-@interface CLFileBrowserBaseTableViewController : CLBaseTableViewController<LiveOperationDelegate>
+@interface CLFileBrowserBaseTableViewController : CLBaseTableViewController<LiveOperationDelegate,CLBrowserBarItemDelegate>
 {
     NSString *path;
     VIEW_TYPE viewType;
     UIToolbar *fileOperationsToolbar;
+    CLBrowserBarItem *barItem;
 }
 
 @property(nonatomic,retain) NSString *path;

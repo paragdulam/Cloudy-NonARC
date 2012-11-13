@@ -71,10 +71,11 @@
     self = [super init];
     if (self) 
     {
-        _liveClientCore = [[LiveConnectClientCore alloc] initWithClientId:clientId 
+        _liveClientCore = [[LiveConnectClientCore alloc] initWithClientId:clientId
                                                                    scopes:[LiveAuthHelper normalizeScopes:scopes] 
-                                                                 delegate:delegate 
+                                                                 delegate:delegate
                                                                 userState:userState];
+        
     }
     
     return self;

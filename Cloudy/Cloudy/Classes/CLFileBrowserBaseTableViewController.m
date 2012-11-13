@@ -64,6 +64,14 @@
     [self.view addSubview:fileOperationsToolbar];
     [fileOperationsToolbar release];
     
+    barItem = [[CLBrowserBarItem alloc] initWithFrame:CGRectMake(0, 0, 50, 30)];
+    barItem.delegate = self;
+    
+    UIBarButtonItem *rightBarButton = [[UIBarButtonItem alloc] initWithCustomView:barItem];
+    [barItem release];
+    [self.navigationItem setRightBarButtonItem:rightBarButton];
+    [rightBarButton release];
+    
     [self loadFilesForPath:path WithInViewType:viewType];
 }
 
@@ -305,12 +313,12 @@
 
 -(void) startAnimating
 {
-    
+    [barItem startAnimating];
 }
 
 -(void) stopAnimating
 {
-    
+    [barItem stopAnimating];
 }
 
 

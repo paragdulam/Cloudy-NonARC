@@ -10,7 +10,6 @@
 
 @interface CLPathSelectionViewController ()
 {
-    UIButton *cancelButton;
     UIButton *createFolderButton;
     UIButton *selectButton;
     
@@ -50,35 +49,23 @@
 {
     [super viewDidLoad];
 
-    CGRect navBarFrame = self.navigationController.navigationBar.frame;
-    navBarFrame.size.height = 60.f;
-    self.navigationController.navigationBar.frame = navBarFrame;
-    
-    
-    CGRect dataTableFrame = dataTableView.frame;
-    dataTableFrame.origin.y = self.navigationController.navigationBar.frame.size.height - 44.f;
-    dataTableView.frame = dataTableFrame;
+//    CGRect navBarFrame = self.navigationController.navigationBar.frame;
+//    navBarFrame.size.height = 60.f;
+//    self.navigationController.navigationBar.frame = navBarFrame;
+//    
+//    
+//    CGRect dataTableFrame = dataTableView.frame;
+//    dataTableFrame.origin.y = self.navigationController.navigationBar.frame.size.height - 44.f;
+//    dataTableFrame.size.height -= 44.f;
+//
+//    dataTableView.frame = dataTableFrame;
 
     UIImage *baseImage = [UIImage imageNamed:@"button_background_base.png"];
     UIImage *buttonImage = [baseImage resizableImageWithCapInsets:UIEdgeInsetsMake(0, 15, 0, 15)];
     
-    
-    cancelButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    cancelButton.frame = CGRectMake(0, 0, 50, 30);
-    [cancelButton setTitle:@"Cancel"
-                  forState:UIControlStateNormal];
-    [cancelButton setTitleColor:[UIColor whiteColor]
-                       forState:UIControlStateNormal];
-    [cancelButton setBackgroundImage:buttonImage
-                            forState:UIControlStateNormal];
-    [cancelButton.titleLabel setFont:[UIFont boldSystemFontOfSize:12.f]];
-    [cancelButton addTarget:self
-                     action:@selector(cancelButtonClicked:)
-           forControlEvents:UIControlEventTouchUpInside];
+    [barItem setTitle:@"Cancel" forState:UIControlStateNormal];
 
-    UIBarButtonItem *rightBarButton = [[UIBarButtonItem alloc] initWithCustomView:cancelButton];
-    [self.navigationItem setRightBarButtonItem:rightBarButton];
-    [rightBarButton release];
+    
     
     createFolderButton = [UIButton buttonWithType:UIButtonTypeCustom];
     createFolderButton.frame = CGRectMake(0, 0, 50, 30);
@@ -123,6 +110,11 @@
 	// Do any additional setup after loading the view.
 }
 
+-(void) viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+}
+
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
@@ -141,6 +133,14 @@
 }
 
 
+#pragma mark - CLBrowserBarItemDelegate
+
+-(void) buttonClicked:(UIButton *)btn WithinView:(CLBrowserBarItem *) view
+{
+    [self cancelButtonClicked:btn];
+}
+
+
 #pragma mark - Helper Methods
 
 
@@ -153,12 +153,38 @@
 -(void) updateModel:(NSArray *)model
 {
     NSMutableArray *computedData = [[NSMutableArray alloc] initWithArray:model];
-    [computedData removeObjectsInArray:excludedFolders];
 
+    NSMutableArray *tempArray = [[NSMutableArray alloc] init];
+    [excludedFolders enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        NSDictionary *objDict = (NSDictionary *)obj;
+        for (NSDictionary *data in computedData) {
+            if ([[data objectForKey:@"id"] isEqualToString:[objDict objectForKey:@"id"]]) {
+                [tempArray addObject:data];
+            }
+        }
+    }];
+    
+    [computedData removeObjectsInArray:tempArray];
+    [tempArray release];
     NSMutableArray *files = [[NSMutableArray alloc] init];
     for (NSDictionary *data in computedData) {
-        if (![[data objectForKey:@"isDirectory"] boolValue])/* || ![[data objectForKey:@"type"] isEqualToString:@"album"] || ![[data objectForKey:@"type"] isEqualToString:@"folder"]) */{
-            [files addObject:data];
+        switch (viewType) {
+            case DROPBOX:
+            {
+                if (![[data objectForKey:@"isDirectory"] boolValue]) {
+                    [files addObject:data];
+                }
+            }
+                break;
+            case SKYDRIVE:
+            {
+                if (![[data objectForKey:@"type"] isEqualToString:@"folder"] && ![[data objectForKey:@"type"] isEqualToString:@"album"]) {
+                    [files addObject:data];
+                }
+            }
+                break;
+            default:
+                break;
         }
     }
     [computedData removeObjectsInArray:files];
@@ -226,9 +252,11 @@
 -(void) selectButtonClicked:(UIButton *) btn
 {
     if ([delegate respondsToSelector:@selector(pathDidSelect:ForViewController:)]) {
+        [barItem startAnimating];
         [delegate pathDidSelect:path
               ForViewController:self];
     }
+//    [self dismissModalViewControllerAnimated:YES];
 }
 
 @end

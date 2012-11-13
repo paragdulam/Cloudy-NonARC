@@ -20,9 +20,10 @@
 -(void) stopAnimating;
 -(void) deselectAll;
 -(void)hideEditButton:(BOOL) aBool;
+-(void) setTitle:(NSString *) title forState:(UIControlState)state;
 
 @end
 
 @protocol CLBrowserBarItemDelegate<NSObject>
--(void) editButtonClicked:(UIButton *)btn WithinView:(CLBrowserBarItem *) view;
+-(void) buttonClicked:(UIButton *)btn WithinView:(CLBrowserBarItem *) view;
 @end

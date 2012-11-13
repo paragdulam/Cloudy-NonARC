@@ -21,8 +21,9 @@
 // and logout* methods.
 // The data access methods include get* methods, delete* methods, post* methods, put* methods, 
 // copy* methods, move* methods, upload* methods and download* methods.
-@interface LiveConnectClient : NSObject 
-
+@interface LiveConnectClient : NSObject
+{
+}
 // The user's current session object.
 @property(nonatomic, readonly) LiveConnectSession *session;
 

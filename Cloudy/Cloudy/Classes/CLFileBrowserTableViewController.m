@@ -21,7 +21,6 @@
     
     NSArray *toolBarItems;
     NSArray *editingToolBarItems;
-    CLBrowserBarItem *barItem;
     
     FILE_FOLDER_OPERATION currentFileOperation;
 }
@@ -30,6 +29,7 @@
 -(void) showButtons:(NSArray *) buttons;
 -(NSArray *) getSelectedDataArray;
 -(void) performFileOperation;
+-(void) removeSelectedRows;
 
 @end
 
@@ -51,13 +51,6 @@
     
     UIImage *baseImage = [UIImage imageNamed:@"button_background_base.png"];
     UIImage *buttonImage = [baseImage resizableImageWithCapInsets:UIEdgeInsetsMake(0, 15, 0, 15)];
-    
-    barItem = [[CLBrowserBarItem alloc] initWithFrame:CGRectMake(0, 0, 50, 30)];
-    barItem.delegate = self;
-    UIBarButtonItem *barButtonItem = [[UIBarButtonItem alloc] initWithCustomView:barItem];
-    [barItem release];
-    [self.navigationItem setRightBarButtonItem:barButtonItem];
-    [barButtonItem release];
     
     
     uploadButton = [UIButton buttonWithType:UIButtonTypeCustom];
@@ -186,7 +179,11 @@
     editingToolBarItems = [[NSArray alloc] initWithArray:items];
     [items release];
 
-    [super viewDidLoad];
+    [super viewDidLoad]; // Here the sequence is really Important
+    
+    [barItem setTitle:@"Edit" forState:UIControlStateNormal];
+    [barItem setTitle:@"Done" forState:UIControlStateSelected];
+
     
 }
 
@@ -204,35 +201,87 @@
 }
 
 
+
+#pragma mark - LiveOperationDelegate
+
+- (void) liveOperationSucceeded:(LiveOperation *)operation
+{
+    [barItem stopAnimating];
+    if ([operation.userState isEqualToString:@"MOVE_FILES"]) {
+        [self.modalViewController dismissModalViewControllerAnimated:YES];
+        [self loadFilesForPath:[NSString stringWithFormat:@"%@/files",[operation.result objectForKey:@"id"]]
+                WithInViewType:SKYDRIVE];
+        [self removeSelectedRows];
+    } else if([operation.userState isEqualToString:@"COPY_FILES"]) {
+        [self.modalViewController dismissModalViewControllerAnimated:YES];
+    } else {
+        [super liveOperationSucceeded:operation];
+    }
+}
+
+- (void) liveOperationFailed:(NSError *)error
+                   operation:(LiveOperation*)operation
+{
+    [barItem stopAnimating];
+    if ([operation.userState isEqualToString:@"MOVE_FILES"] || [operation.userState isEqualToString:@"COPY_FILES"])
+    {
+        [self.modalViewController dismissModalViewControllerAnimated:YES];
+    }
+
+    [super liveOperationFailed:error
+                     operation:operation];
+}
+
+
+
 #pragma mark - DBRestClientDelegate
 
-#pragma mark - Move File Operation Methods
+#pragma mark - Copy File Operation Methods
 
-- (void)restClient:(DBRestClient*)client movedPath:(NSString *)from_path to:(DBMetadata *)result
+- (void)restClient:(DBRestClient*)client copiedPath:(NSString *)fromPath to:(DBMetadata *)to
 {
-    NSDictionary *metaData = [CLDictionaryConvertor dictionaryFromMetadata:result];
+    [barItem stopAnimating];
+    NSDictionary *metaData = [CLDictionaryConvertor dictionaryFromMetadata:to];
     [CLCacheManager updateFolderStructure:metaData
                                   ForView:DROPBOX];
     [self readCacheUpdateView];
 }
 
+- (void)restClient:(DBRestClient*)client copyPathFailedWithError:(NSError*)error
+{
+    [barItem stopAnimating];
+}
+
+
+#pragma mark - Move File Operation Methods
+
+- (void)restClient:(DBRestClient*)client movedPath:(NSString *)from_path to:(DBMetadata *)result
+{
+    [barItem stopAnimating];
+    NSDictionary *metaData = [CLDictionaryConvertor dictionaryFromMetadata:result];
+    [CLCacheManager updateFolderStructure:metaData
+                                  ForView:DROPBOX];
+    [self readCacheUpdateView];
+    [self removeSelectedRows];
+}
+
 - (void)restClient:(DBRestClient*)client movePathFailedWithError:(NSError*)error
 {
-    
+    [barItem stopAnimating];
 }
 
 #pragma mark - Delete File Operation Methods
 
 - (void)restClient:(DBRestClient*)client deletedPath:(NSString *)path
 {
-    [tableDataArray removeObjectsInArray:[self getSelectedDataArray]];
-    [dataTableView deleteRowsAtIndexPaths:[dataTableView indexPathsForSelectedRows]
-                         withRowAnimation:UITableViewRowAnimationLeft];
+    [barItem stopAnimating];
+    [barItem deselectAll];
+    [self removeSelectedRows];
 }
 
 - (void)restClient:(DBRestClient*)client deletePathFailedWithError:(NSError*)error
 {
-    
+    [barItem stopAnimating];
 }
 
 
@@ -267,6 +316,31 @@
         }
             break;
         case SKYDRIVE:
+        {
+            NSArray *indexPaths = [dataTableView indexPathsForSelectedRows];
+            NSMutableArray *pathComponents = [NSMutableArray arrayWithArray:[pathString componentsSeparatedByString:@"/"]];
+            [pathComponents removeLastObject];
+            pathString = [pathComponents objectAtIndex:0];
+            for (NSIndexPath *indexPath in indexPaths) {
+                NSDictionary *data = [tableDataArray objectAtIndex:indexPath.row];
+                switch (currentFileOperation) {
+                    case MOVE:
+                    {
+                        [self.appDelegate.liveClient moveFromPath:[data objectForKey:@"id"]
+                                                    toDestination:pathString delegate:self userState:@"MOVE_FILES"];
+                    }
+                        break;
+                    case COPY:
+                    {
+                        [self.appDelegate.liveClient copyFromPath:[data objectForKey:@"id"]
+                                                    toDestination:pathString delegate:self userState:@"COPY_FILES"];
+                    }
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
             break;
         default:
             break;
@@ -276,6 +350,14 @@
 
 #pragma mark - Helper Methods
 
+
+
+-(void) removeSelectedRows
+{
+    [tableDataArray removeObjectsInArray:[self getSelectedDataArray]];
+    [dataTableView deleteRowsAtIndexPaths:[dataTableView indexPathsForSelectedRows]
+                         withRowAnimation:UITableViewRowAnimationLeft];
+}
 
 -(void) performFileOperation
 {
@@ -315,15 +397,6 @@
 }
 
 
--(void) startAnimating
-{
-    [barItem startAnimating];
-}
-
--(void) stopAnimating
-{
-    [barItem stopAnimating];
-}
 
 -(void) hideButtons:(NSArray *) buttons
 {
@@ -373,7 +446,7 @@
 
 #pragma mark - CLBrowserBarItemDelegate
 
--(void) editButtonClicked:(UIButton *)btn WithinView:(CLBrowserBarItem *) view
+-(void) buttonClicked:(UIButton *)btn WithinView:(CLBrowserBarItem *)view
 {
     [self editButtonClicked:btn];
 }
@@ -408,6 +481,7 @@
 {
     currentFileOperation = DELETE;
     NSArray *selectedData = [self getSelectedDataArray];
+    [barItem startAnimating];
     for (NSDictionary *data in selectedData) {
         [self.restClient deletePath:[data objectForKey:@"path"]];
     }

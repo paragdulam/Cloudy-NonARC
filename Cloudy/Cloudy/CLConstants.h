@@ -20,7 +20,7 @@
 #define DROPBOX_APP_SECRET_KEY @"0sc12t7lzttseoi"
 
 #define SKYDRIVE_CLIENT_ID @"000000004C0C6832"
-#define SCOPE_ARRAY [NSArray arrayWithObjects:@"wl.signin",@"wl.basic",@"wl.skydrive",@"wl.offline_access", nil]
+#define SCOPE_ARRAY [NSArray arrayWithObjects:@"wl.signin",@"wl.basic",@"wl.skydrive",@"wl.offline_access",@"wl.skydrive_update", nil]
 
 
 #define GOOGLE_DRIVE_KEYCHAIN_ITEM_NAME @"Drive-Box"

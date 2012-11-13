@@ -10,7 +10,7 @@
 
 @interface CLBrowserBarItem ()
 {
-    UIButton *editButton;
+    UIButton *button;
     UIActivityIndicatorView *activityIndicator;
 }
 @end
@@ -26,23 +26,19 @@
         UIImage *baseImage = [UIImage imageNamed:@"button_background_base.png"];
         UIImage *buttonImage = [baseImage resizableImageWithCapInsets:UIEdgeInsetsMake(0, 15, 0, 15)];
 
-        editButton = [UIButton buttonWithType:UIButtonTypeCustom];
-        editButton.frame = CGRectMake(0, 0, frame.size.width, frame.size.height);
-        [editButton setTitle:@"Edit"
-                    forState:UIControlStateNormal];
-        [editButton setTitle:@"Done"
-                    forState:UIControlStateSelected];
+        button = [UIButton buttonWithType:UIButtonTypeCustom];
+        button.frame = CGRectMake(0, 0, frame.size.width, frame.size.height);
 
-        [editButton setTitleColor:[UIColor whiteColor]
+        [button setTitleColor:[UIColor whiteColor]
                          forState:UIControlStateNormal];
-        [editButton setBackgroundImage:buttonImage
+        [button setBackgroundImage:buttonImage
                               forState:UIControlStateNormal];
-        [editButton.titleLabel setFont:[UIFont boldSystemFontOfSize:12.f]];
-        [editButton addTarget:self
-                       action:@selector(editButtonClicked:)
+        [button.titleLabel setFont:[UIFont boldSystemFontOfSize:12.f]];
+        [button addTarget:self
+                       action:@selector(buttonClicked:)
              forControlEvents:UIControlEventTouchUpInside];
         
-        [self addSubview:editButton];
+        [self addSubview:button];
         
         activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
         activityIndicator.hidesWhenStopped = YES;
@@ -55,36 +51,42 @@
 }
 
 
+-(void) setTitle:(NSString *) title forState:(UIControlState)state
+{
+    [button setTitle:title
+            forState:state];
+}
+
 -(void) startAnimating
 {
     [activityIndicator startAnimating];
-    editButton.hidden = YES;
+    button.hidden = YES;
 }
 
 -(void) stopAnimating
 {
     [activityIndicator stopAnimating];
-    editButton.hidden = NO;
+    button.hidden = NO;
 }
 
 
 -(void)hideEditButton:(BOOL) aBool
 {
-    editButton.hidden = aBool;
+    button.hidden = aBool;
 }
 
--(void) editButtonClicked:(UIButton *) btn
+-(void) buttonClicked:(UIButton *) btn
 {
-    if ([delegate respondsToSelector:@selector(editButtonClicked:WithinView:)]) {
-        [delegate editButtonClicked:btn WithinView:self];
+    if ([delegate respondsToSelector:@selector(buttonClicked:WithinView:)]) {
+        [delegate buttonClicked:btn WithinView:self];
     }
 }
 
 
 -(void) deselectAll
 {
-    editButton.selected = YES;
-    [self editButtonClicked:editButton];
+    button.selected = YES;
+    [self buttonClicked:button];
 }
 
 
