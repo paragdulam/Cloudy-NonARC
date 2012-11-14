@@ -256,11 +256,17 @@
 
 +(BOOL) isString:(NSString *) aString subStringOf:(NSString *)bString
 {
-    NSRange range =     [aString rangeOfString:bString
+    NSRange range =     [bString rangeOfString:aString
                                        options:NSCaseInsensitiveSearch];
     return range.length > 0;
 }
 
+
++(NSString *) fileIdForSkyDriveFile:(NSDictionary *) file
+{
+    NSString *idString = [file objectForKey:@"id"];
+    return [idString length] ? idString : ROOT_SKYDRIVE_FOLDER_ID;
+}
 
 +(int) doesArray:(NSArray *) array ContainsFileWithPath:(NSString *) filePath
 ForViewType:(VIEW_TYPE) type
@@ -276,12 +282,15 @@ ForViewType:(VIEW_TYPE) type
             }
             break;
         case SKYDRIVE:
+        {
             for (NSDictionary *data in array) {
-                if ([[data objectForKey:@"id"] isEqualToString:filePath]) {
+                NSString *folderId = [CLCacheManager fileIdForSkyDriveFile:data];
+                if ([folderId isEqualToString:filePath]) {
                     retVal = [array indexOfObject:data];
                     break;
                 }
             }
+        }
             break;
         default:
             break;
@@ -308,7 +317,7 @@ ForViewType:(VIEW_TYPE) type
             break;
         case SKYDRIVE:
         {
-            NSString *folderId = [[folder objectForKey:@"id"] length] ? [folder objectForKey:@"id"] : [NSString stringWithFormat:@"folder.%@",[CLCacheManager getSkyDriveAccountId]];
+            NSString *folderId = [CLCacheManager fileIdForSkyDriveFile:folder];
             retVal = [folderId isEqualToString:[file objectForKey:@"parent_id"]];
         }
             break;
@@ -349,10 +358,10 @@ ForViewType:(VIEW_TYPE) type
 {
     switch (type) {
         case DROPBOX:
-            return [file objectForKey:PATH];
+            return [file objectForKey:@"path"];
             break;
         case SKYDRIVE:
-            return [file objectForKey:@"id"];
+            return [CLCacheManager fileIdForSkyDriveFile:file];
             break;
         default:
             break;
@@ -371,7 +380,8 @@ ForViewType:(VIEW_TYPE) type
             break;
         case SKYDRIVE:
         {
-            retVal = [filePath isEqualToString:ROOT_SKYDRIVE_PATH];
+            retVal = [filePath isEqualToString:ROOT_SKYDRIVE_PATH] ||
+                     [filePath isEqualToString:ROOT_SKYDRIVE_FOLDER_ID];
         }
             break;
         default:
@@ -436,15 +446,33 @@ whereTraversingPointer:(NSMutableDictionary *)traversingDictionary
     } else {
         for (NSMutableDictionary *data in contents) {
             traversingDictionary = data;
-            [CLCacheManager deleteFile:file
-                whereTraversingPointer:traversingDictionary
-                       inFileStructure:fileStructure
-                           ForViewType:type];
+            if ([[CLCacheManager filesWihinFolder:traversingDictionary
+                                      ForViewType:type] count])
+            {
+                [CLCacheManager deleteFile:file
+                    whereTraversingPointer:traversingDictionary
+                           inFileStructure:fileStructure
+                               ForViewType:type];
+            }
         }
     }
     return retVal;
 }
 
+
++(NSString *) sortDescriptorKeyForViewType:(VIEW_TYPE) type
+{
+    switch (type) {
+        case DROPBOX:
+            return DROPBOX_SORTDESCRIPTOR_KEY;
+            break;
+        case SKYDRIVE:
+            return SKYDRIVE_SORTDESCRIPTOR_KEY;
+            break;
+        default:
+            break;
+    }
+}
 
 +(BOOL)     insertFile:(NSDictionary *) file
 whereTraversingPointer:(NSMutableDictionary *)traversingDictionary
@@ -462,6 +490,9 @@ whereTraversingPointer:(NSMutableDictionary *)traversingDictionary
                      ForViewType:type])
     {
         [contents insertObject:file atIndex:0];
+        NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:[CLCacheManager sortDescriptorKeyForViewType:type] ascending:YES];
+        [contents sortedArrayUsingDescriptors:[NSArray arrayWithObject:sortDescriptor]];
+        [sortDescriptor release];
         retVal = [fileStructure writeToFile:[CLCacheManager getFileStructurePath:type]
                                  atomically:YES];
     } else {
@@ -496,18 +527,28 @@ whereTraversingPointer:(NSMutableDictionary *)traversingDictionary
     int index = [CLCacheManager doesArray:contents
                              ContainsFile:file
                               ForViewType:type];
-    if (index > -1)
+    if (index > -1 || [CLCacheManager isRootPathForFile:traversingDictionary
+                                         WithinViewType:type])
     {
-        [contents replaceObjectAtIndex:index withObject:file];
+        if (index > -1) {
+            [contents replaceObjectAtIndex:index withObject:file];
+        } else {
+            fileStructure = [NSMutableDictionary dictionaryWithDictionary:file];
+        }
         retVal = [fileStructure writeToFile:[CLCacheManager getFileStructurePath:type]
                                  atomically:YES];
+        
     } else {
         for (NSMutableDictionary *data in contents) {
             traversingDictionary = data;
-            [CLCacheManager updateFile:file
-                whereTraversingPointer:traversingDictionary
-                       inFileStructure:fileStructure
-                           ForViewType:type];
+            if ([[CLCacheManager filesWihinFolder:traversingDictionary
+                                      ForViewType:type] count])
+            {
+                [CLCacheManager updateFile:file
+                    whereTraversingPointer:traversingDictionary
+                           inFileStructure:fileStructure
+                               ForViewType:type];
+            }
         }
     }
     return retVal;

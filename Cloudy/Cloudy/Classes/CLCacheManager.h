@@ -47,5 +47,7 @@ whereTraversingPointer:(NSMutableDictionary *)traversingDictionary
 whereTraversingPointer:(NSMutableDictionary *)traversingDictionary
        inFileStructure:(NSMutableDictionary *)fileStructure
            ForViewType:(VIEW_TYPE) type;
++(NSString *) fileIdForSkyDriveFile:(NSDictionary *) file;
+
 
 @end

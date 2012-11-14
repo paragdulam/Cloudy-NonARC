@@ -30,6 +30,7 @@
 -(void) showButtons:(NSArray *) buttons;
 -(NSArray *) getSelectedDataArray;
 -(void) performFileOperation;
+-(void) removeSelectedRow:(NSDictionary *) file;
 -(void) removeSelectedRows;
 
 @property (nonatomic,retain)     NSMutableArray *selectedItems;
@@ -230,8 +231,10 @@
                    inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
                        ForViewType:viewType];
     } else if([operation.userState isEqualToString:@"COPY_FILES"]) {
-        [CLCacheManager updateFolderStructure:operation.result
-                                      ForView:SKYDRIVE];
+        [CLCacheManager insertFile:operation.result
+            whereTraversingPointer:nil
+                   inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
+                       ForViewType:viewType];
         [self.modalViewController dismissModalViewControllerAnimated:YES];
     } else {
         [super liveOperationSucceeded:operation];
@@ -260,6 +263,8 @@
 - (void)restClient:(DBRestClient*)client copiedPath:(NSString *)fromPath to:(DBMetadata *)to
 {
     [barItem stopAnimating];
+    [self.modalViewController dismissModalViewControllerAnimated:YES];
+
     NSDictionary *metaData = [CLDictionaryConvertor dictionaryFromMetadata:to];
 //    [CLCacheManager updateFolderStructure:metaData
 //                                  ForView:DROPBOX];
@@ -280,15 +285,22 @@
 - (void)restClient:(DBRestClient*)client movedPath:(NSString *)from_path to:(DBMetadata *)result
 {
     [barItem stopAnimating];
+    [self.modalViewController dismissModalViewControllerAnimated:YES];
     NSDictionary *metaData = [CLDictionaryConvertor dictionaryFromMetadata:result];
-//    [CLCacheManager updateFolderStructure:metaData
-//                                  ForView:DROPBOX];
-//    [self readCacheUpdateView];
     [CLCacheManager insertFile:metaData
         whereTraversingPointer:nil
                inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
                    ForViewType:viewType];
-    [self removeSelectedRows];
+    
+    NSDictionary *file = nil;
+    for (NSDictionary *data in selectedItems) {
+        if ([[data objectForKey:@"path"] isEqualToString:from_path]) {
+            file = data;
+            break;
+        }
+    }
+    [selectedItems removeObject:file];
+    [self removeSelectedRow:file];
 }
 
 - (void)restClient:(DBRestClient*)client movePathFailedWithError:(NSError*)error
@@ -379,21 +391,36 @@
 
 
 
+-(void) removeSelectedRow:(NSDictionary *) file
+{
+    [CLCacheManager deleteFile:file
+        whereTraversingPointer:nil
+               inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
+                   ForViewType:viewType];
+    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:[tableDataArray indexOfObject:file]
+                                                inSection:0];
+    [tableDataArray removeObject:file];
+    [dataTableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath]
+                         withRowAnimation:UITableViewRowAnimationLeft];
+}
+
+
 -(void) removeSelectedRows
 {
     NSMutableArray *indexPaths = [[NSMutableArray alloc] init];
     for (NSDictionary *data in selectedItems) {
-        NSDictionary *file = [data objectForKey:@"DATA"];
         //Cache Deletion Starts
-        [CLCacheManager deleteFile:file
+        [CLCacheManager deleteFile:data
             whereTraversingPointer:nil
                    inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
                        ForViewType:viewType];
         //Cache Deletion Starts
-        NSIndexPath *indexPath = [data objectForKey:@"INDEXPATH"];
+        int row = [tableDataArray indexOfObject:data];
+        NSIndexPath *indexPath = [NSIndexPath indexPathForRow:row
+                                                    inSection:0];
         [indexPaths addObject:indexPath];
-        [tableDataArray removeObjectAtIndex:indexPath.row];
     }
+    [tableDataArray removeObjectsInArray:selectedItems];
     [dataTableView deleteRowsAtIndexPaths:indexPaths
                          withRowAnimation:UITableViewRowAnimationLeft];
     [indexPaths release];
@@ -431,13 +458,13 @@
     NSMutableArray *retVal = [[NSMutableArray alloc] init];
     NSArray *indexPaths = [dataTableView indexPathsForSelectedRows];
     for (NSIndexPath *indexPath in indexPaths) {
-        NSMutableDictionary *selectedItem = [[NSMutableDictionary alloc] init];
-        [selectedItem setObject:[tableDataArray objectAtIndex:indexPath.row]
-                         forKey:@"DATA"];
-        [selectedItem setObject:indexPath
-                         forKey:@"INDEXPATH"];
-        [retVal addObject:selectedItem];
-        [selectedItem release];
+//        NSMutableDictionary *selectedItem = [[NSMutableDictionary alloc] init];
+//        [selectedItem setObject:[tableDataArray objectAtIndex:indexPath.row]
+//                         forKey:@"DATA"];
+//        [selectedItem setObject:indexPath
+//                         forKey:@"INDEXPATH"];
+        [retVal addObject:[tableDataArray objectAtIndex:indexPath.row]];
+//        [selectedItem release];
     }
     self.selectedItems = retVal;
     [retVal release];

@@ -157,10 +157,10 @@
     NSMutableArray *tempArray = [[NSMutableArray alloc] init];
     [excludedFolders enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
         NSDictionary *objDict = (NSDictionary *)obj;
-        NSDictionary *dataDictionary = [objDict objectForKey:@"DATA"];
         for (NSDictionary *data in computedData) {
-            if ([[data objectForKey:@"id"] isEqualToString:[dataDictionary objectForKey:@"id"]]) {
+            if (([[data objectForKey:@"id"] isEqualToString:[objDict objectForKey:@"id"]]) || ([[data objectForKey:@"path"] isEqualToString:[objDict objectForKey:@"path"]])) {
                 [tempArray addObject:data];
+                *stop = YES;
             }
         }
     }];

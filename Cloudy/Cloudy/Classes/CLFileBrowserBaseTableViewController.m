@@ -72,7 +72,6 @@
     [self.navigationItem setRightBarButtonItem:rightBarButton];
     [rightBarButton release];
     
-    [self readCacheUpdateView];
     [self loadFilesForPath:path WithInViewType:viewType];
 }
 
@@ -82,10 +81,7 @@
 -(void) viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-    //Read Cache Starts
-    [self readCacheUpdateView];
-    //Read Cache Ends
-
+//    [self readCacheUpdateView];
 }
 
 - (void)didReceiveMemoryWarning
@@ -242,9 +238,9 @@
     self.path = pathString;
     self.viewType = type;
 
-//    //Read Cache Starts
-//    [self readCacheUpdateView];
-//    //Read Cache Ends
+    //Read Cache Starts
+    [self readCacheUpdateView];
+    //Read Cache Ends
     
     //Web Request Starts
     switch (viewType) {
