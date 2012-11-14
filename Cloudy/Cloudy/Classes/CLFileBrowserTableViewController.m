@@ -223,7 +223,15 @@
     if ([operation.userState isEqualToString:@"MOVE_FILES"]) {
         [self.modalViewController dismissModalViewControllerAnimated:YES];
         [self removeSelectedRows];
+//        [CLCacheManager updateFolderStructure:operation.result
+//                                      ForView:SKYDRIVE];
+        [CLCacheManager insertFile:operation.result
+            whereTraversingPointer:nil
+                   inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
+                       ForViewType:viewType];
     } else if([operation.userState isEqualToString:@"COPY_FILES"]) {
+        [CLCacheManager updateFolderStructure:operation.result
+                                      ForView:SKYDRIVE];
         [self.modalViewController dismissModalViewControllerAnimated:YES];
     } else {
         [super liveOperationSucceeded:operation];
@@ -253,9 +261,12 @@
 {
     [barItem stopAnimating];
     NSDictionary *metaData = [CLDictionaryConvertor dictionaryFromMetadata:to];
-    [CLCacheManager updateFolderStructure:metaData
-                                  ForView:DROPBOX];
-    [self readCacheUpdateView];
+//    [CLCacheManager updateFolderStructure:metaData
+//                                  ForView:DROPBOX];
+    [CLCacheManager insertFile:metaData
+        whereTraversingPointer:nil
+               inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
+                   ForViewType:viewType];
 }
 
 - (void)restClient:(DBRestClient*)client copyPathFailedWithError:(NSError*)error
@@ -270,9 +281,13 @@
 {
     [barItem stopAnimating];
     NSDictionary *metaData = [CLDictionaryConvertor dictionaryFromMetadata:result];
-    [CLCacheManager updateFolderStructure:metaData
-                                  ForView:DROPBOX];
-    [self readCacheUpdateView];
+//    [CLCacheManager updateFolderStructure:metaData
+//                                  ForView:DROPBOX];
+//    [self readCacheUpdateView];
+    [CLCacheManager insertFile:metaData
+        whereTraversingPointer:nil
+               inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
+                   ForViewType:viewType];
     [self removeSelectedRows];
 }
 
@@ -329,6 +344,10 @@
         case SKYDRIVE:
         {
             NSArray *indexPaths = [dataTableView indexPathsForSelectedRows];
+            pathString = [NSString stringWithFormat:@"%@",[[pathString componentsSeparatedByString:@"/"] objectAtIndex:0]];
+            if (![pathString hasPrefix:@"folder."]) { //only folders are input here
+                pathString = [NSString stringWithFormat:@"folder.%@",pathString];
+            }
             for (NSIndexPath *indexPath in indexPaths) {
                 NSDictionary *data = [tableDataArray objectAtIndex:indexPath.row];
                 switch (currentFileOperation) {
@@ -371,8 +390,9 @@
                    inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
                        ForViewType:viewType];
         //Cache Deletion Starts
-        [indexPaths addObject:[data objectForKey:@"INDEXPATH"]];
-        [tableDataArray removeObject:file];
+        NSIndexPath *indexPath = [data objectForKey:@"INDEXPATH"];
+        [indexPaths addObject:indexPath];
+        [tableDataArray removeObjectAtIndex:indexPath.row];
     }
     [dataTableView deleteRowsAtIndexPaths:indexPaths
                          withRowAnimation:UITableViewRowAnimationLeft];

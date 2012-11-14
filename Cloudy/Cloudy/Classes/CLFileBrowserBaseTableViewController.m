@@ -72,6 +72,7 @@
     [self.navigationItem setRightBarButtonItem:rightBarButton];
     [rightBarButton release];
     
+    [self readCacheUpdateView];
     [self loadFilesForPath:path WithInViewType:viewType];
 }
 
@@ -81,6 +82,10 @@
 -(void) viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
+    //Read Cache Starts
+    [self readCacheUpdateView];
+    //Read Cache Ends
+
 }
 
 - (void)didReceiveMemoryWarning
@@ -164,12 +169,16 @@
 {
     [self stopAnimating];
     NSLog(@"path %@",operation.path);
-    NSMutableDictionary *resultDictionary = [[NSMutableDictionary alloc] init];
-    [resultDictionary setObject:operation.path forKey:PATH];
-    [resultDictionary setObject:operation.result forKey:@"RESULT_DATA"];
-    [CLCacheManager updateFolderStructure:resultDictionary
-                                  ForView:SKYDRIVE];
-    [resultDictionary release];
+//    NSMutableDictionary *resultDictionary = [[NSMutableDictionary alloc] init];
+//    [resultDictionary setObject:operation.path forKey:PATH];
+//    [resultDictionary setObject:operation.result forKey:@"RESULT_DATA"];
+//    [CLCacheManager updateFolderStructure:resultDictionary
+//                                  ForView:SKYDRIVE];
+    [CLCacheManager updateFile:operation.result
+        whereTraversingPointer:nil
+               inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
+                   ForViewType:viewType];
+//    [resultDictionary release];
     
     //Reading Cache is skipped only reading Table Contents Starts
     if (viewType == SKYDRIVE) { //cache is not referred
@@ -197,8 +206,12 @@
 {
     [self stopAnimating];
     NSDictionary *metadataDictionary = [CLDictionaryConvertor dictionaryFromMetadata:metadata];
-    [CLCacheManager updateFolderStructure:metadataDictionary
-                                  ForView:DROPBOX];
+//    [CLCacheManager updateFolderStructure:metadataDictionary
+//                                  ForView:DROPBOX];
+    [CLCacheManager updateFile:metadataDictionary
+        whereTraversingPointer:nil
+               inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
+                   ForViewType:viewType];
     
     //Reading Cache is skipped only reading Table Contents Starts
     if (viewType == DROPBOX) { //cache is not referred
@@ -229,9 +242,9 @@
     self.path = pathString;
     self.viewType = type;
 
-    //Read Cache Starts
-    [self readCacheUpdateView];
-    //Read Cache Ends
+//    //Read Cache Starts
+//    [self readCacheUpdateView];
+//    //Read Cache Ends
     
     //Web Request Starts
     switch (viewType) {

@@ -254,6 +254,14 @@
 }
 
 
++(BOOL) isString:(NSString *) aString subStringOf:(NSString *)bString
+{
+    NSRange range =     [aString rangeOfString:bString
+                                       options:NSCaseInsensitiveSearch];
+    return range.length > 0;
+}
+
+
 +(int) doesArray:(NSArray *) array ContainsFileWithPath:(NSString *) filePath
 ForViewType:(VIEW_TYPE) type
 {
@@ -282,6 +290,33 @@ ForViewType:(VIEW_TYPE) type
 }
 
 
++(BOOL) isFolder:(NSDictionary *)folder
+    parentOfFile:(NSDictionary *) file
+     ForViewType:(VIEW_TYPE) type
+{
+    BOOL retVal = NO;
+    NSString *path = [CLCacheManager pathOfFile:file
+                                    ForViewType:type];
+    switch (type) {
+        case DROPBOX:
+        {
+            NSString *folderName = [folder objectForKey:@"filename"];
+            NSString *fileName = [file objectForKey:@"filename"];
+            retVal = [CLCacheManager isString:folderName subStringOf:path] &&
+                     [CLCacheManager isString:fileName subStringOf:path];
+        }
+            break;
+        case SKYDRIVE:
+        {
+            NSString *folderId = [[folder objectForKey:@"id"] length] ? [folder objectForKey:@"id"] : [NSString stringWithFormat:@"folder.%@",[CLCacheManager getSkyDriveAccountId]];
+            retVal = [folderId isEqualToString:[file objectForKey:@"parent_id"]];
+        }
+            break;
+        default:
+            break;
+    }
+    return retVal;
+}
 
 +(int) doesArray:(NSArray *) array
      ContainsFile:(NSDictionary *) file
@@ -379,9 +414,10 @@ ForViewType:(VIEW_TYPE) type
     return retVal;
 }
 
-+(BOOL) deleteFile:(NSDictionary *) file whereTraversingPointer:(NSMutableDictionary *)traversingDictionary
-   inFileStructure:(NSMutableDictionary *)fileStructure
-       ForViewType:(VIEW_TYPE) type
++(BOOL)     deleteFile:(NSDictionary *) file
+whereTraversingPointer:(NSMutableDictionary *)traversingDictionary
+       inFileStructure:(NSMutableDictionary *)fileStructure
+           ForViewType:(VIEW_TYPE) type
 {
     BOOL retVal = NO;
     if (!traversingDictionary) {
@@ -410,81 +446,73 @@ ForViewType:(VIEW_TYPE) type
 }
 
 
-
-
-+(BOOL) updateFolderStructure:(NSDictionary *) metaDataDict
-                      ForView:(VIEW_TYPE) type
++(BOOL)     insertFile:(NSDictionary *) file
+whereTraversingPointer:(NSMutableDictionary *)traversingDictionary
+       inFileStructure:(NSMutableDictionary *)fileStructure
+           ForViewType:(VIEW_TYPE) type
 {
-    __block BOOL retVal = NO;
-    switch (type) {
-        case DROPBOX:
-        {
-            NSString *path = [metaDataDict objectForKey:@"path"];
-            NSDictionary *fileStructure = [[[NSDictionary alloc] initWithContentsOfFile:[CLCacheManager getFileStructurePath:DROPBOX]] autorelease];
-            NSMutableDictionary *mutableFileStructure = CFPropertyListCreateDeepCopy(kCFAllocatorDefault, (CFDictionaryRef)fileStructure, kCFPropertyListMutableContainers);
-            
-            NSMutableDictionary *traversingDict = mutableFileStructure;
-            NSMutableArray *components = [CLCacheManager removeEmptyStringsForArray:[NSMutableArray arrayWithArray:[path componentsSeparatedByString:@"/"]]];
-            
-            for (int j = 0;j < [components count] ;j++) {
-                NSString *component = [components objectAtIndex:j];
-                NSMutableArray *contents = [traversingDict objectForKey:@"contents"];
-                for (int i = 0 ; i < [contents count] ; i++) {
-                    traversingDict = [contents objectAtIndex:i];
-                    if ([[traversingDict objectForKey:@"filename"] isEqualToString:component]) {
-                        if (j == [components count] - 1) {
-                            [contents replaceObjectAtIndex:i
-                                                withObject:metaDataDict];
-                        }
-                        break;
-                    }
-                }
-            }
-            NSString *filePath = [CLCacheManager getFileStructurePath:type];
-            if (!traversingDict || [path isEqualToString:@"/"]) {
-                mutableFileStructure = [NSMutableDictionary dictionaryWithDictionary:metaDataDict];
-            }
-            retVal = [mutableFileStructure writeToFile:filePath atomically:YES];
-        }
-            break;
-            
-        case SKYDRIVE:
-        {
-            NSDictionary *resultDictionary = [metaDataDict objectForKey:@"RESULT_DATA"];
-            NSDictionary *fileStructure = [[NSDictionary alloc] initWithContentsOfFile:[CLCacheManager getFileStructurePath:SKYDRIVE]];
-            NSMutableDictionary *mutableFileStructure = CFPropertyListCreateDeepCopy(kCFAllocatorDefault, (CFDictionaryRef)fileStructure, kCFPropertyListMutableContainers);
-            NSString *filePath = [CLCacheManager getFileStructurePath:type];
-
-            if (!mutableFileStructure || [[metaDataDict objectForKey:PATH] isEqualToString:ROOT_SKYDRIVE_PATH]) {
-                return [resultDictionary writeToFile:filePath atomically:YES];
-            }
-            
-            NSMutableDictionary *traversingDict = mutableFileStructure;
-            NSArray *dataArray = [resultDictionary objectForKey:@"data"];
-            if ([dataArray count]) {
-                NSDictionary *data = [dataArray objectAtIndex:0];
-                [traversingDict enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
-                    if ([obj isKindOfClass:[NSMutableArray class]]) {
-                        NSMutableArray *objArray = (NSMutableArray *)obj;
-                        [objArray enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-                            NSMutableDictionary *objDict = (NSMutableDictionary *)obj;
-                            if ([[objDict objectForKey:@"id"] isEqualToString:[data objectForKey:@"parent_id"]]) {
-                                [objDict setObject:dataArray forKey:@"data"];
-                                retVal = [traversingDict writeToFile:filePath atomically:YES];
-                            }
-                        }];
-                    }
-                }];
-            } else {
-                return NO;
+    BOOL retVal = NO;
+    if (!traversingDictionary) {
+        traversingDictionary = fileStructure;
+    }
+    NSMutableArray *contents = [CLCacheManager filesWihinFolder:traversingDictionary
+                                                    ForViewType:type];
+    if ([CLCacheManager isFolder:traversingDictionary
+                    parentOfFile:file
+                     ForViewType:type])
+    {
+        [contents insertObject:file atIndex:0];
+        retVal = [fileStructure writeToFile:[CLCacheManager getFileStructurePath:type]
+                                 atomically:YES];
+    } else {
+        for (NSMutableDictionary *data in contents) {
+            traversingDictionary = data;
+            if ([[CLCacheManager filesWihinFolder:traversingDictionary
+                                     ForViewType:type] count])
+            {
+                [CLCacheManager insertFile:file
+                    whereTraversingPointer:traversingDictionary
+                           inFileStructure:fileStructure
+                               ForViewType:type];
             }
         }
-            break;
-        default:
-            break;
     }
     return retVal;
 }
+
+
+
++(BOOL)     updateFile:(NSDictionary *) file
+whereTraversingPointer:(NSMutableDictionary *)traversingDictionary
+       inFileStructure:(NSMutableDictionary *)fileStructure
+           ForViewType:(VIEW_TYPE) type
+{
+    BOOL retVal = NO;
+    if (!traversingDictionary) {
+        traversingDictionary = fileStructure;
+    }
+    NSMutableArray *contents = [CLCacheManager filesWihinFolder:traversingDictionary
+                                                    ForViewType:type];
+    int index = [CLCacheManager doesArray:contents
+                             ContainsFile:file
+                              ForViewType:type];
+    if (index > -1)
+    {
+        [contents replaceObjectAtIndex:index withObject:file];
+        retVal = [fileStructure writeToFile:[CLCacheManager getFileStructurePath:type]
+                                 atomically:YES];
+    } else {
+        for (NSMutableDictionary *data in contents) {
+            traversingDictionary = data;
+            [CLCacheManager updateFile:file
+                whereTraversingPointer:traversingDictionary
+                       inFileStructure:fileStructure
+                           ForViewType:type];
+        }
+    }
+    return retVal;
+}
+
 
 
 +(BOOL) deleteFileStructureForView:(VIEW_TYPE) type
@@ -555,6 +583,83 @@ ForViewType:(VIEW_TYPE) type
             break;
     }
     return nil;
+}
+
+
+
+
++(BOOL) updateFolderStructure:(NSDictionary *) metaDataDict
+                      ForView:(VIEW_TYPE) type
+{
+    __block BOOL retVal = NO;
+    switch (type) {
+        case DROPBOX:
+        {
+            NSString *path = [metaDataDict objectForKey:@"path"];
+            NSDictionary *fileStructure = [[[NSDictionary alloc] initWithContentsOfFile:[CLCacheManager getFileStructurePath:DROPBOX]] autorelease];
+            NSMutableDictionary *mutableFileStructure = CFPropertyListCreateDeepCopy(kCFAllocatorDefault, (CFDictionaryRef)fileStructure, kCFPropertyListMutableContainers);
+            
+            NSMutableDictionary *traversingDict = mutableFileStructure;
+            NSMutableArray *components = [CLCacheManager removeEmptyStringsForArray:[NSMutableArray arrayWithArray:[path componentsSeparatedByString:@"/"]]];
+            
+            for (int j = 0;j < [components count] ;j++) {
+                NSString *component = [components objectAtIndex:j];
+                NSMutableArray *contents = [traversingDict objectForKey:@"contents"];
+                for (int i = 0 ; i < [contents count] ; i++) {
+                    traversingDict = [contents objectAtIndex:i];
+                    if ([[traversingDict objectForKey:@"filename"] isEqualToString:component]) {
+                        if (j == [components count] - 1) {
+                            [contents replaceObjectAtIndex:i
+                                                withObject:metaDataDict];
+                        }
+                        break;
+                    }
+                }
+            }
+            NSString *filePath = [CLCacheManager getFileStructurePath:type];
+            if (!traversingDict || [path isEqualToString:@"/"]) {
+                mutableFileStructure = [NSMutableDictionary dictionaryWithDictionary:metaDataDict];
+            }
+            retVal = [mutableFileStructure writeToFile:filePath atomically:YES];
+        }
+            break;
+            
+        case SKYDRIVE:
+        {
+            NSDictionary *resultDictionary = [metaDataDict objectForKey:@"RESULT_DATA"];
+            NSDictionary *fileStructure = [[NSDictionary alloc] initWithContentsOfFile:[CLCacheManager getFileStructurePath:SKYDRIVE]];
+            NSMutableDictionary *mutableFileStructure = CFPropertyListCreateDeepCopy(kCFAllocatorDefault, (CFDictionaryRef)fileStructure, kCFPropertyListMutableContainers);
+            NSString *filePath = [CLCacheManager getFileStructurePath:type];
+            
+            if (!mutableFileStructure || [[metaDataDict objectForKey:PATH] isEqualToString:ROOT_SKYDRIVE_PATH]) {
+                return [resultDictionary writeToFile:filePath atomically:YES];
+            }
+            
+            NSMutableDictionary *traversingDict = mutableFileStructure;
+            NSArray *dataArray = [resultDictionary objectForKey:@"data"];
+            if ([dataArray count]) {
+                NSDictionary *data = [dataArray objectAtIndex:0];
+                [traversingDict enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
+                    if ([obj isKindOfClass:[NSMutableArray class]]) {
+                        NSMutableArray *objArray = (NSMutableArray *)obj;
+                        [objArray enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+                            NSMutableDictionary *objDict = (NSMutableDictionary *)obj;
+                            if ([[objDict objectForKey:@"id"] isEqualToString:[data objectForKey:@"parent_id"]]) {
+                                [objDict setObject:dataArray forKey:@"data"];
+                                retVal = [traversingDict writeToFile:filePath atomically:YES];
+                            }
+                        }];
+                    }
+                }];
+            } else {
+                return NO;
+            }
+        }
+            break;
+        default:
+            break;
+    }
+    return retVal;
 }
 
 

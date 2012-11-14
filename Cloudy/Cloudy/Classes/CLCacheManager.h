@@ -36,4 +36,16 @@
    inFileStructure:(NSMutableDictionary *)fileStructure
        ForViewType:(VIEW_TYPE) type;
 
++(BOOL) isString:(NSString *) aString subStringOf:(NSString *)bString;
+
++(BOOL)     insertFile:(NSDictionary *) file
+whereTraversingPointer:(NSMutableDictionary *)traversingDictionary
+       inFileStructure:(NSMutableDictionary *)fileStructure
+           ForViewType:(VIEW_TYPE) type;
+
++(BOOL)     updateFile:(NSDictionary *) file
+whereTraversingPointer:(NSMutableDictionary *)traversingDictionary
+       inFileStructure:(NSMutableDictionary *)fileStructure
+           ForViewType:(VIEW_TYPE) type;
+
 @end
