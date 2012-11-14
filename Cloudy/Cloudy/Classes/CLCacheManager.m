@@ -181,6 +181,12 @@
     return retVal ? [retVal autorelease] : retVal;
 }
 
++(NSString *) getSkyDriveAccountId
+{
+    NSDictionary *skyDriveAccount = [CLCacheManager getAccountForType:SKYDRIVE];
+    return [skyDriveAccount objectForKey:@"id"];
+}
+
 #pragma mark - Initial Setup
 
 
@@ -221,62 +227,189 @@
 #pragma mark - File Structure Operations (Needs Refactoring)
 
 
-+(NSDictionary *) metaDataDictionaryForPath:(NSString *) path ForView:(VIEW_TYPE) type
++(NSDictionary *) readFileStructureForViewType:(VIEW_TYPE) type
 {
+    return [[[NSDictionary alloc] initWithContentsOfFile:[CLCacheManager getFileStructurePath:type]] autorelease];
+}
+
+
++(BOOL) writeFileStructure:(NSDictionary *) dictionary
+               ForViewType:(VIEW_TYPE) type
+{
+    return [dictionary writeToFile:[CLCacheManager getFileStructurePath:type]
+                        atomically:YES];
+}
+
+
+
++(NSMutableDictionary *) makeFileStructureMutableForViewType:(VIEW_TYPE) type
+{
+    NSMutableDictionary *mutableFileStructure = CFPropertyListCreateDeepCopy(kCFAllocatorDefault, (CFDictionaryRef)[CLCacheManager readFileStructureForViewType:type], kCFPropertyListMutableContainers);
+    NSMutableDictionary *retVal = [NSMutableDictionary dictionaryWithDictionary:mutableFileStructure];
+    if (mutableFileStructure) {
+        CFRelease(mutableFileStructure);
+    }
+    return retVal;
+
+}
+
+
++(int) doesArray:(NSArray *) array ContainsFileWithPath:(NSString *) filePath
+ForViewType:(VIEW_TYPE) type
+{
+    int retVal = -1;
     switch (type) {
         case DROPBOX:
-        {
-            path = !path ? @"/" : path;
-            NSDictionary *fileStructure = [[[NSDictionary alloc] initWithContentsOfFile:[CLCacheManager getFileStructurePath:DROPBOX]] autorelease];
-            NSMutableArray *components = [CLCacheManager removeEmptyStringsForArray:[NSMutableArray arrayWithArray:[path componentsSeparatedByString:@"/"]]];
-            NSDictionary *traversingDict = fileStructure;
-            for (int j = 0;j < [components count] ;j++) {
-                NSString *component = [components objectAtIndex:j];
-                NSMutableArray *contents = [traversingDict objectForKey:@"contents"];
-                for (int i = 0 ; i < [contents count] ; i++) {
-                    traversingDict = [contents objectAtIndex:i];
-                    if ([[traversingDict objectForKey:@"filename"] isEqualToString:component]) {
-                        if (j == [components count] - 1) {
-                            return traversingDict;
-                        }
-                        break;
-                    }
+            for (NSDictionary *data in array) {
+                if ([[data objectForKey:@"path"] isEqualToString:filePath]) {
+                    retVal = [array indexOfObject:data];
+                    break;
                 }
             }
-            return traversingDict;
-        }
             break;
-            
         case SKYDRIVE:
-        {
-            path = !path ? @"me/skydrive/files" : path;
-            NSString *folderId = [[path componentsSeparatedByString:@"/"] objectAtIndex:0];
-            NSDictionary *fileStructure = [[[NSDictionary alloc] initWithContentsOfFile:[CLCacheManager getFileStructurePath:SKYDRIVE]] autorelease];
-            if ([folderId isEqualToString:@"me"]) {
-                return fileStructure;
-            }
-            __block NSDictionary *retVal = nil;
-            [fileStructure enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
-                if ([obj isKindOfClass:[NSArray class]]) {
-                    NSArray *objArray = (NSArray *)obj;
-                    [objArray enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-                        NSMutableDictionary *objDict = (NSMutableDictionary *)obj;
-                        if ([[objDict objectForKey:@"id"] isEqualToString:folderId]) {
-                            retVal = [objDict retain];
-                        }
-                    }];
+            for (NSDictionary *data in array) {
+                if ([[data objectForKey:@"id"] isEqualToString:filePath]) {
+                    retVal = [array indexOfObject:data];
+                    break;
                 }
-            }];
-
-            return [retVal autorelease];
-        }
+            }
             break;
-
         default:
             break;
     }
-    return nil;
+    return retVal;
 }
+
+
+
++(int) doesArray:(NSArray *) array
+     ContainsFile:(NSDictionary *) file
+      ForViewType:(VIEW_TYPE) type
+{
+    NSString *path = [CLCacheManager pathOfFile:file
+                                    ForViewType:type];
+    return [CLCacheManager doesArray:array
+                ContainsFileWithPath:path
+                         ForViewType:type];
+}
+
++(NSMutableArray *) filesWihinFolder:(NSMutableDictionary *) folder
+                         ForViewType:(VIEW_TYPE) type
+{
+    switch (type) {
+        case DROPBOX:
+            return [folder objectForKey:@"contents"];
+            break;
+        case SKYDRIVE:
+            return [folder objectForKey:@"data"];
+            break;
+        default:
+            return nil;
+            break;
+    }
+}
+
++(NSString *) pathOfFile:(NSDictionary *) file ForViewType:(VIEW_TYPE) type
+{
+    switch (type) {
+        case DROPBOX:
+            return [file objectForKey:PATH];
+            break;
+        case SKYDRIVE:
+            return [file objectForKey:@"id"];
+            break;
+        default:
+            break;
+    }
+}
+
+
++(BOOL) isRootPath:(NSString *) filePath WithinViewType:(VIEW_TYPE) type
+{
+    BOOL retVal = NO;
+    switch (type) {
+        case DROPBOX:
+        {
+            retVal = [filePath isEqualToString:ROOT_DROPBOX_PATH];
+        }
+            break;
+        case SKYDRIVE:
+        {
+            retVal = [filePath isEqualToString:ROOT_SKYDRIVE_PATH];
+        }
+            break;
+        default:
+            break;
+    }
+    return retVal;
+}
+
++(BOOL) isRootPathForFile:(NSDictionary *) file WithinViewType:(VIEW_TYPE) type
+{
+    NSString *path = [CLCacheManager pathOfFile:file
+                                    ForViewType:type];
+    return [CLCacheManager isRootPath:path
+                       WithinViewType:type];
+}
+
+
++(NSDictionary *) metaDataForPath:(NSString *)path
+              WithinFileStructure:(NSMutableDictionary *)fileStructure
+                          ForView:(VIEW_TYPE)type
+{
+    if ([CLCacheManager isRootPath:path
+                    WithinViewType:type]) {
+        return fileStructure;
+    }
+    NSDictionary *retVal = nil;
+    NSMutableArray *contents = [CLCacheManager filesWihinFolder:fileStructure ForViewType:type];
+    int index =     [CLCacheManager doesArray:contents
+                         ContainsFileWithPath:path
+                                  ForViewType:type];
+    if (index < 0) {
+        for (NSMutableDictionary *data in contents) {
+            [CLCacheManager metaDataForPath:path
+                        WithinFileStructure:data
+                                    ForView:type];
+        }
+    } else {
+        retVal = [contents objectAtIndex:index];
+    }
+    return retVal;
+}
+
++(BOOL) deleteFile:(NSDictionary *) file whereTraversingPointer:(NSMutableDictionary *)traversingDictionary
+   inFileStructure:(NSMutableDictionary *)fileStructure
+       ForViewType:(VIEW_TYPE) type
+{
+    BOOL retVal = NO;
+    if (!traversingDictionary) {
+        traversingDictionary = fileStructure;
+    }
+    NSMutableArray *contents = [CLCacheManager filesWihinFolder:traversingDictionary
+                                                    ForViewType:type];
+    int index = [CLCacheManager doesArray:contents
+                             ContainsFile:file
+                              ForViewType:type];
+    if (index > -1)
+    {
+        [contents removeObjectAtIndex:index];
+        retVal = [fileStructure writeToFile:[CLCacheManager getFileStructurePath:type]
+                                 atomically:YES];
+    } else {
+        for (NSMutableDictionary *data in contents) {
+            traversingDictionary = data;
+            [CLCacheManager deleteFile:file
+                whereTraversingPointer:traversingDictionary
+                       inFileStructure:fileStructure
+                           ForViewType:type];
+        }
+    }
+    return retVal;
+}
+
+
 
 
 +(BOOL) updateFolderStructure:(NSDictionary *) metaDataDict
@@ -322,7 +455,7 @@
             NSMutableDictionary *mutableFileStructure = CFPropertyListCreateDeepCopy(kCFAllocatorDefault, (CFDictionaryRef)fileStructure, kCFPropertyListMutableContainers);
             NSString *filePath = [CLCacheManager getFileStructurePath:type];
 
-            if (!mutableFileStructure || [[metaDataDict objectForKey:PATH] isEqualToString:@"me/skydrive/files"]) {
+            if (!mutableFileStructure || [[metaDataDict objectForKey:PATH] isEqualToString:ROOT_SKYDRIVE_PATH]) {
                 return [resultDictionary writeToFile:filePath atomically:YES];
             }
             
@@ -363,6 +496,66 @@
 
 
 #pragma mark - File Operations Methods
+
+
+#pragma mark - Unused Methods
+
++(NSDictionary *) metaDataDictionaryForPath:(NSString *) path ForView:(VIEW_TYPE) type
+{
+    switch (type) {
+        case DROPBOX:
+        {
+            path = !path ? @"/" : path;
+            NSDictionary *fileStructure = [[[NSDictionary alloc] initWithContentsOfFile:[CLCacheManager getFileStructurePath:DROPBOX]] autorelease];
+            NSMutableArray *components = [CLCacheManager removeEmptyStringsForArray:[NSMutableArray arrayWithArray:[path componentsSeparatedByString:@"/"]]];
+            NSDictionary *traversingDict = fileStructure;
+            for (int j = 0;j < [components count] ;j++) {
+                NSString *component = [components objectAtIndex:j];
+                NSMutableArray *contents = [traversingDict objectForKey:@"contents"];
+                for (int i = 0 ; i < [contents count] ; i++) {
+                    traversingDict = [contents objectAtIndex:i];
+                    if ([[traversingDict objectForKey:@"filename"] isEqualToString:component]) {
+                        if (j == [components count] - 1) {
+                            return traversingDict;
+                        }
+                        break;
+                    }
+                }
+            }
+            return traversingDict;
+        }
+            break;
+            
+        case SKYDRIVE:
+        {
+            path = !path ? ROOT_SKYDRIVE_PATH : path;
+            NSString *folderId = [[path componentsSeparatedByString:@"/"] objectAtIndex:0];
+            NSDictionary *fileStructure = [[[NSDictionary alloc] initWithContentsOfFile:[CLCacheManager getFileStructurePath:SKYDRIVE]] autorelease];
+            if ([folderId isEqualToString:@"me"]) {
+                return fileStructure;
+            }
+            __block NSDictionary *retVal = nil;
+            [fileStructure enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
+                if ([obj isKindOfClass:[NSArray class]]) {
+                    NSArray *objArray = (NSArray *)obj;
+                    [objArray enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+                        NSMutableDictionary *objDict = (NSMutableDictionary *)obj;
+                        if ([[objDict objectForKey:@"id"] isEqualToString:folderId]) {
+                            retVal = [objDict retain];
+                        }
+                    }];
+                }
+            }];
+            
+            return [retVal autorelease];
+        }
+            break;
+            
+        default:
+            break;
+    }
+    return nil;
+}
 
 
 

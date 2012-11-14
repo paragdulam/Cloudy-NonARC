@@ -26,5 +26,14 @@
 +(NSDictionary *) getAccountForType:(VIEW_TYPE) type;
 +(BOOL) updateAccount:(NSDictionary *) account;
 
++(NSDictionary *) metaDataForPath:(NSString *)path
+              WithinFileStructure:(NSMutableDictionary *)fileStructure
+                          ForView:(VIEW_TYPE)type;
++(NSMutableDictionary *) makeFileStructureMutableForViewType:(VIEW_TYPE) type;
++(NSString *) getSkyDriveAccountId;
+
++(BOOL) deleteFile:(NSDictionary *) file whereTraversingPointer:(NSMutableDictionary *)traversingDictionary
+   inFileStructure:(NSMutableDictionary *)fileStructure
+       ForViewType:(VIEW_TYPE) type;
 
 @end

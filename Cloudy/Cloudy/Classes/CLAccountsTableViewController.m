@@ -249,7 +249,7 @@
                 [navController popToRootViewControllerAnimated:NO];
                 [self.appDelegate.menuController setRootController:navController animated:YES];
                 
-                [self.appDelegate.rootFileBrowserViewController loadFilesForPath:@"me/skydrive/files" WithInViewType:SKYDRIVE];
+                [self.appDelegate.rootFileBrowserViewController loadFilesForPath:ROOT_SKYDRIVE_PATH WithInViewType:SKYDRIVE];
             }
             break;
         }

@@ -82,7 +82,7 @@ typedef enum FILE_FOLDER_OPERATIONS {
 
 
 #define ROOT_DROPBOX_PATH @"/"
-#define ROOT_SKYDRIVE_PATH @"me/skydrive/files"
+#define ROOT_SKYDRIVE_PATH [NSString stringWithFormat:@"%@/skydrive",[CLCacheManager getSkyDriveAccountId]]
 
 
 #define AUTH_SUCCESS_DROPBOX_TAG 100000

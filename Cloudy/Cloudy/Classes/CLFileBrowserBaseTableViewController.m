@@ -139,7 +139,7 @@
             {
                 NSDictionary *metadata = [tableDataArray objectAtIndex:indexPath.row];
                 if ([[metadata objectForKey:@"type"] isEqualToString:@"album"] || [[metadata objectForKey:@"type"] isEqualToString:@"folder"]) {
-                    CLFileBrowserTableViewController *fileBrowserViewController = [[CLFileBrowserTableViewController alloc] initWithTableViewStyle:UITableViewStylePlain WherePath:[NSString stringWithFormat:@"%@/files",[metadata objectForKey:@"id"]] WithinViewType:SKYDRIVE];
+                    CLFileBrowserTableViewController *fileBrowserViewController = [[CLFileBrowserTableViewController alloc] initWithTableViewStyle:UITableViewStylePlain WherePath:[metadata objectForKey:@"id"] WithinViewType:SKYDRIVE];
                     [self.navigationController pushViewController:fileBrowserViewController animated:YES];
                     [fileBrowserViewController release];
                 }
@@ -244,9 +244,10 @@
             break;
         case SKYDRIVE:
         {
-            [self.appDelegate.liveClient getWithPath:path
+            NSString *aPathString = [NSString stringWithFormat:@"%@/files",path];
+            [self.appDelegate.liveClient getWithPath:aPathString
                                             delegate:self
-                                           userState:path];
+                                           userState:aPathString];
         }
             break;
         default:
@@ -283,7 +284,10 @@
 
 -(NSDictionary *) readCachedFileStructure
 {
-    return [CLCacheManager metaDataDictionaryForPath:path ForView:viewType];
+//    return [CLCacheManager metaDataDictionaryForPath:path ForView:viewType];
+    return [CLCacheManager metaDataForPath:path
+                       WithinFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
+                                   ForView:viewType];
 }
 
 -(NSArray *) getCachedTableDataArrayForViewType:(VIEW_TYPE) type

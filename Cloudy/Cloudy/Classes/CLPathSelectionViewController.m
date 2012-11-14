@@ -157,8 +157,9 @@
     NSMutableArray *tempArray = [[NSMutableArray alloc] init];
     [excludedFolders enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
         NSDictionary *objDict = (NSDictionary *)obj;
+        NSDictionary *dataDictionary = [objDict objectForKey:@"DATA"];
         for (NSDictionary *data in computedData) {
-            if ([[data objectForKey:@"id"] isEqualToString:[objDict objectForKey:@"id"]]) {
+            if ([[data objectForKey:@"id"] isEqualToString:[dataDictionary objectForKey:@"id"]]) {
                 [tempArray addObject:data];
             }
         }
@@ -222,7 +223,7 @@
         case SKYDRIVE:
         {
             NSDictionary *metadata = [tableDataArray objectAtIndex:indexPath.row];
-            CLPathSelectionViewController *pathSelectionViewController = [[CLPathSelectionViewController alloc] initWithTableViewStyle:UITableViewStylePlain WherePath:[NSString stringWithFormat:@"%@/files",[metadata objectForKey:@"id"]] WithinViewType:SKYDRIVE WhereExcludedFolders:excludedFolders];
+            CLPathSelectionViewController *pathSelectionViewController = [[CLPathSelectionViewController alloc] initWithTableViewStyle:UITableViewStylePlain WherePath:[metadata objectForKey:@"id"] WithinViewType:SKYDRIVE WhereExcludedFolders:excludedFolders];
             pathSelectionViewController.delegate = delegate;
             [self.navigationController pushViewController:pathSelectionViewController animated:YES];
             [pathSelectionViewController release];

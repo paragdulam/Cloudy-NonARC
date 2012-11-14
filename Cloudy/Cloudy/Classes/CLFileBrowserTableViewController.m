@@ -23,6 +23,7 @@
     NSArray *editingToolBarItems;
     
     FILE_FOLDER_OPERATION currentFileOperation;
+    NSMutableArray *selectedItems;
 }
 
 -(void) hideButtons:(NSArray *) buttons;
@@ -31,9 +32,13 @@
 -(void) performFileOperation;
 -(void) removeSelectedRows;
 
+@property (nonatomic,retain)     NSMutableArray *selectedItems;
+
+
 @end
 
 @implementation CLFileBrowserTableViewController
+@synthesize selectedItems;
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
@@ -201,6 +206,14 @@
 }
 
 
+-(void) dealloc
+{
+    [selectedItems release];
+    selectedItems = nil;
+    
+    [super dealloc];
+}
+
 
 #pragma mark - LiveOperationDelegate
 
@@ -209,8 +222,6 @@
     [barItem stopAnimating];
     if ([operation.userState isEqualToString:@"MOVE_FILES"]) {
         [self.modalViewController dismissModalViewControllerAnimated:YES];
-        [self loadFilesForPath:[NSString stringWithFormat:@"%@/files",[operation.result objectForKey:@"id"]]
-                WithInViewType:SKYDRIVE];
         [self removeSelectedRows];
     } else if([operation.userState isEqualToString:@"COPY_FILES"]) {
         [self.modalViewController dismissModalViewControllerAnimated:YES];
@@ -318,9 +329,6 @@
         case SKYDRIVE:
         {
             NSArray *indexPaths = [dataTableView indexPathsForSelectedRows];
-            NSMutableArray *pathComponents = [NSMutableArray arrayWithArray:[pathString componentsSeparatedByString:@"/"]];
-            [pathComponents removeLastObject];
-            pathString = [pathComponents objectAtIndex:0];
             for (NSIndexPath *indexPath in indexPaths) {
                 NSDictionary *data = [tableDataArray objectAtIndex:indexPath.row];
                 switch (currentFileOperation) {
@@ -354,9 +362,21 @@
 
 -(void) removeSelectedRows
 {
-    [tableDataArray removeObjectsInArray:[self getSelectedDataArray]];
-    [dataTableView deleteRowsAtIndexPaths:[dataTableView indexPathsForSelectedRows]
+    NSMutableArray *indexPaths = [[NSMutableArray alloc] init];
+    for (NSDictionary *data in selectedItems) {
+        NSDictionary *file = [data objectForKey:@"DATA"];
+        //Cache Deletion Starts
+        [CLCacheManager deleteFile:file
+            whereTraversingPointer:nil
+                   inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
+                       ForViewType:viewType];
+        //Cache Deletion Starts
+        [indexPaths addObject:[data objectForKey:@"INDEXPATH"]];
+        [tableDataArray removeObject:file];
+    }
+    [dataTableView deleteRowsAtIndexPaths:indexPaths
                          withRowAnimation:UITableViewRowAnimationLeft];
+    [indexPaths release];
 }
 
 -(void) performFileOperation
@@ -366,10 +386,10 @@
         NSString *pathString = nil;
         switch (viewType) {
             case DROPBOX:
-                pathString = @"/";
+                pathString = ROOT_DROPBOX_PATH;
                 break;
             case SKYDRIVE:
-                pathString = @"me/skydrive/files";
+                pathString = ROOT_SKYDRIVE_PATH;
                 break;
                 
             default:
@@ -391,9 +411,17 @@
     NSMutableArray *retVal = [[NSMutableArray alloc] init];
     NSArray *indexPaths = [dataTableView indexPathsForSelectedRows];
     for (NSIndexPath *indexPath in indexPaths) {
-        [retVal addObject:[tableDataArray objectAtIndex:indexPath.row]];
+        NSMutableDictionary *selectedItem = [[NSMutableDictionary alloc] init];
+        [selectedItem setObject:[tableDataArray objectAtIndex:indexPath.row]
+                         forKey:@"DATA"];
+        [selectedItem setObject:indexPath
+                         forKey:@"INDEXPATH"];
+        [retVal addObject:selectedItem];
+        [selectedItem release];
     }
-    return [retVal autorelease];
+    self.selectedItems = retVal;
+    [retVal release];
+    return selectedItems;
 }
 
 

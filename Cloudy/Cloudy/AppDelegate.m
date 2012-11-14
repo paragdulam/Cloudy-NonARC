@@ -71,10 +71,10 @@
         accountData = [accounts objectAtIndex:0];
         switch ([[accountData objectForKey:ACCOUNT_TYPE] integerValue]) {
             case DROPBOX:
-                path = @"/";
+                path = ROOT_DROPBOX_PATH;
                 break;
             case SKYDRIVE:
-                path = [NSString stringWithFormat:@"me/skydrive/files"];
+                path = ROOT_SKYDRIVE_PATH;
                 break;
     
             default:
