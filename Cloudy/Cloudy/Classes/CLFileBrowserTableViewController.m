@@ -31,6 +31,7 @@
 -(NSArray *) getSelectedDataArray;
 -(void) performFileOperation;
 -(void) removeSelectedRow:(NSDictionary *) file;
+-(void) removeSelectedRowForPath:(NSString *)filePath;
 -(void) removeSelectedRows;
 
 @property (nonatomic,retain)     NSMutableArray *selectedItems;
@@ -221,9 +222,32 @@
 - (void) liveOperationSucceeded:(LiveOperation *)operation
 {
     [barItem stopAnimating];
+    
+//    switch (currentFileOperation) {
+//        case MOVE:
+//            [self removeSelectedRowForPath:operation.userState];
+//        case COPY:
+//        {
+//            [self.modalViewController dismissModalViewControllerAnimated:YES];
+//            [CLCacheManager insertFile:operation.result
+//                whereTraversingPointer:nil
+//                       inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
+//                           ForViewType:viewType];
+//        }
+//        case DELETE:
+//        {
+//            [self removeSelectedRowForPath:operation.userState];
+//        }
+//            break;
+//            
+//        default:
+//            break;
+//    }
+    
+    
     if ([operation.userState isEqualToString:@"MOVE_FILES"]) {
         [self.modalViewController dismissModalViewControllerAnimated:YES];
-        [self removeSelectedRows];
+        [self removeSelectedRowForPath:operation.path];
 //        [CLCacheManager updateFolderStructure:operation.result
 //                                      ForView:SKYDRIVE];
         [CLCacheManager insertFile:operation.result
@@ -236,6 +260,8 @@
                    inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
                        ForViewType:viewType];
         [self.modalViewController dismissModalViewControllerAnimated:YES];
+    } else if([operation.userState isEqualToString:@"DELETE_FILES"]) {
+        [self removeSelectedRowForPath:operation.path];
     } else {
         [super liveOperationSucceeded:operation];
     }
@@ -291,16 +317,7 @@
         whereTraversingPointer:nil
                inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
                    ForViewType:viewType];
-    
-    NSDictionary *file = nil;
-    for (NSDictionary *data in selectedItems) {
-        if ([[data objectForKey:@"path"] isEqualToString:from_path]) {
-            file = data;
-            break;
-        }
-    }
-    [selectedItems removeObject:file];
-    [self removeSelectedRow:file];
+    [self removeSelectedRowForPath:from_path];
 }
 
 - (void)restClient:(DBRestClient*)client movePathFailedWithError:(NSError*)error
@@ -310,11 +327,11 @@
 
 #pragma mark - Delete File Operation Methods
 
-- (void)restClient:(DBRestClient*)client deletedPath:(NSString *)path
+- (void)restClient:(DBRestClient*)client deletedPath:(NSString *)pathStr
 {
     [barItem stopAnimating];
     [barItem deselectAll];
-    [self removeSelectedRows];
+    [self removeSelectedRowForPath:pathStr];
 }
 
 - (void)restClient:(DBRestClient*)client deletePathFailedWithError:(NSError*)error
@@ -389,6 +406,21 @@
 
 #pragma mark - Helper Methods
 
+
+-(void) removeSelectedRowForPath:(NSString *)filePath
+{
+    NSDictionary *file = nil;
+    for (NSDictionary *data in selectedItems) {
+        if (([[data objectForKey:@"path"] isEqualToString:filePath]) ||
+            ([[data objectForKey:@"id"] isEqualToString:filePath])) {
+            file = data;
+            break;
+        }
+    }
+    [selectedItems removeObject:file];
+    [self removeSelectedRow:file];
+
+}
 
 
 -(void) removeSelectedRow:(NSDictionary *) file
@@ -557,8 +589,26 @@
     currentFileOperation = DELETE;
     NSArray *selectedData = [self getSelectedDataArray];
     [barItem startAnimating];
-    for (NSDictionary *data in selectedData) {
-        [self.restClient deletePath:[data objectForKey:@"path"]];
+    switch (viewType) {
+        case DROPBOX:
+        {
+            for (NSDictionary *data in selectedData) {
+                [self.restClient deletePath:[data objectForKey:@"path"]];
+            }
+        }
+            break;
+        case SKYDRIVE:
+        {
+            for (NSDictionary *data in selectedData) {
+                [self.appDelegate.liveClient deleteWithPath:[data objectForKey:@"id"]
+                                                   delegate:self
+                                                  userState:[data objectForKey:@"id"]];
+            }
+        }
+            break;
+            
+        default:
+            break;
     }
 }
 
