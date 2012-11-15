@@ -27,6 +27,7 @@
 +(BOOL) updateAccount:(NSDictionary *) account;
 
 +(NSDictionary *) metaDataForPath:(NSString *)path
+           whereTraversingPointer:(NSMutableDictionary *)traversingDictionary
               WithinFileStructure:(NSMutableDictionary *)fileStructure
                           ForView:(VIEW_TYPE)type;
 +(NSMutableDictionary *) makeFileStructureMutableForViewType:(VIEW_TYPE) type;
@@ -52,6 +53,9 @@ whereTraversingPointer:(NSMutableDictionary *)traversingDictionary
        WithInArray:(NSMutableArray *) array
            AtIndex:(int) index
        ForViewType:(VIEW_TYPE) type;
++(NSDictionary *) fileAtIndex:(int) index
+                  WithinArray:(NSArray *) array
+                  ForViewType:(VIEW_TYPE) type;
 
 
 @end

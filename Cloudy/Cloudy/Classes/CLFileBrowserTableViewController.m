@@ -221,6 +221,7 @@
 
 - (void) liveOperationSucceeded:(LiveOperation *)operation
 {
+    [liveOperations removeObject:operation];
     [barItem stopAnimating];
     
 //    switch (currentFileOperation) {
@@ -382,14 +383,18 @@
                 switch (currentFileOperation) {
                     case MOVE:
                     {
-                        [self.appDelegate.liveClient moveFromPath:[data objectForKey:@"id"]
-                                                    toDestination:pathString delegate:self userState:@"MOVE_FILES"];
+                        LiveOperation *moveOperation =                         [self.appDelegate.liveClient moveFromPath:[data objectForKey:@"id"]
+                                                                                                           toDestination:pathString delegate:self userState:@"MOVE_FILES"];
+                        [liveOperations addObject:moveOperation];
+
                     }
                         break;
                     case COPY:
                     {
-                        [self.appDelegate.liveClient copyFromPath:[data objectForKey:@"id"]
-                                                    toDestination:pathString delegate:self userState:@"COPY_FILES"];
+                        LiveOperation *copyOperation =                          [self.appDelegate.liveClient copyFromPath:[data objectForKey:@"id"]
+                                                                                                            toDestination:pathString delegate:self userState:@"COPY_FILES"];
+                        [liveOperations addObject:copyOperation];
+
                     }
                         break;
                     default:
@@ -600,9 +605,11 @@
         case SKYDRIVE:
         {
             for (NSDictionary *data in selectedData) {
-                [self.appDelegate.liveClient deleteWithPath:[data objectForKey:@"id"]
-                                                   delegate:self
-                                                  userState:[data objectForKey:@"id"]];
+                LiveOperation *deleteOperation =                 [self.appDelegate.liveClient deleteWithPath:[data objectForKey:@"id"]
+                                                                                                    delegate:self
+                                                                                                   userState:[data objectForKey:@"id"]];
+                [liveOperations addObject:deleteOperation];
+
             }
         }
             break;

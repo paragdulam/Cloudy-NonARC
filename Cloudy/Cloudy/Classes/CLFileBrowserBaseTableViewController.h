@@ -15,6 +15,7 @@
     VIEW_TYPE viewType;
     UIToolbar *fileOperationsToolbar;
     CLBrowserBarItem *barItem;
+    NSMutableArray *liveOperations;
 }
 
 @property(nonatomic,retain) NSString *path;

@@ -229,7 +229,7 @@
 
 +(NSDictionary *) readFileStructureForViewType:(VIEW_TYPE) type
 {
-    return [[[NSDictionary alloc] initWithContentsOfFile:[CLCacheManager getFileStructurePath:type]] autorelease];
+    return [NSDictionary dictionaryWithContentsOfFile:[CLCacheManager getFileStructurePath:type]];
 }
 
 
@@ -245,8 +245,9 @@
 +(NSMutableDictionary *) makeFileStructureMutableForViewType:(VIEW_TYPE) type
 {
     NSMutableDictionary *mutableFileStructure = CFPropertyListCreateDeepCopy(kCFAllocatorDefault, (CFDictionaryRef)[CLCacheManager readFileStructureForViewType:type], kCFPropertyListMutableContainers);
-    NSMutableDictionary *retVal = [NSMutableDictionary dictionaryWithDictionary:mutableFileStructure];
+    NSMutableDictionary *retVal = nil;
     if (mutableFileStructure) {
+        retVal = [NSMutableDictionary dictionaryWithDictionary:mutableFileStructure];
         CFRelease(mutableFileStructure);
     }
     return retVal;
@@ -277,7 +278,7 @@
 }
 
 +(int) doesArray:(NSArray *) array ContainsFileWithPath:(NSString *) filePath
-ForViewType:(VIEW_TYPE) type
+ForViewType:(VIEW_TYPE) type //Iterative Method for Loop
 {
     int retVal = -1;
     switch (type) {
@@ -408,30 +409,67 @@ ForViewType:(VIEW_TYPE) type
 }
 
 
-+(NSDictionary *) metaDataForPath:(NSString *)path
-              WithinFileStructure:(NSMutableDictionary *)fileStructure
-                          ForView:(VIEW_TYPE)type
++(NSDictionary *) fileAtIndex:(int) index
+                  WithinArray:(NSArray *) array
+                  ForViewType:(VIEW_TYPE) type
 {
-    if ([CLCacheManager isRootPath:path
-                    WithinViewType:type]) {
-        return fileStructure;
-    }
     NSDictionary *retVal = nil;
-    NSMutableArray *contents = [CLCacheManager filesWihinFolder:fileStructure ForViewType:type];
-    int index =     [CLCacheManager doesArray:contents
-                         ContainsFileWithPath:path
-                                  ForViewType:type];
-    if (index < 0) {
-        for (NSMutableDictionary *data in contents) {
-            [CLCacheManager metaDataForPath:path
-                        WithinFileStructure:data
-                                    ForView:type];
-        }
-    } else {
-        retVal = [contents objectAtIndex:index];
+    switch (type) {
+        case DROPBOX:
+            retVal = [array objectAtIndex:index];
+            break;
+        case SKYDRIVE:
+            retVal = [array objectAtIndex:index];
+            break;
+        default:
+            break;
     }
     return retVal;
 }
+
+
+
+
++(NSDictionary *) metaDataForPath:(NSString *)path
+           whereTraversingPointer:(NSMutableDictionary *)traversingDictionary
+              WithinFileStructure:(NSMutableDictionary *)fileStructure
+                          ForView:(VIEW_TYPE)type
+{
+    if (!traversingDictionary) {
+        traversingDictionary = fileStructure;
+    }
+    if ([CLCacheManager isRootPath:path
+                    WithinViewType:type]) {
+        return traversingDictionary;
+    }
+    NSMutableArray *contents = [CLCacheManager filesWihinFolder:traversingDictionary ForViewType:type];
+    int index =     [CLCacheManager doesArray:contents
+                         ContainsFileWithPath:path
+                                  ForViewType:type]; //Iterative Method For loop
+    if (index > -1) {
+        return [CLCacheManager fileAtIndex:index
+                               WithinArray:contents
+                               ForViewType:type];
+    } else {
+        for (NSMutableDictionary *data in contents) {
+            traversingDictionary = data;
+            if ([CLCacheManager filesWihinFolder:traversingDictionary
+                                     ForViewType:type]) {
+                NSDictionary *result = [CLCacheManager metaDataForPath:path
+                                                whereTraversingPointer:traversingDictionary
+                                                   WithinFileStructure:fileStructure
+                                                               ForView:type];
+                if (result) {
+                    return result;
+                }
+            }
+        }
+    }
+    return nil;
+}
+
+
+
 
 +(BOOL)     deleteFile:(NSDictionary *) file
 whereTraversingPointer:(NSMutableDictionary *)traversingDictionary
@@ -532,7 +570,8 @@ whereTraversingPointer:(NSMutableDictionary *)traversingDictionary
         case SKYDRIVE:
         {
             NSMutableDictionary *fileMetadata = [array objectAtIndex:index];
-            [fileMetadata setObject:[CLCacheManager filesWihinFolder:[NSMutableDictionary dictionaryWithDictionary:file] ForViewType:type] forKey:@"data"];  //hardcoded here
+            [fileMetadata setObject:[file objectForKey:@"data"]
+                             forKey:@"data"];  //hardcoded here
         }
             break;
         default:
@@ -548,23 +587,24 @@ whereTraversingPointer:(NSMutableDictionary *)traversingDictionary
     BOOL retVal = NO;
     if (!traversingDictionary) {
         traversingDictionary = fileStructure;
+        if (!traversingDictionary) {
+            fileStructure =  [NSMutableDictionary dictionaryWithDictionary:file];
+            return [fileStructure writeToFile:[CLCacheManager getFileStructurePath:type]
+                                     atomically:YES];
+        }
     }
     NSMutableArray *contents = [CLCacheManager filesWihinFolder:traversingDictionary
                                                     ForViewType:type];
     int index = [CLCacheManager doesArray:contents
                              ContainsFile:file
                               ForViewType:type];
-    if (index > -1 || [CLCacheManager isRootPathForFile:traversingDictionary
-                                         WithinViewType:type])
+    if (index > -1)/* || [CLCacheManager isRootPathForFile:traversingDictionary
+                                         WithinViewType:type])*/
     {
-        if (index > -1) {
-            [CLCacheManager updateFile:file
-                           WithInArray:contents
-                               AtIndex:index
-                           ForViewType:type];
-        } else {
-            fileStructure = [NSMutableDictionary dictionaryWithDictionary:file];
-        }
+        [CLCacheManager updateFile:file
+                       WithInArray:contents
+                           AtIndex:index
+                       ForViewType:type];
         retVal = [fileStructure writeToFile:[CLCacheManager getFileStructurePath:type]
                                  atomically:YES];
         

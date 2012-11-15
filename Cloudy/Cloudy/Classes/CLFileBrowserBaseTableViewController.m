@@ -72,6 +72,8 @@
     [self.navigationItem setRightBarButtonItem:rightBarButton];
     [rightBarButton release];
     
+    liveOperations = [[NSMutableArray alloc] init];
+    
     [self loadFilesForPath:path WithInViewType:viewType];
 }
 
@@ -92,6 +94,13 @@
 
 -(void) dealloc
 {
+    for (LiveOperation *operation in liveOperations) {
+        [operation cancel];
+    }
+    
+    [liveOperations release];
+    liveOperations = nil;
+    
     [path release];
     path = nil;
     [super dealloc];
@@ -133,6 +142,7 @@
                     CLFileBrowserTableViewController *fileBrowserViewController = [[CLFileBrowserTableViewController alloc] initWithTableViewStyle:UITableViewStylePlain WherePath:[metadata objectForKey:@"path"] WithinViewType:DROPBOX];
                     [self.navigationController pushViewController:fileBrowserViewController animated:YES];
                     [fileBrowserViewController release];
+                    fileBrowserViewController = nil;
                 }
             }
                 break;
@@ -143,6 +153,7 @@
                     CLFileBrowserTableViewController *fileBrowserViewController = [[CLFileBrowserTableViewController alloc] initWithTableViewStyle:UITableViewStylePlain WherePath:[metadata objectForKey:@"id"] WithinViewType:SKYDRIVE];
                     [self.navigationController pushViewController:fileBrowserViewController animated:YES];
                     [fileBrowserViewController release];
+                    fileBrowserViewController = nil;
                 }
             }
                 break;
@@ -163,6 +174,7 @@
 
 - (void) liveOperationSucceeded:(LiveOperation *)operation
 {
+    [liveOperations removeObject:operation];
     [self stopAnimating];
     NSLog(@"path %@",operation.path);
 //    NSMutableDictionary *resultDictionary = [[NSMutableDictionary alloc] init];
@@ -254,9 +266,11 @@
         case SKYDRIVE:
         {
             NSString *aPathString = [NSString stringWithFormat:@"%@/files",path];
-            [self.appDelegate.liveClient getWithPath:aPathString
-                                            delegate:self
-                                           userState:aPathString];
+            LiveOperation *operation = [self.appDelegate.liveClient
+                                        getWithPath:aPathString
+                                           delegate:self
+                                          userState:aPathString];
+            [liveOperations addObject:operation];
         }
             break;
         default:
@@ -295,6 +309,7 @@
 {
 //    return [CLCacheManager metaDataDictionaryForPath:path ForView:viewType];
     return [CLCacheManager metaDataForPath:path
+                    whereTraversingPointer:nil
                        WithinFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
                                    ForView:viewType];
 }
