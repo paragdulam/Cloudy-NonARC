@@ -185,6 +185,8 @@
     
     editingToolBarItems = [[NSArray alloc] initWithArray:items];
     [items release];
+    
+    currentFileOperation = INFINITY;
 
     [super viewDidLoad]; // Here the sequence is really Important
     
@@ -221,50 +223,31 @@
 
 - (void) liveOperationSucceeded:(LiveOperation *)operation
 {
-    [liveOperations removeObject:operation];
     [barItem stopAnimating];
-    
-//    switch (currentFileOperation) {
-//        case MOVE:
-//            [self removeSelectedRowForPath:operation.userState];
-//        case COPY:
-//        {
-//            [self.modalViewController dismissModalViewControllerAnimated:YES];
-//            [CLCacheManager insertFile:operation.result
-//                whereTraversingPointer:nil
-//                       inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
-//                           ForViewType:viewType];
-//        }
-//        case DELETE:
-//        {
-//            [self removeSelectedRowForPath:operation.userState];
-//        }
-//            break;
-//            
-//        default:
-//            break;
-//    }
-    
-    
-    if ([operation.userState isEqualToString:@"MOVE_FILES"]) {
-        [self.modalViewController dismissModalViewControllerAnimated:YES];
-        [self removeSelectedRowForPath:operation.path];
-//        [CLCacheManager updateFolderStructure:operation.result
-//                                      ForView:SKYDRIVE];
-        [CLCacheManager insertFile:operation.result
-            whereTraversingPointer:nil
-                   inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
-                       ForViewType:viewType];
-    } else if([operation.userState isEqualToString:@"COPY_FILES"]) {
-        [CLCacheManager insertFile:operation.result
-            whereTraversingPointer:nil
-                   inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
-                       ForViewType:viewType];
-        [self.modalViewController dismissModalViewControllerAnimated:YES];
-    } else if([operation.userState isEqualToString:@"DELETE_FILES"]) {
-        [self removeSelectedRowForPath:operation.path];
-    } else {
-        [super liveOperationSucceeded:operation];
+    switch (currentFileOperation) {
+        case MOVE:
+            [self removeSelectedRowForPath:operation.userState];
+        case COPY:
+        {
+            [self.modalViewController dismissModalViewControllerAnimated:YES];
+            [CLCacheManager insertFile:operation.result
+                whereTraversingPointer:nil
+                       inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
+                           ForViewType:viewType];
+            [liveOperations removeObject:operation];
+        }
+            break;
+        case DELETE:
+        {
+            [self removeSelectedRowForPath:operation.userState];
+            [liveOperations removeObject:operation];
+            [barItem deselectAll];
+        }
+            break;
+            currentFileOperation = INFINITY;
+        default:
+            [super liveOperationSucceeded:operation];
+            break;
     }
 }
 
@@ -273,10 +256,16 @@
 {
     [liveOperations removeObject:operation];
     [barItem stopAnimating];
-    if ([operation.userState isEqualToString:@"MOVE_FILES"] || [operation.userState isEqualToString:@"COPY_FILES"])
-    {
+    
+    if (currentFileOperation != INFINITY) {
         [self.modalViewController dismissModalViewControllerAnimated:YES];
+        currentFileOperation = INFINITY;
     }
+    
+//    if ([operation.userState isEqualToString:@"MOVE_FILES"] || [operation.userState isEqualToString:@"COPY_FILES"])
+//    {
+//        [self.modalViewController dismissModalViewControllerAnimated:YES];
+//    }
 
     [super liveOperationFailed:error
                      operation:operation];
@@ -383,7 +372,7 @@
                     case MOVE:
                     {
                         LiveOperation *moveOperation =                         [self.appDelegate.liveClient moveFromPath:[data objectForKey:@"id"]
-                                                                                                           toDestination:pathString delegate:self userState:@"MOVE_FILES"];
+                                                                                                           toDestination:pathString delegate:self userState:[data objectForKey:@"id"]];
                         [liveOperations addObject:moveOperation];
 
                     }
@@ -391,7 +380,7 @@
                     case COPY:
                     {
                         LiveOperation *copyOperation =                          [self.appDelegate.liveClient copyFromPath:[data objectForKey:@"id"]
-                                                                                                            toDestination:pathString delegate:self userState:@"COPY_FILES"];
+                                                                                                            toDestination:pathString delegate:self userState:[data objectForKey:@"id"]];
                         [liveOperations addObject:copyOperation];
 
                     }
@@ -405,6 +394,7 @@
         default:
             break;
     }
+    [viewController dismissModalViewControllerAnimated:YES];
 }
 
 
@@ -413,17 +403,14 @@
 
 -(void) removeSelectedRowForPath:(NSString *)filePath
 {
-    NSDictionary *file = nil;
     for (NSDictionary *data in selectedItems) {
         if (([[data objectForKey:@"path"] isEqualToString:filePath]) ||
             ([[data objectForKey:@"id"] isEqualToString:filePath])) {
-            file = data;
+            [self removeSelectedRow:data];
+            [selectedItems removeObject:data];
             break;
         }
     }
-    [selectedItems removeObject:file];
-    [self removeSelectedRow:file];
-
 }
 
 

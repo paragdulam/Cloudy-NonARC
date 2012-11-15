@@ -319,10 +319,16 @@ ForViewType:(VIEW_TYPE) type //Iterative Method for Loop
     switch (type) {
         case DROPBOX:
         {
-            NSString *folderName = [folder objectForKey:@"filename"];
-            NSString *fileName = [file objectForKey:@"filename"];
-            retVal = [CLCacheManager isString:folderName subStringOf:path] &&
-                     [CLCacheManager isString:fileName subStringOf:path];
+            NSString *folderPath = [folder objectForKey:@"path"];
+            NSMutableArray *components = [NSMutableArray arrayWithArray:[path componentsSeparatedByString:@"/"]];
+            [components removeObjectAtIndex:0];
+            [components removeLastObject];
+            NSMutableString *verifierString = [[NSMutableString alloc] init];
+            for (NSString *component in components) {
+                [verifierString appendFormat:@"/%@",component];
+            }
+            retVal = [verifierString isEqualToString:folderPath];
+            [verifierString release];
         }
             break;
         case SKYDRIVE:
@@ -496,10 +502,13 @@ whereTraversingPointer:(NSMutableDictionary *)traversingDictionary
             if ([[CLCacheManager filesWihinFolder:traversingDictionary
                                       ForViewType:type] count])
             {
-                [CLCacheManager deleteFile:file
-                    whereTraversingPointer:traversingDictionary
-                           inFileStructure:fileStructure
-                               ForViewType:type];
+                BOOL result = [CLCacheManager deleteFile:file
+                                  whereTraversingPointer:traversingDictionary
+                                         inFileStructure:fileStructure
+                                             ForViewType:type];
+                if (result) {
+                    return result;
+                }
             }
         }
     }
@@ -538,7 +547,7 @@ whereTraversingPointer:(NSMutableDictionary *)traversingDictionary
     {
         [contents insertObject:file atIndex:0];
         NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:[CLCacheManager sortDescriptorKeyForViewType:type] ascending:YES];
-        [contents sortedArrayUsingDescriptors:[NSArray arrayWithObject:sortDescriptor]];
+        [contents sortUsingDescriptors:[NSArray arrayWithObject:sortDescriptor]];
         [sortDescriptor release];
         retVal = [fileStructure writeToFile:[CLCacheManager getFileStructurePath:type]
                                  atomically:YES];
@@ -548,10 +557,13 @@ whereTraversingPointer:(NSMutableDictionary *)traversingDictionary
             if ([[CLCacheManager filesWihinFolder:traversingDictionary
                                      ForViewType:type] count])
             {
-                [CLCacheManager insertFile:file
-                    whereTraversingPointer:traversingDictionary
-                           inFileStructure:fileStructure
-                               ForViewType:type];
+                BOOL result = [CLCacheManager insertFile:file
+                                  whereTraversingPointer:traversingDictionary
+                                         inFileStructure:fileStructure
+                                             ForViewType:type];
+                if (result) {
+                    return result;
+                }
             }
         }
     }
@@ -614,10 +626,13 @@ whereTraversingPointer:(NSMutableDictionary *)traversingDictionary
             if ([[CLCacheManager filesWihinFolder:traversingDictionary
                                       ForViewType:type] count])
             {
-                [CLCacheManager updateFile:file
-                    whereTraversingPointer:traversingDictionary
-                           inFileStructure:fileStructure
-                               ForViewType:type];
+                BOOL result = [CLCacheManager updateFile:file
+                                  whereTraversingPointer:traversingDictionary
+                                         inFileStructure:fileStructure
+                                             ForViewType:type];
+                if (result) {
+                    return result;
+                }
             }
         }
     }
