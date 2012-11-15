@@ -271,6 +271,7 @@
 - (void) liveOperationFailed:(NSError *)error
                    operation:(LiveOperation*)operation
 {
+    [liveOperations removeObject:operation];
     [barItem stopAnimating];
     if ([operation.userState isEqualToString:@"MOVE_FILES"] || [operation.userState isEqualToString:@"COPY_FILES"])
     {
@@ -293,8 +294,6 @@
     [self.modalViewController dismissModalViewControllerAnimated:YES];
 
     NSDictionary *metaData = [CLDictionaryConvertor dictionaryFromMetadata:to];
-//    [CLCacheManager updateFolderStructure:metaData
-//                                  ForView:DROPBOX];
     [CLCacheManager insertFile:metaData
         whereTraversingPointer:nil
                inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
