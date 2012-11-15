@@ -265,7 +265,15 @@
 +(NSString *) fileIdForSkyDriveFile:(NSDictionary *) file
 {
     NSString *idString = [file objectForKey:@"id"];
-    return [idString length] ? idString : ROOT_SKYDRIVE_FOLDER_ID;
+    if (![idString length]) {
+        NSArray *contents = [CLCacheManager filesWihinFolder:[NSMutableDictionary dictionaryWithDictionary:file]
+                                                 ForViewType:SKYDRIVE];
+        if ([contents count]) {
+            NSDictionary *content = [contents objectAtIndex:0];
+            idString = [content objectForKey:@"parent_id"];
+        }
+    }
+    return idString;
 }
 
 +(int) doesArray:(NSArray *) array ContainsFileWithPath:(NSString *) filePath
@@ -284,7 +292,8 @@ ForViewType:(VIEW_TYPE) type
         case SKYDRIVE:
         {
             for (NSDictionary *data in array) {
-                NSString *folderId = [CLCacheManager fileIdForSkyDriveFile:data];
+//                NSString *folderId = [CLCacheManager fileIdForSkyDriveFile:data];
+                NSString *folderId = [data objectForKey:@"id"];
                 if ([folderId isEqualToString:filePath]) {
                     retVal = [array indexOfObject:data];
                     break;
@@ -511,7 +520,25 @@ whereTraversingPointer:(NSMutableDictionary *)traversingDictionary
     return retVal;
 }
 
-
++(void) updateFile:(NSDictionary *) file
+      WithInArray:(NSMutableArray *) array
+           AtIndex:(int) index
+       ForViewType:(VIEW_TYPE) type
+{
+    switch (type) {
+        case DROPBOX:
+            [array replaceObjectAtIndex:index withObject:file];
+            break;
+        case SKYDRIVE:
+        {
+            NSMutableDictionary *fileMetadata = [array objectAtIndex:index];
+            [fileMetadata setObject:[CLCacheManager filesWihinFolder:[NSMutableDictionary dictionaryWithDictionary:file] ForViewType:type] forKey:@"data"];  //hardcoded here
+        }
+            break;
+        default:
+            break;
+    }
+}
 
 +(BOOL)     updateFile:(NSDictionary *) file
 whereTraversingPointer:(NSMutableDictionary *)traversingDictionary
@@ -531,7 +558,10 @@ whereTraversingPointer:(NSMutableDictionary *)traversingDictionary
                                          WithinViewType:type])
     {
         if (index > -1) {
-            [contents replaceObjectAtIndex:index withObject:file];
+            [CLCacheManager updateFile:file
+                           WithInArray:contents
+                               AtIndex:index
+                           ForViewType:type];
         } else {
             fileStructure = [NSMutableDictionary dictionaryWithDictionary:file];
         }
