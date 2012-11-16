@@ -324,9 +324,15 @@ ForViewType:(VIEW_TYPE) type //Iterative Method for Loop
             [components removeObjectAtIndex:0];
             [components removeLastObject];
             NSMutableString *verifierString = [[NSMutableString alloc] init];
-            for (NSString *component in components) {
-                [verifierString appendFormat:@"/%@",component];
-            }
+            int count = [components count];
+            do {
+                count--;
+                [verifierString appendFormat:@"/"];
+                if (count >= 0) {
+                    NSString *component = [components objectAtIndex:count];
+                    [verifierString appendFormat:@"%@",component];
+                }
+            } while (count >= 0);
             retVal = [verifierString isEqualToString:folderPath];
             [verifierString release];
         }
@@ -599,11 +605,12 @@ whereTraversingPointer:(NSMutableDictionary *)traversingDictionary
     BOOL retVal = NO;
     if (!traversingDictionary) {
         traversingDictionary = fileStructure;
-        if (!traversingDictionary) {
+        if ([CLCacheManager isRootPathForFile:file
+                                                        WithinViewType:type]) {
             fileStructure =  [NSMutableDictionary dictionaryWithDictionary:file];
             return [fileStructure writeToFile:[CLCacheManager getFileStructurePath:type]
                                      atomically:YES];
-        }
+        } 
     }
     NSMutableArray *contents = [CLCacheManager filesWihinFolder:traversingDictionary
                                                     ForViewType:type];

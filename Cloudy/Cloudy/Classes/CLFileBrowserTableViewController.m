@@ -223,7 +223,7 @@
 
 - (void) liveOperationSucceeded:(LiveOperation *)operation
 {
-    [barItem stopAnimating];
+    [self stopAnimating];
     switch (currentFileOperation) {
         case MOVE:
             [self removeSelectedRowForPath:operation.userState];
@@ -255,7 +255,7 @@
                    operation:(LiveOperation*)operation
 {
     [liveOperations removeObject:operation];
-    [barItem stopAnimating];
+    [self stopAnimating];
     
     if (currentFileOperation != INFINITY) {
         [self.modalViewController dismissModalViewControllerAnimated:YES];
@@ -279,7 +279,7 @@
 
 - (void)restClient:(DBRestClient*)client copiedPath:(NSString *)fromPath to:(DBMetadata *)to
 {
-    [barItem stopAnimating];
+    [self stopAnimating];
     [self.modalViewController dismissModalViewControllerAnimated:YES];
 
     NSDictionary *metaData = [CLDictionaryConvertor dictionaryFromMetadata:to];
@@ -291,7 +291,7 @@
 
 - (void)restClient:(DBRestClient*)client copyPathFailedWithError:(NSError*)error
 {
-    [barItem stopAnimating];
+    [self stopAnimating];
 }
 
 
@@ -299,7 +299,7 @@
 
 - (void)restClient:(DBRestClient*)client movedPath:(NSString *)from_path to:(DBMetadata *)result
 {
-    [barItem stopAnimating];
+    [self stopAnimating];
     [self.modalViewController dismissModalViewControllerAnimated:YES];
     NSDictionary *metaData = [CLDictionaryConvertor dictionaryFromMetadata:result];
     [CLCacheManager insertFile:metaData
@@ -311,21 +311,21 @@
 
 - (void)restClient:(DBRestClient*)client movePathFailedWithError:(NSError*)error
 {
-    [barItem stopAnimating];
+    [self stopAnimating];
 }
 
 #pragma mark - Delete File Operation Methods
 
 - (void)restClient:(DBRestClient*)client deletedPath:(NSString *)pathStr
 {
-    [barItem stopAnimating];
+    [self stopAnimating];
     [barItem deselectAll];
     [self removeSelectedRowForPath:pathStr];
 }
 
 - (void)restClient:(DBRestClient*)client deletePathFailedWithError:(NSError*)error
 {
-    [barItem stopAnimating];
+    [self stopAnimating];
 }
 
 
@@ -355,7 +355,6 @@
                     default:
                         break;
                 }
-
             }
         }
             break;
@@ -579,7 +578,7 @@
 {
     currentFileOperation = DELETE;
     NSArray *selectedData = [self getSelectedDataArray];
-    [barItem startAnimating];
+    [self startAnimating];
     switch (viewType) {
         case DROPBOX:
         {

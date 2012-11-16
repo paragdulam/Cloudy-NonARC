@@ -7,10 +7,11 @@
 //
 
 #import "CLFileBrowserBaseTableViewController.h"
+#import "DDPopoverBackgroundView.h"
 
 @protocol CLPathSelectionViewControllerDelegate;
 
-@interface CLPathSelectionViewController : CLFileBrowserBaseTableViewController
+@interface CLPathSelectionViewController : CLFileBrowserBaseTableViewController<UITextFieldDelegate>
 {
     NSArray *excludedFolders;
     id <CLPathSelectionViewControllerDelegate> delegate;
