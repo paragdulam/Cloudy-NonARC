@@ -87,6 +87,7 @@
 		F1FA4F2F165633980027E4CC /* closeButton@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = F1FA4F2E165633980027E4CC /* closeButton@2x.png */; };
 		F1FA4F31165633FF0027E4CC /* green_checkButton.png in Resources */ = {isa = PBXBuildFile; fileRef = F1FA4F30165633FF0027E4CC /* green_checkButton.png */; };
 		F1FA4F331656340B0027E4CC /* green_checkButton@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = F1FA4F321656340B0027E4CC /* green_checkButton@2x.png */; };
+		F1FA4F381656A4E10027E4CC /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F1FA4F371656A4E00027E4CC /* MessageUI.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -252,6 +253,7 @@
 		F1FA4F2E165633980027E4CC /* closeButton@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "closeButton@2x.png"; sourceTree = "<group>"; };
 		F1FA4F30165633FF0027E4CC /* green_checkButton.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = green_checkButton.png; sourceTree = "<group>"; };
 		F1FA4F321656340B0027E4CC /* green_checkButton@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "green_checkButton@2x.png"; sourceTree = "<group>"; };
+		F1FA4F371656A4E00027E4CC /* MessageUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MessageUI.framework; path = System/Library/Frameworks/MessageUI.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -259,6 +261,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F1FA4F381656A4E10027E4CC /* MessageUI.framework in Frameworks */,
 				F10169ED164CDF8B002AE454 /* Security.framework in Frameworks */,
 				F194DBEB164AED8900631792 /* AssetsLibrary.framework in Frameworks */,
 				F194DBE9164AED3D00631792 /* libSDropboxSDK.a in Frameworks */,
@@ -292,6 +295,7 @@
 		F194DB0F164A64BC00631792 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				F1FA4F371656A4E00027E4CC /* MessageUI.framework */,
 				F10169EC164CDF8B002AE454 /* Security.framework */,
 				F194DBEA164AED8900631792 /* AssetsLibrary.framework */,
 				F194DB52164A720F00631792 /* QuartzCore.framework */,

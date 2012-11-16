@@ -26,6 +26,7 @@
     NSMutableArray *selectedItems;
 }
 
+
 -(void) hideButtons:(NSArray *) buttons;
 -(void) showButtons:(NSArray *) buttons;
 -(NSArray *) getSelectedDataArray;
@@ -33,6 +34,7 @@
 -(void) removeSelectedRow:(NSDictionary *) file;
 -(void) removeSelectedRowForPath:(NSString *)filePath;
 -(void) removeSelectedRows;
+-(void) shareURLsThroughMail:(NSArray *) urls;
 
 @property (nonatomic,retain)     NSMutableArray *selectedItems;
 
@@ -212,6 +214,12 @@
 
 -(void) dealloc
 {
+    [toolBarItems release];
+    toolBarItems = nil;
+    
+    [editingToolBarItems release];
+    editingToolBarItems = nil;
+    
     [selectedItems release];
     selectedItems = nil;
     
@@ -229,7 +237,6 @@
             [self removeSelectedRowForPath:operation.userState];
         case COPY:
         {
-            [self.modalViewController dismissModalViewControllerAnimated:YES];
             [CLCacheManager insertFile:operation.result
                 whereTraversingPointer:nil
                        inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
@@ -256,17 +263,6 @@
 {
     [liveOperations removeObject:operation];
     [self stopAnimating];
-    
-    if (currentFileOperation != INFINITY) {
-        [self.modalViewController dismissModalViewControllerAnimated:YES];
-        currentFileOperation = INFINITY;
-    }
-    
-//    if ([operation.userState isEqualToString:@"MOVE_FILES"] || [operation.userState isEqualToString:@"COPY_FILES"])
-//    {
-//        [self.modalViewController dismissModalViewControllerAnimated:YES];
-//    }
-
     [super liveOperationFailed:error
                      operation:operation];
 }
@@ -275,13 +271,45 @@
 
 #pragma mark - DBRestClientDelegate
 
+
+#pragma mark - Share File Operation Methods
+
+-(void) restClient:(DBRestClient *)restClient
+loadedSharableLink:(NSString *)link
+           forFile:(NSString *)pathStr
+{
+    NSMutableArray *urls = [[NSMutableArray alloc] init];
+    NSDictionary *file = nil;
+    for (NSDictionary *data in selectedItems) {
+        if ([[data objectForKey:@"path"] isEqualToString:pathStr]) {
+            [urls addObject:[NSDictionary dictionaryWithObject:link
+                                                        forKey:[data objectForKey:@"filename"]]];
+            file = data;
+            break;
+        }
+    }
+    [selectedItems removeObject:file];
+    if (![selectedItems count]) {
+        //
+        [self stopAnimating];
+        [self shareURLsThroughMail:urls];
+        [urls release];
+    }
+}
+
+
+
+-(void) restClient:(DBRestClient *)restClient loadSharableLinkFailedWithError:(NSError *)error
+{
+    
+}
+
+
 #pragma mark - Copy File Operation Methods
 
 - (void)restClient:(DBRestClient*)client copiedPath:(NSString *)fromPath to:(DBMetadata *)to
 {
     [self stopAnimating];
-    [self.modalViewController dismissModalViewControllerAnimated:YES];
-
     NSDictionary *metaData = [CLDictionaryConvertor dictionaryFromMetadata:to];
     [CLCacheManager insertFile:metaData
         whereTraversingPointer:nil
@@ -300,7 +328,6 @@
 - (void)restClient:(DBRestClient*)client movedPath:(NSString *)from_path to:(DBMetadata *)result
 {
     [self stopAnimating];
-    [self.modalViewController dismissModalViewControllerAnimated:YES];
     NSDictionary *metaData = [CLDictionaryConvertor dictionaryFromMetadata:result];
     [CLCacheManager insertFile:metaData
         whereTraversingPointer:nil
@@ -397,7 +424,57 @@
 }
 
 
+#pragma mark - MFMailComposeViewControllerDelegate
+
+- (void)mailComposeController:(MFMailComposeViewController *)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError *)error
+{
+    [controller dismissModalViewControllerAnimated:YES];
+    switch (result) {
+        case MFMailComposeResultSent:
+            //Success
+            break;
+        case MFMailComposeResultSaved:
+            //Saved
+            break;
+        case MFMailComposeResultCancelled:
+            //Cancelled
+            break;
+        case MFMailComposeResultFailed:
+            //Failed
+            break;
+        default:
+            break;
+    }
+}
+
 #pragma mark - Helper Methods
+
+
+-(void) shareURLsThroughMail:(NSArray *) urls
+{
+    NSMutableString *htmlString = [[NSMutableString alloc] init];
+    for (NSDictionary *dict in urls) {
+        [htmlString appendFormat:@"<a href=\"%@\">%@</a><br/>",[[dict allValues] objectAtIndex:0],[[dict allKeys] objectAtIndex:0]];
+    }
+    
+    
+    MFMailComposeViewController* controller = [[MFMailComposeViewController alloc] init];
+    controller.mailComposeDelegate = self;
+    [controller setSubject:@"Sharing Files"];
+    [controller setMessageBody:htmlString isHTML:YES];
+    [self presentModalViewController:controller animated:YES];
+    [controller release];
+}
+
+-(void) startAnimating
+{
+    [super startAnimating];
+}
+
+-(void) stopAnimating
+{
+    [super stopAnimating];
+}
 
 
 -(void) removeSelectedRowForPath:(NSString *)filePath
@@ -559,6 +636,30 @@
 -(void) shareButtonClicked:(UIButton *) sender
 {
     currentFileOperation = SHARE;
+    NSArray *selectedData = [self getSelectedDataArray];
+    switch (viewType) {
+        case DROPBOX:
+        {
+            for (NSDictionary *data in selectedData) {
+                [self.restClient loadSharableLinkForFile:[data objectForKey:@"path"] shortUrl:YES];
+                [self startAnimating];
+            }
+        }
+            break;
+        case SKYDRIVE:
+        {
+            NSMutableArray *urls = [[NSMutableArray alloc] init];
+            for (NSDictionary *data in selectedData) {
+                [urls addObject:[NSDictionary dictionaryWithObject:[data objectForKey:@"link"] forKey:[data objectForKey:@"name"]]];
+            }
+            [self shareURLsThroughMail:urls];
+            [urls release];
+        }
+            break;
+            
+        default:
+            break;
+    }
 }
 
 -(void) copyButtonClicked:(UIButton *) sender
