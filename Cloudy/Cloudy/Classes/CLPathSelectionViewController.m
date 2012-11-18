@@ -10,18 +10,12 @@
 
 @interface CLPathSelectionViewController ()
 {
-    UIButton *createFolderButton;
     UIButton *selectButton;
-    
-    UITextField *inputTextField;
-    UIButton *doneButton;
-    UIButton *cancelButton;
-    
-    NSArray *toolBarItems;
-    NSArray *createFoldertoolBarItems;
-    
-    FILE_FOLDER_OPERATION currentFileOperation;
 }
+
+-(void) completeToolbarItems;
+
+
 @end
 
 @implementation CLPathSelectionViewController
@@ -55,141 +49,8 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-
-//    CGRect navBarFrame = self.navigationController.navigationBar.frame;
-//    navBarFrame.size.height = 60.f;
-//    self.navigationController.navigationBar.frame = navBarFrame;
-//    
-//    
-//    CGRect dataTableFrame = dataTableView.frame;
-//    dataTableFrame.origin.y = self.navigationController.navigationBar.frame.size.height - 44.f;
-//    dataTableFrame.size.height -= 44.f;
-//
-//    dataTableView.frame = dataTableFrame;
-
-    UIImage *baseImage = [UIImage imageNamed:@"button_background_base.png"];
-    UIImage *buttonImage = [baseImage resizableImageWithCapInsets:UIEdgeInsetsMake(0, 15, 0, 15)];
-    
-    [barItem setTitle:@"Cancel" forState:UIControlStateNormal];
-
-    
-    
-    createFolderButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    createFolderButton.frame = CGRectMake(0, 0, 50, 30);
-    [createFolderButton setTitle:@"Folder"
-                        forState:UIControlStateNormal];
-    [createFolderButton setTitleColor:[UIColor whiteColor]
-                             forState:UIControlStateNormal];
-    [createFolderButton setBackgroundImage:buttonImage
-                            forState:UIControlStateNormal];
-    [createFolderButton.titleLabel setFont:[UIFont boldSystemFontOfSize:12.f]];
-    [createFolderButton addTarget:self
-                           action:@selector(createFolderButtonClicked:)
-                 forControlEvents:UIControlEventTouchUpInside];
-
-    selectButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    selectButton.frame = CGRectMake(0, 0, 50, 30);
-    [selectButton setTitle:@"Select"
-                  forState:UIControlStateNormal];
-    [selectButton setTitleColor:[UIColor whiteColor]
-                       forState:UIControlStateNormal];
-    [selectButton setBackgroundImage:buttonImage
-                            forState:UIControlStateNormal];
-    [selectButton.titleLabel setFont:[UIFont boldSystemFontOfSize:12.f]];
-    [selectButton addTarget:self
-                     action:@selector(selectButtonClicked:)
-           forControlEvents:UIControlEventTouchUpInside];
-
-    UIBarButtonItem *flexiSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
-    UIBarButtonItem *createFolderBarButton = [[UIBarButtonItem alloc] initWithCustomView:createFolderButton];
-    UIBarButtonItem *selectBarButton = [[UIBarButtonItem alloc] initWithCustomView:selectButton];
-    
-    toolBarItems = [[NSArray alloc] initWithObjects:createFolderBarButton,flexiSpace,selectBarButton, nil];
-    
-    [createFolderBarButton release];
-    [selectBarButton release];
-    [flexiSpace release];
-    
+    [self completeToolbarItems];
     [fileOperationsToolbar setItems:toolBarItems animated:YES];
-    
-    inputTextField = [[UITextField alloc] initWithFrame:CGRectMake(0, 0, 280, 35.f)];
-    inputTextField.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
-
-    inputTextField.backgroundColor = [UIColor whiteColor];
-    inputTextField.clipsToBounds = YES;
-    inputTextField.layer.cornerRadius = 17.5f;
-    inputTextField.borderStyle = UITextBorderStyleNone;
-    inputTextField.delegate = self;
-    
-    doneButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    [doneButton addTarget:self
-                   action:@selector(doneButtonClicked:)
-         forControlEvents:UIControlEventTouchUpInside];
-    UIImage *checkImage = [UIImage imageNamed:@"green_checkButton.png"];
-    CGRect doneButtonFrame = CGRectMake(0,
-                                        0,
-                                        checkImage.size.width,
-                                        checkImage.size.height);
-    [doneButton setFrame:doneButtonFrame];
-    [doneButton setImage:checkImage
-                forState:UIControlStateNormal];
-//    [self.view addSubview:doneButton];
-    [inputTextField setRightViewMode:UITextFieldViewModeAlways];
-    [inputTextField setRightView:doneButton];
-    
-    cancelButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    [cancelButton addTarget:self
-                     action:@selector(closeButtonClicked:)
-           forControlEvents:UIControlEventTouchUpInside];
-    UIImage *cancelImage = [UIImage imageNamed:@"closeButton.png"];
-    CGRect cancelButtonFrame = CGRectMake(0,
-                                          0,
-                                          cancelImage.size.width,
-                                          cancelImage.size.height);
-    [cancelButton setFrame:cancelButtonFrame];
-    [cancelButton setImage:cancelImage
-                  forState:UIControlStateNormal];
-    [inputTextField setLeftViewMode:UITextFieldViewModeAlways];
-    [inputTextField setLeftView:cancelButton];
-
-    
-    NSMutableArray *items = [[NSMutableArray alloc] init];
-    flexiSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
-    [items addObject:flexiSpace];
-    [flexiSpace release];
-    
-    UIBarButtonItem *textFieldItem = [[UIBarButtonItem alloc] initWithCustomView:inputTextField];
-    [inputTextField release];
-
-    [items addObject:textFieldItem];
-    [textFieldItem release];
-    
-    flexiSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
-    [items addObject:flexiSpace];
-    [flexiSpace release];
-    
-    createFoldertoolBarItems = [[NSArray alloc] initWithArray:items];
-    [items release];
-    
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(keyboardWillShow:)
-                                                 name:UIKeyboardWillShowNotification
-                                               object:nil];
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(keyboardWillHide:)
-                                                 name:UIKeyboardWillHideNotification
-                                               object:nil];
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(keyboardDidHide:)
-                                                 name:UIKeyboardDidHideNotification
-                                               object:nil];
-
-    
-
-    
 	// Do any additional setup after loading the view.
 }
 
@@ -210,18 +71,6 @@
     [toolBarItems release];
     toolBarItems = nil;
     
-    [createFoldertoolBarItems release];
-    createFoldertoolBarItems = nil;
-    
-    [[NSNotificationCenter defaultCenter] removeObserver:self
-                                                    name:UIKeyboardWillHideNotification
-                                                  object:nil];
-    
-    [[NSNotificationCenter defaultCenter] removeObserver:self
-                                                    name:UIKeyboardWillShowNotification
-                                                  object:nil];
-
-    
     delegate = nil;
     
     [excludedFolders release];
@@ -232,134 +81,21 @@
 
 
 
-#pragma mark - DBRestClientDelegate
-
--(void) restClient:(DBRestClient *)client createdFolder:(DBMetadata *)folder
-{
-    [self closeButtonClicked:cancelButton];
-    [self stopAnimating];
-    NSDictionary *folderDictionary = [CLDictionaryConvertor dictionaryFromMetadata:folder];
-    [CLCacheManager insertFile:folderDictionary
-        whereTraversingPointer:nil
-               inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
-                   ForViewType:viewType];
-    [self readCacheUpdateView];
-}
-
--(void) restClient:(DBRestClient *)client createFolderFailedWithError:(NSError *)error
-{
-    [self closeButtonClicked:cancelButton];
-    [self stopAnimating];
-}
-
 
 #pragma mark - LiveOperationDelegate
 
 -(void) liveOperationSucceeded:(LiveOperation *)operation
 {
-    switch (currentFileOperation) {
-        case CREATE:
-        {
-            [self closeButtonClicked:cancelButton];
-            [self stopAnimating];
-            [liveOperations removeObject:operation];
-            [CLCacheManager insertFile:operation.result
-                whereTraversingPointer:nil
-                       inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
-                           ForViewType:viewType];
-            [self readCacheUpdateView];
-            currentFileOperation = INFINITY;
-        }
-            break;
-            
-        default:
-            [super liveOperationSucceeded:operation];
-            break;
-    }
+    [super liveOperationSucceeded:operation];
 }
 
 -(void) liveOperationFailed:(NSError *)error operation:(LiveOperation *)operation
 {
-    [liveOperations removeObject:operation];
     [super liveOperationFailed:error
                      operation:operation];
 }
 
 
-#pragma mark - UITextFieldDelegate
-
-
-- (BOOL)textFieldShouldBeginEditing:(UITextField *)textField
-{
-    return YES;
-}
-
-- (void)textFieldDidBeginEditing:(UITextField *)textField
-{
-    
-}
-
-- (BOOL)textFieldShouldEndEditing:(UITextField *)textField
-{
-    return YES;
-}
-
-- (void)textFieldDidEndEditing:(UITextField *)textField
-{
-    
-}
-
-//- (BOOL)textFieldShouldClear:(UITextField *)textField
-//{
-//    
-//}
-//
-- (BOOL)textFieldShouldReturn:(UITextField *)textField
-{
-    [textField resignFirstResponder];
-    return YES;
-}
-
-#pragma mark - Keyboard Notifications
-
--(void) keyboardWillShow:(NSNotification *) notification
-{
-    NSDictionary* keyboardInfo = [notification userInfo];
-    NSValue* keyboardFrameBegin = [keyboardInfo valueForKey:UIKeyboardFrameBeginUserInfoKey];
-    CGRect keyboardFrameBeginRect = [keyboardFrameBegin CGRectValue];
-    float keyBoardHeight = keyboardFrameBeginRect.size.height;
-    
-    CGRect fileOperationsFrame = fileOperationsToolbar.frame;
-    fileOperationsFrame.origin.y = self.view.frame.size.height - keyBoardHeight - TOOLBAR_HEIGHT;
-    
-    [UIView beginAnimations:nil context:NULL];
-    [UIView setAnimationDuration:0.3f];
-    
-    [fileOperationsToolbar setFrame:fileOperationsFrame];
-    
-    [UIView commitAnimations];
-    dataTableView.userInteractionEnabled = NO;
-}
-
-
--(void) keyboardWillHide:(NSNotification *) notification
-{
-    CGRect fileOperationsFrame = fileOperationsToolbar.frame;
-    fileOperationsFrame.origin.y = self.view.frame.size.height - TOOLBAR_HEIGHT;
-    
-    [UIView beginAnimations:nil context:NULL];
-    [UIView setAnimationDuration:0.3f];
-    
-    [fileOperationsToolbar setFrame:fileOperationsFrame];
-    
-    [UIView commitAnimations];
-}
-
--(void) keyboardDidHide:(NSNotification *) notification
-{
-    [fileOperationsToolbar setItems:toolBarItems animated:YES];
-    dataTableView.userInteractionEnabled = YES;
-}
 
 
 
@@ -373,6 +109,36 @@
 
 #pragma mark - Helper Methods
 
+
+-(void) completeToolbarItems
+{
+    UIImage *baseImage = [UIImage imageNamed:@"button_background_base.png"];
+    UIImage *buttonImage = [baseImage resizableImageWithCapInsets:UIEdgeInsetsMake(0, 15, 0, 15)];
+    
+    [barItem setTitle:@"Cancel" forState:UIControlStateNormal];
+    
+    selectButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    selectButton.frame = CGRectMake(0, 0, 50, 30);
+    [selectButton setTitle:@"Select"
+                  forState:UIControlStateNormal];
+    [selectButton setTitleColor:[UIColor whiteColor]
+                       forState:UIControlStateNormal];
+    [selectButton setBackgroundImage:buttonImage
+                            forState:UIControlStateNormal];
+    [selectButton.titleLabel setFont:[UIFont boldSystemFontOfSize:12.f]];
+    [selectButton addTarget:self
+                     action:@selector(selectButtonClicked:)
+           forControlEvents:UIControlEventTouchUpInside];
+    
+    UIBarButtonItem *flexiSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
+    UIBarButtonItem *selectBarButton = [[UIBarButtonItem alloc] initWithCustomView:selectButton];
+    
+    [toolBarItems addObject:flexiSpace];
+    [flexiSpace release];
+    [toolBarItems addObject:selectBarButton];
+    [selectBarButton release];
+
+}
 
 -(void) loadFilesForPath:(NSString *)pathString WithInViewType:(VIEW_TYPE)type
 {
@@ -428,16 +194,6 @@
 #pragma mark - UITableViewDelegate && UITableViewDataSource
 
 
-//-(UITableViewCell *) tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
-//{
-//    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"CELL"];
-//    if (!cell) {
-//        cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault
-//                                      reuseIdentifier:@"CELL"] autorelease];
-//    }
-//    return cell;
-//}
-
 -(void) tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     switch (viewType) {
@@ -466,51 +222,12 @@
 
 
 
-#pragma mark - IBActions
-
-
--(void) doneButtonClicked:(UIButton *) btn
-{
-    if ([inputTextField.text length]) {
-        currentFileOperation = CREATE;
-        switch (viewType) {
-            case DROPBOX:
-            {
-                NSString *pathStr = [NSString stringWithFormat:@"%@/%@",path,inputTextField.text];
-                [self.restClient createFolder:pathStr];
-            }
-                break;
-            case SKYDRIVE:
-            {
-                NSDictionary *folder = [NSDictionary dictionaryWithObjectsAndKeys:inputTextField.text,@"name", nil];
-                LiveOperation *createFolderOperation = [self.appDelegate.liveClient postWithPath:path dictBody:folder delegate:self userState:[folder objectForKey:@"name"]];
-                [liveOperations addObject:createFolderOperation];
-            }
-                break;
-            default:
-                break;
-        }
-        [self startAnimating];
-    }
-}
-
-
--(void) closeButtonClicked:(UIButton *) btn
-{
-    [inputTextField resignFirstResponder];
-}
-
 -(void) cancelButtonClicked:(UIButton *) btn
 {
     [self dismissModalViewControllerAnimated:YES];
 }
 
 
--(void) createFolderButtonClicked:(UIButton *) btn
-{
-    [fileOperationsToolbar setItems:createFoldertoolBarItems animated:YES];
-    [inputTextField becomeFirstResponder];
-}
 
 
 -(void) selectButtonClicked:(UIButton *) btn
@@ -520,7 +237,7 @@
         [delegate pathDidSelect:path
               ForViewController:self];
     }
-//    [self dismissModalViewControllerAnimated:YES];
+    [self dismissModalViewControllerAnimated:YES];
 }
 
 @end

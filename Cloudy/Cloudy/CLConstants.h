@@ -74,7 +74,8 @@ typedef enum FILE_FOLDER_OPERATIONS {
     COPY,
     CREATE,
     DELETE,
-    SHARE
+    SHARE,
+    METADATA,
 } FILE_FOLDER_OPERATION;
 
 

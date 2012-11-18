@@ -19,10 +19,8 @@
     UIButton *deleteButton;
     
     
-    NSArray *toolBarItems;
     NSArray *editingToolBarItems;
     
-    FILE_FOLDER_OPERATION currentFileOperation;
     NSMutableArray *selectedItems;
 }
 
@@ -35,6 +33,10 @@
 -(void) removeSelectedRowForPath:(NSString *)filePath;
 -(void) removeSelectedRows;
 -(void) shareURLsThroughMail:(NSArray *) urls;
+-(void) createEditingToolbarItems;
+-(void) completeToolbarItems;
+
+
 
 @property (nonatomic,retain)     NSMutableArray *selectedItems;
 
@@ -57,141 +59,11 @@
 {
 	// Do any additional setup after loading the view.
     
-    
-    UIImage *baseImage = [UIImage imageNamed:@"button_background_base.png"];
-    UIImage *buttonImage = [baseImage resizableImageWithCapInsets:UIEdgeInsetsMake(0, 15, 0, 15)];
-    
-    
-    uploadButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    uploadButton.frame = CGRectMake(0, 0, 50, 30);
-    [uploadButton setTitle:@"Upload"
-                  forState:UIControlStateNormal];
-    [uploadButton setTitleColor:[UIColor whiteColor]
-                       forState:UIControlStateNormal];
-    [uploadButton setBackgroundImage:buttonImage
-                            forState:UIControlStateNormal];
-    [uploadButton.titleLabel setFont:[UIFont boldSystemFontOfSize:12.f]];
-    [uploadButton addTarget:self
-                     action:@selector(uploadButtonClicked:)
-           forControlEvents:UIControlEventTouchUpInside];
-    
-    NSMutableArray *items = [[NSMutableArray alloc] init];
-    UIBarButtonItem *flexiSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
-    [items addObject:flexiSpace];
-    [flexiSpace release];
-    
-    UIBarButtonItem *uploadBarButton = [[UIBarButtonItem alloc] initWithCustomView:uploadButton];
-    [items addObject:uploadBarButton];
-    [uploadBarButton release];
-    
-    toolBarItems = [[NSArray alloc] initWithArray:items];
-    [items release];
-    
-    
-    deleteButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    deleteButton.frame = CGRectMake(0, 0, 50, 30);
-    [deleteButton setTitle:@"Delete"
-                  forState:UIControlStateNormal];
-    [deleteButton setTitleColor:[UIColor whiteColor]
-                       forState:UIControlStateNormal];
-    [deleteButton setBackgroundImage:buttonImage
-                            forState:UIControlStateNormal];
-    [deleteButton.titleLabel setFont:[UIFont boldSystemFontOfSize:12.f]];
-    deleteButton.exclusiveTouch = YES;
-    [deleteButton addTarget:self
-                     action:@selector(deleteButtonClicked:)
-           forControlEvents:UIControlEventTouchUpInside];
-    
-    
-    moveButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    moveButton.frame = CGRectMake(0, 0, 50, 30);
-    [moveButton setTitle:@"Move"
-                forState:UIControlStateNormal];
-    [moveButton setTitleColor:[UIColor whiteColor]
-                     forState:UIControlStateNormal];
-    [moveButton setBackgroundImage:buttonImage
-                          forState:UIControlStateNormal];
-    [moveButton.titleLabel setFont:[UIFont boldSystemFontOfSize:12.f]];
-    moveButton.exclusiveTouch = YES;
-    [moveButton addTarget:self
-                   action:@selector(moveButtonClicked:)
-         forControlEvents:UIControlEventTouchUpInside];
-    
-    
-    copyButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    copyButton.frame = CGRectMake(0, 0, 50, 30);
-    [copyButton setTitle:@"Copy"
-                forState:UIControlStateNormal];
-    [copyButton setTitleColor:[UIColor whiteColor]
-                     forState:UIControlStateNormal];
-    [copyButton setBackgroundImage:buttonImage
-                          forState:UIControlStateNormal];
-    [copyButton.titleLabel setFont:[UIFont boldSystemFontOfSize:12.f]];
-    copyButton.exclusiveTouch = YES;
-    [copyButton addTarget:self
-                   action:@selector(copyButtonClicked:)
-         forControlEvents:UIControlEventTouchUpInside];
-    
-    
-    shareButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    shareButton.frame = CGRectMake(0, 0, 50, 30);
-    [shareButton setTitle:@"Share"
-                 forState:UIControlStateNormal];
-    [shareButton setTitleColor:[UIColor whiteColor]
-                      forState:UIControlStateNormal];
-    shareButton.exclusiveTouch = YES;
-    [shareButton setBackgroundImage:buttonImage
-                           forState:UIControlStateNormal];
-    [shareButton.titleLabel setFont:[UIFont boldSystemFontOfSize:12.f]];
-    [shareButton addTarget:self
-                    action:@selector(shareButtonClicked:)
-          forControlEvents:UIControlEventTouchUpInside];
-    
-    items = [[NSMutableArray alloc] init];
-    flexiSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
-    [items addObject:flexiSpace];
-    [flexiSpace release];
-    
-    UIBarButtonItem *deleteBarButton = [[UIBarButtonItem alloc] initWithCustomView:deleteButton];
-    [items addObject:deleteBarButton];
-    [deleteBarButton release];
-    
-    flexiSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
-    [items addObject:flexiSpace];
-    [flexiSpace release];
-    
-    UIBarButtonItem *moveBarButton = [[UIBarButtonItem alloc] initWithCustomView:moveButton];
-    [items addObject:moveBarButton];
-    [moveBarButton release];
-    
-    flexiSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
-    [items addObject:flexiSpace];
-    [flexiSpace release];
-    
-    
-    UIBarButtonItem *copyBarButton = [[UIBarButtonItem alloc] initWithCustomView:copyButton];
-    [items addObject:copyBarButton];
-    [copyBarButton release];
-    
-    flexiSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
-    [items addObject:flexiSpace];
-    [flexiSpace release];
-    
-    UIBarButtonItem *shareBarButton = [[UIBarButtonItem alloc] initWithCustomView:shareButton];
-    [items addObject:shareBarButton];
-    [shareBarButton release];
-    
-    flexiSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
-    [items addObject:flexiSpace];
-    [flexiSpace release];
-    
-    editingToolBarItems = [[NSArray alloc] initWithArray:items];
-    [items release];
-    
-    currentFileOperation = INFINITY;
-
-    [super viewDidLoad]; // Here the sequence is really Important
-    
+    [super viewDidLoad]; 
+    [self completeToolbarItems];
+    [fileOperationsToolbar setItems:toolBarItems animated:YES];
+    [self createEditingToolbarItems];
+    //currentFileOperation = INFINITY;
     [barItem setTitle:@"Edit" forState:UIControlStateNormal];
     [barItem setTitle:@"Done" forState:UIControlStateSelected];
 
@@ -227,6 +99,15 @@
 }
 
 
+#pragma mark - LiveUploadOperationDelegate
+
+- (void) liveUploadOperationProgressed:(LiveOperationProgress *)progress
+                             operation:(LiveOperation *)operation
+{
+    
+}
+
+
 #pragma mark - LiveOperationDelegate
 
 - (void) liveOperationSucceeded:(LiveOperation *)operation
@@ -242,6 +123,7 @@
                        inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
                            ForViewType:viewType];
             [liveOperations removeObject:operation];
+            //currentFileOperation = INFINITY;
         }
             break;
         case DELETE:
@@ -249,9 +131,9 @@
             [self removeSelectedRowForPath:operation.userState];
             [liveOperations removeObject:operation];
             [barItem deselectAll];
+            //currentFileOperation = INFINITY;
         }
             break;
-            currentFileOperation = INFINITY;
         default:
             [super liveOperationSucceeded:operation];
             break;
@@ -271,6 +153,16 @@
 
 #pragma mark - DBRestClientDelegate
 
+
+#pragma mark - Upload File Operation Methods
+
+-(void) restClient:(DBRestClient *)client
+    uploadProgress:(CGFloat)progress
+           forFile:(NSString *)destPath
+              from:(NSString *)srcPath
+{
+    
+}
 
 #pragma mark - Share File Operation Methods
 
@@ -420,7 +312,6 @@ loadedSharableLink:(NSString *)link
         default:
             break;
     }
-    [viewController dismissModalViewControllerAnimated:YES];
 }
 
 
@@ -449,6 +340,143 @@ loadedSharableLink:(NSString *)link
 
 #pragma mark - Helper Methods
 
+
+
+-(void) completeToolbarItems
+{
+    UIImage *baseImage = [UIImage imageNamed:@"button_background_base.png"];
+    UIImage *buttonImage = [baseImage resizableImageWithCapInsets:UIEdgeInsetsMake(0, 15, 0, 15)];
+    
+    
+    uploadButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    uploadButton.frame = CGRectMake(0, 0, 50, 30);
+    [uploadButton setTitle:@"Upload"
+                  forState:UIControlStateNormal];
+    [uploadButton setTitleColor:[UIColor whiteColor]
+                       forState:UIControlStateNormal];
+    [uploadButton setBackgroundImage:buttonImage
+                            forState:UIControlStateNormal];
+    [uploadButton.titleLabel setFont:[UIFont boldSystemFontOfSize:12.f]];
+    [uploadButton addTarget:self
+                     action:@selector(uploadButtonClicked:)
+           forControlEvents:UIControlEventTouchUpInside];
+    
+    UIBarButtonItem *flexiSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
+    [toolBarItems addObject:flexiSpace];
+    [flexiSpace release];
+    
+    UIBarButtonItem *uploadBarButton = [[UIBarButtonItem alloc] initWithCustomView:uploadButton];
+    [toolBarItems addObject:uploadBarButton];
+    [uploadBarButton release];
+}
+
+
+-(void) createEditingToolbarItems
+{
+    UIImage *baseImage = [UIImage imageNamed:@"button_background_base.png"];
+    UIImage *buttonImage = [baseImage resizableImageWithCapInsets:UIEdgeInsetsMake(0, 15, 0, 15)];
+
+    
+    deleteButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    deleteButton.frame = CGRectMake(0, 0, 50, 30);
+    [deleteButton setTitle:@"Delete"
+                  forState:UIControlStateNormal];
+    [deleteButton setTitleColor:[UIColor whiteColor]
+                       forState:UIControlStateNormal];
+    [deleteButton setBackgroundImage:buttonImage
+                            forState:UIControlStateNormal];
+    [deleteButton.titleLabel setFont:[UIFont boldSystemFontOfSize:12.f]];
+    deleteButton.exclusiveTouch = YES;
+    [deleteButton addTarget:self
+                     action:@selector(deleteButtonClicked:)
+           forControlEvents:UIControlEventTouchUpInside];
+    
+    
+    moveButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    moveButton.frame = CGRectMake(0, 0, 50, 30);
+    [moveButton setTitle:@"Move"
+                forState:UIControlStateNormal];
+    [moveButton setTitleColor:[UIColor whiteColor]
+                     forState:UIControlStateNormal];
+    [moveButton setBackgroundImage:buttonImage
+                          forState:UIControlStateNormal];
+    [moveButton.titleLabel setFont:[UIFont boldSystemFontOfSize:12.f]];
+    moveButton.exclusiveTouch = YES;
+    [moveButton addTarget:self
+                   action:@selector(moveButtonClicked:)
+         forControlEvents:UIControlEventTouchUpInside];
+    
+    
+    copyButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    copyButton.frame = CGRectMake(0, 0, 50, 30);
+    [copyButton setTitle:@"Copy"
+                forState:UIControlStateNormal];
+    [copyButton setTitleColor:[UIColor whiteColor]
+                     forState:UIControlStateNormal];
+    [copyButton setBackgroundImage:buttonImage
+                          forState:UIControlStateNormal];
+    [copyButton.titleLabel setFont:[UIFont boldSystemFontOfSize:12.f]];
+    copyButton.exclusiveTouch = YES;
+    [copyButton addTarget:self
+                   action:@selector(copyButtonClicked:)
+         forControlEvents:UIControlEventTouchUpInside];
+    
+    
+    shareButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    shareButton.frame = CGRectMake(0, 0, 50, 30);
+    [shareButton setTitle:@"Share"
+                 forState:UIControlStateNormal];
+    [shareButton setTitleColor:[UIColor whiteColor]
+                      forState:UIControlStateNormal];
+    shareButton.exclusiveTouch = YES;
+    [shareButton setBackgroundImage:buttonImage
+                           forState:UIControlStateNormal];
+    [shareButton.titleLabel setFont:[UIFont boldSystemFontOfSize:12.f]];
+    [shareButton addTarget:self
+                    action:@selector(shareButtonClicked:)
+          forControlEvents:UIControlEventTouchUpInside];
+    
+    NSMutableArray *items = [[NSMutableArray alloc] init];
+    UIBarButtonItem *flexiSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
+    [items addObject:flexiSpace];
+    [flexiSpace release];
+    
+    UIBarButtonItem *deleteBarButton = [[UIBarButtonItem alloc] initWithCustomView:deleteButton];
+    [items addObject:deleteBarButton];
+    [deleteBarButton release];
+    
+    flexiSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
+    [items addObject:flexiSpace];
+    [flexiSpace release];
+    
+    UIBarButtonItem *moveBarButton = [[UIBarButtonItem alloc] initWithCustomView:moveButton];
+    [items addObject:moveBarButton];
+    [moveBarButton release];
+    
+    flexiSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
+    [items addObject:flexiSpace];
+    [flexiSpace release];
+    
+    
+    UIBarButtonItem *copyBarButton = [[UIBarButtonItem alloc] initWithCustomView:copyButton];
+    [items addObject:copyBarButton];
+    [copyBarButton release];
+    
+    flexiSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
+    [items addObject:flexiSpace];
+    [flexiSpace release];
+    
+    UIBarButtonItem *shareBarButton = [[UIBarButtonItem alloc] initWithCustomView:shareButton];
+    [items addObject:shareBarButton];
+    [shareBarButton release];
+    
+    flexiSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
+    [items addObject:flexiSpace];
+    [flexiSpace release];
+    
+    editingToolBarItems = [[NSArray alloc] initWithArray:items];
+    [items release];
+}
 
 -(void) shareURLsThroughMail:(NSArray *) urls
 {
@@ -626,10 +654,40 @@ loadedSharableLink:(NSString *)link
 }
 
 
+#pragma mark - AGImagePickerControllerDelegate
+
+- (void)agImagePickerController:(AGImagePickerController *)picker
+  didFinishPickingMediaWithInfo:(NSArray *)info
+{
+    [picker dismissModalViewControllerAnimated:YES];
+    switch (viewType) {
+        case DROPBOX:
+        {
+        }
+            break;
+        case SKYDRIVE:
+        {
+        }
+            break;
+        default:
+            break;
+    }
+}
+
+- (void)agImagePickerController:(AGImagePickerController *)picker
+                        didFail:(NSError *)error
+{
+    [picker dismissModalViewControllerAnimated:YES];
+}
+
+
 #pragma mark - IBActions
 
 -(void) uploadButtonClicked:(UIButton *) btn
 {
+    AGImagePickerController *imagePicker = [[AGImagePickerController alloc] initWithDelegate:self];
+    [self presentModalViewController:imagePicker animated:YES];
+    [imagePicker release];
 }
 
 

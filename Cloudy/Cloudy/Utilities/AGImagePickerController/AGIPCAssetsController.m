@@ -338,21 +338,22 @@
 
 - (void)doneAction:(id)sender
 {
-    [UIView beginAnimations:nil context:NULL];
-    [UIView setAnimationDuration:1.f];
-    [UIView setAnimationDelegate:self];
-    [UIView setAnimationDidStopSelector:@selector(animationDidFinish)];
-    
-    for (AGIPCGridItem *gridItem in self.assets)
-    {
-        if (gridItem.selected)
-        {
-            gridItem.center = self.view.center;
-        }
-    }
-    
-    [UIView commitAnimations];
-    
+//    [UIView beginAnimations:nil context:NULL];
+//    [UIView setAnimationDuration:1.f];
+//    [UIView setAnimationDelegate:self];
+//    [UIView setAnimationDidStopSelector:@selector(animationDidFinish)];
+//    
+//    for (AGIPCGridItem *gridItem in self.assets)
+//    {
+//        if (gridItem.selected)
+//        {
+//            gridItem.center = self.view.center;
+//        }
+//    }
+//    
+//    [UIView commitAnimations];
+    [self.imagePickerController performSelector:@selector(didFinishPickingAssets:) withObject:self.selectedAssets];
+
 //    AGIPCGridItem *icon = [self.assets objectAtIndex:0];
 //    UIBezierPath *movePath = [UIBezierPath bezierPath];
 //    [movePath moveToPoint:icon.center];

@@ -13,10 +13,21 @@
 
 @interface CLFileBrowserBaseTableViewController ()
 {
+    UIButton *createFolderButton;
+    
+    UITextField *inputTextField;
+    UIButton *doneButton;
+    UIButton *cancelButton;
+    
+    NSArray *createFoldertoolBarItems;
 }
 
 -(NSArray *) getCachedTableDataArrayForViewType:(VIEW_TYPE) type;
 -(NSDictionary *) readCachedFileStructure;
+-(void) createFolderToolbarItems;
+-(void) createToolbarItems;
+
+
 
 
 @end
@@ -58,6 +69,26 @@
     dataTableView.backgroundColor = [UIColor clearColor];
     dataTableView.allowsMultipleSelectionDuringEditing = YES;
     dataTableView.separatorStyle = UITableViewCellSeparatorStyleNone;
+    
+
+    [self createToolbarItems];
+    [self createFolderToolbarItems];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(keyboardWillShow:)
+                                                 name:UIKeyboardWillShowNotification
+                                               object:nil];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(keyboardWillHide:)
+                                                 name:UIKeyboardWillHideNotification
+                                               object:nil];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(keyboardDidHide:)
+                                                 name:UIKeyboardDidHideNotification
+                                               object:nil];
+
   
     fileOperationsToolbar = [[UIToolbar alloc] initWithFrame:CGRectMake(0, self.view.frame.size.height - (TOOLBAR_HEIGHT * 2), self.view.frame.size.width, TOOLBAR_HEIGHT)];
     fileOperationsToolbar.barStyle = UIBarStyleBlackOpaque;
@@ -103,9 +134,130 @@
     [liveOperations release];
     liveOperations = nil;
     
+    [createFoldertoolBarItems release];
+    createFoldertoolBarItems = nil;
+    
+    [toolBarItems release];
+    toolBarItems = nil;
+    
     [path release];
     path = nil;
     [super dealloc];
+}
+
+
+#pragma mark - IBActions
+
+-(void) createFolderButtonClicked:(UIButton *) btn
+{
+    [fileOperationsToolbar setItems:createFoldertoolBarItems animated:YES];
+    [inputTextField becomeFirstResponder];
+}
+
+-(void) doneButtonClicked:(UIButton *) btn
+{
+    if ([inputTextField.text length]) {
+        switch (viewType) {
+            currentFileOperation = CREATE;
+            case DROPBOX:
+            {
+                NSString *pathStr = [NSString stringWithFormat:@"%@/%@",path,inputTextField.text];
+                [self.restClient createFolder:pathStr];
+            }
+                break;
+            case SKYDRIVE:
+            {
+                NSDictionary *folder = [NSDictionary dictionaryWithObjectsAndKeys:inputTextField.text,@"name", nil];
+                LiveOperation *createFolderOperation = [self.appDelegate.liveClient postWithPath:path dictBody:folder delegate:self userState:[folder objectForKey:@"name"]];
+                [liveOperations addObject:createFolderOperation];
+            }
+                break;
+            default:
+                break;
+        }
+        [self startAnimating];
+    }
+}
+
+-(void) closeButtonClicked:(UIButton *) btn
+{
+    [inputTextField resignFirstResponder];
+}
+
+
+#pragma mark - UITextFieldDelegate
+
+
+- (BOOL)textFieldShouldBeginEditing:(UITextField *)textField
+{
+    return YES;
+}
+
+- (void)textFieldDidBeginEditing:(UITextField *)textField
+{
+    
+}
+
+- (BOOL)textFieldShouldEndEditing:(UITextField *)textField
+{
+    return YES;
+}
+
+- (void)textFieldDidEndEditing:(UITextField *)textField
+{
+    
+}
+
+//- (BOOL)textFieldShouldClear:(UITextField *)textField
+//{
+//
+//}
+//
+- (BOOL)textFieldShouldReturn:(UITextField *)textField
+{
+    [textField resignFirstResponder];
+    return YES;
+}
+
+#pragma mark - Keyboard Notifications
+
+-(void) keyboardWillShow:(NSNotification *) notification
+{
+    NSDictionary* keyboardInfo = [notification userInfo];
+    NSValue* keyboardFrameBegin = [keyboardInfo valueForKey:UIKeyboardFrameBeginUserInfoKey];
+    CGRect keyboardFrameBeginRect = [keyboardFrameBegin CGRectValue];
+    float keyBoardHeight = keyboardFrameBeginRect.size.height;
+    
+    CGRect fileOperationsFrame = fileOperationsToolbar.frame;
+    fileOperationsFrame.origin.y = self.view.frame.size.height - keyBoardHeight - TOOLBAR_HEIGHT;
+    
+    [UIView beginAnimations:nil context:NULL];
+    [UIView setAnimationDuration:0.3f];
+    
+    [fileOperationsToolbar setFrame:fileOperationsFrame];
+    
+    [UIView commitAnimations];
+    dataTableView.userInteractionEnabled = NO;
+}
+
+
+-(void) keyboardWillHide:(NSNotification *) notification
+{
+    CGRect fileOperationsFrame = fileOperationsToolbar.frame;
+    fileOperationsFrame.origin.y = self.view.frame.size.height - TOOLBAR_HEIGHT;
+    
+    [UIView beginAnimations:nil context:NULL];
+    [UIView setAnimationDuration:0.3f];
+    
+    [fileOperationsToolbar setFrame:fileOperationsFrame];
+    
+    [UIView commitAnimations];
+}
+
+-(void) keyboardDidHide:(NSNotification *) notification
+{
+    [fileOperationsToolbar setItems:toolBarItems animated:YES];
+    dataTableView.userInteractionEnabled = YES;
 }
 
 
@@ -115,7 +267,6 @@
 {
     return 1;
 }
-
 
 
 -(UITableViewCell *) tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -178,37 +329,66 @@
 {
     [liveOperations removeObject:operation];
     [self stopAnimating];
-    NSLog(@"path %@",operation.path);
-//    NSMutableDictionary *resultDictionary = [[NSMutableDictionary alloc] init];
-//    [resultDictionary setObject:operation.path forKey:PATH];
-//    [resultDictionary setObject:operation.result forKey:@"RESULT_DATA"];
-//    [CLCacheManager updateFolderStructure:resultDictionary
-//                                  ForView:SKYDRIVE];
-    [CLCacheManager updateFile:operation.result
-        whereTraversingPointer:nil
-               inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
-                   ForViewType:viewType];
-//    [resultDictionary release];
     
-    //Reading Cache is skipped only reading Table Contents Starts
+    switch (currentFileOperation) {
+        case METADATA:
+            [CLCacheManager updateFile:operation.result
+                whereTraversingPointer:nil
+                       inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
+                           ForViewType:viewType];
+            break;
+        case CREATE:
+            [CLCacheManager insertFile:operation.result
+                whereTraversingPointer:nil
+                       inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
+                           ForViewType:viewType];
+        default:
+            break;
+        //currentFileOperation = INFINITY;
+    }
+//    [self readCacheUpdateView];
+    
+//    //Reading Cache is skipped only reading Table Contents Starts
     if (viewType == SKYDRIVE) { //cache is not referred
         NSArray *contents = [operation.result objectForKey:@"data"];
         [self updateModel:contents];
         [self updateView];
     }
-    //Reading Cache is skipped only reading Table Contents Ends
+//    //Reading Cache is skipped only reading Table Contents Ends
 
 }
 
 - (void) liveOperationFailed:(NSError *)error
                    operation:(LiveOperation*)operation
 {
+    [liveOperations removeObject:operation];
     [self stopAnimating];
 }
 
 
 
 #pragma mark - DBRestClientDelegate
+
+#pragma mark - Create Folder Methods
+
+-(void) restClient:(DBRestClient *)client createdFolder:(DBMetadata *)folder
+{
+    [inputTextField resignFirstResponder];
+    [self stopAnimating];
+    NSDictionary *folderDictionary = [CLDictionaryConvertor dictionaryFromMetadata:folder];
+    [CLCacheManager insertFile:folderDictionary
+        whereTraversingPointer:nil
+               inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
+                   ForViewType:viewType];
+    [self readCacheUpdateView];
+}
+
+-(void) restClient:(DBRestClient *)client createFolderFailedWithError:(NSError *)error
+{
+    [inputTextField resignFirstResponder];
+    [self stopAnimating];
+}
+
 
 #pragma mark - Metadata Methods
 
@@ -246,6 +426,95 @@
 
 #pragma mark - Helper Methods
 
+
+-(void) createToolbarItems
+{
+    UIImage *baseImage = [UIImage imageNamed:@"button_background_base.png"];
+    UIImage *buttonImage = [baseImage resizableImageWithCapInsets:UIEdgeInsetsMake(0, 15, 0, 15)];
+    
+    createFolderButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    createFolderButton.frame = CGRectMake(0, 0, 50, 30);
+    [createFolderButton setTitle:@"Folder"
+                        forState:UIControlStateNormal];
+    [createFolderButton setTitleColor:[UIColor whiteColor]
+                             forState:UIControlStateNormal];
+    [createFolderButton setBackgroundImage:buttonImage
+                                  forState:UIControlStateNormal];
+    [createFolderButton.titleLabel setFont:[UIFont boldSystemFontOfSize:12.f]];
+    [createFolderButton addTarget:self
+                           action:@selector(createFolderButtonClicked:)
+                 forControlEvents:UIControlEventTouchUpInside];
+    toolBarItems = [[NSMutableArray alloc] init];
+    UIBarButtonItem *createFolderBarButton = [[UIBarButtonItem alloc] initWithCustomView:createFolderButton];
+    [toolBarItems addObject:createFolderBarButton];
+    [createFolderBarButton release];
+}
+
+-(void) createFolderToolbarItems
+{
+    inputTextField = [[UITextField alloc] initWithFrame:CGRectMake(0, 0, 280, 35.f)];
+    inputTextField.placeholder = @"Enter a Folder Name";
+    inputTextField.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
+    
+    inputTextField.backgroundColor = [UIColor whiteColor];
+    inputTextField.clipsToBounds = YES;
+    inputTextField.layer.cornerRadius = 17.5f;
+    inputTextField.borderStyle = UITextBorderStyleNone;
+    inputTextField.delegate = self;
+    
+    doneButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    [doneButton addTarget:self
+                   action:@selector(doneButtonClicked:)
+         forControlEvents:UIControlEventTouchUpInside];
+    UIImage *checkImage = [UIImage imageNamed:@"green_checkButton.png"];
+    CGRect doneButtonFrame = CGRectMake(0,
+                                        0,
+                                        checkImage.size.width,
+                                        checkImage.size.height);
+    [doneButton setFrame:doneButtonFrame];
+    [doneButton setImage:checkImage
+                forState:UIControlStateNormal];
+    //    [self.view addSubview:doneButton];
+    [inputTextField setRightViewMode:UITextFieldViewModeAlways];
+    [inputTextField setRightView:doneButton];
+    
+    cancelButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    [cancelButton addTarget:self
+                     action:@selector(closeButtonClicked:)
+           forControlEvents:UIControlEventTouchUpInside];
+    UIImage *cancelImage = [UIImage imageNamed:@"closeButton.png"];
+    CGRect cancelButtonFrame = CGRectMake(0,
+                                          0,
+                                          cancelImage.size.width,
+                                          cancelImage.size.height);
+    [cancelButton setFrame:cancelButtonFrame];
+    [cancelButton setImage:cancelImage
+                  forState:UIControlStateNormal];
+    [inputTextField setLeftViewMode:UITextFieldViewModeAlways];
+    [inputTextField setLeftView:cancelButton];
+    
+    
+    NSMutableArray *items = [[NSMutableArray alloc] init];
+    UIBarButtonItem * flexiSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
+    [items addObject:flexiSpace];
+    [flexiSpace release];
+    
+    UIBarButtonItem *textFieldItem = [[UIBarButtonItem alloc] initWithCustomView:inputTextField];
+    [inputTextField release];
+    
+    [items addObject:textFieldItem];
+    [textFieldItem release];
+    
+    flexiSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
+    [items addObject:flexiSpace];
+    [flexiSpace release];
+    
+    createFoldertoolBarItems = [[NSArray alloc] initWithArray:items];
+    [items release];
+    
+};
+
+
 -(void) loadFilesForPath:(NSString *) pathString WithInViewType:(VIEW_TYPE) type
 {
     dataTableView.tableHeaderView = nil;
@@ -263,6 +532,7 @@
             NSString *hash = [self readCachedHash];
             [self.restClient loadMetadata:path
                                  withHash:hash];
+            currentFileOperation = METADATA;
         }
             break;
         case SKYDRIVE:
@@ -273,6 +543,7 @@
                                            delegate:self
                                           userState:aPathString];
             [liveOperations addObject:operation];
+            currentFileOperation = METADATA;
         }
             break;
         default:

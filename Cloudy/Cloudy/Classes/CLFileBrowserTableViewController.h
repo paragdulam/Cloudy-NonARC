@@ -9,7 +9,8 @@
 #import "CLFileBrowserBaseTableViewController.h"
 #import "CLPathSelectionViewController.h"
 #import <MessageUI/MessageUI.h>
+#import "AGImagePickerController.h"
 
-@interface CLFileBrowserTableViewController : CLFileBrowserBaseTableViewController<CLBrowserBarItemDelegate,CLPathSelectionViewControllerDelegate,MFMailComposeViewControllerDelegate>
+@interface CLFileBrowserTableViewController : CLFileBrowserBaseTableViewController<CLBrowserBarItemDelegate,CLPathSelectionViewControllerDelegate,MFMailComposeViewControllerDelegate,AGImagePickerControllerDelegate>
 
 @end
