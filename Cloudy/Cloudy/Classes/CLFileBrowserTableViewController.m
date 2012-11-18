@@ -112,39 +112,12 @@
 
 - (void) liveOperationSucceeded:(LiveOperation *)operation
 {
-    [self stopAnimating];
-    switch (currentFileOperation) {
-        case MOVE:
-            [self removeSelectedRowForPath:operation.userState];
-        case COPY:
-        {
-            [CLCacheManager insertFile:operation.result
-                whereTraversingPointer:nil
-                       inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
-                           ForViewType:viewType];
-            [liveOperations removeObject:operation];
-            //currentFileOperation = INFINITY;
-        }
-            break;
-        case DELETE:
-        {
-            [self removeSelectedRowForPath:operation.userState];
-            [liveOperations removeObject:operation];
-            [barItem deselectAll];
-            //currentFileOperation = INFINITY;
-        }
-            break;
-        default:
-            [super liveOperationSucceeded:operation];
-            break;
-    }
+    [super liveOperationSucceeded:operation];
 }
 
 - (void) liveOperationFailed:(NSError *)error
                    operation:(LiveOperation*)operation
 {
-    [liveOperations removeObject:operation];
-    [self stopAnimating];
     [super liveOperationFailed:error
                      operation:operation];
 }
@@ -340,6 +313,37 @@ loadedSharableLink:(NSString *)link
 
 #pragma mark - Helper Methods
 
+
+
+-(void) performFileOperation:(LiveOperation *)operation
+{
+    switch (currentFileOperation) {
+        case MOVE:
+            [self removeSelectedRowForPath:operation.userState];
+        case COPY:
+        {
+            [CLCacheManager insertFile:operation.result
+                whereTraversingPointer:nil
+                       inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
+                           ForViewType:viewType];
+            [liveOperations removeObject:operation];
+            //currentFileOperation = INFINITY;
+        }
+            break;
+        case DELETE:
+        {
+            [self removeSelectedRowForPath:operation.userState];
+            [liveOperations removeObject:operation];
+            [barItem deselectAll];
+            //currentFileOperation = INFINITY;
+        }
+            break;
+        default:
+            break;
+    }
+
+    [super performFileOperation:operation];
+}
 
 
 -(void) completeToolbarItems
@@ -634,13 +638,13 @@ loadedSharableLink:(NSString *)link
         }
         [tableDataArray removeAllObjects];
         viewType = INFINITY;
-        [self hideButtons:[NSArray arrayWithObjects:uploadButton, nil]];
+        [self hideButtons:[NSArray arrayWithObjects:uploadButton,createFolderButton, nil]];
         [barItem hideEditButton:YES];
         [self updateView];
         return;
     }
     
-    [self showButtons:[NSArray arrayWithObjects:uploadButton, nil]];
+    [self showButtons:[NSArray arrayWithObjects:uploadButton,createFolderButton, nil]];
     [barItem hideEditButton:NO];
     [super loadFilesForPath:pathString WithInViewType:type];
 }
@@ -660,18 +664,10 @@ loadedSharableLink:(NSString *)link
   didFinishPickingMediaWithInfo:(NSArray *)info
 {
     [picker dismissModalViewControllerAnimated:YES];
-    switch (viewType) {
-        case DROPBOX:
-        {
-        }
-            break;
-        case SKYDRIVE:
-        {
-        }
-            break;
-        default:
-            break;
-    }
+    [self.appDelegate updateUploads:info
+                       FolderAtPath:path
+                        ForViewType:viewType ];
+    //notify AppDelegate about the Uploads
 }
 
 - (void)agImagePickerController:(AGImagePickerController *)picker

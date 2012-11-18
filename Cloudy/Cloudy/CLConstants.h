@@ -14,6 +14,8 @@
 #define SKYDRIVE_STRING @"SkyDrive"
 #define GOOGLE_DRIVE_STRING @"Google Drive"
 #define BOX_STRING @"Box"
+#define UPLOAD_STRING @"Uploads"
+
 
 
 #define DROPBOX_APP_KEY @"4mk4cldk8wu2emp"

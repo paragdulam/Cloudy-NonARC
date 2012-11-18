@@ -14,6 +14,7 @@
 @interface AppDelegate()
 {
     CLAccountsTableViewController *callbackViewController;
+    NSMutableArray *uploads;
 }
 @end
 
@@ -23,9 +24,16 @@
 @synthesize liveClient;
 @synthesize rootFileBrowserViewController;
 @synthesize liveClientFlag;
+@synthesize uploadProgressButton;
 
 - (void)dealloc
 {
+    [uploadProgressButton release];
+    uploadProgressButton = nil;
+    
+    [uploads release];
+    uploads = nil;
+    
     rootFileBrowserViewController = nil;
     
     [dropboxSession release];
@@ -90,6 +98,11 @@
 {
     [CLCacheManager initialSetup];
 
+    CLUploadProgressButton *aButton = [[CLUploadProgressButton alloc] init];
+    aButton.frame = CGRectMake(0, 0, 50, 30);
+    self.uploadProgressButton = aButton;
+    self.uploadProgressButton.hidden = YES;
+    [aButton release];
     
     self.window = [[[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]] autorelease];
     // Override point for customization after application launch.
@@ -160,6 +173,138 @@
 - (void)applicationWillTerminate:(UIApplication *)application
 {
     // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
+}
+
+#pragma mark - Uploads Operation
+
+-(void) updateUploadsFolder:(NSArray *) info destPath:(NSString *) path
+{
+    NSString *uploadsFolderPath = [CLCacheManager getUploadsFolderPath];
+    NSArray *cachedUploads = [CLCacheManager contentsOfDirectoryAtPath:uploadsFolderPath];
+    NSMutableArray *images = [[NSMutableArray alloc] init];
+    for (id obj in cachedUploads) {
+        if ([obj isKindOfClass:[NSDictionary class]]) {
+            [images addObject:obj];
+        }
+    }
+    
+    for (ALAsset *asset in info) {
+        ALAssetRepresentation *assetRepresentation = [asset defaultRepresentation];
+        UIImage *assetImage = [UIImage imageWithCGImage:[assetRepresentation CGImageWithOptions:nil]];
+        UIImage *assetThumnail = [UIImage imageWithCGImage:[asset thumbnail]];
+        NSString *fileName = [assetRepresentation filename];
+        NSString *filePath = [NSString stringWithFormat:@"%@/%@",[CLCacheManager getUploadsFolderPath],fileName];
+        NSData *imageData = UIImagePNGRepresentation(assetImage);
+        NSData *imageThumbnailData = UIImagePNGRepresentation(assetThumnail);
+        if (![CLCacheManager fileExistsAtPath:filePath]) {
+            [imageData writeToFile:filePath atomically:YES];
+        }
+        NSDictionary *imageToBeUploaded = [NSDictionary dictionaryWithObjectsAndKeys:fileName,@"NAME",filePath,@"FROMPATH",path,@"TOPATH",imageThumbnailData,@"THUMBNAIL", nil];
+        if (![images containsObject:imageToBeUploaded]) {
+            [images addObject:imageToBeUploaded];
+        }
+    }
+    if (!uploads) {
+        uploads = [[NSMutableArray alloc] init];
+    }
+    [images removeObjectsInArray:uploads];
+    [uploads addObjectsFromArray:images];
+    [uploads writeToFile:[NSString stringWithFormat:@"%@/Uploads.plist",uploadsFolderPath] atomically:YES];
+    [images release];
+    
+}
+
+-(void) updateUploads:(NSArray *)info
+         FolderAtPath:(NSString *)path
+          ForViewType:(VIEW_TYPE) type
+{
+    [self updateUploadsFolder:info destPath:path];
+    if ([uploads count]) {
+        NSDictionary *imageToBeUploaded = [uploads objectAtIndex:0];
+        NSString *fileName = [imageToBeUploaded objectForKey:@"NAME"];
+        NSString *toPath = [imageToBeUploaded objectForKey:@"TOPATH"];
+        NSString *fromPath = [imageToBeUploaded objectForKey:@"FROMPATH"];
+        NSData *thumbNailData = [imageToBeUploaded objectForKey:@"THUMBNAIL"];
+        switch (type) {
+            case DROPBOX:
+            {
+                DBRestClient *uploadRestClient = [[DBRestClient alloc] initWithSession:dropboxSession];
+                uploadRestClient.delegate = self;
+                [uploadRestClient uploadFile:fileName
+                                      toPath:toPath
+                               withParentRev:nil
+                                    fromPath:fromPath];
+            }
+                break;
+            case SKYDRIVE:
+            {
+                UIImage *image = [UIImage imageWithContentsOfFile:fromPath];
+                [self.liveClient uploadToPath:path fileName:fileName data:UIImagePNGRepresentation(image) delegate:self];
+            }
+                break;
+                
+                
+            default:
+                break;
+        }
+        uploadProgressButton.hidden = NO;
+        [uploadProgressButton setImage:[UIImage imageWithData:thumbNailData]
+                              forState:UIControlStateNormal];
+
+    }
+}
+
+
+#pragma mark - LiveUploadOperationDelegate
+
+- (void) liveUploadOperationProgressed:(LiveOperationProgress *)progress
+                             operation:(LiveOperation *)operation
+{
+    [uploadProgressButton setProgress:progress.progressPercentage];
+}
+
+-(void) liveOperationSucceeded:(LiveOperation *)operation
+{
+    [uploads removeObjectAtIndex:0];
+    [CLCacheManager insertFile:operation.result
+        whereTraversingPointer:nil
+               inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:SKYDRIVE]
+                   ForViewType:SKYDRIVE];
+}
+
+
+-(void) liveOperationFailed:(NSError *)error operation:(LiveOperation *)operation
+{
+    
+}
+
+
+#pragma mark - DBRestClientDelegate
+
+- (void)restClient:(DBRestClient*)client
+      uploadedFile:(NSString*)destPath
+              from:(NSString*)srcPath
+          metadata:(DBMetadata*)metadata
+{
+    [uploads removeObjectAtIndex:0];
+    NSDictionary *metadataDictionary = [CLDictionaryConvertor dictionaryFromMetadata:metadata];
+    [CLCacheManager insertFile:metadataDictionary
+        whereTraversingPointer:nil
+               inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:SKYDRIVE]
+                   ForViewType:SKYDRIVE];
+}
+
+- (void)restClient:(DBRestClient*)client
+    uploadProgress:(CGFloat)progress
+           forFile:(NSString*)destPath
+              from:(NSString*)srcPath
+{
+    [uploadProgressButton setProgress:progress];
+}
+
+- (void)restClient:(DBRestClient*)client uploadFileFailedWithError:(NSError*)error
+{
+    
 }
 
 @end

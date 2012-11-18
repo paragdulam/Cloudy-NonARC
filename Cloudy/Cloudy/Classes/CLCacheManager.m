@@ -26,6 +26,12 @@
 }
 
 
++(NSString *) getUploadsFolderPath
+{
+    return [NSString stringWithFormat:@"%@/%@",[CLCacheManager getAppCacheFolderPath],UPLOAD_STRING];
+}
+
+
 +(NSString *) getSkyDriveCacheFolderPath
 {
     return [NSString stringWithFormat:@"%@/%@",[CLCacheManager getAppCacheFolderPath],SKYDRIVE_STRING];
@@ -79,6 +85,17 @@
 
 #pragma mark - Helper Methods
 
+
++(BOOL) fileExistsAtPath:(NSString *) path
+{
+    return [[NSFileManager defaultManager] fileExistsAtPath:path];
+}
+
++(NSArray *) contentsOfDirectoryAtPath:(NSString *) path
+{
+    return [[NSFileManager defaultManager] contentsOfDirectoryAtPath:path
+                                                               error:nil];
+}
 
 +(NSMutableArray *) removeEmptyStringsForArray:(NSMutableArray *) array
 {
@@ -220,6 +237,21 @@
     if (error) {
         NSLog(@"error creating SkyDrive Folder %@",error);
     }
+    
+    NSString *uploadsFolderCachePath = [CLCacheManager getUploadsFolderPath];
+    aBool = YES;
+    BOOL isUploadsFolderAlreadyPresent = [[NSFileManager defaultManager] fileExistsAtPath:uploadsFolderCachePath isDirectory:&aBool];
+    if (!isUploadsFolderAlreadyPresent) {
+        [[NSFileManager defaultManager] createDirectoryAtPath:uploadsFolderCachePath
+                                  withIntermediateDirectories:YES
+                                                   attributes:nil
+                                                        error:&error];
+    }
+    if (error) {
+        NSLog(@"error creating Uploads Folder %@",error);
+    }
+
+    
 }
 
 

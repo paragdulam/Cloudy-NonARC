@@ -19,6 +19,7 @@
     NSMutableArray *toolBarItems;
     
     FILE_FOLDER_OPERATION currentFileOperation;
+    UIButton *createFolderButton;
 }
 
 @property(nonatomic,retain) NSString *path;
@@ -32,6 +33,7 @@
 -(void) stopAnimating;
 -(void) readCacheUpdateView;
 -(void) updateModel:(NSArray *) model;
+-(void) performFileOperation:(LiveOperation *) operation;
 
 
 @end

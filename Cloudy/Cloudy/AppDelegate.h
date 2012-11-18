@@ -10,16 +10,19 @@
 #import "DDMenuController.h"
 #import "LiveConnectClient.h"
 #import <DropboxSDK/DropboxSDK.h>
+#import "CLUploadProgressButton.h"
+
 
 @class CLFileBrowserTableViewController;
 
-@interface AppDelegate : UIResponder <UIApplicationDelegate>
+@interface AppDelegate : UIResponder <UIApplicationDelegate,DBRestClientDelegate,LiveUploadOperationDelegate>
 {
     DDMenuController *menuController;
     CLFileBrowserTableViewController *rootFileBrowserViewController;
     DBSession *dropboxSession;
     LiveConnectClient *liveClient;
     BOOL liveClientFlag;
+    CLUploadProgressButton *uploadProgressButton;
 }
 
 @property (strong, nonatomic) UIWindow *window;
@@ -28,6 +31,8 @@
 @property (retain, nonatomic) DBSession *dropboxSession;
 @property (retain, nonatomic) LiveConnectClient *liveClient;
 @property (assign, nonatomic) BOOL liveClientFlag;
+@property (nonatomic,retain) CLUploadProgressButton *uploadProgressButton;
+
 
 -(void) initialSetup;
 

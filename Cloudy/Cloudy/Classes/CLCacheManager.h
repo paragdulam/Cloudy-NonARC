@@ -18,6 +18,7 @@
 +(NSString *) getDocumentsDirectory;
 +(void) initialSetup;
 +(NSString *) getLibraryDirectory;
++(NSString *) getUploadsFolderPath;
 +(NSString *) getFileStructurePath:(VIEW_TYPE) type;
 +(NSDictionary *) metaDataDictionaryForPath:(NSString *) path ForView:(VIEW_TYPE) type;
 +(BOOL) updateFolderStructure:(NSDictionary *) metaDataDict ForView:(VIEW_TYPE) type;
@@ -56,6 +57,7 @@ whereTraversingPointer:(NSMutableDictionary *)traversingDictionary
 +(NSDictionary *) fileAtIndex:(int) index
                   WithinArray:(NSArray *) array
                   ForViewType:(VIEW_TYPE) type;
-
++(NSArray *) contentsOfDirectoryAtPath:(NSString *) path;
++(BOOL) fileExistsAtPath:(NSString *) path;
 
 @end

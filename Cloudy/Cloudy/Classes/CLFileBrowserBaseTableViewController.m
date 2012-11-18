@@ -13,7 +13,6 @@
 
 @interface CLFileBrowserBaseTableViewController ()
 {
-    UIButton *createFolderButton;
     
     UITextField *inputTextField;
     UIButton *doneButton;
@@ -330,23 +329,7 @@
     [liveOperations removeObject:operation];
     [self stopAnimating];
     
-    switch (currentFileOperation) {
-        case METADATA:
-            [CLCacheManager updateFile:operation.result
-                whereTraversingPointer:nil
-                       inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
-                           ForViewType:viewType];
-            break;
-        case CREATE:
-            [CLCacheManager insertFile:operation.result
-                whereTraversingPointer:nil
-                       inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
-                           ForViewType:viewType];
-        default:
-            break;
-        //currentFileOperation = INFINITY;
-    }
-//    [self readCacheUpdateView];
+    [self performFileOperation:operation];
     
 //    //Reading Cache is skipped only reading Table Contents Starts
     if (viewType == SKYDRIVE) { //cache is not referred
@@ -426,6 +409,25 @@
 
 #pragma mark - Helper Methods
 
+-(void) performFileOperation:(LiveOperation *) operation
+{
+    switch (currentFileOperation) {
+        case METADATA:
+            [CLCacheManager updateFile:operation.result
+                whereTraversingPointer:nil
+                       inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
+                           ForViewType:viewType];
+            break;
+        case CREATE:
+            [CLCacheManager insertFile:operation.result
+                whereTraversingPointer:nil
+                       inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
+                           ForViewType:viewType];
+        default:
+            break;
+            //currentFileOperation = INFINITY;
+    }
+}
 
 -(void) createToolbarItems
 {
@@ -447,6 +449,16 @@
     toolBarItems = [[NSMutableArray alloc] init];
     UIBarButtonItem *createFolderBarButton = [[UIBarButtonItem alloc] initWithCustomView:createFolderButton];
     [toolBarItems addObject:createFolderBarButton];
+    
+    UIBarButtonItem *fixedSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFixedSpace target:nil action:nil];
+    fixedSpace.width = 10.f;
+    [toolBarItems addObject:fixedSpace];
+    [fixedSpace release];
+    
+    UIBarButtonItem *uploadProgressBarButton = [[UIBarButtonItem alloc] initWithCustomView:self.appDelegate.uploadProgressButton];
+    [toolBarItems addObject:uploadProgressBarButton];
+    [uploadProgressBarButton release];
+    
     [createFolderBarButton release];
 }
 
