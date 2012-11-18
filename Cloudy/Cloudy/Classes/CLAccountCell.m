@@ -27,7 +27,7 @@
     self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
     if (self) {
         // Initialization code
-        activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
+        activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
         activityIndicator.hidesWhenStopped = YES;
         self.textLabel.textColor = CELL_TEXTLABEL_COLOR;
         self.detailTextLabel.textColor = CELL_DETAILTEXTLABEL_COLOR;
@@ -142,7 +142,7 @@
 //            break;
 //        case SKYDRIVE:
 //        {
-//            [self.imageView setImage:[UIImage imageNamed:@"SkyDriveIconWhite_32x32.png"]];
+//            [self.imageView setImage:[UIImage imageNamed:@"SkyDriveIconBlue_32x32.png"]];
 //            if ([data isKindOfClass:[NSString class]]) {
 //                titleText = (NSString *)data;
 //                detailText = nil;

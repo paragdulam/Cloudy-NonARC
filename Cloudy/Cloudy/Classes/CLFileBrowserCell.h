@@ -10,5 +10,10 @@
 #import "CLConstants.h"
 
 @interface CLFileBrowserCell : UITableViewCell
+{
+    UIImage *backgroundImage;
+}
+
+@property (nonatomic,assign) UIImage *backgroundImage;
 
 @end

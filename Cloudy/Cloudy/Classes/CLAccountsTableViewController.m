@@ -215,7 +215,7 @@
             [cell.imageView setImage:[UIImage imageNamed:@"dropbox_cell_Image.png"]];
             break;
         case SKYDRIVE:
-            [cell.imageView setImage:[UIImage imageNamed:@"SkyDriveIconWhite_32x32.png"]];
+            [cell.imageView setImage:[UIImage imageNamed:@"SkyDriveIconBlue_32x32.png"]];
             break;
         default:
             break;

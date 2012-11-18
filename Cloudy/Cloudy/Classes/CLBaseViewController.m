@@ -9,7 +9,9 @@
 #import "CLBaseViewController.h"
 
 @interface CLBaseViewController ()
-
+{
+    UIImageView *backgroundImageView;
+}
 @end
 
 @implementation CLBaseViewController
@@ -32,8 +34,12 @@
 {
     [super viewDidLoad];
 	// Do any additional setup after loading the view.
-    self.navigationController.navigationBar.tintColor = NAVBAR_COLOR;
-    self.view.backgroundColor = [UIColor scrollViewTexturedBackgroundColor];
+//    self.navigationController.navigationBar.tintColor = NAVBAR_COLOR;
+//    backgroundImageView = [[UIImageView alloc] initWithFrame:self.view.bounds];
+//    [backgroundImageView setImage:[UIImage imageNamed:@"table_background.png"]];
+//    [self.view addSubview:backgroundImageView];
+//    [backgroundImageView release];
+//    self.view.backgroundColor = [UIColor scrollViewTexturedBackgroundColor];
 }
 
 - (void)didReceiveMemoryWarning

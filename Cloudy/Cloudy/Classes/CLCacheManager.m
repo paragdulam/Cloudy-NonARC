@@ -86,6 +86,12 @@
 #pragma mark - Helper Methods
 
 
++(BOOL) deleteFileAtPath:(NSString *) path
+{
+    return [[NSFileManager defaultManager] removeItemAtPath:path
+                                                      error:nil];
+}
+
 +(BOOL) fileExistsAtPath:(NSString *) path
 {
     return [[NSFileManager defaultManager] fileExistsAtPath:path];

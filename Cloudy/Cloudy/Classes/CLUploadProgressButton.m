@@ -26,19 +26,23 @@
     CGRect progressBarRect = frame;
     progressBarRect.origin.x =  frame.size.width * originPercentage;
     progressBarRect.size.width = frame.size.width * PERCENTAGE;
-    progressBarRect.size.height = 10.f;
-    progressBarRect.origin.y =  frame.size.height * originPercentage;
+    progressBarRect.size.height = 5.f;
+    progressBarRect.origin.y =  frame.size.height * (PERCENTAGE - (originPercentage * 2));
     
     progressBarView.frame = progressBarRect;
     
     self.imageView.frame = self.bounds;
     self.imageView.contentMode = UIViewContentModeScaleAspectFit;
+    
+    self.layer.cornerRadius = 5.f;
+    
 }
 
 -(id )init{
     if (self = [super init]) {
         progressBarView = [[UIProgressView alloc] init];
         [self addSubview:progressBarView];
+        progressBarView.userInteractionEnabled = NO;
         [progressBarView release];
     }
     return self;
@@ -53,6 +57,11 @@
     return self;
 }
 
+
+-(void) setImage:(UIImage *)image forState:(UIControlState)state
+{
+    [super setImage:image forState:state];
+}
 
 
 -(void) setProgress:(float) value

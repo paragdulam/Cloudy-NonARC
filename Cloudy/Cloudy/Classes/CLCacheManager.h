@@ -59,5 +59,7 @@ whereTraversingPointer:(NSMutableDictionary *)traversingDictionary
                   ForViewType:(VIEW_TYPE) type;
 +(NSArray *) contentsOfDirectoryAtPath:(NSString *) path;
 +(BOOL) fileExistsAtPath:(NSString *) path;
++(BOOL) deleteFileAtPath:(NSString *) path;
+
 
 @end

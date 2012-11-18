@@ -61,7 +61,7 @@
     dataTableView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     [self.view addSubview:dataTableView];
     [dataTableView release];
-    dataTableView.backgroundView = nil;
+//    dataTableView.backgroundView = nil;
 
     
 }

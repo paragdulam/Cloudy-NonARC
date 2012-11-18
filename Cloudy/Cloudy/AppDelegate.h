@@ -11,6 +11,7 @@
 #import "LiveConnectClient.h"
 #import <DropboxSDK/DropboxSDK.h>
 #import "CLUploadProgressButton.h"
+#import "CLConstants.h"
 
 
 @class CLFileBrowserTableViewController;
@@ -35,6 +36,10 @@
 
 
 -(void) initialSetup;
+-(void) updateUploads:(NSArray *)info
+         FolderAtPath:(NSString *)path
+          ForViewType:(VIEW_TYPE) type;
+
 
 
 @end

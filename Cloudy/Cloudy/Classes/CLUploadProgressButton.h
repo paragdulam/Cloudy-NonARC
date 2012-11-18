@@ -7,6 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <QuartzCore/QuartzCore.h>
 #define PERCENTAGE 0.9f
 
 @interface CLUploadProgressButton : UIButton

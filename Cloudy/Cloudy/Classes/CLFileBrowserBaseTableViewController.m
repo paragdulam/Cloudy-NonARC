@@ -67,9 +67,9 @@
     dataTableView.frame = tableFrame;
     dataTableView.backgroundColor = [UIColor clearColor];
     dataTableView.allowsMultipleSelectionDuringEditing = YES;
-    dataTableView.separatorStyle = UITableViewCellSeparatorStyleNone;
+//    dataTableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     
-
+    self.title = @"/";
     [self createToolbarItems];
     [self createFolderToolbarItems];
     
@@ -90,7 +90,8 @@
 
   
     fileOperationsToolbar = [[UIToolbar alloc] initWithFrame:CGRectMake(0, self.view.frame.size.height - (TOOLBAR_HEIGHT * 2), self.view.frame.size.width, TOOLBAR_HEIGHT)];
-    fileOperationsToolbar.barStyle = UIBarStyleBlackOpaque;
+    fileOperationsToolbar.barStyle = UIBarStyleDefault;
+//    fileOperationsToolbar.tintColor = NAVBAR_COLOR;
     [self.view addSubview:fileOperationsToolbar];
     [fileOperationsToolbar release];
     
@@ -146,6 +147,12 @@
 
 
 #pragma mark - IBActions
+
+
+-(void) uploadProgressButtonClicked:(UIButton *) btn
+{
+    
+}
 
 -(void) createFolderButtonClicked:(UIButton *) btn
 {
@@ -274,6 +281,7 @@
     if (!cell) {
         cell = [[[CLFileBrowserCell alloc] initWithStyle:UITableViewCellStyleSubtitle
                                          reuseIdentifier:@"CLFileBrowserCell"] autorelease];
+//        [cell setBackgroundImage:[UIImage imageNamed:@"cell_background.png"]];
     }
     NSString *titleText = [[tableDataArray objectAtIndex:indexPath.row] objectForKey:@"filename"];
     if (!titleText) {
@@ -293,6 +301,7 @@
                 if ([[metadata objectForKey:@"isDirectory"] boolValue]) {
                     CLFileBrowserTableViewController *fileBrowserViewController = [[CLFileBrowserTableViewController alloc] initWithTableViewStyle:UITableViewStylePlain WherePath:[metadata objectForKey:@"path"] WithinViewType:DROPBOX];
                     [self.navigationController pushViewController:fileBrowserViewController animated:YES];
+                    fileBrowserViewController.title = [metadata objectForKey:@"filename"];
                     [fileBrowserViewController release];
                     fileBrowserViewController = nil;
                 }
@@ -304,6 +313,7 @@
                 if ([[metadata objectForKey:@"type"] isEqualToString:@"album"] || [[metadata objectForKey:@"type"] isEqualToString:@"folder"]) {
                     CLFileBrowserTableViewController *fileBrowserViewController = [[CLFileBrowserTableViewController alloc] initWithTableViewStyle:UITableViewStylePlain WherePath:[metadata objectForKey:@"id"] WithinViewType:SKYDRIVE];
                     [self.navigationController pushViewController:fileBrowserViewController animated:YES];
+                    fileBrowserViewController.title = [metadata objectForKey:@"name"];
                     [fileBrowserViewController release];
                     fileBrowserViewController = nil;
                 }
@@ -451,12 +461,15 @@
     [toolBarItems addObject:createFolderBarButton];
     
     UIBarButtonItem *fixedSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFixedSpace target:nil action:nil];
-    fixedSpace.width = 10.f;
+    fixedSpace.width = 2.f;
     [toolBarItems addObject:fixedSpace];
     [fixedSpace release];
     
     UIBarButtonItem *uploadProgressBarButton = [[UIBarButtonItem alloc] initWithCustomView:self.appDelegate.uploadProgressButton];
     [toolBarItems addObject:uploadProgressBarButton];
+    [self.appDelegate.uploadProgressButton addTarget:self
+                                              action:@selector(uploadProgressButtonClicked:)
+                                    forControlEvents:UIControlEventTouchUpInside];
     [uploadProgressBarButton release];
     
     [createFolderBarButton release];
@@ -581,7 +594,7 @@
             [self.appDelegate.menuController setLeftButtonImage:[UIImage imageNamed:@"dropbox_cell_Image.png"]];
             break;
         case SKYDRIVE:
-            [self.appDelegate.menuController setLeftButtonImage:[UIImage imageNamed:@"SkyDriveIconWhite_32x32.png"]];
+            [self.appDelegate.menuController setLeftButtonImage:[UIImage imageNamed:@"SkyDriveIconBlue_32x32.png"]];
             break;
         default:
             [self.appDelegate.menuController setLeftButtonImage:[UIImage imageNamed:@"nav_menu_icon.png"]];
