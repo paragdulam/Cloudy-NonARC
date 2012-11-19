@@ -647,31 +647,44 @@ whereTraversingPointer:(NSMutableDictionary *)traversingDictionary
 
 +(void) updateOldFile:(NSMutableDictionary *)oldFile withNewFile:(NSDictionary *) newFile forViewType:(VIEW_TYPE) type
 {
+    NSString *contentKey = nil;
+    NSString *idKey = nil;
+    NSString *updationKey = nil;
+
     switch (type) {
         case DROPBOX:
         {
-            oldFile = [NSMutableDictionary dictionaryWithDictionary:newFile];
+            contentKey = @"contents";
+            idKey = @"path";
+            updationKey = @"hash";
         }
             break;
         case SKYDRIVE:
         {
-            NSMutableArray *anArray = [oldFile objectForKey:@"data"];
-            NSMutableArray *updatedArray = [newFile objectForKey:@"data"];
-            for (NSDictionary *updatedData in updatedArray) {
-                for (NSDictionary *data in anArray) {
-                    if ([[updatedData objectForKey:@"id"] isEqualToString:[data objectForKey:@"id"]]) {
-                        if (![[updatedData objectForKey:@"updated_time"] isEqualToString:[data objectForKey:@"updated_time"]]) {
-                            [anArray replaceObjectAtIndex:[anArray indexOfObject:data]
-                                               withObject:updatedData];
-                        }
-                    }
-                }
-            }
+            contentKey = @"data";
+            idKey = @"id";
+            updationKey = @"updated_time";
         }
             break;
         default:
             break;
     }
+    
+    NSMutableArray *anArray = [oldFile objectForKey:contentKey];
+    if ([anArray count]) {
+        NSMutableArray *updatedArray = [newFile objectForKey:contentKey];
+        for (NSDictionary *updatedData in updatedArray) {
+            for (NSDictionary *data in anArray) {
+                if ([[updatedData objectForKey:idKey] isEqualToString:[data objectForKey:idKey]]) {
+                    if (![[updatedData objectForKey:updationKey] isEqualToString:[data objectForKey:updationKey]]) {
+                        [anArray replaceObjectAtIndex:[anArray indexOfObject:data]
+                                           withObject:updatedData];
+                    }
+                }
+            }
+        }
+    }
+    
 }
 
 
