@@ -209,13 +209,13 @@ loadedSharableLink:(NSString *)link
 - (void)restClient:(DBRestClient*)client deletedPath:(NSString *)pathStr
 {
     [self stopAnimating];
-    [barItem deselectAll];
     [self removeSelectedRowForPath:pathStr];
 }
 
 - (void)restClient:(DBRestClient*)client deletePathFailedWithError:(NSError*)error
 {
     [self stopAnimating];
+    [AppDelegate showError:error alertOnView:self.view];
 }
 
 
@@ -236,6 +236,8 @@ loadedSharableLink:(NSString *)link
                     case MOVE:
                         [self.restClient moveFrom:[data objectForKey:@"path"]
                                            toPath:[NSString stringWithFormat:@"%@/%@",pathString,fileName]];
+                        CLFileBrowserCell *cell = (CLFileBrowserCell *)[dataTableView cellForRowAtIndexPath:indexPath];
+                        [cell startAnimating];
                         break;
                     case COPY:
                         [self.restClient copyFrom:[data objectForKey:@"path"]
@@ -264,7 +266,8 @@ loadedSharableLink:(NSString *)link
                         LiveOperation *moveOperation =                         [self.appDelegate.liveClient moveFromPath:[data objectForKey:@"id"]
                                                                                                            toDestination:pathString delegate:self userState:[data objectForKey:@"id"]];
                         [liveOperations addObject:moveOperation];
-
+                        CLFileBrowserCell *cell = (CLFileBrowserCell *)[dataTableView cellForRowAtIndexPath:indexPath];
+                        [cell startAnimating];
                     }
                         break;
                     case COPY:
@@ -331,7 +334,6 @@ loadedSharableLink:(NSString *)link
         case DELETE:
         {
             [self removeSelectedRowForPath:operation.userState];
-            [barItem deselectAll];
             //currentFileOperation = INFINITY;
         }
             break;
@@ -513,6 +515,9 @@ loadedSharableLink:(NSString *)link
             [selectedItems removeObject:data];
             break;
         }
+    }
+    if (![selectedItems count]) {
+        [barItem deselectAll];
     }
 }
 

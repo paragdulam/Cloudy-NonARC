@@ -7,7 +7,6 @@
 //
 
 #import "CLFileBrowserBaseTableViewController.h"
-#import "CLFileBrowserCell.h"
 #import "CLFileBrowserTableViewController.h"
 
 
@@ -65,7 +64,7 @@
     CGRect tableFrame = dataTableView.frame;
     tableFrame.size.height -= TOOLBAR_HEIGHT;
     dataTableView.frame = tableFrame;
-    dataTableView.backgroundColor = [UIColor clearColor];
+//    dataTableView.backgroundColor = [UIColor clearColor];
     dataTableView.allowsMultipleSelectionDuringEditing = YES;
 //    dataTableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     
@@ -346,15 +345,6 @@
     [self stopAnimating];
     
     [self performFileOperation:operation];
-    
-//    //Reading Cache is skipped only reading Table Contents Starts
-    if (viewType == SKYDRIVE) { //cache is not referred
-        NSArray *contents = [operation.result objectForKey:@"data"];
-        [self updateModel:contents];
-        [self updateView];
-    }
-//    //Reading Cache is skipped only reading Table Contents Ends
-
 }
 
 - (void) liveOperationFailed:(NSError *)error
@@ -362,6 +352,7 @@
 {
     [liveOperations removeObject:operation];
     [self stopAnimating];
+    [AppDelegate showError:error alertOnView:self.view];
 }
 
 
@@ -386,6 +377,7 @@
 {
     [inputTextField resignFirstResponder];
     [self stopAnimating];
+    [AppDelegate showError:error alertOnView:self.view];
 }
 
 
@@ -419,6 +411,7 @@
 - (void)restClient:(DBRestClient*)client loadMetadataFailedWithError:(NSError*)error
 {
     [self stopAnimating];
+    [AppDelegate showError:error alertOnView:self.view];
 }
 
 
@@ -444,10 +437,20 @@
 {
     switch (currentFileOperation) {
         case METADATA:
+        {
             [CLCacheManager updateFile:operation.result
                 whereTraversingPointer:nil
                        inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
                            ForViewType:viewType];
+            //    //Reading Cache is skipped only reading Table Contents Starts
+            if (viewType == SKYDRIVE) { //cache is not referred
+                NSArray *contents = [operation.result objectForKey:@"data"];
+                [self updateModel:contents];
+                [self updateView];
+            }
+            //    //Reading Cache is skipped only reading Table Contents Ends
+
+        }
             break;
         case CREATE:
             [CLCacheManager insertFile:operation.result

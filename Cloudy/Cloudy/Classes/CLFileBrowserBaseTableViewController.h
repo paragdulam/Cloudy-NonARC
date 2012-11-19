@@ -8,6 +8,8 @@
 
 #import "CLBaseTableViewController.h"
 #import "CLBrowserBarItem.h"
+#import "CLFileBrowserCell.h"
+
 
 @interface CLFileBrowserBaseTableViewController : CLBaseTableViewController<LiveOperationDelegate,CLBrowserBarItemDelegate,UITextFieldDelegate>
 {

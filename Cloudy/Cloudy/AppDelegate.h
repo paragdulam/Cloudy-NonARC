@@ -39,7 +39,7 @@
 -(void) updateUploads:(NSArray *)info
          FolderAtPath:(NSString *)path
           ForViewType:(VIEW_TYPE) type;
-
-
++(void) showError:(NSError *) error
+      alertOnView:(UIView *) view;
 
 @end

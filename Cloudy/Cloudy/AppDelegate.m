@@ -192,6 +192,35 @@
     // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
 }
 
+
+-(void) animationDidFinish:(id)obj
+{
+    NSLog(@"obj %@",obj);
+}
+
++(void) showError:(NSError *) error
+      alertOnView:(UIView *) view
+{
+    UILabel *alert = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 200,200)];
+    alert.layer.cornerRadius = 5.f;
+    alert.numberOfLines = 0;
+    alert.lineBreakMode = UILineBreakModeWordWrap;
+    alert.backgroundColor = [UIColor blackColor];
+    alert.userInteractionEnabled = NO;
+    alert.textColor = [UIColor whiteColor];
+    [alert setText:[error localizedDescription]];
+    alert.center = view.center;
+    [view addSubview:alert];
+    [alert release];
+    
+    [UIView beginAnimations:@"FADE" context:alert];
+    [UIView setAnimationDuration:5.f];
+    [UIView setAnimationDelegate:self];
+    [UIView setAnimationDidStopSelector:@selector(animationDidFinish:)];
+    alert.alpha = 0.f;
+    [UIView commitAnimations];
+}
+
 #pragma mark - Uploads Operation
 
 -(void) updateUploadsFolder:(NSArray *) info

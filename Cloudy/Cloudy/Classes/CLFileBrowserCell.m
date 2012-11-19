@@ -95,6 +95,7 @@
     
     rect.origin.y = self.detailTextLabel.frame.origin.y;
     rect.size.width = self.detailTextLabel.frame.size.width;
+    rect.size.height = self.frame.size.height - rect.origin.y;
     self.detailTextLabel.frame = rect;
     
 }
