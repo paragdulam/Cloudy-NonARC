@@ -292,11 +292,8 @@
                                          reuseIdentifier:@"CLFileBrowserCell"] autorelease];
 //        [cell setBackgroundImage:[UIImage imageNamed:@"cell_background.png"]];
     }
-    NSString *titleText = [[tableDataArray objectAtIndex:indexPath.row] objectForKey:@"filename"];
-    if (!titleText) {
-        titleText = [[tableDataArray objectAtIndex:indexPath.row] objectForKey:@"name"];
-    }
-    [cell.textLabel setText:titleText];
+    [cell setData:[tableDataArray objectAtIndex:indexPath.row]
+      ForViewType:viewType];
     return cell;
 }
 
