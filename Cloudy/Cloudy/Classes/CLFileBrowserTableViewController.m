@@ -72,7 +72,7 @@
 -(void) viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-//    [barItem deselectAll];
+    [barItem deselectAll];
 }
 
 - (void)didReceiveMemoryWarning

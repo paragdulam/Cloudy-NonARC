@@ -115,9 +115,9 @@
 -(void) viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-//    if ([path length]) {
-//        [self readCacheUpdateView];
-//    }
+    if ([path length]) {
+        [self readCacheUpdateView];
+    }
 }
 
 - (void)didReceiveMemoryWarning
