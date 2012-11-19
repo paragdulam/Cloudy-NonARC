@@ -628,17 +628,11 @@ whereTraversingPointer:(NSMutableDictionary *)traversingDictionary
             NSMutableDictionary *fileMetadata = [array objectAtIndex:index];
             NSMutableArray *anArray = [fileMetadata objectForKey:@"data"];
             NSMutableArray *updatedArray = [file objectForKey:@"data"];
+            
             if ([anArray count]) {
-                for (NSDictionary *updatedData in updatedArray) {
-                    for (NSDictionary *data in anArray) {
-                        if ([[updatedData objectForKey:@"id"] isEqualToString:[data objectForKey:@"id"]]) {
-                            if (![[updatedData objectForKey:@"updated_time"] isEqualToString:[data objectForKey:@"updated_time"]]) {
-                                [anArray replaceObjectAtIndex:[anArray indexOfObject:data]
-                                                   withObject:updatedData];
-                            }
-                        }
-                    }
-                }
+                [CLCacheManager updateOldFile:fileMetadata
+                                  withNewFile:file
+                                  forViewType:type];
             } else {
                 [fileMetadata setObject:updatedArray
                                  forKey:@"data"];  //hardcoded here
@@ -651,6 +645,36 @@ whereTraversingPointer:(NSMutableDictionary *)traversingDictionary
     }
 }
 
++(void) updateOldFile:(NSMutableDictionary *)oldFile withNewFile:(NSDictionary *) newFile forViewType:(VIEW_TYPE) type
+{
+    switch (type) {
+        case DROPBOX:
+        {
+            oldFile = [NSMutableDictionary dictionaryWithDictionary:newFile];
+        }
+            break;
+        case SKYDRIVE:
+        {
+            NSMutableArray *anArray = [oldFile objectForKey:@"data"];
+            NSMutableArray *updatedArray = [newFile objectForKey:@"data"];
+            for (NSDictionary *updatedData in updatedArray) {
+                for (NSDictionary *data in anArray) {
+                    if ([[updatedData objectForKey:@"id"] isEqualToString:[data objectForKey:@"id"]]) {
+                        if (![[updatedData objectForKey:@"updated_time"] isEqualToString:[data objectForKey:@"updated_time"]]) {
+                            [anArray replaceObjectAtIndex:[anArray indexOfObject:data]
+                                               withObject:updatedData];
+                        }
+                    }
+                }
+            }
+        }
+            break;
+        default:
+            break;
+    }
+}
+
+
 +(BOOL)     updateFile:(NSDictionary *) file
 whereTraversingPointer:(NSMutableDictionary *)traversingDictionary
        inFileStructure:(NSMutableDictionary *)fileStructure
@@ -661,7 +685,9 @@ whereTraversingPointer:(NSMutableDictionary *)traversingDictionary
         traversingDictionary = fileStructure;
         if ([CLCacheManager isRootPathForFile:file
                                                         WithinViewType:type]) {
-            fileStructure =  [NSMutableDictionary dictionaryWithDictionary:file];
+            [CLCacheManager updateOldFile:fileStructure
+                              withNewFile:file
+                              forViewType:type];
             return [fileStructure writeToFile:[CLCacheManager getFileStructurePath:type]
                                      atomically:YES];
         } 
