@@ -172,6 +172,14 @@ loadedSharableLink:(NSString *)link
 
 - (void)restClient:(DBRestClient*)client copiedPath:(NSString *)fromPath to:(DBMetadata *)to
 {
+    for (NSDictionary *data in selectedItems) {
+        if (([[data objectForKey:@"path"] isEqualToString:fromPath]) ||
+            ([[data objectForKey:@"id"] isEqualToString:fromPath])) {
+            [self stopAnimatingCellAtIndexPath:[NSIndexPath indexPathForRow:[selectedItems indexOfObject:data] inSection:0]];
+            break;
+        }
+    }
+
     [self stopAnimating];
     NSDictionary *metaData = [CLDictionaryConvertor dictionaryFromMetadata:to];
     [CLCacheManager insertFile:metaData
@@ -236,8 +244,6 @@ loadedSharableLink:(NSString *)link
                     case MOVE:
                         [self.restClient moveFrom:[data objectForKey:@"path"]
                                            toPath:[NSString stringWithFormat:@"%@/%@",pathString,fileName]];
-                        CLFileBrowserCell *cell = (CLFileBrowserCell *)[dataTableView cellForRowAtIndexPath:indexPath];
-                        [cell startAnimating];
                         break;
                     case COPY:
                         [self.restClient copyFrom:[data objectForKey:@"path"]
@@ -266,8 +272,6 @@ loadedSharableLink:(NSString *)link
                         LiveOperation *moveOperation =                         [self.appDelegate.liveClient moveFromPath:[data objectForKey:@"id"]
                                                                                                            toDestination:pathString delegate:self userState:[data objectForKey:@"id"]];
                         [liveOperations addObject:moveOperation];
-                        CLFileBrowserCell *cell = (CLFileBrowserCell *)[dataTableView cellForRowAtIndexPath:indexPath];
-                        [cell startAnimating];
                     }
                         break;
                     case COPY:
@@ -619,6 +623,7 @@ loadedSharableLink:(NSString *)link
     }
 }
 
+
 -(void) loadFilesForPath:(NSString *)pathString WithInViewType:(VIEW_TYPE)type
 {
     if (!pathString) {
@@ -683,6 +688,7 @@ loadedSharableLink:(NSString *)link
 -(void) uploadButtonClicked:(UIButton *) btn
 {
     AGImagePickerController *imagePicker = [[AGImagePickerController alloc] initWithDelegate:self];
+    [imagePicker setShouldChangeStatusBarStyle:NO];
     [self presentModalViewController:imagePicker animated:YES];
     [imagePicker release];
 }
@@ -750,7 +756,6 @@ loadedSharableLink:(NSString *)link
                                                                                                     delegate:self
                                                                                                    userState:[data objectForKey:@"id"]];
                 [liveOperations addObject:deleteOperation];
-
             }
         }
             break;

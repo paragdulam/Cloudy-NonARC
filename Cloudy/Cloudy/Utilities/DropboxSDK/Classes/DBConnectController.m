@@ -120,7 +120,7 @@ extern id<DBNetworkRequestDelegate> dbNetworkRequestDelegate;
 
     [self loadRequest];
     
-    self.navigationController.navigationBar.tintColor = [UIColor blackColor];
+//    self.navigationController.navigationBar.tintColor = [UIColor blackColor];
 }
 
 - (void)viewDidUnload {

@@ -37,5 +37,10 @@
 -(void) updateModel:(NSArray *) model;
 -(void) performFileOperation:(LiveOperation *) operation;
 
+-(CLFileBrowserCell *) cellAtIndexPath:(NSIndexPath *)indexPath;
+-(void) startAnimatingCellAtIndexPath:(NSIndexPath *) indexPath;
+-(void) stopAnimatingCellAtIndexPath:(NSIndexPath *) indexPath;
+
+
 
 @end

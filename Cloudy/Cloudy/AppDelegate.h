@@ -24,6 +24,7 @@
     LiveConnectClient *liveClient;
     BOOL liveClientFlag;
     CLUploadProgressButton *uploadProgressButton;
+    NSMutableArray *uploads;
 }
 
 @property (strong, nonatomic) UIWindow *window;
@@ -33,6 +34,8 @@
 @property (retain, nonatomic) LiveConnectClient *liveClient;
 @property (assign, nonatomic) BOOL liveClientFlag;
 @property (nonatomic,retain) CLUploadProgressButton *uploadProgressButton;
+@property (nonatomic,retain) NSMutableArray *uploads;
+
 
 
 -(void) initialSetup;

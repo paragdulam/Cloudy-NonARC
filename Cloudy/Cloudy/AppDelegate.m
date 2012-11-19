@@ -14,7 +14,6 @@
 @interface AppDelegate()
 {
     CLAccountsTableViewController *callbackViewController;
-    NSMutableArray *uploads;
     DBRestClient *uploadRestClient;
 }
 
@@ -30,6 +29,7 @@
 @synthesize liveClientFlag;
 @synthesize uploadProgressButton;
 @synthesize uploadRestClient;
+@synthesize uploads;
 
 - (void)dealloc
 {
@@ -111,6 +111,10 @@
     self.uploadProgressButton = aButton;
     self.uploadProgressButton.hidden = YES;
     [aButton release];
+    
+    NSMutableArray *anArray = [[NSMutableArray alloc] init];
+    self.uploads = anArray;
+    [anArray release];
     
     self.window = [[[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]] autorelease];
     // Override point for customization after application launch.
@@ -252,14 +256,10 @@
             [images addObject:imageToBeUploaded];
         }
     }
-    if (!uploads) {
-        uploads = [[NSMutableArray alloc] init];
-    }
     [images removeObjectsInArray:uploads];
     [uploads addObjectsFromArray:images];
     [uploads writeToFile:[NSString stringWithFormat:@"%@/Uploads.plist",uploadsFolderPath] atomically:YES];
     [images release];
-    
 }
 
 

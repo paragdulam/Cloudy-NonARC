@@ -626,8 +626,24 @@ whereTraversingPointer:(NSMutableDictionary *)traversingDictionary
         case SKYDRIVE:
         {
             NSMutableDictionary *fileMetadata = [array objectAtIndex:index];
-            [fileMetadata setObject:[file objectForKey:@"data"]
-                             forKey:@"data"];  //hardcoded here
+            NSMutableArray *anArray = [fileMetadata objectForKey:@"data"];
+            NSMutableArray *updatedArray = [file objectForKey:@"data"];
+            if ([anArray count]) {
+                for (NSDictionary *updatedData in updatedArray) {
+                    for (NSDictionary *data in anArray) {
+                        if ([[updatedData objectForKey:@"id"] isEqualToString:[data objectForKey:@"id"]]) {
+                            if (![[updatedData objectForKey:@"updated_time"] isEqualToString:[data objectForKey:@"updated_time"]]) {
+                                [anArray replaceObjectAtIndex:[anArray indexOfObject:data]
+                                                   withObject:updatedData];
+                            }
+                        }
+                    }
+                }
+            } else {
+                [fileMetadata setObject:updatedArray
+                                 forKey:@"data"];  //hardcoded here
+            }
+            
         }
             break;
         default:

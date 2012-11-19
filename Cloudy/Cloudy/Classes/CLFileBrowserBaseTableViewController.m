@@ -419,6 +419,25 @@
 #pragma mark - Helper Methods
 
 
+-(CLFileBrowserCell *) cellAtIndexPath:(NSIndexPath *)indexPath
+{
+    return (CLFileBrowserCell *)[dataTableView cellForRowAtIndexPath:indexPath];
+}
+
+-(void) startAnimatingCellAtIndexPath:(NSIndexPath *) indexPath
+{
+    CLFileBrowserCell *cell = [self cellAtIndexPath:indexPath];
+    [cell startAnimating];
+}
+
+-(void) stopAnimatingCellAtIndexPath:(NSIndexPath *) indexPath
+{
+    CLFileBrowserCell *cell = [self cellAtIndexPath:indexPath];
+    [cell stopAnimating];
+}
+
+
+
 -(void) createPopOverViewForUploads
 {
     popOverView = [[DDPopoverBackgroundView alloc] initWithFrame:CGRectMake(0, 0, 300, 300)];
@@ -666,9 +685,14 @@
     return [[self readCachedFileStructure] objectForKey:@"hash"];
 }
 
+
 -(void) startAnimating
 {
     [barItem startAnimating];
+    NSArray *indexPaths = [dataTableView indexPathsForSelectedRows];
+    for (NSIndexPath *indexPath in indexPaths) {
+        [self startAnimatingCellAtIndexPath:indexPath];
+    }
 }
 
 -(void) stopAnimating
