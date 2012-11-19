@@ -66,15 +66,13 @@
     //currentFileOperation = INFINITY;
     [barItem setTitle:@"Edit" forState:UIControlStateNormal];
     [barItem setTitle:@"Done" forState:UIControlStateSelected];
-
-    
 }
 
 
 -(void) viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-    [barItem deselectAll];
+//    [barItem deselectAll];
 }
 
 - (void)didReceiveMemoryWarning
@@ -258,6 +256,7 @@ loadedSharableLink:(NSString *)link
                 pathString = [NSString stringWithFormat:@"folder.%@",pathString];
             }
             for (NSIndexPath *indexPath in indexPaths) {
+                
                 NSDictionary *data = [tableDataArray objectAtIndex:indexPath.row];
                 switch (currentFileOperation) {
                     case MOVE:
@@ -317,6 +316,7 @@ loadedSharableLink:(NSString *)link
 
 -(void) performFileOperation:(LiveOperation *)operation
 {
+    [super performFileOperation:operation];
     switch (currentFileOperation) {
         case MOVE:
             [self removeSelectedRowForPath:operation.userState];
@@ -338,8 +338,6 @@ loadedSharableLink:(NSString *)link
         default:
             break;
     }
-
-    [super performFileOperation:operation];
 }
 
 
@@ -525,7 +523,8 @@ loadedSharableLink:(NSString *)link
         whereTraversingPointer:nil
                inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
                    ForViewType:viewType];
-    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:[tableDataArray indexOfObject:file]
+    int index = [tableDataArray indexOfObject:file];
+    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:index
                                                 inSection:0];
     [tableDataArray removeObject:file];
     [dataTableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath]

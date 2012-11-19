@@ -9,7 +9,7 @@
 #import <UIKit/UIKit.h>
 #import "CLConstants.h"
 
-#define CELL_OFFSET 5.f
+#define CELL_OFFSET 10.f
 
 @interface CLFileBrowserCell : UITableViewCell
 {
@@ -19,5 +19,6 @@
 @property (nonatomic,assign) UIImage *backgroundImage;
 
 -(void) setData:(id) data ForViewType:(VIEW_TYPE) type;
-
+-(void) startAnimating;
+-(void) stopAnimating;
 @end

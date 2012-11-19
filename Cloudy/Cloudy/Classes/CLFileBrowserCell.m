@@ -11,11 +11,23 @@
 @interface CLFileBrowserCell()
 {
     UIImageView *backgroundImageView;
+    UIActivityIndicatorView *activityIndicator;
 }
 @end
 
 @implementation CLFileBrowserCell
 
+
+-(void) startAnimating
+{
+    [activityIndicator startAnimating];
+}
+
+-(void) stopAnimating
+{
+    [activityIndicator stopAnimating];
+    [self setAccessoryType:self.accessoryType];
+}
 
 -(void) setBackgroundImage:(UIImage *)anImage
 {
@@ -39,6 +51,11 @@
         [self sendSubviewToBack:backgroundImageView];
         self.textLabel.textColor = CELL_TEXTLABEL_COLOR;
         self.detailTextLabel.textColor = CELL_DETAILTEXTLABEL_COLOR;
+        
+        activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+        [self setAccessoryView:activityIndicator];
+        [activityIndicator release];
+        activityIndicator.hidesWhenStopped = YES;
     }
     return self;
 }
@@ -48,6 +65,11 @@
     [super setSelected:selected animated:animated];
 
     // Configure the view for the selected state
+}
+
+-(void) dealloc
+{
+    [super dealloc];
 }
 
 
@@ -64,10 +86,6 @@
                                       CELL_OFFSET,
                                       width,
                                       width);
-//    self.imageView.backgroundColor = [UIColor redColor];
-//    self.textLabel.backgroundColor = [UIColor greenColor];
-//    self.detailTextLabel.backgroundColor = [UIColor blueColor];
-
 
     rect = self.textLabel.frame;
     rect.origin.x = CGRectGetMaxX(self.imageView.frame) + CELL_OFFSET;
@@ -76,6 +94,7 @@
     self.textLabel.frame = rect;
     
     rect.origin.y = self.detailTextLabel.frame.origin.y;
+    rect.size.width = self.detailTextLabel.frame.size.width;
     self.detailTextLabel.frame = rect;
     
 }
@@ -95,8 +114,12 @@
             if ([[dataDictionary objectForKey:@"isDirectory"] boolValue]) {
                 cellImage = [UIImage imageNamed:@"folder.png"]; //HTBA
                 [self setAccessoryType:UITableViewCellAccessoryDisclosureIndicator];
+                detailText = nil;
             } else {
                 NSString *extention = [titleText pathExtension];
+                if (![extention length]) {
+                    extention = @"_blank";
+                }
                 cellImage = [UIImage imageNamed:[NSString stringWithFormat:@"%@.png",extention]];
                 [self setAccessoryType:UITableViewCellAccessoryNone];
             }
@@ -113,6 +136,9 @@
                 [self setAccessoryType:UITableViewCellAccessoryDisclosureIndicator];
             } else {
                 NSString *extention = [titleText pathExtension];
+                if (![extention length]) {
+                    extention = @"_blank";
+                }
                 cellImage = [UIImage imageNamed:[NSString stringWithFormat:@"%@.png",extention]];
                 [self setAccessoryType:UITableViewCellAccessoryNone];
             }
