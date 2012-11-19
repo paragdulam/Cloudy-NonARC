@@ -19,14 +19,14 @@
     UIButton *cancelButton;
     
     NSArray *createFoldertoolBarItems;
+    DDPopoverBackgroundView *popOverView;
 }
 
 -(NSArray *) getCachedTableDataArrayForViewType:(VIEW_TYPE) type;
 -(NSDictionary *) readCachedFileStructure;
 -(void) createFolderToolbarItems;
 -(void) createToolbarItems;
-
-
+-(void) createPopOverViewForUploads;
 
 
 @end
@@ -69,7 +69,6 @@
     dataTableView.allowsMultipleSelectionDuringEditing = YES;
 //    dataTableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     
-    self.title = @"/";
     [self createToolbarItems];
     [self createFolderToolbarItems];
     
@@ -102,6 +101,8 @@
     [barItem release];
     [self.navigationItem setRightBarButtonItem:rightBarButton];
     [rightBarButton release];
+    
+    [self createPopOverViewForUploads];
     
     liveOperations = [[NSMutableArray alloc] init];
     
@@ -151,6 +152,14 @@
 
 -(void) uploadProgressButtonClicked:(UIButton *) btn
 {
+    btn.selected = !btn.selected;
+    
+    [UIView beginAnimations:nil context:NULL];
+    [UIView setAnimationDuration:1.f];
+    
+    popOverView.hidden = !btn.selected;
+    
+    [UIView commitAnimations];
     
 }
 
@@ -418,6 +427,21 @@
 
 
 #pragma mark - Helper Methods
+
+
+-(void) createPopOverViewForUploads
+{
+    popOverView = [[DDPopoverBackgroundView alloc] initWithFrame:CGRectMake(0, 0, 300, 300)];
+    [self.view addSubview:popOverView];
+    [popOverView setArrowDirection:UIPopoverArrowDirectionDown];
+    [popOverView setArrowOffset:-70.f];
+    [popOverView release];
+    popOverView.center = CGPointMake(self.view.center.x,
+                                     self.view.frame.size.height - (TOOLBAR_HEIGHT *2) - (popOverView.frame.size.height / 2));
+    popOverView.hidden = YES;
+    
+}
+
 
 -(void) performFileOperation:(LiveOperation *) operation
 {

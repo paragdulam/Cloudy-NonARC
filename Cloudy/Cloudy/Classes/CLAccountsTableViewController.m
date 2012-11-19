@@ -73,7 +73,6 @@
 -(void) viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-    NSLog(@"viewWillAppear");
 }
 
 - (void)didReceiveMemoryWarning

@@ -326,14 +326,11 @@ loadedSharableLink:(NSString *)link
                 whereTraversingPointer:nil
                        inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
                            ForViewType:viewType];
-            [liveOperations removeObject:operation];
-            //currentFileOperation = INFINITY;
         }
             break;
         case DELETE:
         {
             [self removeSelectedRowForPath:operation.userState];
-            [liveOperations removeObject:operation];
             [barItem deselectAll];
             //currentFileOperation = INFINITY;
         }

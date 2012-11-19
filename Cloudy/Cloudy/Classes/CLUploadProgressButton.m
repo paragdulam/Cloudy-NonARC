@@ -35,6 +35,7 @@
     self.imageView.contentMode = UIViewContentModeScaleAspectFit;
     
     self.layer.cornerRadius = 5.f;
+    self.backgroundColor = [UIColor redColor];
     
 }
 

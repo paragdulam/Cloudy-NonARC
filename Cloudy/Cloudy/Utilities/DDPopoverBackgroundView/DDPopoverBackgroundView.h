@@ -6,13 +6,18 @@
 #import <UIKit/UIKit.h>
 #import <UIKit/UIPopoverBackgroundView.h>
 
+#define TABLE_OFFSET 5.f
 
-@interface DDPopoverBackgroundView : UIPopoverBackgroundView
+
+@interface DDPopoverBackgroundView : UIPopoverBackgroundView<UITableViewDataSource,UITableViewDelegate>
 {
 	CGFloat						arrowOffset;
 	UIPopoverArrowDirection		arrowDirection;
 	UIImageView					*arrowImageView;
 	UIImageView					*popoverBackgroundImageView;
+    
+    UITableView                 *dataTableView;
+    NSMutableArray              *tableDataArray;
 }
 
 @property (nonatomic, readwrite) CGFloat arrowOffset;

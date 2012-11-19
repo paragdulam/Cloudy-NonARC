@@ -150,6 +150,22 @@ static UIImage *s_DefaultBackgroundImage = nil;
 		[arrowImageView release];
 		arrowImageView = [[UIImageView alloc] init];
 		[self addSubview:arrowImageView];
+        
+//        CGRect rect = self.bounds;
+//        rect.origin.x = TABLE_OFFSET;
+//        rect.origin.y = TABLE_OFFSET;
+//        rect.size.width -= (TABLE_OFFSET * 2);
+//        rect.size.height -= (TABLE_OFFSET * 2) ;
+        
+        dataTableView = [[UITableView alloc] initWithFrame:CGRectZero
+                                                     style:UITableViewStylePlain];
+        [self addSubview:dataTableView];
+        dataTableView.dataSource = self;
+        dataTableView.delegate = self;
+        [dataTableView release];
+        
+        tableDataArray = [[NSMutableArray alloc] init];
+
 		
 		if (s_ShadowEnabled)
 		{
@@ -163,7 +179,11 @@ static UIImage *s_DefaultBackgroundImage = nil;
 			arrowImageView.layer.shadowRadius = 2.0f;
 			arrowImageView.layer.shadowOffset = CGSizeMake(0.0f, 1.5f);
 			arrowImageView.layer.masksToBounds = YES;
+            
+            dataTableView.layer.cornerRadius = 2.f;
 		}
+        
+        
 	}
 	
 	return self;
@@ -171,6 +191,9 @@ static UIImage *s_DefaultBackgroundImage = nil;
 
 - (void)dealloc
 {
+    [tableDataArray release];
+    tableDataArray = nil;
+    
 	[arrowImageView release];
 	[popoverBackgroundImageView release];
 	[super dealloc];
@@ -293,6 +316,7 @@ static UIImage *s_DefaultBackgroundImage = nil;
 	
 	CGFloat arrowImageWidth = s_ArrowBase;
 	CGFloat arrowImageHeight = s_ArrowHeight;
+    
 
 	switch (self.arrowDirection)
 	{
@@ -396,6 +420,35 @@ static UIImage *s_DefaultBackgroundImage = nil;
 	
 	popoverBackgroundImageView.frame = CGRectMake(popoverImageOriginX, popoverImageOriginY, popoverImageWidth, popoverImageHeight);
 	arrowImageView.frame = CGRectMake(arrowImageOriginX, arrowImageOriginY, arrowImageWidth, arrowImageHeight);
+    
+    CGRect rect = popoverBackgroundImageView.bounds;
+    rect.origin.x = TABLE_OFFSET;
+    rect.origin.y = TABLE_OFFSET;
+    rect.size.width -= (TABLE_OFFSET * 2);
+    rect.size.height -= (TABLE_OFFSET * 2) ;
+    dataTableView.frame = rect;
+    
+    
 }
+
+
+#pragma mark - UITableViewDataSource,UITableViewDelegate
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+    return [tableDataArray count];
+}
+
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"CELL"];
+    if (!cell) {
+        cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault
+                                       reuseIdentifier:@"CELL"] autorelease];
+    }
+    return cell;
+}
+
 
 @end

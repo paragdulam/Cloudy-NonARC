@@ -279,6 +279,21 @@
     }
 }
 
+-(void) uploadCompletionHandler:(BOOL) remove
+{
+    NSDictionary *uploadedImage = [uploads objectAtIndex:0];
+    [CLCacheManager deleteFileAtPath:[uploadedImage objectForKey:@"FROMPATH"]];
+    [uploads removeObjectAtIndex:0];
+    [uploads writeToFile:[NSString stringWithFormat:@"%@/Uploads.plist",[CLCacheManager getUploadsFolderPath]] atomically:YES];
+    if ([uploads count]) {
+        NSDictionary *imageToBeUploaded = [uploads objectAtIndex:0];
+        [self uploadDictionary:imageToBeUploaded];
+    } else {
+        [CLCacheManager deleteFileAtPath:[NSString stringWithFormat:@"%@/Uploads.plist",[CLCacheManager getUploadsFolderPath]]];
+        uploadProgressButton.hidden = YES;
+    }
+}
+
 
 #pragma mark - LiveUploadOperationDelegate
 
@@ -290,17 +305,7 @@
 
 -(void) liveOperationSucceeded:(LiveOperation *)operation
 {
-    NSDictionary *uploadedImage = [uploads objectAtIndex:0];
-    [CLCacheManager deleteFileAtPath:[uploadedImage objectForKey:@"FROMPATH"]];
-    [uploads removeObjectAtIndex:0];
-    [uploads writeToFile:[NSString stringWithFormat:@"%@/Uploads.plist",[CLCacheManager getUploadsFolderPath]] atomically:YES];
-    if ([uploads count]) {
-        NSDictionary *imageToBeUploaded = [uploads objectAtIndex:0];
-        [self uploadDictionary:imageToBeUploaded];
-    } else {
-        [CLCacheManager deleteFileAtPath:[NSString stringWithFormat:@"%@/Uploads.plist",[CLCacheManager getUploadsFolderPath]]];
-        uploadProgressButton.hidden = YES;
-    }
+    [self uploadCompletionHandler:YES];
     [CLCacheManager insertFile:operation.result
         whereTraversingPointer:nil
                inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:SKYDRIVE]
@@ -310,7 +315,7 @@
 
 -(void) liveOperationFailed:(NSError *)error operation:(LiveOperation *)operation
 {
-    
+    [self uploadCompletionHandler:YES];
 }
 
 
@@ -321,17 +326,7 @@
               from:(NSString*)srcPath
           metadata:(DBMetadata*)metadata
 {
-    NSDictionary *uploadedImage = [uploads objectAtIndex:0];
-    [CLCacheManager deleteFileAtPath:[uploadedImage objectForKey:@"FROMPATH"]];
-    [uploads removeObjectAtIndex:0];
-    [uploads writeToFile:[NSString stringWithFormat:@"%@/Uploads.plist",[CLCacheManager getUploadsFolderPath]] atomically:YES];
-    if ([uploads count]) {
-        NSDictionary *imageToBeUploaded = [uploads objectAtIndex:0];
-        [self uploadDictionary:imageToBeUploaded];
-    } else {
-        [CLCacheManager deleteFileAtPath:[NSString stringWithFormat:@"%@/Uploads.plist",[CLCacheManager getUploadsFolderPath]]];
-        uploadProgressButton.hidden = YES;
-    }
+    [self uploadCompletionHandler:YES];
     NSDictionary *metadataDictionary = [CLDictionaryConvertor dictionaryFromMetadata:metadata];
     [CLCacheManager insertFile:metadataDictionary
         whereTraversingPointer:nil
@@ -349,7 +344,7 @@
 
 - (void)restClient:(DBRestClient*)client uploadFileFailedWithError:(NSError*)error
 {
-    
+    [self uploadCompletionHandler:YES];
 }
 
 @end
