@@ -359,6 +359,29 @@
 
 #pragma mark - DBRestClientDelegate
 
+#pragma mark - Thumbnail Methods
+
+
+-(void) restClient:(DBRestClient *)client
+   loadedThumbnail:(NSString *)destPath
+          metadata:(DBMetadata *)metadata
+{
+    NSDictionary *mData = [CLDictionaryConvertor dictionaryFromMetadata:metadata];
+    int index = [tableDataArray indexOfObject:mData];
+    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:index
+                                                inSection:0];
+    [dataTableView beginUpdates];
+    [dataTableView reloadRowsAtIndexPaths:[NSArray arrayWithObject:indexPath]
+                         withRowAnimation:UITableViewRowAnimationAutomatic];
+    [dataTableView endUpdates];
+}
+
+
+-(void) restClient:(DBRestClient *)client loadThumbnailFailedWithError:(NSError *)error
+{
+    
+}
+
 #pragma mark - Create Folder Methods
 
 -(void) restClient:(DBRestClient *)client createdFolder:(DBMetadata *)folder
@@ -387,8 +410,6 @@
 {
     [self stopAnimating];
     NSDictionary *metadataDictionary = [CLDictionaryConvertor dictionaryFromMetadata:metadata];
-//    [CLCacheManager updateFolderStructure:metadataDictionary
-//                                  ForView:DROPBOX];
     [CLCacheManager updateFile:metadataDictionary
         whereTraversingPointer:nil
                inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
@@ -399,8 +420,21 @@
         NSArray *contents = [metadataDictionary objectForKey:@"contents"];
         [self updateModel:contents];
         [self updateView];
+        
+        //Look for images in current directory and load thumbnails for them
+        NSString *dropboxCachePath = [CLCacheManager getDropboxCacheFolderPath];
+        for (NSDictionary *data in contents) {
+            if ([[data objectForKey:@"thumbnailExists"] boolValue]) {
+                [self.restClient loadThumbnail:[data objectForKey:@"path"]
+                                        ofSize:@"small"
+                                      intoPath:[NSString stringWithFormat:@"%@/%@",dropboxCachePath,[data objectForKey:@"filename"]]];
+            }
+        }
+        //Look for images in current directory and load thumbnails for them
     }
-    //Reading Cache is skipped only reading Table Contents Ends    
+    //Reading Cache is skipped only reading Table Contents Ends
+    
+    
 }
 
 - (void)restClient:(DBRestClient*)client metadataUnchangedAtPath:(NSString*)path

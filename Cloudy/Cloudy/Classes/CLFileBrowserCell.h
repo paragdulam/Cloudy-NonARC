@@ -8,6 +8,7 @@
 
 #import <UIKit/UIKit.h>
 #import "CLConstants.h"
+#import "CLCacheManager.h"
 
 #define CELL_OFFSET 10.f
 

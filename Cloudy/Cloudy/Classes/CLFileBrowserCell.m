@@ -56,6 +56,8 @@
         [self setAccessoryView:activityIndicator];
         [activityIndicator release];
         activityIndicator.hidesWhenStopped = YES;
+        
+        self.imageView.contentMode = UIViewContentModeScaleAspectFit;
     }
     return self;
 }
@@ -113,15 +115,18 @@
             titleText = [dataDictionary objectForKey:@"filename"];
             detailText = [dataDictionary objectForKey:@"humanReadableSize"];
             if ([[dataDictionary objectForKey:@"isDirectory"] boolValue]) {
-                cellImage = [UIImage imageNamed:@"folder.png"]; //HTBA
+                cellImage = [UIImage imageNamed:@"folder.png"];
                 [self setAccessoryType:UITableViewCellAccessoryDisclosureIndicator];
                 detailText = nil;
             } else {
-                NSString *extention = [titleText pathExtension];
-                if (![extention length]) {
-                    extention = @"_blank";
+                cellImage = [UIImage imageWithContentsOfFile:[NSString stringWithFormat:@"%@/%@",[CLCacheManager getDropboxCacheFolderPath],titleText]];
+                if (!cellImage) {
+                    NSString *extention = [titleText pathExtension];
+                    if (![extention length]) {
+                        extention = @"_blank";
+                    }
+                    cellImage = [UIImage imageNamed:[NSString stringWithFormat:@"%@.png",extention]];
                 }
-                cellImage = [UIImage imageNamed:[NSString stringWithFormat:@"%@.png",extention]];
                 [self setAccessoryType:UITableViewCellAccessoryNone];
             }
             break;
@@ -133,7 +138,7 @@
             float sizeValue = [size floatValue]/(1024*1024);
             detailText = [NSString stringWithFormat:@"%.2f MB",sizeValue];
             if ([[dataDictionary objectForKey:@"type"] isEqualToString:@"folder"] || [[dataDictionary objectForKey:@"type"] isEqualToString:@"album"]) {
-                cellImage = [UIImage imageNamed:@"folder.png"]; //HTBA
+                cellImage = [UIImage imageNamed:@"folder.png"]; 
                 [self setAccessoryType:UITableViewCellAccessoryDisclosureIndicator];
             } else {
                 NSString *extention = [titleText pathExtension];

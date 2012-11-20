@@ -217,6 +217,7 @@ loadedSharableLink:(NSString *)link
 - (void)restClient:(DBRestClient*)client deletedPath:(NSString *)pathStr
 {
     [self stopAnimating];
+    [CLCacheManager deleteFileAtPath:pathStr];
     [self removeSelectedRowForPath:pathStr];
 }
 

@@ -60,6 +60,7 @@ whereTraversingPointer:(NSMutableDictionary *)traversingDictionary
 +(NSArray *) contentsOfDirectoryAtPath:(NSString *) path;
 +(BOOL) fileExistsAtPath:(NSString *) path;
 +(BOOL) deleteFileAtPath:(NSString *) path;
++(NSString *) getDropboxCacheFolderPath;
 
 
 @end

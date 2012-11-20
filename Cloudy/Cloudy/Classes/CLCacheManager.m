@@ -672,13 +672,14 @@ whereTraversingPointer:(NSMutableDictionary *)traversingDictionary
     
     
     NSMutableArray *anArray = [oldFile objectForKey:contentKey];
-    NSMutableArray *finalArray = [[NSMutableArray alloc] initWithArray:anArray];
+    NSMutableArray *updatedArray = [newFile objectForKey:contentKey];
+
+    NSMutableArray *finalArray = [[NSMutableArray alloc] initWithArray:updatedArray];
     if ([anArray count]) {
-        NSMutableArray *updatedArray = [newFile objectForKey:contentKey];
         for (NSDictionary *updatedData in updatedArray) {
             for (NSDictionary *data in anArray) {
                 if ([[updatedData objectForKey:idKey] isEqualToString:[data objectForKey:idKey]]) {
-                    if (![[updatedData objectForKey:updationKey] isEqualToString:[data objectForKey:updationKey]]) {
+                    if ([[data objectForKey:contentKey] count]) {
                         [finalArray replaceObjectAtIndex:[anArray indexOfObject:data]
                                            withObject:updatedData];
                     }
