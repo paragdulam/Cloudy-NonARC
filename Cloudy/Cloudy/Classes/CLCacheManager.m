@@ -645,7 +645,7 @@ whereTraversingPointer:(NSMutableDictionary *)traversingDictionary
     }
 }
 
-+(void) updateOldFile:(NSMutableDictionary *)oldFile withNewFile:(NSDictionary *) newFile forViewType:(VIEW_TYPE) type
++(BOOL) updateOldFile:(NSMutableDictionary *)oldFile withNewFile:(NSDictionary *) newFile forViewType:(VIEW_TYPE) type
 {
     NSString *contentKey = nil;
     NSString *idKey = nil;
@@ -670,19 +670,26 @@ whereTraversingPointer:(NSMutableDictionary *)traversingDictionary
             break;
     }
     
+    
     NSMutableArray *anArray = [oldFile objectForKey:contentKey];
+    NSMutableArray *finalArray = [[NSMutableArray alloc] initWithArray:anArray];
     if ([anArray count]) {
         NSMutableArray *updatedArray = [newFile objectForKey:contentKey];
         for (NSDictionary *updatedData in updatedArray) {
             for (NSDictionary *data in anArray) {
                 if ([[updatedData objectForKey:idKey] isEqualToString:[data objectForKey:idKey]]) {
                     if (![[updatedData objectForKey:updationKey] isEqualToString:[data objectForKey:updationKey]]) {
-                        [anArray replaceObjectAtIndex:[anArray indexOfObject:data]
+                        [finalArray replaceObjectAtIndex:[anArray indexOfObject:data]
                                            withObject:updatedData];
                     }
                 }
             }
         }
+        [oldFile setObject:finalArray forKey:contentKey];
+        [finalArray release];
+        return YES;
+    } else {
+        return NO;
     }
     
 }
@@ -698,9 +705,12 @@ whereTraversingPointer:(NSMutableDictionary *)traversingDictionary
         traversingDictionary = fileStructure;
         if ([CLCacheManager isRootPathForFile:file
                                                         WithinViewType:type]) {
-            [CLCacheManager updateOldFile:fileStructure
-                              withNewFile:file
-                              forViewType:type];
+            BOOL success = [CLCacheManager updateOldFile:fileStructure
+                                             withNewFile:file
+                                             forViewType:type];
+            if (!success) {
+                fileStructure = [NSMutableDictionary dictionaryWithDictionary:file];
+            }
             return [fileStructure writeToFile:[CLCacheManager getFileStructurePath:type]
                                      atomically:YES];
         } 
