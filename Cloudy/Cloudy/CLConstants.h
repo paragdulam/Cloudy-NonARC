@@ -78,6 +78,8 @@ typedef enum FILE_FOLDER_OPERATIONS {
     DELETE,
     SHARE,
     METADATA,
+    DOWNLOAD,
+    UPLOAD
 } FILE_FOLDER_OPERATION;
 
 
@@ -96,6 +98,9 @@ typedef enum FILE_FOLDER_OPERATIONS {
 
 
 #define IMAGE_EXTENTION_ARRAY [NSArray arrayWithObjects:@"tiff",@"tif",@"jpg",@"jpeg",@"gif",@"png",@"bmp",@"bmpf",@"ico",@"cur",@"xbm",nil]
+
+
+#define THUMBNAIL_DATA @"THUMBNAIL_DATA"
 
 
 

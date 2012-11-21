@@ -11,7 +11,7 @@
 #import "CLFileBrowserCell.h"
 
 
-@interface CLFileBrowserBaseTableViewController : CLBaseTableViewController<LiveOperationDelegate,CLBrowserBarItemDelegate,UITextFieldDelegate>
+@interface CLFileBrowserBaseTableViewController : CLBaseTableViewController<LiveOperationDelegate,CLBrowserBarItemDelegate,UITextFieldDelegate,LiveDownloadOperationDelegate>
 {
     NSString *path;
     VIEW_TYPE viewType;

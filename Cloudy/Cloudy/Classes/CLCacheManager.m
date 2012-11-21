@@ -680,8 +680,8 @@ whereTraversingPointer:(NSMutableDictionary *)traversingDictionary
             for (NSDictionary *data in anArray) {
                 if ([[updatedData objectForKey:idKey] isEqualToString:[data objectForKey:idKey]]) {
                     if ([[data objectForKey:contentKey] count]) {
-                        [finalArray replaceObjectAtIndex:[anArray indexOfObject:data]
-                                           withObject:updatedData];
+                        [finalArray replaceObjectAtIndex:[finalArray indexOfObject:updatedData]
+                                           withObject:data];
                     }
                 }
             }

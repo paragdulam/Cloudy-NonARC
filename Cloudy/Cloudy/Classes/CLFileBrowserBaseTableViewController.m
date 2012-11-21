@@ -366,14 +366,37 @@
    loadedThumbnail:(NSString *)destPath
           metadata:(DBMetadata *)metadata
 {
-    NSDictionary *mData = [CLDictionaryConvertor dictionaryFromMetadata:metadata];
-    int index = [tableDataArray indexOfObject:mData];
-    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:index
-                                                inSection:0];
-    [dataTableView beginUpdates];
-    [dataTableView reloadRowsAtIndexPaths:[NSArray arrayWithObject:indexPath]
-                         withRowAnimation:UITableViewRowAnimationAutomatic];
-    [dataTableView endUpdates];
+    NSMutableDictionary *mData = [NSMutableDictionary dictionaryWithDictionary:[CLDictionaryConvertor dictionaryFromMetadata:metadata]];
+    __block NSString *pathStr = [mData objectForKey:@"path"];
+    UIImage *image = [UIImage imageWithContentsOfFile:destPath];
+    NSData *imageData = UIImagePNGRepresentation(image);
+    [mData setObject:imageData
+              forKey:THUMBNAIL_DATA];
+    [CLCacheManager deleteFileAtPath:destPath];
+    
+    __block NSInteger index = INFINITY;
+    [tableDataArray enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        NSDictionary *objDict = (NSDictionary *)obj;
+        if ([[objDict objectForKey:@"path"] isEqualToString:pathStr]) {
+            index = idx;
+        }
+    }];
+    
+    [CLCacheManager updateFile:mData
+        whereTraversingPointer:nil
+               inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
+                   ForViewType:viewType];
+    if (index < [tableDataArray count]) {
+        [tableDataArray replaceObjectAtIndex:index withObject:mData];
+        NSIndexPath *indexPath = [NSIndexPath indexPathForRow:index
+                                                    inSection:0];
+        
+        [dataTableView beginUpdates];
+        [dataTableView reloadRowsAtIndexPaths:[NSArray arrayWithObject:indexPath]
+                             withRowAnimation:UITableViewRowAnimationAutomatic];
+        [dataTableView endUpdates];
+    }
+    
 }
 
 
@@ -440,6 +463,16 @@
 - (void)restClient:(DBRestClient*)client metadataUnchangedAtPath:(NSString*)path
 {
     [self stopAnimating];
+    [tableDataArray enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        NSDictionary *objDict = (NSDictionary *)obj;
+        if ([[objDict objectForKey:@"thumbnailExists"] boolValue]) {
+            if (![objDict objectForKey:THUMBNAIL_DATA]) {
+                [self.restClient loadThumbnail:[objDict objectForKey:@"path"]
+                                        ofSize:@"small"
+                                      intoPath:[NSString stringWithFormat:@"%@/%@",[CLCacheManager getDropboxCacheFolderPath],[objDict objectForKey:@"filename"]]];
+            }
+        }
+    }];
 }
 
 - (void)restClient:(DBRestClient*)client loadMetadataFailedWithError:(NSError*)error
@@ -500,7 +533,17 @@
                 NSArray *contents = [operation.result objectForKey:@"data"];
                 [self updateModel:contents];
                 [self updateView];
+                //Looking For images and then downloading thumnails Starts
+                
+                for (NSDictionary *data in contents) {
+                    if ([[data objectForKey:@"type"] isEqualToString:@"photo"]) {
+                        [self.appDelegate.liveClient downloadFromPath:[data objectForKey:@"id"] delegate:self userState:[data objectForKey:@"name"]];
+                        currentFileOperation = DOWNLOAD;
+                    }
+                }
+                //Looking For images and then downloading thumnails Ends
             }
+            
             //    //Reading Cache is skipped only reading Table Contents Ends
 
         }
@@ -510,6 +553,21 @@
                 whereTraversingPointer:nil
                        inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
                            ForViewType:viewType];
+            break;
+        case DOWNLOAD:
+        {
+            LiveDownloadOperation *downloadOperation = (LiveDownloadOperation *) operation;
+            NSString *skyDrivePath = [CLCacheManager getSkyDriveCacheFolderPath];
+            [downloadOperation.data writeToFile:[NSString stringWithFormat:@"%@/%@",skyDrivePath,operation.userState] atomically:YES];
+            int index = [tableDataArray indexOfObject:operation.result];
+            NSIndexPath *indexPath = [NSIndexPath indexPathForRow:index
+                                                        inSection:0];
+            [dataTableView beginUpdates];
+            [dataTableView reloadRowsAtIndexPaths:[NSArray arrayWithObject:indexPath]
+                                 withRowAnimation:UITableViewRowAnimationAutomatic];
+            [dataTableView endUpdates];
+        }
+            break;
         default:
             break;
             //currentFileOperation = INFINITY;

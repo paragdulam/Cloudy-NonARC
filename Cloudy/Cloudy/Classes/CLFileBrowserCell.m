@@ -119,7 +119,7 @@
                 [self setAccessoryType:UITableViewCellAccessoryDisclosureIndicator];
                 detailText = nil;
             } else {
-                cellImage = [UIImage imageWithContentsOfFile:[NSString stringWithFormat:@"%@/%@",[CLCacheManager getDropboxCacheFolderPath],titleText]];
+                cellImage = [UIImage imageWithData:[dataDictionary objectForKey:THUMBNAIL_DATA]];
                 if (!cellImage) {
                     NSString *extention = [titleText pathExtension];
                     if (![extention length]) {
@@ -141,11 +141,15 @@
                 cellImage = [UIImage imageNamed:@"folder.png"]; 
                 [self setAccessoryType:UITableViewCellAccessoryDisclosureIndicator];
             } else {
-                NSString *extention = [titleText pathExtension];
-                if (![extention length]) {
-                    extention = @"_blank";
+                cellImage = [UIImage imageWithData:[dataDictionary objectForKey:THUMBNAIL_DATA]];
+                if (!cellImage) {
+                    NSString *extention = [titleText pathExtension];
+                    if (![extention length]) {
+                        extention = @"_blank";
+                    }
+                    cellImage = [UIImage imageNamed:[NSString stringWithFormat:@"%@.png",extention]];
                 }
-                cellImage = [UIImage imageNamed:[NSString stringWithFormat:@"%@.png",extention]];
+
                 [self setAccessoryType:UITableViewCellAccessoryNone];
             }
         }
