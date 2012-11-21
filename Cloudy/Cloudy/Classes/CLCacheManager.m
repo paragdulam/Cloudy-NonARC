@@ -86,6 +86,22 @@
 #pragma mark - Helper Methods
 
 
++(NSString *) pathFiedForViewType:(VIEW_TYPE) type
+{
+    switch (type) {
+        case DROPBOX:
+            return @"path";
+            break;
+        case SKYDRIVE:
+            return @"id";
+            break;
+            
+        default:
+            break;
+    }
+return nil;
+}
+
 +(BOOL) deleteFileAtPath:(NSString *) path
 {
     return [[NSFileManager defaultManager] removeItemAtPath:path
@@ -626,16 +642,12 @@ whereTraversingPointer:(NSMutableDictionary *)traversingDictionary
         case SKYDRIVE:
         {
             NSMutableDictionary *fileMetadata = [array objectAtIndex:index];
-            NSMutableArray *anArray = [fileMetadata objectForKey:@"data"];
-            NSMutableArray *updatedArray = [file objectForKey:@"data"];
             
-            if ([anArray count]) {
-                [CLCacheManager updateOldFile:fileMetadata
-                                  withNewFile:file
-                                  forViewType:type];
-            } else {
-                [fileMetadata setObject:updatedArray
-                                 forKey:@"data"];  //hardcoded here
+            BOOL success = [CLCacheManager updateOldFile:fileMetadata
+                                             withNewFile:file
+                                             forViewType:type];
+            if (!success) {
+                [array replaceObjectAtIndex:index withObject:file];
             }
             
         }

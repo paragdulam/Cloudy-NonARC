@@ -367,20 +367,13 @@
           metadata:(DBMetadata *)metadata
 {
     NSMutableDictionary *mData = [NSMutableDictionary dictionaryWithDictionary:[CLDictionaryConvertor dictionaryFromMetadata:metadata]];
-    __block NSString *pathStr = [mData objectForKey:@"path"];
+    int index = [self getIndexOfObjectForKey:[CLCacheManager pathFiedForViewType:viewType]
+                                   withValue:[mData objectForKey:@"path"]];
     UIImage *image = [UIImage imageWithContentsOfFile:destPath];
     NSData *imageData = UIImagePNGRepresentation(image);
     [mData setObject:imageData
               forKey:THUMBNAIL_DATA];
     [CLCacheManager deleteFileAtPath:destPath];
-    
-    __block NSInteger index = INFINITY;
-    [tableDataArray enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-        NSDictionary *objDict = (NSDictionary *)obj;
-        if ([[objDict objectForKey:@"path"] isEqualToString:pathStr]) {
-            index = idx;
-        }
-    }];
     
     [CLCacheManager updateFile:mData
         whereTraversingPointer:nil
@@ -486,6 +479,21 @@
 #pragma mark - Helper Methods
 
 
+-(int) getIndexOfObjectForKey:(NSString *) key
+                    withValue:(NSString *) value
+{
+    __block NSInteger index = INFINITY;
+    __block NSString *valueString = value;
+    __block NSString *keyString = key;
+    [tableDataArray enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        NSDictionary *objDict = (NSDictionary *)obj;
+        if ([[objDict objectForKey:keyString] isEqualToString:valueString]) {
+            index = idx;
+        }
+    }];
+    return index;
+}
+
 -(CLFileBrowserCell *) cellAtIndexPath:(NSIndexPath *)indexPath
 {
     return (CLFileBrowserCell *)[dataTableView cellForRowAtIndexPath:indexPath];
@@ -536,8 +544,11 @@
                 //Looking For images and then downloading thumnails Starts
                 
                 for (NSDictionary *data in contents) {
-                    if ([[data objectForKey:@"type"] isEqualToString:@"photo"]) {
-                        [self.appDelegate.liveClient downloadFromPath:[data objectForKey:@"id"] delegate:self userState:[data objectForKey:@"name"]];
+                    NSArray *images = [data objectForKey:@"images"];
+                    if ([images count]) {
+                        NSDictionary *image = [images objectAtIndex:2];
+                        LiveDownloadOperation *downloadOperation =                         [self.appDelegate.liveClient downloadFromPath:[image objectForKey:@"source"] delegate:self userState:[data objectForKey:@"name"]];
+                        [liveOperations addObject:downloadOperation];
                         currentFileOperation = DOWNLOAD;
                     }
                 }
@@ -557,11 +568,22 @@
         case DOWNLOAD:
         {
             LiveDownloadOperation *downloadOperation = (LiveDownloadOperation *) operation;
-            NSString *skyDrivePath = [CLCacheManager getSkyDriveCacheFolderPath];
-            [downloadOperation.data writeToFile:[NSString stringWithFormat:@"%@/%@",skyDrivePath,operation.userState] atomically:YES];
-            int index = [tableDataArray indexOfObject:operation.result];
+            int index = [self getIndexOfObjectForKey:@"name"
+                                           withValue:operation.userState];
+            
+            NSDictionary *data = [tableDataArray objectAtIndex:index];
+            NSMutableDictionary *updatedData = [NSMutableDictionary dictionaryWithDictionary:data];
+            [updatedData setObject:downloadOperation.data forKey:THUMBNAIL_DATA];
+            
+            
+            [CLCacheManager updateFile:updatedData
+                whereTraversingPointer:nil
+                       inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
+                           ForViewType:viewType];
+            
             NSIndexPath *indexPath = [NSIndexPath indexPathForRow:index
                                                         inSection:0];
+            [tableDataArray replaceObjectAtIndex:index withObject:updatedData];
             [dataTableView beginUpdates];
             [dataTableView reloadRowsAtIndexPaths:[NSArray arrayWithObject:indexPath]
                                  withRowAnimation:UITableViewRowAnimationAutomatic];
