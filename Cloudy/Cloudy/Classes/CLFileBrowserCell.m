@@ -122,10 +122,10 @@
                 cellImage = [UIImage imageWithData:[dataDictionary objectForKey:THUMBNAIL_DATA]];
                 if (!cellImage) {
                     NSString *extention = [titleText pathExtension];
-                    if (![extention length]) {
-                        extention = @"_blank";
-                    }
                     cellImage = [UIImage imageNamed:[NSString stringWithFormat:@"%@.png",extention]];
+                    if (!cellImage) {
+                        cellImage = [UIImage imageNamed:[NSString stringWithFormat:@"_blank.png"]];
+                    }
                 }
                 [self setAccessoryType:UITableViewCellAccessoryNone];
             }
@@ -144,12 +144,11 @@
                 cellImage = [UIImage imageWithData:[dataDictionary objectForKey:THUMBNAIL_DATA]];
                 if (!cellImage) {
                     NSString *extention = [titleText pathExtension];
-                    if (![extention length]) {
-                        extention = @"_blank";
-                    }
                     cellImage = [UIImage imageNamed:[NSString stringWithFormat:@"%@.png",extention]];
+                    if (!cellImage) {
+                        cellImage = [UIImage imageNamed:[NSString stringWithFormat:@"_blank.png"]];
+                    }
                 }
-
                 [self setAccessoryType:UITableViewCellAccessoryNone];
             }
         }

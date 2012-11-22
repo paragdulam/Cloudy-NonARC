@@ -23,6 +23,7 @@
 		F18309CA1659791900FF6C64 /* table_background.png in Resources */ = {isa = PBXBuildFile; fileRef = F18309C91659791900FF6C64 /* table_background.png */; };
 		F18309CC1659792200FF6C64 /* table_background@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = F18309CB1659792200FF6C64 /* table_background@2x.png */; };
 		F18309CE16597FE800FF6C64 /* SkyDriveIconBlue_32x32@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = F18309CD16597FE800FF6C64 /* SkyDriveIconBlue_32x32@2x.png */; };
+		F18A73BE165E1B6C00251A14 /* CLImageGalleryViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F18A73BD165E1B6C00251A14 /* CLImageGalleryViewController.m */; };
 		F18B7D51165A20B600D2EECF /* _blank.png in Resources */ = {isa = PBXBuildFile; fileRef = F18B7D16165A20B600D2EECF /* _blank.png */; };
 		F18B7D52165A20B600D2EECF /* _page.png in Resources */ = {isa = PBXBuildFile; fileRef = F18B7D17165A20B600D2EECF /* _page.png */; };
 		F18B7D53165A20B600D2EECF /* aac.png in Resources */ = {isa = PBXBuildFile; fileRef = F18B7D18165A20B600D2EECF /* aac.png */; };
@@ -202,6 +203,8 @@
 		F18309C91659791900FF6C64 /* table_background.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = table_background.png; sourceTree = "<group>"; };
 		F18309CB1659792200FF6C64 /* table_background@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "table_background@2x.png"; sourceTree = "<group>"; };
 		F18309CD16597FE800FF6C64 /* SkyDriveIconBlue_32x32@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "SkyDriveIconBlue_32x32@2x.png"; sourceTree = "<group>"; };
+		F18A73BC165E1B6C00251A14 /* CLImageGalleryViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CLImageGalleryViewController.h; sourceTree = "<group>"; };
+		F18A73BD165E1B6C00251A14 /* CLImageGalleryViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CLImageGalleryViewController.m; sourceTree = "<group>"; };
 		F18B7D16165A20B600D2EECF /* _blank.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = _blank.png; sourceTree = "<group>"; };
 		F18B7D17165A20B600D2EECF /* _page.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = _page.png; sourceTree = "<group>"; };
 		F18B7D18165A20B600D2EECF /* aac.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = aac.png; sourceTree = "<group>"; };
@@ -562,6 +565,8 @@
 				F19528481650DE8E005EDE2D /* CLFileBrowserTableViewController.m */,
 				F18309C21658F8ED00FF6C64 /* CLUploadProgressButton.h */,
 				F18309C31658F8ED00FF6C64 /* CLUploadProgressButton.m */,
+				F18A73BC165E1B6C00251A14 /* CLImageGalleryViewController.h */,
+				F18A73BD165E1B6C00251A14 /* CLImageGalleryViewController.m */,
 			);
 			path = Classes;
 			sourceTree = "<group>";
@@ -1024,6 +1029,7 @@
 				F19528491650DE8E005EDE2D /* CLFileBrowserTableViewController.m in Sources */,
 				F1FA4F2B16561F6C0027E4CC /* DDPopoverBackgroundView.m in Sources */,
 				F18309C41658F8ED00FF6C64 /* CLUploadProgressButton.m in Sources */,
+				F18A73BE165E1B6C00251A14 /* CLImageGalleryViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

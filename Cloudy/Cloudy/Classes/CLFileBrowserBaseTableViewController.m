@@ -8,6 +8,7 @@
 
 #import "CLFileBrowserBaseTableViewController.h"
 #import "CLFileBrowserTableViewController.h"
+#import "CLImageGalleryViewController.h"
 
 
 @interface CLFileBrowserBaseTableViewController ()
@@ -309,6 +310,10 @@
                     fileBrowserViewController.title = [metadata objectForKey:@"filename"];
                     [fileBrowserViewController release];
                     fileBrowserViewController = nil;
+                } else if ([[metadata objectForKey:@"thumbnailExists"] boolValue]) {
+                    CLImageGalleryViewController *imageGalleryViewController = [[CLImageGalleryViewController alloc] init];
+                    [self.navigationController pushViewController:imageGalleryViewController animated:YES];
+                    [imageGalleryViewController release];
                 }
             }
                 break;
@@ -321,6 +326,10 @@
                     fileBrowserViewController.title = [metadata objectForKey:@"name"];
                     [fileBrowserViewController release];
                     fileBrowserViewController = nil;
+                } else if ([[metadata objectForKey:@"type"] isEqualToString:@"photo"]) {
+                    CLImageGalleryViewController *imageGalleryViewController = [[CLImageGalleryViewController alloc] init];
+                    [self.navigationController pushViewController:imageGalleryViewController animated:YES];
+                    [imageGalleryViewController release];
                 }
             }
                 break;
@@ -544,14 +553,15 @@
                 //Looking For images and then downloading thumnails Starts
                 
                 for (NSDictionary *data in contents) {
-                    NSArray *images = [data objectForKey:@"images"];
-                    if ([images count]) {
-                        NSDictionary *image = [images objectAtIndex:2];
-                        LiveDownloadOperation *downloadOperation =                         [self.appDelegate.liveClient downloadFromPath:[image objectForKey:@"source"] delegate:self userState:[data objectForKey:@"name"]];
-                        [liveOperations addObject:downloadOperation];
-                        currentFileOperation = DOWNLOAD;
-                    }
-                }
+                    if (![data objectForKey:THUMBNAIL_DATA]) {
+                        NSArray *images = [data objectForKey:@"images"];
+                        if ([images count]) {
+                            NSDictionary *image = [images objectAtIndex:2];
+                            LiveDownloadOperation *downloadOperation =                         [self.appDelegate.liveClient downloadFromPath:[image objectForKey:@"source"] delegate:self userState:[data objectForKey:@"name"]];
+                            [liveOperations addObject:downloadOperation];
+                            currentFileOperation = DOWNLOAD;
+                        }
+                    }                }
                 //Looking For images and then downloading thumnails Ends
             }
             
