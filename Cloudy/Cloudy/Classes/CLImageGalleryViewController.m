@@ -13,6 +13,7 @@
     UIImageView *mainImageView;
     NSMutableArray *liveOperations;
     CGRect originalViewRect;
+    UIProgressView *progressView;
 }
 @end
 
@@ -55,6 +56,11 @@
     mainImageView.contentMode = UIViewContentModeScaleAspectFit;
     [self.view addSubview:mainImageView];
     [mainImageView release];
+    
+    progressView = [[UIProgressView alloc] initWithProgressViewStyle:UIProgressViewStyleBar];
+    [mainImageView addSubview:progressView];
+    [progressView release];
+    progressView.center = mainImageView.center;
     
     UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc ] initWithTarget:self action:@selector(tapGesture:)];
     tapGesture.delegate = self;
@@ -134,6 +140,14 @@
 
 #pragma mark - DBRestClientDelegate
 
+-(void) restClient:(DBRestClient *)client loadProgress:(CGFloat)progress forFile:(NSString *)destPath
+{
+    NSArray *components = [destPath componentsSeparatedByString:@"/"];
+    if ([[components lastObject] isEqualToString:[currentImage objectForKey:@"filename"]]) {
+        progressView.progress = progress;
+    }
+}
+
 -(void) restClient:(DBRestClient *)client
         loadedFile:(NSString *)destPath
        contentType:(NSString *)contentType
@@ -164,7 +178,9 @@
                                     data:(NSData *)receivedData
                                operation:(LiveDownloadOperation *)operation
 {
-    
+    if ([operation.userState isEqualToString:[currentImage objectForKey:@"name"]]) {
+        progressView.progress = progress.progressPercentage;
+    }
 }
 
 #pragma mark - Helper methods
@@ -176,7 +192,8 @@
         switch (viewType) {
             case DROPBOX:
             {
-                NSString *filePath = [NSString stringWithFormat:@"%@/%@",[CLCacheManager getTemporaryDirectory],[data objectForKey:@"filename"]];
+                NSString *fileName = [data objectForKey:@"filename"];
+                NSString *filePath = [NSString stringWithFormat:@"%@%@",[CLCacheManager getTemporaryDirectory],fileName];
                 [self.appDelegate.restClient loadFile:[data objectForKey:@"path"]
                                                 atRev:[data objectForKey:@"rev"]
                                              intoPath:filePath];
@@ -216,8 +233,10 @@
     }
     NSString *filePath = [NSString stringWithFormat:@"%@/%@",[CLCacheManager getTemporaryDirectory],fileName];
     UIImage *imageToBeShown = [UIImage imageWithContentsOfFile:filePath];
+    progressView.hidden = YES;
     if (!imageToBeShown) {
         imageToBeShown = [UIImage imageWithData:[currentImage objectForKey:THUMBNAIL_DATA]];
+        progressView.hidden = NO;
     }
     [mainImageView setImage:imageToBeShown];
 }
@@ -228,7 +247,6 @@
 
 -(void) panGesture:(UIGestureRecognizer *) gesture
 {
-    NSLog(@"panning...");
     UIView *view = [gesture view];
     float width = view.frame.size.width;
     float ratio = width / [images count];
