@@ -38,13 +38,13 @@
     
     UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc ] initWithTarget:self action:@selector(tapGesture:)];
     tapGesture.delegate = self;
-    [self.view addGestureRecognizer:tapGesture];
+    [mainImageView addGestureRecognizer:tapGesture];
     [tapGesture release];
     
     
     UIPanGestureRecognizer *panGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panGesture:)];
     panGesture.delegate = self;
-    [self.view addGestureRecognizer:panGesture];
+    [mainImageView addGestureRecognizer:panGesture];
     [panGesture release];
     
     
