@@ -12,6 +12,7 @@
 {
     UIImageView *mainImageView;
     NSMutableArray *liveOperations;
+    CGRect originalViewRect;
 }
 @end
 
@@ -48,8 +49,10 @@
     [self setWantsFullScreenLayout:YES];
     [self setHidesBottomBarWhenPushed:YES];
     
+    self.view.backgroundColor = [UIColor blackColor];
     mainImageView = [[UIImageView alloc] initWithFrame:self.view.bounds];
     mainImageView.userInteractionEnabled = YES;
+    mainImageView.contentMode = UIViewContentModeScaleAspectFit;
     [self.view addSubview:mainImageView];
     [mainImageView release];
     
@@ -65,39 +68,13 @@
     [panGesture release];
     
     liveOperations = [[NSMutableArray alloc] init];
+    [self downloadImages];
+    [self showImage];
+    
 	// Do any additional setup after loading the view.
 }
 
 
--(void) downloadImages
-{
-    for (NSDictionary *data in images) {
-        switch (viewType) {
-            case DROPBOX:
-            {
-                NSString *filePath = [NSString stringWithFormat:@"%@/%@",[CLCacheManager getTemporaryDirectory],[data objectForKey:@"filename"]];
-                [self.appDelegate.restClient loadFile:[data objectForKey:@"path"]
-                                                atRev:[data objectForKey:@"rev"]
-                                             intoPath:filePath];
-            }
-                break;
-            case SKYDRIVE:
-            {
-//                NSString *filePath = [NSString stringWithFormat:@"%@/%@",[CLCacheManager getTemporaryDirectory],[data objectForKey:@"name"]];
-                NSArray *imagesArray = [data objectForKey:@"images"];
-                if ([imagesArray count]) {
-                    NSDictionary *image = [imagesArray objectAtIndex:0];
-                    LiveDownloadOperation *downloadOperation = [self.appDelegate.liveClient downloadFromPath:[image objectForKey:@"source"] delegate:self userState:[data objectForKey:@"name"]];
-                    [liveOperations addObject:downloadOperation];
-                }
-            }
-                break;
-                
-            default:
-                break;
-        }
-    }
-}
 
 -(void) viewWillAppear:(BOOL)animated
 {
@@ -105,6 +82,9 @@
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleBlackTranslucent animated:YES];
     self.navigationController.navigationBar.barStyle = UIBarStyleBlackTranslucent;
     
+    
+    
+    originalViewRect = self.appDelegate.window.rootViewController.view.frame;
     self.appDelegate.window.rootViewController.view.frame = self.appDelegate.window.bounds;
     self.view.frame = self.appDelegate.window.rootViewController.view.bounds;
     CGRect rect = self.navigationController.navigationBar.frame;
@@ -117,6 +97,12 @@
     [super viewWillDisappear:animated];
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
     self.navigationController.navigationBar.barStyle = UIBarStyleDefault;
+    
+    self.appDelegate.window.rootViewController.view.frame = originalViewRect;
+    self.view.frame = self.appDelegate.window.rootViewController.view.bounds;
+    CGRect rect = self.navigationController.navigationBar.frame;
+    rect.origin.y = 0.f;
+    self.navigationController.navigationBar.frame = rect;
 
 }
 
@@ -129,6 +115,10 @@
 
 -(void) dealloc
 {
+    for (LiveOperation *operation in liveOperations) {
+        [operation cancel];
+    }
+    
     [liveOperations release];
     liveOperations = nil;
     
@@ -160,7 +150,8 @@
 
 - (void) liveOperationSucceeded:(LiveDownloadOperation *)operation
 {
-    
+    NSString *filePath = [NSString stringWithFormat:@"%@/%@",[CLCacheManager getTemporaryDirectory],operation.userState];
+    [operation.data writeToFile:filePath atomically:YES];
 }
 
 - (void) liveOperationFailed:(NSError *)error
@@ -176,6 +167,60 @@
     
 }
 
+#pragma mark - Helper methods
+
+
+-(void) downloadImages
+{
+    for (NSDictionary *data in images) {
+        switch (viewType) {
+            case DROPBOX:
+            {
+                NSString *filePath = [NSString stringWithFormat:@"%@/%@",[CLCacheManager getTemporaryDirectory],[data objectForKey:@"filename"]];
+                [self.appDelegate.restClient loadFile:[data objectForKey:@"path"]
+                                                atRev:[data objectForKey:@"rev"]
+                                             intoPath:filePath];
+            }
+                break;
+            case SKYDRIVE:
+            {
+                NSArray *imagesArray = [data objectForKey:@"images"];
+                if ([imagesArray count]) {
+                    NSDictionary *image = [imagesArray objectAtIndex:0];
+                    LiveDownloadOperation *downloadOperation = [self.appDelegate.liveClient downloadFromPath:[image objectForKey:@"source"] delegate:self userState:[data objectForKey:@"name"]];
+                    [liveOperations addObject:downloadOperation];
+                }
+            }
+                break;
+                
+            default:
+                break;
+        }
+    }
+}
+
+
+
+-(void) showImage
+{
+    NSString *fileName = nil;
+    switch (viewType) {
+        case DROPBOX:
+            fileName = [currentImage objectForKey:@"filename"];
+            break;
+        case SKYDRIVE:
+            fileName = [currentImage objectForKey:@"name"];
+            break;
+        default:
+            break;
+    }
+    NSString *filePath = [NSString stringWithFormat:@"%@/%@",[CLCacheManager getTemporaryDirectory],fileName];
+    UIImage *imageToBeShown = [UIImage imageWithContentsOfFile:filePath];
+    if (!imageToBeShown) {
+        imageToBeShown = [UIImage imageWithData:[currentImage objectForKey:THUMBNAIL_DATA]];
+    }
+    [mainImageView setImage:imageToBeShown];
+}
 
 
 #pragma mark - Tap Gesture
@@ -184,6 +229,13 @@
 -(void) panGesture:(UIGestureRecognizer *) gesture
 {
     NSLog(@"panning...");
+    UIView *view = [gesture view];
+    float width = view.frame.size.width;
+    float ratio = width / [images count];
+    CGPoint touchPoint = [gesture locationInView:view];
+    int index = touchPoint.x / ratio;
+    self.currentImage = [images objectAtIndex:index];
+    [self showImage];
 }
 
 -(void) tapGesture:(UIGestureRecognizer *) gesture

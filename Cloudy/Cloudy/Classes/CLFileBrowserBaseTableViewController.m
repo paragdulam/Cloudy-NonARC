@@ -311,7 +311,17 @@
                     [fileBrowserViewController release];
                     fileBrowserViewController = nil;
                 } else if ([[metadata objectForKey:@"thumbnailExists"] boolValue]) {
-                    CLImageGalleryViewController *imageGalleryViewController = [[CLImageGalleryViewController alloc] init];
+                    
+                    __block NSMutableArray *images = [[NSMutableArray alloc] init];
+                    [tableDataArray enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+                        NSDictionary *objDict = (NSDictionary *)obj;
+                        if ([[objDict objectForKey:@"thumbnailExists"] boolValue]) {
+                            [images addObject:objDict];
+                        }
+                    }];
+                    
+                    CLImageGalleryViewController *imageGalleryViewController = [[CLImageGalleryViewController alloc] initWithViewType:viewType ImagesArray:images CurrentImage:metadata];
+                    [images release];
                     [self.navigationController pushViewController:imageGalleryViewController animated:YES];
                     [imageGalleryViewController release];
                 }
@@ -327,7 +337,16 @@
                     [fileBrowserViewController release];
                     fileBrowserViewController = nil;
                 } else if ([[metadata objectForKey:@"type"] isEqualToString:@"photo"]) {
-                    CLImageGalleryViewController *imageGalleryViewController = [[CLImageGalleryViewController alloc] init];
+                    
+                    __block NSMutableArray *images = [[NSMutableArray alloc] init];
+                    [tableDataArray enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+                        NSDictionary *objDict = (NSDictionary *)obj;
+                        if ([[objDict objectForKey:@"type"] isEqualToString:@"photo"]) {
+                            [images addObject:objDict];
+                        }
+                    }];
+                    CLImageGalleryViewController *imageGalleryViewController = [[CLImageGalleryViewController alloc] initWithViewType:viewType ImagesArray:images CurrentImage:metadata];
+                    [images release];
                     [self.navigationController pushViewController:imageGalleryViewController animated:YES];
                     [imageGalleryViewController release];
                 }
