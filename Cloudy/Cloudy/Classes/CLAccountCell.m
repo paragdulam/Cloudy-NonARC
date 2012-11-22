@@ -52,7 +52,7 @@
 
 -(void) startAnimating
 {
-    [self setAccessoryType:UITableViewCellAccessoryNone];
+    [self setAccessoryType:UITableViewCellAccessoryDisclosureIndicator];
     [self setAccessoryView:activityIndicator];
     [activityIndicator startAnimating];
     [self setUserInteractionEnabled:NO];
@@ -62,7 +62,7 @@
 {
     if (accountAdded) {
         [self setAccessoryView:nil];
-        [self setAccessoryType:UITableViewCellAccessoryDetailDisclosureButton];
+        [self setAccessoryType:UITableViewCellAccessoryDisclosureIndicator];
     }
     [activityIndicator stopAnimating];
     [self setUserInteractionEnabled:YES];
@@ -82,7 +82,7 @@
     if ([data isKindOfClass:[NSString class]]) {
         titleText = (NSString *)data;
         detailText = nil;
-        [self setAccessoryType:UITableViewCellAccessoryNone];
+        [self setAccessoryType:UITableViewCellAccessoryDisclosureIndicator];
         [self setAccessoryView:activityIndicator];
     } else if ([data isKindOfClass:[NSDictionary class]]) {
         NSDictionary *dataDictionary = (NSDictionary *)data;
@@ -115,7 +115,7 @@
         }
         titleText = [dataDictionary objectForKey:@"displayName"];
         [self setAccessoryView:nil];
-        [self setAccessoryType:UITableViewCellAccessoryDetailDisclosureButton];
+        [self setAccessoryType:UITableViewCellAccessoryDisclosureIndicator];
     }
     [self.textLabel setText:titleText];
     [self.detailTextLabel setText:detailText];
