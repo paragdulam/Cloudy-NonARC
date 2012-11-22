@@ -9,7 +9,9 @@
 #import "CLImageGalleryViewController.h"
 
 @interface CLImageGalleryViewController ()
-
+{
+    UIImageView *mainImageView;
+}
 @end
 
 @implementation CLImageGalleryViewController
@@ -27,16 +29,25 @@
 {
     [super viewDidLoad];
     [self setWantsFullScreenLayout:YES];
-    self.navigationController.view.backgroundColor = [UIColor redColor];
     [self setHidesBottomBarWhenPushed:YES];
+    
+    mainImageView = [[UIImageView alloc] initWithFrame:self.view.bounds];
+    mainImageView.userInteractionEnabled = YES;
+    [self.view addSubview:mainImageView];
+    [mainImageView release];
     
     UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc ] initWithTarget:self action:@selector(tapGesture:)];
     tapGesture.delegate = self;
     [self.view addGestureRecognizer:tapGesture];
     [tapGesture release];
     
-
-    self.view.backgroundColor = [UIColor redColor];
+    
+    UIPanGestureRecognizer *panGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panGesture:)];
+    panGesture.delegate = self;
+    [self.view addGestureRecognizer:panGesture];
+    [panGesture release];
+    
+    
 	// Do any additional setup after loading the view.
 }
 
@@ -71,6 +82,11 @@
 #pragma mark - Tap Gesture
 
 
+-(void) panGesture:(UIGestureRecognizer *) gesture
+{
+    NSLog(@"panning...");
+}
+
 -(void) tapGesture:(UIGestureRecognizer *) gesture
 {
     if (self.navigationController.navigationBarHidden) {
@@ -98,7 +114,7 @@
 // note: returning YES is guaranteed to allow simultaneous recognition. returning NO is not guaranteed to prevent simultaneous recognition, as the other gesture's delegate may return YES
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
 {
-    return YES;
+    return NO;
 }
 
 // called before touchesBegan:withEvent: is called on the gesture recognizer for a new touch. return NO to prevent the gesture recognizer from seeing this touch
