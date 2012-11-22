@@ -647,9 +647,13 @@ whereTraversingPointer:(NSMutableDictionary *)traversingDictionary
                                              withNewFile:file
                                              forViewType:type];
             if (!success) {
-                [array replaceObjectAtIndex:index withObject:file];
+                NSArray *updatedArray = [file objectForKey:@"data"];
+                if ([updatedArray count]) {
+                    [fileMetadata setObject:updatedArray forKey:@"data"];
+                } else {
+                    [array replaceObjectAtIndex:index withObject:file];
+                }
             }
-            
         }
             break;
         default:
@@ -686,7 +690,7 @@ whereTraversingPointer:(NSMutableDictionary *)traversingDictionary
     NSMutableArray *anArray = [oldFile objectForKey:contentKey];
     NSMutableArray *updatedArray = [newFile objectForKey:contentKey];
 
-    NSMutableArray *finalArray = [[NSMutableArray alloc] initWithArray:updatedArray];
+    NSMutableArray *finalArray = [[[NSMutableArray alloc] initWithArray:updatedArray] autorelease];
     if ([anArray count]) {
         for (NSDictionary *updatedData in updatedArray) {
             for (NSDictionary *data in anArray) {
@@ -699,7 +703,6 @@ whereTraversingPointer:(NSMutableDictionary *)traversingDictionary
             }
         }
         [oldFile setObject:finalArray forKey:contentKey];
-        [finalArray release];
         return YES;
     } else {
         return NO;
