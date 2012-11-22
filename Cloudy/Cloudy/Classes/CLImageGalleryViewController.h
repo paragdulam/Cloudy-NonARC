@@ -8,6 +8,21 @@
 
 #import "CLBaseViewController.h"
 
-@interface CLImageGalleryViewController : CLBaseViewController<UIGestureRecognizerDelegate>
+@interface CLImageGalleryViewController : CLBaseViewController<UIGestureRecognizerDelegate,DBRestClientDelegate,LiveDownloadOperationDelegate>
+{
+    NSArray *images;
+    NSDictionary *currentImage;
+    VIEW_TYPE viewType;
+}
+
+@property(nonatomic,retain) NSArray *images;
+@property(nonatomic,retain) NSDictionary *currentImage;
+@property(nonatomic,assign) VIEW_TYPE viewType;
+
+-(id) initWithViewType:(VIEW_TYPE) type
+           ImagesArray:(NSArray *)imagesArray
+          CurrentImage:(NSDictionary *) imageDictionary;
+
+
 
 @end

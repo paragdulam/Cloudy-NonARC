@@ -25,6 +25,7 @@
     BOOL liveClientFlag;
     CLUploadProgressButton *uploadProgressButton;
     NSMutableArray *uploads;
+    DBRestClient *restClient;
 }
 
 @property (strong, nonatomic) UIWindow *window;
@@ -35,6 +36,8 @@
 @property (assign, nonatomic) BOOL liveClientFlag;
 @property (nonatomic,retain) CLUploadProgressButton *uploadProgressButton;
 @property (nonatomic,retain) NSMutableArray *uploads;
+@property (nonatomic,retain) DBRestClient *restClient;
+
 
 
 

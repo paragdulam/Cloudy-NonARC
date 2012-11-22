@@ -14,10 +14,8 @@
 @interface AppDelegate()
 {
     CLAccountsTableViewController *callbackViewController;
-    DBRestClient *uploadRestClient;
 }
 
-@property (nonatomic,retain) DBRestClient *uploadRestClient;
 
 @end
 
@@ -28,13 +26,13 @@
 @synthesize rootFileBrowserViewController;
 @synthesize liveClientFlag;
 @synthesize uploadProgressButton;
-@synthesize uploadRestClient;
+@synthesize restClient;
 @synthesize uploads;
 
 - (void)dealloc
 {
-    [uploadRestClient release];
-    uploadRestClient = nil;
+    [restClient release];
+    restClient = nil;
     
     [uploadProgressButton release];
     uploadProgressButton = nil;
@@ -139,8 +137,8 @@
     [DBSession setSharedSession:dropboxSession];
     
     DBRestClient *aRestClient = [[DBRestClient alloc] initWithSession:dropboxSession];
-    self.uploadRestClient = aRestClient;
-    uploadRestClient.delegate = self;
+    self.restClient = aRestClient;
+    restClient.delegate = self;
     [aRestClient release];
     
     dropboxSession.delegate = callbackViewController;
@@ -274,16 +272,19 @@
     switch (type) {
         case DROPBOX:
         {
-            [self.uploadRestClient uploadFile:fileName
-                                       toPath:toPath
-                                withParentRev:nil
-                                     fromPath:fromPath];
+            [self.restClient uploadFile:fileName
+                                 toPath:toPath
+                          withParentRev:nil
+                               fromPath:fromPath];
         }
             break;
         case SKYDRIVE:
         {
             UIImage *image = [UIImage imageWithContentsOfFile:fromPath];
-            [self.liveClient uploadToPath:toPath fileName:fileName data:UIImagePNGRepresentation(image) delegate:self];
+            [self.liveClient uploadToPath:toPath
+                                 fileName:fileName
+                                     data:UIImagePNGRepresentation(image)
+                                 delegate:self];
         }
             break;
             

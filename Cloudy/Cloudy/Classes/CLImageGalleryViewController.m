@@ -11,16 +11,33 @@
 @interface CLImageGalleryViewController ()
 {
     UIImageView *mainImageView;
+    NSMutableArray *liveOperations;
 }
 @end
 
 @implementation CLImageGalleryViewController
+@synthesize images;
+@synthesize currentImage;
+@synthesize viewType;
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
         // Custom initialization
+    }
+    return self;
+}
+
+
+-(id) initWithViewType:(VIEW_TYPE) type
+           ImagesArray:(NSArray *)imagesArray
+          CurrentImage:(NSDictionary *) imageDictionary
+{
+    if (self = [super init]) {
+        self.viewType = type;
+        self.images = imagesArray;
+        self.currentImage = imageDictionary;
     }
     return self;
 }
@@ -47,8 +64,39 @@
     [mainImageView addGestureRecognizer:panGesture];
     [panGesture release];
     
-    
+    liveOperations = [[NSMutableArray alloc] init];
 	// Do any additional setup after loading the view.
+}
+
+
+-(void) downloadImages
+{
+    for (NSDictionary *data in images) {
+        switch (viewType) {
+            case DROPBOX:
+            {
+                NSString *filePath = [NSString stringWithFormat:@"%@/%@",[CLCacheManager getTemporaryDirectory],[data objectForKey:@"filename"]];
+                [self.appDelegate.restClient loadFile:[data objectForKey:@"path"]
+                                                atRev:[data objectForKey:@"rev"]
+                                             intoPath:filePath];
+            }
+                break;
+            case SKYDRIVE:
+            {
+//                NSString *filePath = [NSString stringWithFormat:@"%@/%@",[CLCacheManager getTemporaryDirectory],[data objectForKey:@"name"]];
+                NSArray *imagesArray = [data objectForKey:@"images"];
+                if ([imagesArray count]) {
+                    NSDictionary *image = [imagesArray objectAtIndex:0];
+                    LiveDownloadOperation *downloadOperation = [self.appDelegate.liveClient downloadFromPath:[image objectForKey:@"source"] delegate:self userState:[data objectForKey:@"name"]];
+                    [liveOperations addObject:downloadOperation];
+                }
+            }
+                break;
+                
+            default:
+                break;
+        }
+    }
 }
 
 -(void) viewWillAppear:(BOOL)animated
@@ -77,6 +125,57 @@
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
+
+
+-(void) dealloc
+{
+    [liveOperations release];
+    liveOperations = nil;
+    
+    [images release];
+    images = nil;
+    
+    [currentImage release];
+    currentImage = nil;
+    [super dealloc];
+}
+
+
+
+#pragma mark - DBRestClientDelegate
+
+-(void) restClient:(DBRestClient *)client
+        loadedFile:(NSString *)destPath
+       contentType:(NSString *)contentType
+          metadata:(DBMetadata *)metadata
+{
+}
+
+-(void) restClient:(DBRestClient *)client loadFileFailedWithError:(NSError *)error
+{
+    
+}
+
+#pragma mark - LiveDownloadOperationDelegate
+
+- (void) liveOperationSucceeded:(LiveDownloadOperation *)operation
+{
+    
+}
+
+- (void) liveOperationFailed:(NSError *)error
+                   operation:(LiveDownloadOperation *)operation
+{
+    
+}
+
+- (void) liveDownloadOperationProgressed:(LiveOperationProgress *)progress
+                                    data:(NSData *)receivedData
+                               operation:(LiveDownloadOperation *)operation
+{
+    
+}
+
 
 
 #pragma mark - Tap Gesture
