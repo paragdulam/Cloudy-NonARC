@@ -9,6 +9,7 @@
 #import "CLFileBrowserBaseTableViewController.h"
 #import "CLFileBrowserTableViewController.h"
 #import "CLImageGalleryViewController.h"
+#import "CLFileDetailViewController.h"
 
 
 @interface CLFileBrowserBaseTableViewController ()
@@ -94,7 +95,7 @@
     [self.view addSubview:fileOperationsToolbar];
     [fileOperationsToolbar release];
     
-    barItem = [[CLBrowserBarItem alloc] initWithFrame:CGRectMake(0, 0, 50, 30)];
+    barItem = [[CLBrowserBarItem alloc] initWithFrame:CGRectMake(0, 0, 60, 30)];
     barItem.delegate = self;
     
     UIBarButtonItem *rightBarButton = [[UIBarButtonItem alloc] initWithCustomView:barItem];
@@ -324,6 +325,10 @@
                     [images release];
                     [self.navigationController pushViewController:imageGalleryViewController animated:YES];
                     [imageGalleryViewController release];
+                } else {
+                    CLFileDetailViewController *fileDetailViewController = [[CLFileDetailViewController alloc] initWithFile:metadata WithinViewType:DROPBOX];
+                    [self.navigationController pushViewController:fileDetailViewController animated:YES];
+                    [fileDetailViewController release];
                 }
             }
                 break;
@@ -349,6 +354,10 @@
                     [images release];
                     [self.navigationController pushViewController:imageGalleryViewController animated:YES];
                     [imageGalleryViewController release];
+                } else {
+                    CLFileDetailViewController *fileDetailViewController = [[CLFileDetailViewController alloc] initWithFile:metadata WithinViewType:SKYDRIVE];
+                    [self.navigationController pushViewController:fileDetailViewController animated:YES];
+                    [fileDetailViewController release];
                 }
             }
                 break;
@@ -599,24 +608,25 @@
             LiveDownloadOperation *downloadOperation = (LiveDownloadOperation *) operation;
             int index = [self getIndexOfObjectForKey:@"name"
                                            withValue:operation.userState];
-            
-            NSDictionary *data = [tableDataArray objectAtIndex:index];
-            NSMutableDictionary *updatedData = [NSMutableDictionary dictionaryWithDictionary:data];
-            [updatedData setObject:downloadOperation.data forKey:THUMBNAIL_DATA];
-            
-            
-            [CLCacheManager updateFile:updatedData
-                whereTraversingPointer:nil
-                       inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
-                           ForViewType:viewType];
-            
-            NSIndexPath *indexPath = [NSIndexPath indexPathForRow:index
-                                                        inSection:0];
-            [tableDataArray replaceObjectAtIndex:index withObject:updatedData];
-            [dataTableView beginUpdates];
-            [dataTableView reloadRowsAtIndexPaths:[NSArray arrayWithObject:indexPath]
-                                 withRowAnimation:UITableViewRowAnimationAutomatic];
-            [dataTableView endUpdates];
+            if (index < [tableDataArray count]) {
+                NSDictionary *data = [tableDataArray objectAtIndex:index];
+                NSMutableDictionary *updatedData = [NSMutableDictionary dictionaryWithDictionary:data];
+                [updatedData setObject:downloadOperation.data forKey:THUMBNAIL_DATA];
+                
+                
+                [CLCacheManager updateFile:updatedData
+                    whereTraversingPointer:nil
+                           inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
+                               ForViewType:viewType];
+                
+                NSIndexPath *indexPath = [NSIndexPath indexPathForRow:index
+                                                            inSection:0];
+                [tableDataArray replaceObjectAtIndex:index withObject:updatedData];
+                [dataTableView beginUpdates];
+                [dataTableView reloadRowsAtIndexPaths:[NSArray arrayWithObject:indexPath]
+                                     withRowAnimation:UITableViewRowAnimationAutomatic];
+                [dataTableView endUpdates];
+            }
         }
             break;
         default:
@@ -627,24 +637,28 @@
 
 -(void) createToolbarItems
 {
-    UIImage *baseImage = [UIImage imageNamed:@"button_background_base.png"];
-    UIImage *buttonImage = [baseImage resizableImageWithCapInsets:UIEdgeInsetsMake(0, 15, 0, 15)];
-    
-    createFolderButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    createFolderButton.frame = CGRectMake(0, 0, 50, 30);
-    [createFolderButton setTitle:@"Folder"
-                        forState:UIControlStateNormal];
-    [createFolderButton setTitleColor:[UIColor whiteColor]
-                             forState:UIControlStateNormal];
-    [createFolderButton setBackgroundImage:buttonImage
-                                  forState:UIControlStateNormal];
-    [createFolderButton.titleLabel setFont:[UIFont boldSystemFontOfSize:12.f]];
-    [createFolderButton addTarget:self
-                           action:@selector(createFolderButtonClicked:)
-                 forControlEvents:UIControlEventTouchUpInside];
+//    UIImage *baseImage = [UIImage imageNamed:@"button_background_base.png"];
+//    UIImage *buttonImage = [baseImage resizableImageWithCapInsets:UIEdgeInsetsMake(0, 15, 0, 15)];
+//    
+//    createFolderButton = [UIButton buttonWithType:UIButtonTypeCustom];
+//    createFolderButton.frame = CGRectMake(0, 0, 50, 30);
+//    [createFolderButton setTitle:@"Folder"
+//                        forState:UIControlStateNormal];
+//    [createFolderButton setTitleColor:[UIColor whiteColor]
+//                             forState:UIControlStateNormal];
+//    [createFolderButton setBackgroundImage:buttonImage
+//                                  forState:UIControlStateNormal];
+//    [createFolderButton.titleLabel setFont:[UIFont boldSystemFontOfSize:12.f]];
+//    [createFolderButton addTarget:self
+//                           action:@selector(createFolderButtonClicked:)
+//                 forControlEvents:UIControlEventTouchUpInside];
     toolBarItems = [[NSMutableArray alloc] init];
-    UIBarButtonItem *createFolderBarButton = [[UIBarButtonItem alloc] initWithCustomView:createFolderButton];
+//    UIBarButtonItem *createFolderBarButton = [[UIBarButtonItem alloc] initWithCustomView:createFolderButton];
+    UIBarButtonItem *createFolderBarButton = [[UIBarButtonItem alloc] initWithTitle:@"Folder" style:UIBarButtonItemStyleBordered target:self action:@selector(createFolderButtonClicked:)];
+
     [toolBarItems addObject:createFolderBarButton];
+    [createFolderBarButton release];
+
     
     UIBarButtonItem *fixedSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFixedSpace target:nil action:nil];
     fixedSpace.width = 2.f;
@@ -658,7 +672,6 @@
                                     forControlEvents:UIControlEventTouchUpInside];
     [uploadProgressBarButton release];
     
-    [createFolderBarButton release];
 }
 
 -(void) createFolderToolbarItems

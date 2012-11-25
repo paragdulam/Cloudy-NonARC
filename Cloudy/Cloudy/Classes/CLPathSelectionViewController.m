@@ -150,16 +150,16 @@
 {
     NSMutableArray *computedData = [[NSMutableArray alloc] initWithArray:model];
 
-    NSMutableArray *tempArray = [[NSMutableArray alloc] init];
+    __block NSMutableArray *tempArray = [[NSMutableArray alloc] init];
     [excludedFolders enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
         NSDictionary *objDict = (NSDictionary *)obj;
         for (NSDictionary *data in computedData) {
             if (([[data objectForKey:@"id"] isEqualToString:[objDict objectForKey:@"id"]]) || ([[data objectForKey:@"path"] isEqualToString:[objDict objectForKey:@"path"]])) {
                 [tempArray addObject:data];
-                *stop = YES;
             }
         }
     }];
+    
     
     [computedData removeObjectsInArray:tempArray];
     [tempArray release];

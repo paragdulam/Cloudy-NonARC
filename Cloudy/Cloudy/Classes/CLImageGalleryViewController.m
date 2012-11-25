@@ -85,31 +85,11 @@
 -(void) viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleBlackTranslucent animated:YES];
-    self.navigationController.navigationBar.barStyle = UIBarStyleBlackTranslucent;
-    
-    
-    
-    originalViewRect = self.appDelegate.window.rootViewController.view.frame;
-    self.appDelegate.window.rootViewController.view.frame = self.appDelegate.window.bounds;
-    self.view.frame = self.appDelegate.window.rootViewController.view.bounds;
-    CGRect rect = self.navigationController.navigationBar.frame;
-    rect.origin.y = 20.f;
-    self.navigationController.navigationBar.frame = rect;
 }
 
 -(void) viewWillDisappear:(BOOL)animated
 {
     [super viewWillDisappear:animated];
-    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
-    self.navigationController.navigationBar.barStyle = UIBarStyleDefault;
-    
-    self.appDelegate.window.rootViewController.view.frame = originalViewRect;
-    self.view.frame = self.appDelegate.window.rootViewController.view.bounds;
-    CGRect rect = self.navigationController.navigationBar.frame;
-    rect.origin.y = 0.f;
-    self.navigationController.navigationBar.frame = rect;
-
 }
 
 - (void)didReceiveMemoryWarning

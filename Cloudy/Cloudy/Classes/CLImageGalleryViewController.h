@@ -6,9 +6,9 @@
 //  Copyright (c) 2012 Parag Dulam. All rights reserved.
 //
 
-#import "CLBaseViewController.h"
+#import "CLDetailBaseViewController.h"
 
-@interface CLImageGalleryViewController : CLBaseViewController<UIGestureRecognizerDelegate,DBRestClientDelegate,LiveDownloadOperationDelegate>
+@interface CLImageGalleryViewController : CLDetailBaseViewController<UIGestureRecognizerDelegate,DBRestClientDelegate,LiveDownloadOperationDelegate>
 {
     NSArray *images;
     NSDictionary *currentImage;

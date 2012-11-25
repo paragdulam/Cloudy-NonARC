@@ -23,8 +23,8 @@
     self = [super initWithFrame:frame];
     if (self) {
         // Initialization code
-        UIImage *baseImage = [UIImage imageNamed:@"button_background_base.png"];
-        UIImage *buttonImage = [baseImage resizableImageWithCapInsets:UIEdgeInsetsMake(0, 15, 0, 15)];
+//        UIImage *baseImage = [UIImage imageNamed:@"button_background_base.png"];
+        UIImage *buttonImage = [UIImage imageNamed:@"editButton.png"];
 
         button = [UIButton buttonWithType:UIButtonTypeCustom];
         button.frame = CGRectMake(0, 0, frame.size.width, frame.size.height);
