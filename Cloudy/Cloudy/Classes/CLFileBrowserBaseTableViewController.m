@@ -439,6 +439,7 @@
 
 -(void) restClient:(DBRestClient *)client createdFolder:(DBMetadata *)folder
 {
+    [inputTextField setText:@""];
     [inputTextField resignFirstResponder];
     [self stopAnimating];
     NSDictionary *folderDictionary = [CLDictionaryConvertor dictionaryFromMetadata:folder];
@@ -446,7 +447,20 @@
         whereTraversingPointer:nil
                inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
                    ForViewType:viewType];
-    [self readCacheUpdateView];
+    
+    
+    //Updating UI
+    [tableDataArray insertObject:folderDictionary atIndex:0];
+    NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"filename" ascending:YES];
+    [tableDataArray sortUsingDescriptors:[NSArray arrayWithObject:sortDescriptor]];
+    [sortDescriptor release];
+    
+
+    [dataTableView beginUpdates];
+    [dataTableView insertRowsAtIndexPaths:[NSArray arrayWithObject:[NSIndexPath indexPathForRow:[tableDataArray indexOfObject:folderDictionary] inSection:0]]
+                         withRowAnimation:UITableViewRowAnimationBottom];
+    [dataTableView endUpdates];
+    //Updating UI
 }
 
 -(void) restClient:(DBRestClient *)client createFolderFailedWithError:(NSError *)error
@@ -676,13 +690,13 @@
 
 -(void) createFolderToolbarItems
 {
-    inputTextField = [[UITextField alloc] initWithFrame:CGRectMake(0, 0, 280, 35.f)];
+    inputTextField = [[UITextField alloc] initWithFrame:CGRectMake(0, 0, 280, 30.f)];
     inputTextField.placeholder = @"Enter a Folder Name";
     inputTextField.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
     
     inputTextField.backgroundColor = [UIColor whiteColor];
     inputTextField.clipsToBounds = YES;
-    inputTextField.layer.cornerRadius = 17.5f;
+    inputTextField.layer.cornerRadius = 15.f;
     inputTextField.borderStyle = UITextBorderStyleNone;
     inputTextField.delegate = self;
     
@@ -845,10 +859,6 @@
 -(void) startAnimating
 {
     [barItem startAnimating];
-    NSArray *indexPaths = [dataTableView indexPathsForSelectedRows];
-    for (NSIndexPath *indexPath in indexPaths) {
-        [self startAnimatingCellAtIndexPath:indexPath];
-    }
 }
 
 -(void) stopAnimating

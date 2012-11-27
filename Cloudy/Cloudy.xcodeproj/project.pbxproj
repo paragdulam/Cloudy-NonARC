@@ -1362,6 +1362,8 @@
 		F194DB2B164A64BC00631792 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "iPhone Developer: Parag Dulam (NLA62T2KBR)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Parag Dulam (NLA62T2KBR)";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Cloudy/Cloudy-Prefix.pch";
 				HEADER_SEARCH_PATHS = "\"$(SRCROOT)/Cloudy/Utilities/DropboxSDK/Classes\"/**";
@@ -1372,6 +1374,8 @@
 					"-all_load",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "655FFA5C-326F-4106-8B11-9A46BCFF1BE9";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "655FFA5C-326F-4106-8B11-9A46BCFF1BE9";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -1379,6 +1383,8 @@
 		F194DB2C164A64BC00631792 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "iPhone Developer: Parag Dulam (NLA62T2KBR)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Parag Dulam (NLA62T2KBR)";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Cloudy/Cloudy-Prefix.pch";
 				HEADER_SEARCH_PATHS = "\"$(SRCROOT)/Cloudy/Utilities/DropboxSDK/Classes\"/**";
@@ -1389,6 +1395,8 @@
 					"-all_load",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "655FFA5C-326F-4106-8B11-9A46BCFF1BE9";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "655FFA5C-326F-4106-8B11-9A46BCFF1BE9";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;

@@ -42,10 +42,11 @@
         
         activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
         activityIndicator.hidesWhenStopped = YES;
-        activityIndicator.center = self.center;
+        activityIndicator.center = CGPointMake(CGRectGetMaxX(button.frame) - (activityIndicator.frame.size.width/2), button.center.y);
         [self addSubview:activityIndicator];
         [activityIndicator release];
-
+//        activityIndicator.autoresizingMask = UIViewAutoresizingFlexibleTopMargin |
+//        UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleLeftMargin;
     }
     return self;
 }

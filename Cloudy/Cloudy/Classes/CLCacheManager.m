@@ -379,14 +379,14 @@ ForViewType:(VIEW_TYPE) type //Iterative Method for Loop
             [components removeLastObject];
             NSMutableString *verifierString = [[NSMutableString alloc] init];
             int count = [components count];
-            do {
-                count--;
+            if (!count) { //root path
                 [verifierString appendFormat:@"/"];
-                if (count >= 0) {
-                    NSString *component = [components objectAtIndex:count];
-                    [verifierString appendFormat:@"%@",component];
+            } else {
+                for (NSString *component in components) {
+                    [verifierString appendFormat:@"/%@",component];
                 }
-            } while (count >= 0);
+            }
+            NSLog(@"verifierString %@ folderPath %@",verifierString,folderPath);
             retVal = [verifierString isEqualToString:folderPath];
             [verifierString release];
         }

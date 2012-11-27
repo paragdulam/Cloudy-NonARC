@@ -193,6 +193,11 @@
 
 #pragma mark - UITableViewDelegate && UITableViewDataSource
 
+-(UITableViewCell *) tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    return [super tableView:tableView cellForRowAtIndexPath:indexPath];
+}
+
 
 -(void) tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {

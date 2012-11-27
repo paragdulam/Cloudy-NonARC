@@ -21,12 +21,13 @@
 -(void) startAnimating
 {
     [activityIndicator startAnimating];
+    [self setUserInteractionEnabled:NO];
 }
 
 -(void) stopAnimating
 {
     [activityIndicator stopAnimating];
-    [self setAccessoryType:self.accessoryType];
+    [self setUserInteractionEnabled:YES];
 }
 
 -(void) setBackgroundImage:(UIImage *)anImage
@@ -100,6 +101,11 @@
     rect.size.height = self.frame.size.height - rect.origin.y;
     self.detailTextLabel.frame = rect;
     
+//    rect = activityIndicator.frame;
+//    rect.origin.x = CGRectGetMaxX(self.textLabel.frame) + (activityIndicator.frame.size.width / 2);
+//    rect.origin.y = self.textLabel.frame.origin.y;
+//    activityIndicator.frame = rect;
+//    activityIndicator.center = self.imageView.center;
 }
 
 
@@ -116,7 +122,6 @@
             detailText = [dataDictionary objectForKey:@"humanReadableSize"];
             if ([[dataDictionary objectForKey:@"isDirectory"] boolValue]) {
                 cellImage = [UIImage imageNamed:@"folder.png"];
-                [self setAccessoryType:UITableViewCellAccessoryDisclosureIndicator];
                 detailText = nil;
             } else {
                 cellImage = [UIImage imageWithData:[dataDictionary objectForKey:THUMBNAIL_DATA]];
@@ -127,7 +132,6 @@
                         cellImage = [UIImage imageNamed:[NSString stringWithFormat:@"_blank.png"]];
                     }
                 }
-                [self setAccessoryType:UITableViewCellAccessoryNone];
             }
             break;
 
@@ -139,7 +143,6 @@
             detailText = [NSString stringWithFormat:@"%.2f MB",sizeValue];
             if ([[dataDictionary objectForKey:@"type"] isEqualToString:@"folder"] || [[dataDictionary objectForKey:@"type"] isEqualToString:@"album"]) {
                 cellImage = [UIImage imageNamed:@"folder.png"]; 
-                [self setAccessoryType:UITableViewCellAccessoryDisclosureIndicator];
             } else {
                 cellImage = [UIImage imageWithData:[dataDictionary objectForKey:THUMBNAIL_DATA]];
                 if (!cellImage) {
@@ -149,7 +152,6 @@
                         cellImage = [UIImage imageNamed:[NSString stringWithFormat:@"_blank.png"]];
                     }
                 }
-                [self setAccessoryType:UITableViewCellAccessoryNone];
             }
         }
             break;

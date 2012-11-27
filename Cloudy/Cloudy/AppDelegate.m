@@ -210,7 +210,7 @@
     alert.backgroundColor = [UIColor blackColor];
     alert.userInteractionEnabled = NO;
     alert.textColor = [UIColor whiteColor];
-    [alert setText:[error localizedDescription]];
+    [alert setText:[error.userInfo objectForKey:@"error"]];
     alert.center = view.center;
     [view addSubview:alert];
     [alert release];

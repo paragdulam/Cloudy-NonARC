@@ -153,7 +153,6 @@ loadedSharableLink:(NSString *)link
     }
     [selectedItems removeObject:file];
     if (![selectedItems count]) {
-        //
         [self stopAnimating];
         [self shareURLsThroughMail:urls];
         [urls release];
@@ -164,7 +163,7 @@ loadedSharableLink:(NSString *)link
 
 -(void) restClient:(DBRestClient *)restClient loadSharableLinkFailedWithError:(NSError *)error
 {
-    
+    [self stopAnimating];
 }
 
 
@@ -172,25 +171,30 @@ loadedSharableLink:(NSString *)link
 
 - (void)restClient:(DBRestClient*)client copiedPath:(NSString *)fromPath to:(DBMetadata *)to
 {
-    for (NSDictionary *data in selectedItems) {
-        if (([[data objectForKey:@"path"] isEqualToString:fromPath]) ||
-            ([[data objectForKey:@"id"] isEqualToString:fromPath])) {
-            [self stopAnimatingCellAtIndexPath:[NSIndexPath indexPathForRow:[selectedItems indexOfObject:data] inSection:0]];
-            break;
-        }
-    }
-
-    [self stopAnimating];
     NSDictionary *metaData = [CLDictionaryConvertor dictionaryFromMetadata:to];
     [CLCacheManager insertFile:metaData
         whereTraversingPointer:nil
                inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
                    ForViewType:viewType];
+    int index = INFINITY;
+    for (NSDictionary *data in selectedItems) {
+        if ([[data objectForKey:@"path"] isEqualToString:fromPath]) {
+            index = [selectedItems indexOfObject:data];
+        }
+    }
+    if (index < [selectedItems count]) {
+        [selectedItems removeObjectAtIndex:index];
+    }
+    if (![selectedItems count]) {
+        [self stopAnimating];
+    }
 }
 
 - (void)restClient:(DBRestClient*)client copyPathFailedWithError:(NSError*)error
 {
+    [selectedItems removeAllObjects];
     [self stopAnimating];
+    [AppDelegate showError:error alertOnView:self.view];
 }
 
 
@@ -198,7 +202,6 @@ loadedSharableLink:(NSString *)link
 
 - (void)restClient:(DBRestClient*)client movedPath:(NSString *)from_path to:(DBMetadata *)result
 {
-    [self stopAnimating];
     NSDictionary *metaData = [CLDictionaryConvertor dictionaryFromMetadata:result];
     [CLCacheManager insertFile:metaData
         whereTraversingPointer:nil
@@ -216,7 +219,6 @@ loadedSharableLink:(NSString *)link
 
 - (void)restClient:(DBRestClient*)client deletedPath:(NSString *)pathStr
 {
-    [self stopAnimating];
     [CLCacheManager deleteFileAtPath:pathStr];
     [self removeSelectedRowForPath:pathStr];
 }
@@ -233,12 +235,11 @@ loadedSharableLink:(NSString *)link
 -(void) pathDidSelect:(NSString *) pathString ForViewController:(CLPathSelectionViewController *) viewController
 {
     NSLog(@"path %@",pathString);
+    NSArray *selectedData = [self getSelectedDataArray];
     switch (viewController.viewType) {
         case DROPBOX:
         {
-            NSArray *indexPaths = [dataTableView indexPathsForSelectedRows];
-            for (NSIndexPath *indexPath in indexPaths) {
-                NSDictionary *data = [tableDataArray objectAtIndex:indexPath.row];
+            for (NSDictionary *data in selectedData) {
                 NSString *fileName = [[[data objectForKey:@"path"] componentsSeparatedByString:@"/"] lastObject];
                 
                 switch (currentFileOperation) {
@@ -259,14 +260,11 @@ loadedSharableLink:(NSString *)link
             break;
         case SKYDRIVE:
         {
-            NSArray *indexPaths = [dataTableView indexPathsForSelectedRows];
             pathString = [NSString stringWithFormat:@"%@",[[pathString componentsSeparatedByString:@"/"] objectAtIndex:0]];
             if (![pathString hasPrefix:@"folder."]) { //only folders are input here
                 pathString = [NSString stringWithFormat:@"folder.%@",pathString];
             }
-            for (NSIndexPath *indexPath in indexPaths) {
-                
-                NSDictionary *data = [tableDataArray objectAtIndex:indexPath.row];
+            for (NSDictionary *data in selectedData) {
                 switch (currentFileOperation) {
                     case MOVE:
                     {
@@ -292,7 +290,7 @@ loadedSharableLink:(NSString *)link
         default:
             break;
     }
-//    [self.modalViewController dismissModalViewControllerAnimated:YES];
+    [self startAnimating];
 }
 
 
@@ -511,11 +509,19 @@ loadedSharableLink:(NSString *)link
 -(void) startAnimating
 {
     [super startAnimating];
+    [self updateView];
+    if (currentFileOperation != METADATA) {
+        [self.navigationItem setHidesBackButton:YES animated:YES];
+    }
 }
 
 -(void) stopAnimating
 {
     [super stopAnimating];
+    [self updateView];
+    if (currentFileOperation != METADATA) {
+        [self.navigationItem setHidesBackButton:NO animated:YES];
+    }
 }
 
 
@@ -530,7 +536,7 @@ loadedSharableLink:(NSString *)link
         }
     }
     if (![selectedItems count]) {
-        [barItem deselectAll];
+        [self stopAnimating];
     }
 }
 
@@ -550,26 +556,6 @@ loadedSharableLink:(NSString *)link
 }
 
 
--(void) removeSelectedRows
-{
-    NSMutableArray *indexPaths = [[NSMutableArray alloc] init];
-    for (NSDictionary *data in selectedItems) {
-        //Cache Deletion Starts
-        [CLCacheManager deleteFile:data
-            whereTraversingPointer:nil
-                   inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
-                       ForViewType:viewType];
-        //Cache Deletion Starts
-        int row = [tableDataArray indexOfObject:data];
-        NSIndexPath *indexPath = [NSIndexPath indexPathForRow:row
-                                                    inSection:0];
-        [indexPaths addObject:indexPath];
-    }
-    [tableDataArray removeObjectsInArray:selectedItems];
-    [dataTableView deleteRowsAtIndexPaths:indexPaths
-                         withRowAnimation:UITableViewRowAnimationLeft];
-    [indexPaths release];
-}
 
 -(void) performFileOperation
 {
@@ -665,6 +651,27 @@ loadedSharableLink:(NSString *)link
 }
 
 
+#pragma mark - UITableViewDataSource
+
+-(UITableViewCell *) tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    CLFileBrowserCell *cell = (CLFileBrowserCell *)[super tableView:tableView
+                         cellForRowAtIndexPath:indexPath];
+    if ([selectedItems count]) {
+        for (NSDictionary *data in selectedItems) {
+            NSDictionary *tableData = [tableDataArray objectAtIndex:indexPath.row];
+            if ([[tableData objectForKey:@"path"] isEqualToString:[data objectForKey:@"path"]] || [[tableData objectForKey:@"id"] isEqualToString:[data objectForKey:@"id"]]) {
+                [cell startAnimating];
+            }
+        }
+    } else {
+        [cell stopAnimating];
+    }
+    return cell;
+}
+
+
+
 #pragma mark - CLBrowserBarItemDelegate
 
 -(void) buttonClicked:(UIButton *)btn WithinView:(CLBrowserBarItem *)view
@@ -751,7 +758,7 @@ loadedSharableLink:(NSString *)link
 {
     currentFileOperation = DELETE;
     NSArray *selectedData = [self getSelectedDataArray];
-    [self startAnimating];
+    [barItem deselectAll];
     if ([selectedData count]) {
         switch (viewType) {
             case DROPBOX:
@@ -775,6 +782,10 @@ loadedSharableLink:(NSString *)link
             default:
                 break;
         }
+//        [self startAnimating];
+        [self performSelector:@selector(startAnimating)
+                   withObject:self
+                   afterDelay:0.3f];
     }
 }
 
@@ -790,6 +801,33 @@ loadedSharableLink:(NSString *)link
         [dataTableView setEditing:YES animated:YES];
     }
 }
+
+
+#pragma mark - Unused Methods
+
+
+-(void) removeSelectedRows
+{
+    NSMutableArray *indexPaths = [[NSMutableArray alloc] init];
+    for (NSDictionary *data in selectedItems) {
+        //Cache Deletion Starts
+        [CLCacheManager deleteFile:data
+            whereTraversingPointer:nil
+                   inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
+                       ForViewType:viewType];
+        //Cache Deletion Starts
+        int row = [tableDataArray indexOfObject:data];
+        NSIndexPath *indexPath = [NSIndexPath indexPathForRow:row
+                                                    inSection:0];
+        [indexPaths addObject:indexPath];
+    }
+    [tableDataArray removeObjectsInArray:selectedItems];
+    [dataTableView deleteRowsAtIndexPaths:indexPaths
+                         withRowAnimation:UITableViewRowAnimationLeft];
+    [indexPaths release];
+}
+
+
 
 
 @end
