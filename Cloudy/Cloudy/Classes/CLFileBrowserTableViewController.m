@@ -582,7 +582,7 @@ loadedSharableLink:(NSString *)link
             *stop = YES;
         }
     }];
-    [tableDataArray removeObject:file];
+    [tableDataArray removeObjectAtIndex:index];
     if (index < [tableDataArray count]) {
         NSIndexPath *indexPath = [NSIndexPath indexPathForRow:index
                                                     inSection:0];

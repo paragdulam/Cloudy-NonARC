@@ -331,8 +331,9 @@ return nil;
     return idString;
 }
 
-+(int) doesArray:(NSArray *) array ContainsFileWithPath:(NSString *) filePath
-ForViewType:(VIEW_TYPE) type //Iterative Method for Loop
++(int)     doesArray:(NSArray *) array
+ContainsFileWithPath:(NSString *) filePath
+         ForViewType:(VIEW_TYPE) type //Iterative Method for Loop
 {
     int retVal = -1;
     switch (type) {
