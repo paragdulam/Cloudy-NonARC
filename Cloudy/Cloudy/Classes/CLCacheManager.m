@@ -369,11 +369,12 @@ ContainsFileWithPath:(NSString *) filePath
      ForViewType:(VIEW_TYPE) type
 {
     BOOL retVal = NO;
-    NSString *path = [CLCacheManager pathOfFile:file
-                                    ForViewType:type];
     switch (type) {
         case DROPBOX:
         {
+            NSString *path = [CLCacheManager pathOfFile:file
+                                            ForViewType:type];
+
             NSString *folderPath = [folder objectForKey:@"path"];
             NSMutableArray *components = [NSMutableArray arrayWithArray:[path componentsSeparatedByString:@"/"]];
             [components removeObjectAtIndex:0];

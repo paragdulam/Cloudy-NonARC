@@ -336,11 +336,16 @@ loadedSharableLink:(NSString *)link
     [super performFileOperation:operation];
     switch (currentFileOperation) {
         case MOVE:
+        {
+            //Deletion First Then Insertion
+            [self removeSelectedRowForPath:operation.userState];
+            //Deletion First Then Insertion
+            
             [CLCacheManager insertFile:operation.result
                 whereTraversingPointer:nil
                        inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
                            ForViewType:viewType];
-            [self removeSelectedRowForPath:operation.userState];
+        }
             break;
         case COPY:
         {
@@ -351,7 +356,7 @@ loadedSharableLink:(NSString *)link
             
             int index = INFINITY;
             for (NSDictionary *data in selectedItems) {
-                if ([[data objectForKey:@"name"] isEqualToString:operation.userState]) {
+                if ([[data objectForKey:@"id"] isEqualToString:operation.userState]) {
                     index = [selectedItems indexOfObject:data];
                 }
             }
