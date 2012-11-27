@@ -590,6 +590,42 @@ whereTraversingPointer:(NSMutableDictionary *)traversingDictionary
     }
 }
 
+
++(void) arrangeFilesAndFolders:(NSMutableArray *)contents
+                   ForViewType:(VIEW_TYPE) type
+{
+    switch (type) {
+        case DROPBOX:
+        {
+            NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:[CLCacheManager sortDescriptorKeyForViewType:type] ascending:YES];
+            [contents sortUsingDescriptors:[NSArray arrayWithObject:sortDescriptor]];
+            [sortDescriptor release];
+        }
+            break;
+            
+        case SKYDRIVE:
+        {
+            [contents sortWithOptions:NSSortConcurrent
+                      usingComparator:^NSComparisonResult(id obj1, id obj2) {
+                          NSDictionary *objDict1 = (NSDictionary *)obj1;
+                          NSDictionary *objDict2 = (NSDictionary *)obj2;
+                          NSString *fileType1 = [objDict1 objectForKey:@"type"];
+                          NSString *fileType2 = [objDict2 objectForKey:@"type"];
+                          if ([fileType1 isEqualToString:fileType2]) {
+                              return [[objDict1 objectForKey:@"name"] compare:[objDict2 objectForKey:@"name"]  options:NSCaseInsensitiveSearch];
+                          } else if (([fileType1 isEqualToString:@"folder"] || [fileType1 isEqualToString:@"album"]) && ![fileType2 isEqualToString:@"folder"]) {
+                              return NSOrderedAscending;
+                          } else  {
+                              return NSOrderedDescending;
+                          }
+                      }];
+        }
+            break;
+        default:
+            break;
+    }
+}
+
 +(BOOL)     insertFile:(NSDictionary *) file
 whereTraversingPointer:(NSMutableDictionary *)traversingDictionary
        inFileStructure:(NSMutableDictionary *)fileStructure
@@ -606,9 +642,8 @@ whereTraversingPointer:(NSMutableDictionary *)traversingDictionary
                      ForViewType:type])
     {
         [contents insertObject:file atIndex:0];
-        NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:[CLCacheManager sortDescriptorKeyForViewType:type] ascending:YES];
-        [contents sortUsingDescriptors:[NSArray arrayWithObject:sortDescriptor]];
-        [sortDescriptor release];
+        [CLCacheManager arrangeFilesAndFolders:contents
+                                   ForViewType:type];
         retVal = [fileStructure writeToFile:[CLCacheManager getFileStructurePath:type]
                                  atomically:YES];
     } else {

@@ -326,19 +326,36 @@ loadedSharableLink:(NSString *)link
     [super performFileOperation:operation];
     switch (currentFileOperation) {
         case MOVE:
+            [CLCacheManager insertFile:operation.result
+                whereTraversingPointer:nil
+                       inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
+                           ForViewType:viewType];
             [self removeSelectedRowForPath:operation.userState];
+            break;
         case COPY:
         {
             [CLCacheManager insertFile:operation.result
                 whereTraversingPointer:nil
                        inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
                            ForViewType:viewType];
+            
+            int index = INFINITY;
+            for (NSDictionary *data in selectedItems) {
+                if ([[data objectForKey:@"name"] isEqualToString:operation.userState]) {
+                    index = [selectedItems indexOfObject:data];
+                }
+            }
+            if (index < [selectedItems count]) {
+                [selectedItems removeObjectAtIndex:index];
+            }
+            if (![selectedItems count]) {
+                [self stopAnimating];
+            }
         }
             break;
         case DELETE:
         {
             [self removeSelectedRowForPath:operation.userState];
-            //currentFileOperation = INFINITY;
         }
             break;
         default:
@@ -714,14 +731,19 @@ loadedSharableLink:(NSString *)link
 {
     currentFileOperation = SHARE;
     NSArray *selectedData = [self getSelectedDataArray];
+    [barItem deselectAll];
     if ([selectedData count]) {
         switch (viewType) {
             case DROPBOX:
             {
                 for (NSDictionary *data in selectedData) {
                     [self.restClient loadSharableLinkForFile:[data objectForKey:@"path"] shortUrl:YES];
-                    [self startAnimating];
                 }
+                
+                //Animation Delay Because we need to avoid sudden flickering of tableview happening
+                [self performSelector:@selector(startAnimating)
+                           withObject:self
+                           afterDelay:0.3f];
             }
                 break;
             case SKYDRIVE:
@@ -782,7 +804,7 @@ loadedSharableLink:(NSString *)link
             default:
                 break;
         }
-//        [self startAnimating];
+        //Animation Delay Because we need to avoid sudden flickering of tableview happening
         [self performSelector:@selector(startAnimating)
                    withObject:self
                    afterDelay:0.3f];

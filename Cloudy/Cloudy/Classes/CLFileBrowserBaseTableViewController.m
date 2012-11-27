@@ -173,8 +173,10 @@
 -(void) doneButtonClicked:(UIButton *) btn
 {
     if ([inputTextField.text length]) {
+        currentFileOperation = CREATE;
+        [inputTextField setText:@""];
+        [inputTextField resignFirstResponder];
         switch (viewType) {
-            currentFileOperation = CREATE;
             case DROPBOX:
             {
                 NSString *pathStr = [NSString stringWithFormat:@"%@/%@",path,inputTextField.text];
@@ -439,9 +441,6 @@
 
 -(void) restClient:(DBRestClient *)client createdFolder:(DBMetadata *)folder
 {
-    [inputTextField setText:@""];
-    [inputTextField resignFirstResponder];
-    [self stopAnimating];
     NSDictionary *folderDictionary = [CLDictionaryConvertor dictionaryFromMetadata:folder];
     [CLCacheManager insertFile:folderDictionary
         whereTraversingPointer:nil
@@ -450,10 +449,11 @@
     
     
     //Updating UI
+    [self stopAnimating];
+
     [tableDataArray insertObject:folderDictionary atIndex:0];
-    NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"filename" ascending:YES];
-    [tableDataArray sortUsingDescriptors:[NSArray arrayWithObject:sortDescriptor]];
-    [sortDescriptor release];
+    [CLCacheManager arrangeFilesAndFolders:tableDataArray
+                               ForViewType:viewType];
     
 
     [dataTableView beginUpdates];
@@ -603,7 +603,8 @@
                             [liveOperations addObject:downloadOperation];
                             currentFileOperation = DOWNLOAD;
                         }
-                    }                }
+                    }
+                }
                 //Looking For images and then downloading thumnails Ends
             }
             
@@ -612,10 +613,25 @@
         }
             break;
         case CREATE:
+        {
             [CLCacheManager insertFile:operation.result
                 whereTraversingPointer:nil
                        inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
                            ForViewType:viewType];
+            //Updating UI
+
+            [tableDataArray insertObject:operation.result atIndex:0];
+            [CLCacheManager arrangeFilesAndFolders:tableDataArray
+                                       ForViewType:viewType];
+            
+            
+            [dataTableView beginUpdates];
+            [dataTableView insertRowsAtIndexPaths:[NSArray arrayWithObject:[NSIndexPath indexPathForRow:[tableDataArray indexOfObject:operation.result] inSection:0]]
+                                 withRowAnimation:UITableViewRowAnimationBottom];
+            [dataTableView endUpdates];
+            //Updating UI
+
+        }
             break;
         case DOWNLOAD:
         {

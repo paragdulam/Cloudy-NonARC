@@ -63,7 +63,8 @@ whereTraversingPointer:(NSMutableDictionary *)traversingDictionary
 +(NSString *) getDropboxCacheFolderPath;
 +(NSString *) getSkyDriveCacheFolderPath;
 +(NSString *) pathFiedForViewType:(VIEW_TYPE) type;
-
++(void) arrangeFilesAndFolders:(NSMutableArray *)contents
+                   ForViewType:(VIEW_TYPE) type;
 
 
 @end
