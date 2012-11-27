@@ -28,6 +28,7 @@
 
 @protocol CLPathSelectionViewControllerDelegate<NSObject>
 -(void) pathDidSelect:(NSString *) pathString ForViewController:(CLPathSelectionViewController *) viewController;
+-(void) pathSelectionDidCancelForViewController:(CLPathSelectionViewController *) viewController;
 @end
 
 

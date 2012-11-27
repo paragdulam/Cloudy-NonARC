@@ -230,6 +230,9 @@
 -(void) cancelButtonClicked:(UIButton *) btn
 {
     [self dismissModalViewControllerAnimated:YES];
+    if ([delegate respondsToSelector:@selector(pathSelectionDidCancelForViewController:)]) {
+        [delegate pathSelectionDidCancelForViewController:self];
+    }
 }
 
 

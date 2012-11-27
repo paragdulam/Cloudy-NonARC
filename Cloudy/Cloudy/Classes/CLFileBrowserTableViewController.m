@@ -116,6 +116,7 @@
 - (void) liveOperationFailed:(NSError *)error
                    operation:(LiveOperation*)operation
 {
+    [selectedItems removeAllObjects];
     [super liveOperationFailed:error
                      operation:operation];
 }
@@ -231,6 +232,15 @@ loadedSharableLink:(NSString *)link
 
 
 #pragma mark - CLPathSelectionViewControllerDelegate
+
+
+-(void) pathSelectionDidCancelForViewController:(CLPathSelectionViewController *) viewController
+{
+    [selectedItems removeAllObjects];
+    [self stopAnimating];
+}
+
+
 
 -(void) pathDidSelect:(NSString *) pathString ForViewController:(CLPathSelectionViewController *) viewController
 {
@@ -606,13 +616,7 @@ loadedSharableLink:(NSString *)link
     NSMutableArray *retVal = [[NSMutableArray alloc] init];
     NSArray *indexPaths = [dataTableView indexPathsForSelectedRows];
     for (NSIndexPath *indexPath in indexPaths) {
-//        NSMutableDictionary *selectedItem = [[NSMutableDictionary alloc] init];
-//        [selectedItem setObject:[tableDataArray objectAtIndex:indexPath.row]
-//                         forKey:@"DATA"];
-//        [selectedItem setObject:indexPath
-//                         forKey:@"INDEXPATH"];
         [retVal addObject:[tableDataArray objectAtIndex:indexPath.row]];
-//        [selectedItem release];
     }
     self.selectedItems = retVal;
     [retVal release];

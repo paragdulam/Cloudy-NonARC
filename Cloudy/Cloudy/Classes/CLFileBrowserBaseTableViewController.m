@@ -173,9 +173,6 @@
 -(void) doneButtonClicked:(UIButton *) btn
 {
     if ([inputTextField.text length]) {
-        currentFileOperation = CREATE;
-        [inputTextField setText:@""];
-        [inputTextField resignFirstResponder];
         switch (viewType) {
             case DROPBOX:
             {
@@ -194,6 +191,9 @@
                 break;
         }
         [self startAnimating];
+        [inputTextField setText:@""];
+        [inputTextField resignFirstResponder];
+        currentFileOperation = CREATE;
     }
 }
 
@@ -381,7 +381,6 @@
 - (void) liveOperationSucceeded:(LiveOperation *)operation
 {
     [liveOperations removeObject:operation];
-    [self stopAnimating];
     
     [self performFileOperation:operation];
 }
@@ -583,6 +582,7 @@
     switch (currentFileOperation) {
         case METADATA:
         {
+            [self stopAnimating];
             [CLCacheManager updateFile:operation.result
                 whereTraversingPointer:nil
                        inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
@@ -614,6 +614,7 @@
             break;
         case CREATE:
         {
+            [self stopAnimating];
             [CLCacheManager insertFile:operation.result
                 whereTraversingPointer:nil
                        inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
