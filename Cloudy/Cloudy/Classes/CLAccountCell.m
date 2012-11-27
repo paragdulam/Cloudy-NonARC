@@ -78,6 +78,7 @@
 {
     NSString *titleText = nil;
     NSString *detailText = nil;
+    UIImage *cellImage = nil;
 
     if ([data isKindOfClass:[NSString class]]) {
         titleText = (NSString *)data;
@@ -95,14 +96,14 @@
             {
                 totalConsumedBytes = [[quotaDictionary objectForKey:@"totalConsumedBytes"] doubleValue] / (1024 * 1024 * 1024);
                 totalBytes = [[quotaDictionary objectForKey:@"totalBytes"] doubleValue] / (1024 * 1024 * 1024);
-                [self.imageView setImage:[UIImage imageNamed:@"dropbox_cell_Image.png"]];
+                cellImage = [UIImage imageNamed:@"dropbox_cell_Image.png"];
             }
                 break;
             case SKYDRIVE:
             {
                 totalConsumedBytes = ([[quotaDictionary objectForKey:@"quota"] doubleValue] - [[quotaDictionary objectForKey:@"available"] doubleValue]) / (1024 * 1024 * 1024);
                 totalBytes = [[quotaDictionary objectForKey:@"quota"] doubleValue] / (1024 * 1024 * 1024);
-                [self.imageView setImage:[UIImage imageNamed:@"SkyDriveIconBlue_32x32.png"]];
+                cellImage = [UIImage imageNamed:@"SkyDriveIconBlue_32x32.png"];
             }
                 break;
             default:
@@ -119,6 +120,7 @@
     }
     [self.textLabel setText:titleText];
     [self.detailTextLabel setText:detailText];
+    [self.imageView setImage:cellImage];
 }
 
 @end

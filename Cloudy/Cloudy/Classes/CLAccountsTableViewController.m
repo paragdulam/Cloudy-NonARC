@@ -75,6 +75,10 @@
     if (![CLCacheManager getAccountForType:DROPBOX] && [self.appDelegate.dropboxSession isLinked]) {
         [self authenticationDoneForSession:self.appDelegate.dropboxSession];
     }
+    if (!self.appDelegate.liveClient.session) {
+        [self startAnimatingCellAtIndexPath:[NSIndexPath indexPathForRow:0
+                                                               inSection:SKYDRIVE]];
+    }
 }
 
 - (void)didReceiveMemoryWarning
@@ -413,6 +417,7 @@
                session: (LiveConnectSession *) session
              userState: (id) userState
 {
+
     initialUserState = [userState retain];
     [self.appDelegate.liveClient getWithPath:@"/me"
                                     delegate:self

@@ -574,12 +574,21 @@ loadedSharableLink:(NSString *)link
         whereTraversingPointer:nil
                inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
                    ForViewType:viewType];
-    int index = [tableDataArray indexOfObject:file];
-    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:index
-                                                inSection:0];
+    __block int index = INFINITY;
+    [tableDataArray enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        NSDictionary *objDict = (NSDictionary *)obj;
+        if ([[objDict objectForKey:@"id"] isEqualToString:[file objectForKey:@"id"]] || [[objDict objectForKey:@"path"] isEqualToString:[file objectForKey:@"path"]]) {
+            index = idx;
+            *stop = YES;
+        }
+    }];
     [tableDataArray removeObject:file];
-    [dataTableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath]
-                         withRowAnimation:UITableViewRowAnimationLeft];
+    if (index < [tableDataArray count]) {
+        NSIndexPath *indexPath = [NSIndexPath indexPathForRow:index
+                                                    inSection:0];
+        [dataTableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath]
+                             withRowAnimation:UITableViewRowAnimationLeft];
+    }
 }
 
 
