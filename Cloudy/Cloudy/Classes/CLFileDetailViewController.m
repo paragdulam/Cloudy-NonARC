@@ -12,9 +12,13 @@
 {
     UIWebView *webView;
     UIProgressView *progressView;
-    UILabel *progressLabel;
     LiveDownloadOperation *downloadOperation;
+    UIToolbar *progressToolBar;
 }
+
+
+-(void) createToolBarItems;
+
 @end
 
 @implementation CLFileDetailViewController
@@ -45,40 +49,41 @@
 {
     [super viewDidLoad];
 	// Do any additional setup after loading the view.
+    webView.backgroundColor = [UIColor redColor];
     
-    webView = [[UIWebView alloc] initWithFrame:self.view.bounds];
+    webView = [[UIWebView alloc] initWithFrame:self.appDelegate.window.bounds];
     webView.delegate = self;
     [self.view addSubview:webView];
+    webView.scalesPageToFit = YES;
     [webView release];
     
-    progressView = [[UIProgressView alloc] initWithProgressViewStyle:UIProgressViewStyleBar];
-    [self.view addSubview:progressView];
-    [progressView release];
-    
-    progressLabel = [[UILabel alloc] init];
-    [self.view addSubview:progressLabel];
-    [progressLabel release];
-    
-    progressView.center = self.view.center;
-    progressLabel.center = CGPointMake(self.view.center.x,
-                                       progressView.center.y - 20.f);
     
     UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapGesture:)];
     tapGesture.delegate = self;
     [webView addGestureRecognizer:tapGesture];
     [tapGesture release];
     
-    UIPanGestureRecognizer *panGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panGesture:)];
-    panGesture.delegate = self;
-    [webView addGestureRecognizer:panGesture];
-    [panGesture release];
+//    UIPanGestureRecognizer *panGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panGesture:)];
+//    panGesture.delegate = self;
+//    [webView.scrollView addGestureRecognizer:panGesture];
+//    [panGesture release];
 
+    progressToolBar = [[UIToolbar alloc] initWithFrame:CGRectMake(0,
+                       webView.frame.size.height - TOOLBAR_HEIGHT,
+                                         webView.frame.size.width,
+                                                    TOOLBAR_HEIGHT)];
+    progressToolBar.barStyle = UIBarStyleBlackTranslucent;
+    [self.view addSubview:progressToolBar];
+    [progressToolBar release];
+    
+    [self createToolBarItems];
+    
     
     switch (viewType) {
         case DROPBOX:
             [self.appDelegate.restClient loadFile:[file objectForKey:@"path"]
                                             atRev:[file objectForKey:@"rev"]
-                                         intoPath:[NSString stringWithFormat:@"%@%@",[CLCacheManager getTemporaryDirectory],[file objectForKey:@"name"]]];
+                                         intoPath:[NSString stringWithFormat:@"%@%@",[CLCacheManager getTemporaryDirectory],[file objectForKey:@"filename"]]];
             break;
         case SKYDRIVE:
             downloadOperation = [[self.appDelegate.liveClient downloadFromPath:[file objectForKey:@"source"]
@@ -88,6 +93,18 @@
             break;
     }
 }
+
+
+-(void) viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+}
+
+-(void) viewWillDisappear:(BOOL)animated
+{
+    [super viewWillDisappear:animated];
+}
+
 
 - (void)didReceiveMemoryWarning
 {
@@ -109,6 +126,34 @@
     [super dealloc];
 }
 
+
+#pragma mark - Helper Methods
+
+-(void) createToolBarItems
+{
+    NSMutableArray *items = [[NSMutableArray alloc] init];
+    UIBarButtonItem *flexiSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
+    [items addObject:flexiSpace];
+    [flexiSpace release];
+    
+    progressView = [[UIProgressView alloc] initWithProgressViewStyle:UIProgressViewStyleBar];
+    UIBarButtonItem *progressBarbuttonItem = [[UIBarButtonItem alloc] initWithCustomView:progressView];
+    [progressView release ];
+    [items addObject:progressBarbuttonItem];
+    [progressBarbuttonItem release];
+
+    
+    flexiSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
+    [items addObject:flexiSpace];
+    [flexiSpace release];
+    
+    
+    [progressToolBar setItems:items animated:YES];
+    [items release];
+    
+}
+
+
 #pragma mark - Gestures
 
 -(void) panGesture:(UIGestureRecognizer *) gesture
@@ -123,11 +168,13 @@
         [[UIApplication sharedApplication] setStatusBarHidden:NO
                                                 withAnimation:UIStatusBarAnimationSlide];
         [self.navigationController setNavigationBarHidden:NO animated:YES];
+        [progressToolBar setHidden:NO];
     } else {
         self.navigationController.navigationBarHidden = YES;
         [[UIApplication sharedApplication] setStatusBarHidden:YES
                                                 withAnimation:UIStatusBarAnimationSlide];
         [self.navigationController setNavigationBarHidden:YES animated:YES];
+        [progressToolBar setHidden:YES];
     }
 
 }
@@ -178,8 +225,6 @@
                                     data:(NSData *)receivedData
                                operation:(LiveDownloadOperation *)operation
 {
-    [progressLabel setText:[NSString stringWithFormat:@"%d MB of %d MB",(progress.bytesTransferred) / (1024 * 1024),(progress.totalBytes) / (1024 * 1024)]];
-    [progressLabel sizeToFit];
     progressView.progress = progress.progressPercentage;
 }
 
@@ -222,7 +267,7 @@
 // note: returning YES is guaranteed to allow simultaneous recognition. returning NO is not guaranteed to prevent simultaneous recognition, as the other gesture's delegate may return YES
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
 {
-    return NO;
+    return YES;
 }
 
 // called before touchesBegan:withEvent: is called on the gesture recognizer for a new touch. return NO to prevent the gesture recognizer from seeing this touch

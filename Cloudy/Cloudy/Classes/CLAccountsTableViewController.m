@@ -75,10 +75,10 @@
     if (![CLCacheManager getAccountForType:DROPBOX] && [self.appDelegate.dropboxSession isLinked]) {
         [self authenticationDoneForSession:self.appDelegate.dropboxSession];
     }
-    if (!self.appDelegate.liveClient.session) {
-        [self startAnimatingCellAtIndexPath:[NSIndexPath indexPathForRow:0
-                                                               inSection:SKYDRIVE]];
-    }
+//    if (!self.appDelegate.liveClient.session ) {
+//        [self startAnimatingCellAtIndexPath:[NSIndexPath indexPathForRow:0
+//                                                               inSection:SKYDRIVE]];
+//    }
 }
 
 - (void)didReceiveMemoryWarning
@@ -335,7 +335,8 @@
         case 1:
         {
             [tableDataArray replaceObjectAtIndex:1 withObject:SKYDRIVE_STRING];
-            [self.appDelegate.liveClient logout];
+            [self.appDelegate.liveClient logoutWithDelegate:self
+                                                  userState:@"LOGOUT_SKYDRIVE"];
         }
             break;
         default:
@@ -417,7 +418,6 @@
                session: (LiveConnectSession *) session
              userState: (id) userState
 {
-
     initialUserState = [userState retain];
     [self.appDelegate.liveClient getWithPath:@"/me"
                                     delegate:self

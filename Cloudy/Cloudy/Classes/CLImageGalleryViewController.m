@@ -47,8 +47,6 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    [self setWantsFullScreenLayout:YES];
-    [self setHidesBottomBarWhenPushed:YES];
     
     self.view.backgroundColor = [UIColor blackColor];
     mainImageView = [[UIImageView alloc] initWithFrame:self.view.bounds];
@@ -57,7 +55,7 @@
     [self.view addSubview:mainImageView];
     [mainImageView release];
     
-    progressView = [[UIProgressView alloc] initWithProgressViewStyle:UIProgressViewStyleBar];
+    progressView = [[UIProgressView alloc] initWithProgressViewStyle:UIProgressViewStyleDefault];
     [mainImageView addSubview:progressView];
     [progressView release];
     progressView.center = mainImageView.center;
@@ -222,7 +220,7 @@
 }
 
 
-#pragma mark - Tap Gesture
+#pragma mark - Gestures
 
 
 -(void) panGesture:(UIGestureRecognizer *) gesture

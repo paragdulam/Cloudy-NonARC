@@ -23,8 +23,8 @@
     self = [super initWithFrame:frame];
     if (self) {
         // Initialization code
-//        UIImage *baseImage = [UIImage imageNamed:@"button_background_base.png"];
-        UIImage *buttonImage = [UIImage imageNamed:@"editButton.png"];
+        UIImage *baseImage = [UIImage imageNamed:@"button_background_base.png"];
+        UIImage *buttonImage = [baseImage resizableImageWithCapInsets:UIEdgeInsetsMake(0, 15, 0, 15)];
 
         button = [UIButton buttonWithType:UIButtonTypeCustom];
         button.frame = CGRectMake(0, 0, frame.size.width, frame.size.height);
@@ -45,8 +45,6 @@
         activityIndicator.center = CGPointMake(CGRectGetMaxX(button.frame) - (activityIndicator.frame.size.width/2), button.center.y);
         [self addSubview:activityIndicator];
         [activityIndicator release];
-//        activityIndicator.autoresizingMask = UIViewAutoresizingFlexibleTopMargin |
-//        UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleLeftMargin;
     }
     return self;
 }

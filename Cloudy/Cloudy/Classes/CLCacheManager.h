@@ -65,6 +65,9 @@ whereTraversingPointer:(NSMutableDictionary *)traversingDictionary
 +(NSString *) pathFiedForViewType:(VIEW_TYPE) type;
 +(void) arrangeFilesAndFolders:(NSMutableArray *)contents
                    ForViewType:(VIEW_TYPE) type;
++(BOOL) isRootPath:(NSString *) filePath
+    WithinViewType:(VIEW_TYPE) type;
+
 
 
 @end

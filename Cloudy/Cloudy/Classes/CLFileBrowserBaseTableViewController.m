@@ -668,24 +668,24 @@
 
 -(void) createToolbarItems
 {
-//    UIImage *baseImage = [UIImage imageNamed:@"button_background_base.png"];
-//    UIImage *buttonImage = [baseImage resizableImageWithCapInsets:UIEdgeInsetsMake(0, 15, 0, 15)];
-//    
-//    createFolderButton = [UIButton buttonWithType:UIButtonTypeCustom];
-//    createFolderButton.frame = CGRectMake(0, 0, 50, 30);
-//    [createFolderButton setTitle:@"Folder"
-//                        forState:UIControlStateNormal];
-//    [createFolderButton setTitleColor:[UIColor whiteColor]
-//                             forState:UIControlStateNormal];
-//    [createFolderButton setBackgroundImage:buttonImage
-//                                  forState:UIControlStateNormal];
-//    [createFolderButton.titleLabel setFont:[UIFont boldSystemFontOfSize:12.f]];
-//    [createFolderButton addTarget:self
-//                           action:@selector(createFolderButtonClicked:)
-//                 forControlEvents:UIControlEventTouchUpInside];
+    UIImage *baseImage = [UIImage imageNamed:@"button_background_base.png"];
+    UIImage *buttonImage = [baseImage resizableImageWithCapInsets:UIEdgeInsetsMake(0, 15, 0, 15)];
+    
+    createFolderButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    createFolderButton.frame = CGRectMake(0, 0, 50, 30);
+    [createFolderButton setTitle:@"Folder"
+                        forState:UIControlStateNormal];
+    [createFolderButton setTitleColor:[UIColor whiteColor]
+                             forState:UIControlStateNormal];
+    [createFolderButton setBackgroundImage:buttonImage
+                                  forState:UIControlStateNormal];
+    [createFolderButton.titleLabel setFont:[UIFont boldSystemFontOfSize:12.f]];
+    [createFolderButton addTarget:self
+                           action:@selector(createFolderButtonClicked:)
+                 forControlEvents:UIControlEventTouchUpInside];
     toolBarItems = [[NSMutableArray alloc] init];
-//    UIBarButtonItem *createFolderBarButton = [[UIBarButtonItem alloc] initWithCustomView:createFolderButton];
-    UIBarButtonItem *createFolderBarButton = [[UIBarButtonItem alloc] initWithTitle:@"Folder" style:UIBarButtonItemStyleBordered target:self action:@selector(createFolderButtonClicked:)];
+    UIBarButtonItem *createFolderBarButton = [[UIBarButtonItem alloc] initWithCustomView:createFolderButton];
+//    UIBarButtonItem *createFolderBarButton = [[UIBarButtonItem alloc] initWithTitle:@"Folder" style:UIBarButtonItemStyleBordered target:self action:@selector(createFolderButtonClicked:)];
 
     [toolBarItems addObject:createFolderBarButton];
     [createFolderBarButton release];
@@ -774,6 +774,7 @@
 {
     dataTableView.tableHeaderView = nil;
     self.path = pathString;
+    [self.navigationItem setTitle:path];
     self.viewType = type;
 
     //Read Cache Starts
