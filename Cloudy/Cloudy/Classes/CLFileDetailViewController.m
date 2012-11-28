@@ -49,6 +49,11 @@
 {
     [super viewDidLoad];
 	// Do any additional setup after loading the view.
+    NSString *titleString = [file objectForKey:@"filename"];
+    if (!titleString) {
+        titleString = [file objectForKey:@"name"];
+    }
+    [self setTitle:titleString];
     webView.backgroundColor = [UIColor redColor];
     
     webView = [[UIWebView alloc] initWithFrame:self.appDelegate.window.bounds];
@@ -63,10 +68,10 @@
     [webView addGestureRecognizer:tapGesture];
     [tapGesture release];
     
-//    UIPanGestureRecognizer *panGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panGesture:)];
-//    panGesture.delegate = self;
-//    [webView.scrollView addGestureRecognizer:panGesture];
-//    [panGesture release];
+    UIPanGestureRecognizer *panGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panGesture:)];
+    panGesture.delegate = self;
+    [webView.scrollView addGestureRecognizer:panGesture];
+    [panGesture release];
 
     progressToolBar = [[UIToolbar alloc] initWithFrame:CGRectMake(0,
                        webView.frame.size.height - TOOLBAR_HEIGHT,
@@ -92,6 +97,7 @@
         default:
             break;
     }
+    [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:YES];
 }
 
 
@@ -187,12 +193,14 @@
 {
     [webView loadRequest:[NSURLRequest requestWithURL:[NSURL fileURLWithPath:destPath]]];
     progressView.hidden = YES;
+    [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
 }
 
 
 -(void) restClient:(DBRestClient *)client loadFileFailedWithError:(NSError *)error
 {
-    
+    [AppDelegate showError:error alertOnView:self.view];
+    [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
 }
 
 -(void) restClient:(DBRestClient *)client loadProgress:(CGFloat)progress forFile:(NSString *)destPath
@@ -217,7 +225,8 @@
 - (void) liveOperationFailed:(NSError *)error
                    operation:(LiveDownloadOperation *)operation
 {
-    
+    [AppDelegate showError:error alertOnView:self.view];
+    [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
 }
 
 // This is invoked when there is a download progress event raised.
@@ -239,12 +248,12 @@
 
 - (void)webViewDidStartLoad:(UIWebView *)webView
 {
-    
+    [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:YES];
 }
 
 - (void)webViewDidFinishLoad:(UIWebView *)webView
 {
-    
+    [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
 }
 
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error

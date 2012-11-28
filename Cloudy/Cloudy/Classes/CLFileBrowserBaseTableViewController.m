@@ -774,7 +774,6 @@
 {
     dataTableView.tableHeaderView = nil;
     self.path = pathString;
-    [self.navigationItem setTitle:path];
     self.viewType = type;
 
     //Read Cache Starts
