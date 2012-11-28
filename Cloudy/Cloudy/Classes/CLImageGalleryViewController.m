@@ -343,10 +343,17 @@
     saveButton.hidden = NO;
     if (!imageToBeShown) {
         imageToBeShown = [UIImage imageWithData:[currentImage objectForKey:THUMBNAIL_DATA]];
+        if (!imageToBeShown) {
+            imageToBeShown = [UIImage imageNamed:[NSString stringWithFormat:@"%@.png",[[[fileName componentsSeparatedByString:@"."] lastObject] lowercaseString]]];
+        }
+        if (!imageToBeShown) {
+            imageToBeShown = [UIImage imageNamed:@"_blank.png"];
+        }
         downloadProgressButton.hidden = NO;
         saveButton.hidden = YES;
         if ([downloadProgressButton progressViewHidden]) {
-            [downloadProgressButton setImage:imageToBeShown forState:UIControlStateNormal];
+            [downloadProgressButton setImage:imageToBeShown
+                                    forState:UIControlStateNormal];
         }
     }
     [mainImageView setImage:imageToBeShown];

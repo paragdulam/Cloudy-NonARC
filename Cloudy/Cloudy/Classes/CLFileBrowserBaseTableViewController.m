@@ -10,6 +10,7 @@
 #import "CLFileBrowserTableViewController.h"
 #import "CLImageGalleryViewController.h"
 #import "CLFileDetailViewController.h"
+#import "CLUploadsTableViewController.h"
 
 
 @interface CLFileBrowserBaseTableViewController ()
@@ -103,7 +104,7 @@
     [self.navigationItem setRightBarButtonItem:rightBarButton];
     [rightBarButton release];
     
-    [self createPopOverViewForUploads];
+//    [self createPopOverViewForUploads];
     
     liveOperations = [[NSMutableArray alloc] init];
     
@@ -153,15 +154,12 @@
 
 -(void) uploadProgressButtonClicked:(UIButton *) btn
 {
-    btn.selected = !btn.selected;
-    
-    [UIView beginAnimations:nil context:NULL];
-    [UIView setAnimationDuration:1.f];
-    
-    popOverView.hidden = !btn.selected;
-    
-    [UIView commitAnimations];
-    
+    CLUploadsTableViewController *uploadsTableViewController = [[CLUploadsTableViewController alloc] initWithTableViewStyle:UITableViewStylePlain];
+    UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:uploadsTableViewController];
+    [uploadsTableViewController release];
+    [self presentModalViewController:navController
+                            animated:YES];
+    [navController release];
 }
 
 -(void) createFolderButtonClicked:(UIButton *) btn
