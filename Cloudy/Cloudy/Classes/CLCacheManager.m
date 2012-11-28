@@ -86,6 +86,14 @@
 #pragma mark - Helper Methods
 
 
++(void) deleteAllContentsOfFolderAtPath:(NSString *) path
+{
+    NSArray *contents = [CLCacheManager contentsOfDirectoryAtPath:path];
+    for (NSString *fileName in contents) {
+        [CLCacheManager deleteFileAtPath:[path stringByAppendingPathComponent:fileName]];
+    }
+}
+
 +(NSString *) pathFiedForViewType:(VIEW_TYPE) type
 {
     switch (type) {

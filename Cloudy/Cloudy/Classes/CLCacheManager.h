@@ -67,6 +67,7 @@ whereTraversingPointer:(NSMutableDictionary *)traversingDictionary
                    ForViewType:(VIEW_TYPE) type;
 +(BOOL) isRootPath:(NSString *) filePath
     WithinViewType:(VIEW_TYPE) type;
++(void) deleteAllContentsOfFolderAtPath:(NSString *) path;
 
 
 

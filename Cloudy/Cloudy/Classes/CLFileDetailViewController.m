@@ -193,7 +193,6 @@
 {
     [webView loadRequest:[NSURLRequest requestWithURL:[NSURL fileURLWithPath:destPath]]];
     progressView.hidden = YES;
-    [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
 }
 
 

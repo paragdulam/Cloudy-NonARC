@@ -7,6 +7,7 @@
 //
 
 #import "CLDetailBaseViewController.h"
+#import "CLUploadProgressButton.h"
 
 @interface CLImageGalleryViewController : CLDetailBaseViewController<UIGestureRecognizerDelegate,DBRestClientDelegate,LiveDownloadOperationDelegate>
 {

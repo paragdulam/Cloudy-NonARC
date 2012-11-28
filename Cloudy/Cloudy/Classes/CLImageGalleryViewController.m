@@ -13,8 +13,15 @@
     UIImageView *mainImageView;
     NSMutableArray *liveOperations;
     CGRect originalViewRect;
-    UIProgressView *progressView;
+    int currentIndex;
+    UIToolbar *progressToolBar;
+    UILabel *currentFileLabel;
+    CLUploadProgressButton *downloadProgressButton;
 }
+
+-(void) downloadImageAtIndex:(int) index;
+-(void) createToolBarItems;
+
 @end
 
 @implementation CLImageGalleryViewController
@@ -55,10 +62,6 @@
     [self.view addSubview:mainImageView];
     [mainImageView release];
     
-    progressView = [[UIProgressView alloc] initWithProgressViewStyle:UIProgressViewStyleDefault];
-    [mainImageView addSubview:progressView];
-    [progressView release];
-    progressView.center = mainImageView.center;
     
     UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc ] initWithTarget:self action:@selector(tapGesture:)];
     tapGesture.delegate = self;
@@ -71,8 +74,18 @@
     [mainImageView addGestureRecognizer:panGesture];
     [panGesture release];
     
+    progressToolBar = [[UIToolbar alloc] initWithFrame:CGRectMake(0, self.view.frame.size.height - TOOLBAR_HEIGHT, self.view.frame.size.width, TOOLBAR_HEIGHT)];
+    progressToolBar.barStyle = UIBarStyleBlackTranslucent;
+    [self.view addSubview:progressToolBar];
+    [progressToolBar release];
+    
+    [self createToolBarItems];
+    
     liveOperations = [[NSMutableArray alloc] init];
-    [self downloadImages];
+    if ([images count]) {
+        currentIndex = [images indexOfObject:currentImage];
+        [self downloadImageAtIndex:currentIndex];
+    }
     [self showImage];
     
 	// Do any additional setup after loading the view.
@@ -83,6 +96,7 @@
 -(void) viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
+    self.appDelegate.restClient.delegate = self;
 }
 
 -(void) viewWillDisappear:(BOOL)animated
@@ -99,6 +113,7 @@
 
 -(void) dealloc
 {
+    self.appDelegate.restClient.delegate = nil;
     for (LiveOperation *operation in liveOperations) {
         [operation cancel];
     }
@@ -115,15 +130,44 @@
 }
 
 
+#pragma Helper Methods
+
+-(void) createToolBarItems
+{
+    NSMutableArray *items = [[NSMutableArray alloc] init];
+    
+    currentFileLabel = [[UILabel alloc] init];
+    currentFileLabel.backgroundColor = [UIColor clearColor];
+    currentFileLabel.textColor = [UIColor whiteColor];
+    UIBarButtonItem *labelBarItem = [[UIBarButtonItem alloc] initWithCustomView:currentFileLabel];
+    [currentFileLabel release];
+    [items addObject:labelBarItem];
+    [labelBarItem release];
+    
+    UIBarButtonItem *flexiSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
+    [items addObject:flexiSpace];
+    [flexiSpace release];
+
+    downloadProgressButton = [[CLUploadProgressButton alloc] init];
+    [downloadProgressButton setFrame:CGRectMake(0, 0, 30, 30)];
+//    progressView = [[UIProgressView alloc] initWithProgressViewStyle:UIProgressViewStyleBar];
+    UIBarButtonItem *progressBarbuttonItem = [[UIBarButtonItem alloc] initWithCustomView:downloadProgressButton];
+//    [progressView release ];
+    [items addObject:progressBarbuttonItem];
+    [progressBarbuttonItem release];
+    
+    [progressToolBar setItems:items animated:YES];
+    [items release];
+    
+}
+
+
 
 #pragma mark - DBRestClientDelegate
 
 -(void) restClient:(DBRestClient *)client loadProgress:(CGFloat)progress forFile:(NSString *)destPath
 {
-    NSArray *components = [destPath componentsSeparatedByString:@"/"];
-    if ([[components lastObject] isEqualToString:[currentImage objectForKey:@"filename"]]) {
-        progressView.progress = progress;
-    }
+    downloadProgressButton.progress = progress;
 }
 
 -(void) restClient:(DBRestClient *)client
@@ -133,9 +177,19 @@
 {
 }
 
+
+-(void) restClient:(DBRestClient *)client loadedFile:(NSString *)destPath
+{
+    currentIndex ++;
+    if (currentIndex < [images count]) {
+        [self downloadImageAtIndex:currentIndex];
+    }
+}
+
+
 -(void) restClient:(DBRestClient *)client loadFileFailedWithError:(NSError *)error
 {
-    
+    [AppDelegate showError:error alertOnView:self.view];
 }
 
 #pragma mark - LiveDownloadOperationDelegate
@@ -157,40 +211,54 @@
                                operation:(LiveDownloadOperation *)operation
 {
     if ([operation.userState isEqualToString:[currentImage objectForKey:@"name"]]) {
-        progressView.progress = progress.progressPercentage;
+        downloadProgressButton.progress = progress.progressPercentage;
     }
 }
 
 #pragma mark - Helper methods
 
 
+
+-(void) downloadImageAtIndex:(int) index
+{
+    NSDictionary *data = [images objectAtIndex:index];
+    [downloadProgressButton setImage:[UIImage imageWithData:[data objectForKey:THUMBNAIL_DATA]] forState:UIControlStateNormal];
+    switch (viewType) {
+        case DROPBOX:
+        {
+            NSString *fileName = [data objectForKey:@"filename"];
+            currentFileLabel.text = fileName;
+            [currentFileLabel sizeToFit];
+            NSString *filePath = [NSString stringWithFormat:@"%@%@",[CLCacheManager getTemporaryDirectory],fileName];
+            [self.appDelegate.restClient loadFile:[data objectForKey:@"path"]
+                                            atRev:[data objectForKey:@"rev"]
+                                         intoPath:filePath];
+        }
+            break;
+        case SKYDRIVE:
+        {
+            currentFileLabel.text = [data objectForKey:@"name"];
+            [currentFileLabel sizeToFit];
+
+            NSArray *imagesArray = [data objectForKey:@"images"];
+            if ([imagesArray count]) {
+                NSDictionary *image = [imagesArray objectAtIndex:0];
+                LiveDownloadOperation *downloadOperation = [self.appDelegate.liveClient downloadFromPath:[image objectForKey:@"source"] delegate:self userState:[data objectForKey:@"name"]];
+                [liveOperations addObject:downloadOperation];
+            }
+        }
+            break;
+            
+        default:
+            break;
+    }
+}
+
+
 -(void) downloadImages
 {
-    for (NSDictionary *data in images) {
-        switch (viewType) {
-            case DROPBOX:
-            {
-                NSString *fileName = [data objectForKey:@"filename"];
-                NSString *filePath = [NSString stringWithFormat:@"%@%@",[CLCacheManager getTemporaryDirectory],fileName];
-                [self.appDelegate.restClient loadFile:[data objectForKey:@"path"]
-                                                atRev:[data objectForKey:@"rev"]
-                                             intoPath:filePath];
-            }
-                break;
-            case SKYDRIVE:
-            {
-                NSArray *imagesArray = [data objectForKey:@"images"];
-                if ([imagesArray count]) {
-                    NSDictionary *image = [imagesArray objectAtIndex:0];
-                    LiveDownloadOperation *downloadOperation = [self.appDelegate.liveClient downloadFromPath:[image objectForKey:@"source"] delegate:self userState:[data objectForKey:@"name"]];
-                    [liveOperations addObject:downloadOperation];
-                }
-            }
-                break;
-                
-            default:
-                break;
-        }
+    for (int i = 0; i < [images count]; i++) {
+        [self downloadImageAtIndex:i];
     }
 }
 
@@ -209,12 +277,13 @@
         default:
             break;
     }
+    [self setTitle:fileName];
     NSString *filePath = [NSString stringWithFormat:@"%@/%@",[CLCacheManager getTemporaryDirectory],fileName];
     UIImage *imageToBeShown = [UIImage imageWithContentsOfFile:filePath];
-    progressView.hidden = YES;
+    downloadProgressButton.hidden = YES;
     if (!imageToBeShown) {
         imageToBeShown = [UIImage imageWithData:[currentImage objectForKey:THUMBNAIL_DATA]];
-        progressView.hidden = NO;
+        downloadProgressButton.hidden = NO;
     }
     [mainImageView setImage:imageToBeShown];
 }
@@ -240,11 +309,13 @@
         [[UIApplication sharedApplication] setStatusBarHidden:NO
                                                 withAnimation:UIStatusBarAnimationSlide];
         [self.navigationController setNavigationBarHidden:NO animated:YES];
+        [progressToolBar setHidden:NO];
     } else {
         self.navigationController.navigationBarHidden = YES;
         [[UIApplication sharedApplication] setStatusBarHidden:YES
                                                 withAnimation:UIStatusBarAnimationSlide];
         [self.navigationController setNavigationBarHidden:YES animated:YES];
+        [progressToolBar setHidden:YES];
     }
 }
 

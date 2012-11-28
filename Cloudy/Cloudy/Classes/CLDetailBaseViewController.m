@@ -42,6 +42,7 @@
 -(void) viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
+    
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleBlackTranslucent animated:YES];
     self.navigationController.navigationBar.barStyle = UIBarStyleBlackTranslucent;
     
@@ -59,6 +60,9 @@
 -(void) viewWillDisappear:(BOOL)animated
 {
     [super viewWillDisappear:animated];
+    
+    [CLCacheManager deleteAllContentsOfFolderAtPath:[CLCacheManager getTemporaryDirectory]];
+
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
     self.navigationController.navigationBar.barStyle = UIBarStyleDefault;
     

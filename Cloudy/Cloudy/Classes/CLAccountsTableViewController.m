@@ -49,7 +49,8 @@
     editButton = [UIButton buttonWithType:UIButtonTypeCustom];
     [editButton setTitle:@"Edit" forState:UIControlStateNormal];
     [editButton setTitle:@"Done" forState:UIControlStateSelected];
-    UIImage *buttonImage = [UIImage imageNamed:@"editButton.png"];
+    UIImage *baseImage = [UIImage imageNamed:@"button_background_base.png"];
+    UIImage *buttonImage = [baseImage resizableImageWithCapInsets:UIEdgeInsetsMake(0, 15, 0, 15)];
     [editButton setBackgroundImage:buttonImage
                           forState:UIControlStateNormal];
     [editButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
@@ -75,6 +76,17 @@
     if (![CLCacheManager getAccountForType:DROPBOX] && [self.appDelegate.dropboxSession isLinked]) {
         [self authenticationDoneForSession:self.appDelegate.dropboxSession];
     }
+    
+//    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
+//    self.navigationController.navigationBar.barStyle = UIBarStyleDefault;
+//    
+//    self.appDelegate.window.rootViewController.view.frame = originalViewRect;
+//    self.view.frame = self.appDelegate.window.rootViewController.view.bounds;
+//    CGRect rect = self.navigationController.navigationBar.frame;
+//    rect.origin.y = 0.f;
+//    self.navigationController.navigationBar.frame = rect;
+
+    
 //    if (!self.appDelegate.liveClient.session ) {
 //        [self startAnimatingCellAtIndexPath:[NSIndexPath indexPathForRow:0
 //                                                               inSection:SKYDRIVE]];
