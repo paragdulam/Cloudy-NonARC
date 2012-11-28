@@ -14,6 +14,8 @@
 
 -(void) setProgress:(float) value;
 -(float) progress;
+-(void) setProgressViewHidden:(BOOL) hide;
+-(BOOL) progressViewHidden;
 
 
 @end

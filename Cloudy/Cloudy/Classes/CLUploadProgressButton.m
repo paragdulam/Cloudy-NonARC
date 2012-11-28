@@ -17,7 +17,16 @@
 @implementation CLUploadProgressButton
 
 
+-(void) setProgressViewHidden:(BOOL) hide
+{
+    progressBarView.hidden = hide;
+}
 
+
+-(BOOL) progressViewHidden
+{
+    return progressBarView.hidden;
+}
 
 -(void) setFrame:(CGRect)frame
 {
