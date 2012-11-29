@@ -15,6 +15,7 @@
 
 
 @class CLFileBrowserTableViewController;
+@class CLUploadsTableViewController;
 
 @interface AppDelegate : UIResponder <UIApplicationDelegate,DBRestClientDelegate,LiveUploadOperationDelegate>
 {
@@ -26,6 +27,7 @@
     CLUploadProgressButton *uploadProgressButton;
     NSMutableArray *uploads;
     DBRestClient *restClient;
+    CLUploadsTableViewController *uploadsViewController;
 }
 
 @property (strong, nonatomic) UIWindow *window;
@@ -37,6 +39,8 @@
 @property (nonatomic,retain) CLUploadProgressButton *uploadProgressButton;
 @property (nonatomic,retain) NSMutableArray *uploads;
 @property (nonatomic,retain) DBRestClient *restClient;
+@property (nonatomic,assign) CLUploadsTableViewController *uploadsViewController;
+
 
 
 

@@ -216,6 +216,7 @@
 		F1DC76081666A1710043965A /* save.png in Resources */ = {isa = PBXBuildFile; fileRef = F1DC76071666A1710043965A /* save.png */; };
 		F1DC760A1666A17D0043965A /* save@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = F1DC76091666A17D0043965A /* save@2x.png */; };
 		F1DC76121666D3E70043965A /* CLUploadsTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F1DC76111666D3E70043965A /* CLUploadsTableViewController.m */; };
+		F1DC76151666DBC50043965A /* CLUploadCell.m in Sources */ = {isa = PBXBuildFile; fileRef = F1DC76141666DBC50043965A /* CLUploadCell.m */; };
 		F1FA4F2B16561F6C0027E4CC /* DDPopoverBackgroundView.m in Sources */ = {isa = PBXBuildFile; fileRef = F1FA4F2A16561F6C0027E4CC /* DDPopoverBackgroundView.m */; };
 		F1FA4F2D165633880027E4CC /* closeButton.png in Resources */ = {isa = PBXBuildFile; fileRef = F1FA4F2C165633880027E4CC /* closeButton.png */; };
 		F1FA4F2F165633980027E4CC /* closeButton@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = F1FA4F2E165633980027E4CC /* closeButton@2x.png */; };
@@ -520,6 +521,8 @@
 		F1DC76091666A17D0043965A /* save@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "save@2x.png"; sourceTree = "<group>"; };
 		F1DC76101666D3E70043965A /* CLUploadsTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CLUploadsTableViewController.h; sourceTree = "<group>"; };
 		F1DC76111666D3E70043965A /* CLUploadsTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CLUploadsTableViewController.m; sourceTree = "<group>"; };
+		F1DC76131666DBC50043965A /* CLUploadCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CLUploadCell.h; sourceTree = "<group>"; };
+		F1DC76141666DBC50043965A /* CLUploadCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CLUploadCell.m; sourceTree = "<group>"; };
 		F1FA4F2916561F6C0027E4CC /* DDPopoverBackgroundView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDPopoverBackgroundView.h; sourceTree = "<group>"; };
 		F1FA4F2A16561F6C0027E4CC /* DDPopoverBackgroundView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDPopoverBackgroundView.m; sourceTree = "<group>"; };
 		F1FA4F2C165633880027E4CC /* closeButton.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = closeButton.png; sourceTree = "<group>"; };
@@ -774,6 +777,8 @@
 				F153306D165F6EDF00CD2E23 /* CLDetailBaseViewController.m */,
 				F1DC76101666D3E70043965A /* CLUploadsTableViewController.h */,
 				F1DC76111666D3E70043965A /* CLUploadsTableViewController.m */,
+				F1DC76131666DBC50043965A /* CLUploadCell.h */,
+				F1DC76141666DBC50043965A /* CLUploadCell.m */,
 			);
 			path = Classes;
 			sourceTree = "<group>";
@@ -1308,6 +1313,7 @@
 				F153306B165F4AC200CD2E23 /* CLFileDetailViewController.m in Sources */,
 				F153306E165F6EDF00CD2E23 /* CLDetailBaseViewController.m in Sources */,
 				F1DC76121666D3E70043965A /* CLUploadsTableViewController.m in Sources */,
+				F1DC76151666DBC50043965A /* CLUploadCell.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

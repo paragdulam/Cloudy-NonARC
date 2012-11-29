@@ -7,6 +7,7 @@
 //
 
 #import "CLUploadsTableViewController.h"
+#import "CLUploadCell.h"
 
 @interface CLUploadsTableViewController ()
 
@@ -27,6 +28,7 @@
 {
     [super viewDidLoad];
 	// Do any additional setup after loading the view.
+    self.appDelegate.uploadsViewController = self;
     [self setTitle:@"Uploads"];
     
     CLBrowserBarItem *barItem = [[CLBrowserBarItem alloc] initWithFrame:CGRectMake(0, 0, 60, 30)];
@@ -37,6 +39,8 @@
     
     [self.navigationItem setRightBarButtonItem:cancelBarButtonItem];
     [cancelBarButtonItem release];
+    
+    [tableDataArray addObjectsFromArray:self.appDelegate.uploads];
 }
 
 - (void)didReceiveMemoryWarning
@@ -45,10 +49,24 @@
     // Dispose of any resources that can be recreated.
 }
 
-
+-(void) dealloc
+{
+    self.appDelegate.uploadsViewController = nil;
+    [super dealloc];
+}
 
 
 #pragma mark - Helper Methods
+
+
+-(void) removeFirstRowWithAnimation
+{
+    [tableDataArray removeObjectAtIndex:0];
+    [dataTableView beginUpdates];
+    [dataTableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:[NSIndexPath indexPathForRow:0 inSection:0]]
+                         withRowAnimation:UITableViewRowAnimationBottom];
+    [dataTableView endUpdates];
+}
 
 -(void) cancelButtonClicked:(UIButton *) btn
 {
@@ -62,6 +80,30 @@
 {
     [self cancelButtonClicked:btn];
 }
+
+
+#pragma mark - UITableViewDataSource
+
+-(UITableViewCell *) tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    CLUploadCell *cell = (CLUploadCell *)[tableView dequeueReusableCellWithIdentifier:@"CLUploadCell"];
+    if (!cell) {
+        cell = [[[CLUploadCell alloc] initWithStyle:UITableViewCellStyleSubtitle
+                                   reuseIdentifier:@"CLUploadCell"] autorelease];
+    }
+    NSDictionary *data = [tableDataArray objectAtIndex:indexPath.row];
+    [cell.textLabel setText:[data objectForKey:@"NAME"]];
+    [cell.detailTextLabel setText:[data objectForKey:@"TOPATH"]];
+    [cell setButtonImage:[UIImage imageWithData:[data objectForKey:@"THUMBNAIL"]]];
+    if (!indexPath.row) {
+        NSLog(@"progress %f",self.appDelegate.uploadProgressButton.progress);
+        [cell setProgress:self.appDelegate.uploadProgressButton.progress];
+    } else {
+        [cell setProgress:0];
+    }
+    return cell;
+}
+
 
 
 @end

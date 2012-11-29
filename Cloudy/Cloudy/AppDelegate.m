@@ -9,6 +9,8 @@
 #import "AppDelegate.h"
 #import "CLAccountsTableViewController.h"
 #import "CLFileBrowserTableViewController.h"
+#import "CLUploadsTableViewController.h"
+
 
 
 
@@ -30,9 +32,12 @@
 @synthesize uploadProgressButton;
 @synthesize restClient;
 @synthesize uploads;
+@synthesize uploadsViewController;
 
 - (void)dealloc
 {
+    uploadsViewController = nil;
+    
     [restClient release];
     restClient = nil;
     
@@ -328,6 +333,7 @@
         [CLCacheManager deleteFileAtPath:[NSString stringWithFormat:@"%@/Uploads.plist",[CLCacheManager getUploadsFolderPath]]];
         uploadProgressButton.hidden = YES;
     }
+    [self.uploadsViewController removeFirstRowWithAnimation];
 }
 
 
@@ -337,6 +343,7 @@
                              operation:(LiveOperation *)operation
 {
     [uploadProgressButton setProgress:progress.progressPercentage];
+    [self.uploadsViewController updateView];
 }
 
 -(void) liveOperationSucceeded:(LiveOperation *)operation
@@ -376,6 +383,7 @@
               from:(NSString*)srcPath
 {
     [uploadProgressButton setProgress:progress];
+    [self.uploadsViewController updateView];
 }
 
 - (void)restClient:(DBRestClient*)client uploadFileFailedWithError:(NSError*)error

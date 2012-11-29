@@ -11,4 +11,7 @@
 
 @interface CLUploadsTableViewController : CLBaseTableViewController<CLBrowserBarItemDelegate>
 
+
+-(void) removeFirstRowWithAnimation;
+
 @end
