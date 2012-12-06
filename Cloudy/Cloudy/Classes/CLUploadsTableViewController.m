@@ -92,9 +92,7 @@
                                    reuseIdentifier:@"CLUploadCell"] autorelease];
     }
     NSDictionary *data = [tableDataArray objectAtIndex:indexPath.row];
-    [cell.textLabel setText:[data objectForKey:@"NAME"]];
-    [cell.detailTextLabel setText:[data objectForKey:@"TOPATH"]];
-    [cell setButtonImage:[UIImage imageWithData:[data objectForKey:@"THUMBNAIL"]]];
+    [cell setData:data];
     if (!indexPath.row) {
         NSLog(@"progress %f",self.appDelegate.uploadProgressButton.progress);
         [cell setProgress:self.appDelegate.uploadProgressButton.progress];

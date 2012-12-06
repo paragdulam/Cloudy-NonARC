@@ -8,14 +8,18 @@
 
 #import <UIKit/UIKit.h>
 #import "CLUploadProgressButton.h"
+#import "AppDelegate.h"
 
-@interface CLUploadCell : UITableViewCell
+@interface CLUploadCell : UITableViewCell<LiveOperationDelegate>
 {
     float progress;
     UIImage *buttonImage;
+    AppDelegate *appDelegate;
 }
 
 @property (nonatomic,assign) float progress;
 @property (nonatomic,assign) UIImage *buttonImage;
+
+-(void) setData:(NSDictionary *) dictionary;
 
 @end

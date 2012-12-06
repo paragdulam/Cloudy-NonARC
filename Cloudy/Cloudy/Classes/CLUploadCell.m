@@ -11,11 +11,22 @@
 @interface CLUploadCell ()
 {
     CLUploadProgressButton *progressButton;
+    NSString *userState;
+    NSString *detailText;
+    LiveOperation *getFolderNameOperation;
 }
+
+@property (nonatomic,retain) NSString *userState;
+@property (nonatomic,retain) NSString *detailText;
+@property (nonatomic,retain) LiveOperation *getFolderNameOperation;
+
 
 @end
 
 @implementation CLUploadCell
+@synthesize userState;
+@synthesize detailText;
+@synthesize getFolderNameOperation;
 
 -(void) setProgress:(float)aFloat
 {
@@ -46,6 +57,8 @@
         progressButton = [[CLUploadProgressButton alloc] init];
         [self addSubview:progressButton];
         [progressButton release];
+        
+        appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     }
     return self;
 }
@@ -75,6 +88,67 @@
     CGRect detailLabelFrame = self.detailTextLabel.frame;
     detailLabelFrame.origin.x = self.textLabel.frame.origin.x;
     self.detailTextLabel.frame = detailLabelFrame;
+}
+
+
+-(void) setData:(NSDictionary *) dictionary
+{
+    [self.textLabel setText:[dictionary objectForKey:@"NAME"]];
+    [self setButtonImage:[UIImage imageWithData:[dictionary objectForKey:@"THUMBNAIL"]]];
+    VIEW_TYPE type = [[dictionary objectForKey:@"TYPE"] intValue];
+    switch (type) {
+        case DROPBOX:
+            [self.detailTextLabel setText:[dictionary objectForKey:@"TOPATH"]];
+            break;
+        case SKYDRIVE:
+        {
+            [self.detailTextLabel setText:@"Finding Path...."];
+            if (![detailText length]) {
+                self.userState = [dictionary objectForKey:@"TOPATH"];
+                self.getFolderNameOperation = [appDelegate.liveClient getWithPath:userState
+                                           delegate:self
+                                          userState:userState];
+            } else {
+                [self.detailTextLabel setText:detailText];
+            }
+        }
+        default:
+            break;
+    }
+}
+
+
+-(void) dealloc
+{
+    [getFolderNameOperation cancel];
+    [getFolderNameOperation release];
+    getFolderNameOperation = nil;
+    
+    [detailText release];
+    detailText = nil;
+    
+    [userState release];
+    userState = nil;
+    
+    [super dealloc];
+}
+
+#pragma mark - LiveOperationDelegate
+
+
+- (void) liveOperationSucceeded:(LiveOperation *)operation
+{
+    if ([operation.userState isEqualToString:userState])
+    {
+        self.detailText = [operation.result objectForKey:@"name"];
+        [self.detailTextLabel setText:detailText];
+    }
+}
+
+- (void) liveOperationFailed:(NSError *)error
+operation:(LiveOperation*)operation
+{
+    
 }
 
 

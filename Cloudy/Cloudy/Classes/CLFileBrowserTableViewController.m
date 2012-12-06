@@ -725,7 +725,7 @@ loadedSharableLink:(NSString *)link
     [picker dismissModalViewControllerAnimated:YES];
     [self.appDelegate updateUploads:info
                        FolderAtPath:path
-                        ForViewType:viewType ];
+                        ForViewType:viewType];
     //notify AppDelegate about the Uploads
 }
 
