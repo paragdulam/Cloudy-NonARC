@@ -84,9 +84,6 @@
 
 -(void) dealloc
 {
-    [toolBarItems release];
-    toolBarItems = nil;
-    
     [editingToolBarItems release];
     editingToolBarItems = nil;
     

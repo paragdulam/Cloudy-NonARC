@@ -115,6 +115,10 @@
     aButton.frame = CGRectMake(0, 0, 30, 30);
     self.uploadProgressButton = aButton;
     self.uploadProgressButton.hidden = YES;
+    [self.uploadProgressButton addTarget:self
+                                  action:@selector(uploadProgressButtonClicked:)
+                        forControlEvents:UIControlEventTouchUpInside];
+
     [aButton release];
     
     NSMutableArray *anArray = [[NSMutableArray alloc] init];
@@ -236,6 +240,22 @@
 
 #pragma mark - Uploads Operation
 
+-(void) showUploadsViewController
+{
+    CLUploadsTableViewController *uploadsTableViewController = [[CLUploadsTableViewController alloc] initWithTableViewStyle:UITableViewStylePlain];
+    UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:uploadsTableViewController];
+    [uploadsTableViewController release];
+    [self.window.rootViewController presentModalViewController:navController
+                                                                  animated:YES];
+    [navController release];
+}
+
+
+-(void) uploadProgressButtonClicked:(UIButton *) btn
+{
+    [self showUploadsViewController];
+}
+
 -(void) updateUploadsFolder:(NSArray *) info
                    destPath:(NSString *) path
                 ForViewType:(VIEW_TYPE) type
@@ -308,6 +328,16 @@
                           forState:UIControlStateNormal];
     
 }
+
+
+//-(void) updateUploadsFolderWithDictionary:(NSDictionary *) dict
+//{
+//    NSArray *info = [dict objectForKey:@"INFO"];
+//    NSString *path = [dict objectForKey:@"PATH"];
+//    VIEW_TYPE type = [[dict objectForKey:@"TYPE"] intValue];
+//    [self updateUploadsFolder:info destPath:path ForViewType:type];
+//}
+
 
 -(void) updateUploads:(NSArray *)info
          FolderAtPath:(NSString *)path

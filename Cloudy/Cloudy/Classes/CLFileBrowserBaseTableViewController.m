@@ -152,15 +152,6 @@
 #pragma mark - IBActions
 
 
--(void) uploadProgressButtonClicked:(UIButton *) btn
-{
-    CLUploadsTableViewController *uploadsTableViewController = [[CLUploadsTableViewController alloc] initWithTableViewStyle:UITableViewStylePlain];
-    UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:uploadsTableViewController];
-    [uploadsTableViewController release];
-    [self presentModalViewController:navController
-                            animated:YES];
-    [navController release];
-}
 
 -(void) createFolderButtonClicked:(UIButton *) btn
 {
@@ -310,7 +301,6 @@
                     [self.navigationController pushViewController:fileBrowserViewController animated:YES];
                     fileBrowserViewController.title = [metadata objectForKey:@"filename"];
                     [fileBrowserViewController release];
-                    fileBrowserViewController = nil;
                 } else if ([[metadata objectForKey:@"thumbnailExists"] boolValue]) {
                     
                     __block NSMutableArray *images = [[NSMutableArray alloc] init];
@@ -340,7 +330,6 @@
                     [self.navigationController pushViewController:fileBrowserViewController animated:YES];
                     fileBrowserViewController.title = [metadata objectForKey:@"name"];
                     [fileBrowserViewController release];
-                    fileBrowserViewController = nil;
                 } else if ([[metadata objectForKey:@"type"] isEqualToString:@"photo"]) {
                     
                     __block NSMutableArray *images = [[NSMutableArray alloc] init];
@@ -696,11 +685,7 @@
     
     UIBarButtonItem *uploadProgressBarButton = [[UIBarButtonItem alloc] initWithCustomView:self.appDelegate.uploadProgressButton];
     [toolBarItems addObject:uploadProgressBarButton];
-    [self.appDelegate.uploadProgressButton addTarget:self
-                                              action:@selector(uploadProgressButtonClicked:)
-                                    forControlEvents:UIControlEventTouchUpInside];
     [uploadProgressBarButton release];
-    
 }
 
 -(void) createFolderToolbarItems
