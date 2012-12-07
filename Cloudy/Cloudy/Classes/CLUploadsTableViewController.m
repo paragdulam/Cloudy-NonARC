@@ -10,6 +10,11 @@
 #import "CLUploadCell.h"
 
 @interface CLUploadsTableViewController ()
+{
+    UILabel *progressLabel;
+}
+
+-(void)updateProgressLabel;
 
 @end
 
@@ -40,6 +45,15 @@
     [self.navigationItem setRightBarButtonItem:cancelBarButtonItem];
     [cancelBarButtonItem release];
     
+    progressLabel = [[UILabel alloc] init];
+    [progressLabel setFont:[UIFont boldSystemFontOfSize:14.f]];
+    [progressLabel setTextColor:[UIColor whiteColor]];
+    [progressLabel setBackgroundColor:[UIColor clearColor]];
+    UIBarButtonItem *labelBarButton = [[UIBarButtonItem alloc] initWithCustomView:progressLabel];
+    [progressLabel release];
+    [self.navigationItem setLeftBarButtonItem:labelBarButton];
+    [labelBarButton release];
+    
     [tableDataArray addObjectsFromArray:self.appDelegate.uploads];
 }
 
@@ -58,6 +72,15 @@
 
 #pragma mark - Helper Methods
 
+
+
+-(void) updateFirstCellWhereProgress:(float) progress
+{
+    NSLog(@"Progress %f",progress);
+    CLUploadCell *cell = (CLUploadCell *)[dataTableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
+    [cell setProgress:progress];
+    [self updateProgressLabel:progress];
+}
 
 -(void) removeFirstRowWithAnimation
 {
@@ -82,6 +105,13 @@
 }
 
 
+-(void)updateProgressLabel:(float) progress
+{
+    NSString *progressString = [NSString stringWithFormat:@"%.1f%%",progress * 100];
+    [progressLabel setText:progressString];
+    [progressLabel sizeToFit];
+}
+
 #pragma mark - UITableViewDataSource
 
 -(UITableViewCell *) tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -93,15 +123,38 @@
     }
     NSDictionary *data = [tableDataArray objectAtIndex:indexPath.row];
     [cell setData:data];
-    if (!indexPath.row) {
-        NSLog(@"progress %f",self.appDelegate.uploadProgressButton.progress);
-        [cell setProgress:self.appDelegate.uploadProgressButton.progress];
-    } else {
-        [cell setProgress:0];
-    }
     return cell;
 }
 
+-(BOOL) tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    return YES;
+}
+
+
+-(NSString *) tableView:(UITableView *)tableView titleForDeleteConfirmationButtonForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    return @"Cancel";
+}
+
+
+-(UITableViewCellEditingStyle) tableView:(UITableView *)tableView editingStyleForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    return UITableViewCellEditingStyleDelete;
+}
+
+-(void)  tableView:(UITableView *)tableView
+commitEditingStyle:(UITableViewCellEditingStyle)editingStyle
+ forRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    [self.appDelegate.uploads removeObjectAtIndex:indexPath.row];
+    [self.appDelegate.uploads writeToFile:[NSString stringWithFormat:@"%@/Uploads.plist",[CLCacheManager getUploadsFolderPath]] atomically:YES];
+    [tableDataArray removeObjectAtIndex:indexPath.row];
+    [dataTableView beginUpdates];
+    [dataTableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath]
+                         withRowAnimation:UITableViewRowAnimationBottom];
+    [dataTableView endUpdates];
+}
 
 
 @end

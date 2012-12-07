@@ -14,7 +14,6 @@
 {
     float progress;
     UIImage *buttonImage;
-    AppDelegate *appDelegate;
 }
 
 @property (nonatomic,assign) float progress;

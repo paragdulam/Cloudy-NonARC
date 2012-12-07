@@ -13,5 +13,7 @@
 
 
 -(void) removeFirstRowWithAnimation;
+-(void) updateFirstCellWhereProgress:(float) progress;
+
 
 @end

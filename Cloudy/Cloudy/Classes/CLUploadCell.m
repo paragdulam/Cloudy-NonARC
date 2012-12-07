@@ -14,6 +14,7 @@
     NSString *userState;
     NSString *detailText;
     LiveOperation *getFolderNameOperation;
+    AppDelegate *appDelegate;
 }
 
 @property (nonatomic,retain) NSString *userState;

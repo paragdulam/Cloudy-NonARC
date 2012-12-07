@@ -244,12 +244,16 @@
     [downloadProgressButton setProgress:0];
     [downloadProgressButton setProgressViewHidden:YES];
     [self showImage];
+    [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
 }
 
 
 -(void) restClient:(DBRestClient *)client loadFileFailedWithError:(NSError *)error
 {
+    [downloadProgressButton setProgress:0];
+    [downloadProgressButton setProgressViewHidden:YES];
     [AppDelegate showError:error alertOnView:self.view];
+    [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
 }
 
 #pragma mark - LiveDownloadOperationDelegate
@@ -261,12 +265,15 @@
     [downloadProgressButton setProgress:0];
     [downloadProgressButton setProgressViewHidden:YES];
     [self showImage];
+    [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
 }
 
 - (void) liveOperationFailed:(NSError *)error
                    operation:(LiveDownloadOperation *)operation
 {
-    
+    [downloadProgressButton setProgress:0];
+    [downloadProgressButton setProgressViewHidden:YES];
+    [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
 }
 
 - (void) liveDownloadOperationProgressed:(LiveOperationProgress *)progress
@@ -311,6 +318,7 @@
         default:
             break;
     }
+    [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:YES];
 }
 
 

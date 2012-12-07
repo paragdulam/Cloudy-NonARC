@@ -214,7 +214,6 @@
 #pragma mark - GestureRecognizers
 
 - (void)pan:(UIPanGestureRecognizer*)gesture {
-
     if (gesture.state == UIGestureRecognizerStateBegan) {
         
         [self showShadow:YES];
@@ -435,7 +434,7 @@
 }
 
 
-#pragma Internal Nav Handling 
+#pragma mark - Internal Nav Handling
 
 - (void)resetNavButtons {
     if (!_root) return;
@@ -662,11 +661,11 @@
         UIView *view = _root.view;
         view.frame = self.view.bounds;
         [self.view addSubview:view];
-
-        UIPanGestureRecognizer *pan = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(pan:)];
-        pan.delegate = (id<UIGestureRecognizerDelegate>)self;
-        [view addGestureRecognizer:pan];
-        _pan = pan;
+        //removing Pan gesture temporarily
+//        UIPanGestureRecognizer *pan = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(pan:)];
+//        pan.delegate = (id<UIGestureRecognizerDelegate>)self;
+//        [view addGestureRecognizer:pan];
+//        _pan = pan;
         
     } else {
         

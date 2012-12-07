@@ -126,7 +126,7 @@
             } else {
                 cellImage = [UIImage imageWithData:[dataDictionary objectForKey:THUMBNAIL_DATA]];
                 if (!cellImage) {
-                    NSString *extention = [titleText pathExtension];
+                    NSString *extention = [[titleText pathExtension] lowercaseString];
                     cellImage = [UIImage imageNamed:[NSString stringWithFormat:@"%@.png",extention]];
                     if (!cellImage) {
                         cellImage = [UIImage imageNamed:[NSString stringWithFormat:@"_blank.png"]];
@@ -146,7 +146,7 @@
             } else {
                 cellImage = [UIImage imageWithData:[dataDictionary objectForKey:THUMBNAIL_DATA]];
                 if (!cellImage) {
-                    NSString *extention = [titleText pathExtension];
+                    NSString *extention = [[titleText pathExtension] lowercaseString];
                     cellImage = [UIImage imageNamed:[NSString stringWithFormat:@"%@.png",extention]];
                     if (!cellImage) {
                         cellImage = [UIImage imageNamed:[NSString stringWithFormat:@"_blank.png"]];

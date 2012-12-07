@@ -52,7 +52,7 @@
     self.appDelegate.window.rootViewController.view.frame = self.appDelegate.window.bounds;
     self.view.frame = self.appDelegate.window.rootViewController.view.bounds;
     CGRect rect = self.navigationController.navigationBar.frame;
-    rect.origin.y = 20.f;
+    rect.origin.y = CGRectGetMaxY([[UIApplication sharedApplication] statusBarFrame]);
     self.navigationController.navigationBar.frame = rect;
 }
 

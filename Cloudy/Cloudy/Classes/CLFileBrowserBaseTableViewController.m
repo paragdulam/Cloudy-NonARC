@@ -395,7 +395,9 @@
     int index = [self getIndexOfObjectForKey:[CLCacheManager pathFiedForViewType:viewType]
                                    withValue:[mData objectForKey:@"path"]];
     UIImage *image = [UIImage imageWithContentsOfFile:destPath];
-    NSData *imageData = UIImagePNGRepresentation(image);
+//    NSData *imageData = UIImagePNGRepresentation(image);
+    NSData *imageData = UIImageJPEGRepresentation(image, 1);
+
     [mData setObject:imageData
               forKey:THUMBNAIL_DATA];
     [CLCacheManager deleteFileAtPath:destPath];
@@ -859,11 +861,13 @@
 -(void) startAnimating
 {
     [barItem startAnimating];
+    [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:YES];
 }
 
 -(void) stopAnimating
 {
     [barItem stopAnimating];
+    [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
 }
 
 

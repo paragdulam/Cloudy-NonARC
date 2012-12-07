@@ -271,12 +271,17 @@
     
     for (ALAsset *asset in info) {
         ALAssetRepresentation *assetRepresentation = [asset defaultRepresentation];
-        UIImage *assetImage = [UIImage imageWithCGImage:[assetRepresentation CGImageWithOptions:nil]];
+        UIImage *assetImage = [UIImage imageWithCGImage:[assetRepresentation CGImageWithOptions:nil]
+                                                  scale:[assetRepresentation scale]
+                                            orientation:[assetRepresentation orientation]];
         UIImage *assetThumnail = [UIImage imageWithCGImage:[asset thumbnail]];
         NSString *fileName = [assetRepresentation filename];
         NSString *filePath = [NSString stringWithFormat:@"%@/%@",[CLCacheManager getUploadsFolderPath],fileName];
-        NSData *imageData = UIImagePNGRepresentation(assetImage);
-        NSData *imageThumbnailData = UIImagePNGRepresentation(assetThumnail);
+//        NSData *imageData = UIImagePNGRepresentation(assetImage);
+//        NSData *imageThumbnailData = UIImagePNGRepresentation(assetThumnail);
+        NSData *imageData = UIImageJPEGRepresentation(assetImage, 1);
+        NSData *imageThumbnailData = UIImageJPEGRepresentation(assetThumnail, 0);
+
         if (![CLCacheManager fileExistsAtPath:filePath]) {
             [imageData writeToFile:filePath atomically:YES];
         }
@@ -312,10 +317,15 @@
         case SKYDRIVE:
         {
             UIImage *image = [UIImage imageWithContentsOfFile:fromPath];
+//            [self.liveClient uploadToPath:toPath
+//                                 fileName:fileName
+//                                     data:UIImagePNGRepresentation(image)
+//                                 delegate:self];
             [self.liveClient uploadToPath:toPath
                                  fileName:fileName
-                                     data:UIImagePNGRepresentation(image)
+                                     data:UIImageJPEGRepresentation(image, 1)
                                  delegate:self];
+
         }
             break;
             
@@ -355,10 +365,10 @@
     NSDictionary *uploadedImage = [uploads objectAtIndex:0];
     [CLCacheManager deleteFileAtPath:[uploadedImage objectForKey:@"FROMPATH"]];
     [uploads removeObjectAtIndex:0];
-    [uploads writeToFile:[NSString stringWithFormat:@"%@/Uploads.plist",[CLCacheManager getUploadsFolderPath]] atomically:YES];
     if ([uploads count]) {
         NSDictionary *imageToBeUploaded = [uploads objectAtIndex:0];
         [self uploadDictionary:imageToBeUploaded];
+        [uploads writeToFile:[NSString stringWithFormat:@"%@/Uploads.plist",[CLCacheManager getUploadsFolderPath]] atomically:YES];
     } else {
         [CLCacheManager deleteFileAtPath:[NSString stringWithFormat:@"%@/Uploads.plist",[CLCacheManager getUploadsFolderPath]]];
         uploadProgressButton.hidden = YES;
@@ -373,7 +383,7 @@
                              operation:(LiveOperation *)operation
 {
     [uploadProgressButton setProgress:progress.progressPercentage];
-    [self.uploadsViewController updateView];
+    [self.uploadsViewController updateFirstCellWhereProgress:progress.progressPercentage];
 }
 
 -(void) liveOperationSucceeded:(LiveOperation *)operation
@@ -413,7 +423,7 @@
               from:(NSString*)srcPath
 {
     [uploadProgressButton setProgress:progress];
-    [self.uploadsViewController updateView];
+    [self.uploadsViewController updateFirstCellWhereProgress:progress];
 }
 
 - (void)restClient:(DBRestClient*)client uploadFileFailedWithError:(NSError*)error
