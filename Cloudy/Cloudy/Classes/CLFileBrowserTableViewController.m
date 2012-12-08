@@ -307,6 +307,8 @@ loadedSharableLink:(NSString *)link
 
 - (void)mailComposeController:(MFMailComposeViewController *)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError *)error
 {
+    [selectedItems removeAllObjects];
+    [self stopAnimating];
     [controller dismissModalViewControllerAnimated:YES];
     switch (result) {
         case MFMailComposeResultSent:

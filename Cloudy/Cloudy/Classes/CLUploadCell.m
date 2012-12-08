@@ -99,19 +99,20 @@
     VIEW_TYPE type = [[dictionary objectForKey:@"TYPE"] intValue];
     switch (type) {
         case DROPBOX:
-            [self.detailTextLabel setText:[dictionary objectForKey:@"TOPATH"]];
+            [self.detailTextLabel setText:DROPBOX_STRING];
             break;
         case SKYDRIVE:
         {
-            [self.detailTextLabel setText:@"Finding Path...."];
-            if (![detailText length]) {
-                self.userState = [dictionary objectForKey:@"TOPATH"];
-                self.getFolderNameOperation = [appDelegate.liveClient getWithPath:userState
-                                           delegate:self
-                                          userState:userState];
-            } else {
-                [self.detailTextLabel setText:detailText];
-            }
+            [self.detailTextLabel setText:SKYDRIVE_STRING];
+//            [self.detailTextLabel setText:@"Finding Destination Path...."];
+//            if (![detailText length]) {
+//                self.userState = [dictionary objectForKey:@"TOPATH"];
+//                self.getFolderNameOperation = [appDelegate.liveClient getWithPath:userState
+//                                           delegate:self
+//                                          userState:userState];
+//            } else {
+//                [self.detailTextLabel setText:detailText];
+//            }
         }
         default:
             break;
@@ -147,7 +148,7 @@
 }
 
 - (void) liveOperationFailed:(NSError *)error
-operation:(LiveOperation*)operation
+                   operation:(LiveOperation*)operation
 {
     
 }

@@ -29,13 +29,18 @@
     return self;
 }
 
+-(void) viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+}
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
 	// Do any additional setup after loading the view.
-    self.appDelegate.uploadsViewController = self;
     [self setTitle:@"Uploads"];
-    
+    self.appDelegate.uploadsViewController = self;
+
     CLBrowserBarItem *barItem = [[CLBrowserBarItem alloc] initWithFrame:CGRectMake(0, 0, 60, 30)];
     barItem.delegate = self;
     [barItem setTitle:@"Cancel" forState:UIControlStateNormal];
@@ -77,8 +82,10 @@
 -(void) updateFirstCellWhereProgress:(float) progress
 {
     NSLog(@"Progress %f",progress);
-    CLUploadCell *cell = (CLUploadCell *)[dataTableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
-    [cell setProgress:progress];
+    [dataTableView beginUpdates];
+    [dataTableView reloadRowsAtIndexPaths:[NSArray arrayWithObject:[NSIndexPath indexPathForRow:0 inSection:0]]
+                         withRowAnimation:UITableViewRowAnimationNone];
+    [dataTableView endUpdates];
     [self updateProgressLabel:progress];
 }
 
@@ -123,12 +130,24 @@
     }
     NSDictionary *data = [tableDataArray objectAtIndex:indexPath.row];
     [cell setData:data];
+    if (!indexPath.row) {
+        float progress = self.appDelegate.uploadProgressButton.progress;
+        NSLog(@"progress %f",progress);
+        [cell setProgress:progress];
+        [self updateProgressLabel:progress];
+    } else {
+        [cell setProgress:0];
+    }
     return cell;
 }
 
 -(BOOL) tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    return YES;
+    if (indexPath.row) {
+        return YES;
+    } else {
+        return NO;
+    }
 }
 
 

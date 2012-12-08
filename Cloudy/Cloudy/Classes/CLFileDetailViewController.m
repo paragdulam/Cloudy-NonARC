@@ -142,7 +142,7 @@
     [items addObject:flexiSpace];
     [flexiSpace release];
     
-    progressView = [[UIProgressView alloc] initWithProgressViewStyle:UIProgressViewStyleBar];
+    progressView = [[UIProgressView alloc] initWithProgressViewStyle:UIProgressViewStyleDefault];
     UIBarButtonItem *progressBarbuttonItem = [[UIBarButtonItem alloc] initWithCustomView:progressView];
     [progressView release ];
     [items addObject:progressBarbuttonItem];

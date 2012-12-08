@@ -256,6 +256,8 @@
     [self showUploadsViewController];
 }
 
+
+
 -(void) updateUploadsFolder:(NSArray *) info
                    destPath:(NSString *) path
                 ForViewType:(VIEW_TYPE) type
@@ -271,28 +273,27 @@
     
     for (ALAsset *asset in info) {
         ALAssetRepresentation *assetRepresentation = [asset defaultRepresentation];
-        UIImage *assetImage = [UIImage imageWithCGImage:[assetRepresentation CGImageWithOptions:nil]
-                                                  scale:[assetRepresentation scale]
-                                            orientation:[assetRepresentation orientation]];
+        NSDictionary *properties = [asset valueForProperty:ALAssetPropertyURLs];
+        NSURL *url = [properties objectForKey:@"public.jpeg"];
         UIImage *assetThumnail = [UIImage imageWithCGImage:[asset thumbnail]];
         NSString *fileName = [assetRepresentation filename];
         NSString *filePath = [NSString stringWithFormat:@"%@/%@",[CLCacheManager getUploadsFolderPath],fileName];
-//        NSData *imageData = UIImagePNGRepresentation(assetImage);
-//        NSData *imageThumbnailData = UIImagePNGRepresentation(assetThumnail);
-        NSData *imageData = UIImageJPEGRepresentation(assetImage, 1);
         NSData *imageThumbnailData = UIImageJPEGRepresentation(assetThumnail, 0);
+        NSDictionary *imageToBeUploaded = [NSDictionary dictionaryWithObjectsAndKeys:fileName,@"NAME",
+                                         filePath,@"FROMPATH",
+                                             path,@"TOPATH",
+                               imageThumbnailData,@"THUMBNAIL",
+                             [url absoluteString],@"URL",
+                    [NSNumber numberWithInt:type],@"TYPE", nil];
 
-        if (![CLCacheManager fileExistsAtPath:filePath]) {
-            [imageData writeToFile:filePath atomically:YES];
-        }
-        NSDictionary *imageToBeUploaded = [NSDictionary dictionaryWithObjectsAndKeys:fileName,@"NAME",filePath,@"FROMPATH",path,@"TOPATH",imageThumbnailData,@"THUMBNAIL",[NSNumber numberWithInt:type],@"TYPE", nil];
         if (![images containsObject:imageToBeUploaded]) {
             [images addObject:imageToBeUploaded];
         }
     }
     [images removeObjectsInArray:uploads];
     [uploads addObjectsFromArray:images];
-    [uploads writeToFile:[NSString stringWithFormat:@"%@/Uploads.plist",uploadsFolderPath] atomically:YES];
+    NSString *uploadsPath = [NSString stringWithFormat:@"%@/Uploads.plist",uploadsFolderPath];
+    [uploads writeToFile:uploadsPath atomically:YES];
     [images release];
 }
 
@@ -303,51 +304,49 @@
     NSString *toPath = [data objectForKey:@"TOPATH"];
     NSString *fromPath = [data objectForKey:@"FROMPATH"];
     NSData *thumbNailData = [data objectForKey:@"THUMBNAIL"];
-    VIEW_TYPE type = [[data objectForKey:@"TYPE"] integerValue];
+    NSString *mediaurl = [data objectForKey:@"URL"];
+    __block VIEW_TYPE type = [[data objectForKey:@"TYPE"] integerValue];
     
-    switch (type) {
-        case DROPBOX:
-        {
-            [self.restClient uploadFile:fileName
-                                 toPath:toPath
-                          withParentRev:nil
-                               fromPath:fromPath];
-        }
-            break;
-        case SKYDRIVE:
-        {
-            UIImage *image = [UIImage imageWithContentsOfFile:fromPath];
-//            [self.liveClient uploadToPath:toPath
-//                                 fileName:fileName
-//                                     data:UIImagePNGRepresentation(image)
-//                                 delegate:self];
-            [self.liveClient uploadToPath:toPath
-                                 fileName:fileName
-                                     data:UIImageJPEGRepresentation(image, 1)
-                                 delegate:self];
-
-        }
-            break;
-            
-            
-        default:
-            break;
-    }
-    uploadProgressButton.hidden = NO;
-    [uploadProgressButton setImage:[UIImage imageWithData:thumbNailData]
-                          forState:UIControlStateNormal];
-    
+    NSURL *asseturl = [NSURL URLWithString:mediaurl];
+    ALAssetsLibrary* assetslibrary = [[[ALAssetsLibrary alloc] init] autorelease];
+    [assetslibrary assetForURL:asseturl
+                   resultBlock:^(ALAsset *asset) {
+                       ALAssetRepresentation *assetRepresentation = [asset defaultRepresentation];
+                       UIImage *assetImage = [UIImage imageWithCGImage:[assetRepresentation CGImageWithOptions:nil]
+                                                                 scale:[assetRepresentation scale]
+                                                           orientation:[assetRepresentation orientation]];
+                       NSData *imageData = UIImageJPEGRepresentation(assetImage, 1);
+                       if (![CLCacheManager fileExistsAtPath:fromPath]) {
+                           [imageData writeToFile:fromPath atomically:YES];
+                       }
+                       switch (type) {
+                           case DROPBOX:
+                           {
+                               [self.restClient uploadFile:fileName
+                                                    toPath:toPath
+                                             withParentRev:nil
+                                                  fromPath:fromPath];
+                           }
+                               break;
+                           case SKYDRIVE:
+                           {
+                               [self.liveClient uploadToPath:toPath
+                                                    fileName:fileName
+                                                        data:imageData
+                                                    delegate:self];
+                           }
+                               break;
+                           default:
+                               break;
+                       }
+                       uploadProgressButton.hidden = NO;
+                       [uploadProgressButton setImage:[UIImage imageWithData:thumbNailData]
+                                             forState:UIControlStateNormal];
+                       NSLog(@"Success");
+                   } failureBlock:^(NSError *error) {
+                       NSLog(@"Failure");
+                   }];
 }
-
-
-//-(void) updateUploadsFolderWithDictionary:(NSDictionary *) dict
-//{
-//    NSArray *info = [dict objectForKey:@"INFO"];
-//    NSString *path = [dict objectForKey:@"PATH"];
-//    VIEW_TYPE type = [[dict objectForKey:@"TYPE"] intValue];
-//    [self updateUploadsFolder:info destPath:path ForViewType:type];
-//}
-
 
 -(void) updateUploads:(NSArray *)info
          FolderAtPath:(NSString *)path
