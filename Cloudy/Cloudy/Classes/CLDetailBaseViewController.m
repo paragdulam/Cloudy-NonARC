@@ -50,7 +50,9 @@
     
     originalViewRect = self.appDelegate.window.rootViewController.view.frame;
     self.appDelegate.window.rootViewController.view.frame = self.appDelegate.window.bounds;
-    self.view.frame = self.appDelegate.window.rootViewController.view.bounds;
+    self.navigationController.view.frame = self.appDelegate.window.rootViewController.view.bounds;
+    self.view.frame = self.navigationController.view.bounds;
+    
     CGRect rect = self.navigationController.navigationBar.frame;
     rect.origin.y = CGRectGetMaxY([[UIApplication sharedApplication] statusBarFrame]);
     self.navigationController.navigationBar.frame = rect;
@@ -67,11 +69,12 @@
     self.navigationController.navigationBar.barStyle = UIBarStyleDefault;
     
     self.appDelegate.window.rootViewController.view.frame = originalViewRect;
-    self.view.frame = self.appDelegate.window.rootViewController.view.bounds;
+    self.navigationController.view.frame = self.appDelegate.window.rootViewController.view.bounds;
+    self.view.frame = self.navigationController.view.bounds;
+    
     CGRect rect = self.navigationController.navigationBar.frame;
-    rect.origin.y = 0.f;
+    rect.origin.y = 0;
     self.navigationController.navigationBar.frame = rect;
-
 }
 
 

@@ -11,6 +11,7 @@
 #import "CLImageGalleryViewController.h"
 #import "CLFileDetailViewController.h"
 #import "CLUploadsTableViewController.h"
+#import "CLMediaPlayerViewController.h"
 
 
 @interface CLFileBrowserBaseTableViewController ()
@@ -343,6 +344,10 @@
                     [images release];
                     [self.navigationController pushViewController:imageGalleryViewController animated:YES];
                     [imageGalleryViewController release];
+                } else if (([[metadata objectForKey:@"type"] isEqualToString:@"video"] || [[metadata objectForKey:@"type"] isEqualToString:@"audio"])) {
+                    CLMediaPlayerViewController *moviePlayer = [[CLMediaPlayerViewController alloc] initWithMediaURL:[NSURL URLWithString:[metadata objectForKey:@"source"]]];
+                    [self.navigationController pushViewController:moviePlayer animated:YES];
+                    [moviePlayer release];
                 } else {
                     CLFileDetailViewController *fileDetailViewController = [[CLFileDetailViewController alloc] initWithFile:metadata WithinViewType:SKYDRIVE];
                     [self.navigationController pushViewController:fileDetailViewController animated:YES];

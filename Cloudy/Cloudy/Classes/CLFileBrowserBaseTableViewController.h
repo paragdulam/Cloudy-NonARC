@@ -11,6 +11,7 @@
 #import "CLFileBrowserCell.h"
 
 
+
 @interface CLFileBrowserBaseTableViewController : CLBaseTableViewController<LiveOperationDelegate,CLBrowserBarItemDelegate,UITextFieldDelegate,LiveDownloadOperationDelegate>
 {
     NSString *path;

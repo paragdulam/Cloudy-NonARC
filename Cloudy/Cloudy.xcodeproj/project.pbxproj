@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		F100AF78167329120065E1A9 /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F100AF77167329120065E1A9 /* MediaPlayer.framework */; };
+		F100AF871673467F0065E1A9 /* CLMediaPlayerViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F100AF861673467F0065E1A9 /* CLMediaPlayerViewController.m */; };
+		F100AF89167352AF0065E1A9 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F100AF88167352AF0065E1A9 /* AVFoundation.framework */; };
 		F10169C8164B9CE0002AE454 /* CLDictionaryConvertor.m in Sources */ = {isa = PBXBuildFile; fileRef = F10169C5164B9CE0002AE454 /* CLDictionaryConvertor.m */; };
 		F10169C9164B9CE0002AE454 /* CLCacheManager.m in Sources */ = {isa = PBXBuildFile; fileRef = F10169C7164B9CE0002AE454 /* CLCacheManager.m */; };
 		F10169DF164CD62F002AE454 /* CLAccountCell.m in Sources */ = {isa = PBXBuildFile; fileRef = F10169DE164CD62F002AE454 /* CLAccountCell.m */; };
@@ -250,6 +253,10 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		F100AF77167329120065E1A9 /* MediaPlayer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MediaPlayer.framework; path = System/Library/Frameworks/MediaPlayer.framework; sourceTree = SDKROOT; };
+		F100AF851673467F0065E1A9 /* CLMediaPlayerViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CLMediaPlayerViewController.h; sourceTree = "<group>"; };
+		F100AF861673467F0065E1A9 /* CLMediaPlayerViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CLMediaPlayerViewController.m; sourceTree = "<group>"; };
+		F100AF88167352AF0065E1A9 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		F10169C4164B9CE0002AE454 /* CLDictionaryConvertor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CLDictionaryConvertor.h; sourceTree = "<group>"; };
 		F10169C5164B9CE0002AE454 /* CLDictionaryConvertor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CLDictionaryConvertor.m; sourceTree = "<group>"; };
 		F10169C6164B9CE0002AE454 /* CLCacheManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CLCacheManager.h; sourceTree = "<group>"; };
@@ -537,6 +544,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F100AF89167352AF0065E1A9 /* AVFoundation.framework in Frameworks */,
+				F100AF78167329120065E1A9 /* MediaPlayer.framework in Frameworks */,
 				F1FA4F381656A4E10027E4CC /* MessageUI.framework in Frameworks */,
 				F10169ED164CDF8B002AE454 /* Security.framework in Frameworks */,
 				F194DBEB164AED8900631792 /* AssetsLibrary.framework in Frameworks */,
@@ -703,6 +712,8 @@
 		F194DB0F164A64BC00631792 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				F100AF88167352AF0065E1A9 /* AVFoundation.framework */,
+				F100AF77167329120065E1A9 /* MediaPlayer.framework */,
 				F1FA4F371656A4E00027E4CC /* MessageUI.framework */,
 				F10169EC164CDF8B002AE454 /* Security.framework */,
 				F194DBEA164AED8900631792 /* AssetsLibrary.framework */,
@@ -779,6 +790,8 @@
 				F1DC76111666D3E70043965A /* CLUploadsTableViewController.m */,
 				F1DC76131666DBC50043965A /* CLUploadCell.h */,
 				F1DC76141666DBC50043965A /* CLUploadCell.m */,
+				F100AF851673467F0065E1A9 /* CLMediaPlayerViewController.h */,
+				F100AF861673467F0065E1A9 /* CLMediaPlayerViewController.m */,
 			);
 			path = Classes;
 			sourceTree = "<group>";
@@ -1314,6 +1327,7 @@
 				F153306E165F6EDF00CD2E23 /* CLDetailBaseViewController.m in Sources */,
 				F1DC76121666D3E70043965A /* CLUploadsTableViewController.m in Sources */,
 				F1DC76151666DBC50043965A /* CLUploadCell.m in Sources */,
+				F100AF871673467F0065E1A9 /* CLMediaPlayerViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
