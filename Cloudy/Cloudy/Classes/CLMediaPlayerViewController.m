@@ -16,6 +16,8 @@
 
 @implementation CLMediaPlayerViewController
 @synthesize mediaURL;
+@synthesize video;
+@synthesize viewType;
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
@@ -26,6 +28,18 @@
     return self;
 }
 
+
+-(id) initWithVideoFile:(NSDictionary *) videoFile
+         withInViewType:(VIEW_TYPE) type
+{
+    if (self = [super init]) {
+        self.viewType = type;
+        self.video = videoFile;
+    }
+    return self;
+}
+
+
 -(id) initWithMediaURL:(NSURL *) url
 {
     if (self = [super init]) {
@@ -34,16 +48,42 @@
     return self;
 }
 
+
+-(void) setUpMediaPlayer
+{
+    moviePlayer = [[MPMoviePlayerController alloc] init];
+    [self.view addSubview:moviePlayer.view];
+    [moviePlayer setControlStyle:MPMovieControlStyleEmbedded];
+}
+
+-(void) playMovie
+{
+    [moviePlayer setContentURL:mediaURL];
+    [moviePlayer prepareToPlay];
+    [moviePlayer play];
+}
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
 	// Do any additional setup after loading the view.
-    moviePlayer = [[MPMoviePlayerController alloc] initWithContentURL:mediaURL];
-    [self.view addSubview:moviePlayer.view];
-    [moviePlayer setControlStyle:MPMovieControlStyleEmbedded];
-    [moviePlayer prepareToPlay];
-    [moviePlayer play];
-    
+    [self setUpMediaPlayer];
+    switch (viewType) {
+        case DROPBOX:
+        {
+            [self.appDelegate.restClient loadStreamableURLForFile:[video objectForKey:@"path"]];
+            [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:YES];
+        }
+            break;
+        case SKYDRIVE:
+        {
+            self.mediaURL = [NSURL URLWithString:[video objectForKey:@"source"]];
+            [self playMovie];
+        }
+            break;
+        default:
+            break;
+    }
 }
 
 
@@ -51,6 +91,7 @@
 {
     [super viewWillAppear:animated];
     moviePlayer.view.frame = self.view.bounds;
+    self.appDelegate.restClient.delegate = self;
 }
 
 
@@ -58,6 +99,7 @@
 {
     [super viewWillDisappear:animated];
     [moviePlayer stop];
+    self.appDelegate.restClient.delegate = nil;
 }
 
 - (void)didReceiveMemoryWarning
@@ -69,6 +111,9 @@
 
 -(void) dealloc
 {
+    [video release];
+    video = nil;
+    
     [moviePlayer release];
     moviePlayer = nil;
     
@@ -77,5 +122,23 @@
     
     [super dealloc];
 }
+
+
+
+#pragma mark - DBRestClientDelegate
+
+
+- (void)restClient:(DBRestClient*)restClient loadedStreamableURL:(NSURL*)url forFile:(NSString*)path
+{
+    self.mediaURL = url;
+    [self playMovie];
+    [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
+}
+
+- (void)restClient:(DBRestClient*)restClient loadStreamableURLFailedWithError:(NSError*)error
+{
+    [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
+}
+
 
 @end

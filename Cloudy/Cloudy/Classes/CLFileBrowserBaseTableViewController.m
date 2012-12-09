@@ -316,7 +316,11 @@
                     [images release];
                     [self.navigationController pushViewController:imageGalleryViewController animated:YES];
                     [imageGalleryViewController release];
-                } else {
+                } else if ([[metadata objectForKey:@"icon"] isEqualToString:@"page_white_film"] || [[metadata objectForKey:@"icon"] isEqualToString:@"page_white_sound"] ) {
+                    CLMediaPlayerViewController *moviePlayer = [[CLMediaPlayerViewController alloc] initWithVideoFile:metadata withInViewType:viewType];
+                    [self.navigationController pushViewController:moviePlayer animated:YES];
+                    [moviePlayer release];
+                }else {
                     CLFileDetailViewController *fileDetailViewController = [[CLFileDetailViewController alloc] initWithFile:metadata WithinViewType:DROPBOX];
                     [self.navigationController pushViewController:fileDetailViewController animated:YES];
                     [fileDetailViewController release];
@@ -345,7 +349,7 @@
                     [self.navigationController pushViewController:imageGalleryViewController animated:YES];
                     [imageGalleryViewController release];
                 } else if (([[metadata objectForKey:@"type"] isEqualToString:@"video"] || [[metadata objectForKey:@"type"] isEqualToString:@"audio"])) {
-                    CLMediaPlayerViewController *moviePlayer = [[CLMediaPlayerViewController alloc] initWithMediaURL:[NSURL URLWithString:[metadata objectForKey:@"source"]]];
+                    CLMediaPlayerViewController *moviePlayer = [[CLMediaPlayerViewController alloc] initWithVideoFile:metadata withInViewType:viewType];
                     [self.navigationController pushViewController:moviePlayer animated:YES];
                     [moviePlayer release];
                 } else {
