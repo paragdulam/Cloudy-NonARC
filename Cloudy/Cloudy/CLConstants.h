@@ -48,8 +48,8 @@
 #define FILE_STRUCTURE_PLIST @"FILE_STRUCTURE.plist"
 #define FILE_STRUCTURE_STRING @"File_Structure"
 
-//#define NAVBAR_COLOR [UIColor colorWithRed:0.f/255.f green:50.f/255.f blue:73.f/255.f alpha:1.f]
-#define NAVBAR_COLOR [UIColor blackColor]
+#define NAVBAR_COLOR [UIColor colorWithRed:75.f/255.f green:144.f/255.f blue:183.f/255.f alpha:1.f]
+//#define NAVBAR_COLOR [UIColor blackColor]
 #define CELL_BACKGROUND_COLOR [UIColor whiteColor]
 #define CELL_TEXTLABEL_COLOR [UIColor blackColor]
 #define CELL_DETAILTEXTLABEL_COLOR [UIColor lightGrayColor]

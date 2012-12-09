@@ -18,6 +18,9 @@
 @implementation CLBrowserBarItem
 @synthesize delegate;
 
+
+
+
 - (id)initWithFrame:(CGRect)frame
 {
     self = [super initWithFrame:frame];

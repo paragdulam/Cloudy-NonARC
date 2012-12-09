@@ -22,6 +22,8 @@
 		F150216F1674ACAC0018E3DB /* app_icon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = F150216E1674ACAC0018E3DB /* app_icon@2x.png */; };
 		F15021711674ACCE0018E3DB /* app_icon.png in Resources */ = {isa = PBXBuildFile; fileRef = F15021701674ACCD0018E3DB /* app_icon.png */; };
 		F15021731674ACD90018E3DB /* app_icon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = F15021721674ACD80018E3DB /* app_icon@2x.png */; };
+		F1502175167526800018E3DB /* SkyDriveIconBlack_32x32.png in Resources */ = {isa = PBXBuildFile; fileRef = F1502174167526800018E3DB /* SkyDriveIconBlack_32x32.png */; };
+		F1502177167526950018E3DB /* SkyDriveIconBlack_32x32@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = F1502176167526950018E3DB /* SkyDriveIconBlack_32x32@2x.png */; };
 		F152EF30166249940093E423 /* _blank@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = F152EEF5166249930093E423 /* _blank@2x.png */; };
 		F152EF31166249940093E423 /* _page@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = F152EEF6166249940093E423 /* _page@2x.png */; };
 		F152EF32166249940093E423 /* aac@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = F152EEF7166249940093E423 /* aac@2x.png */; };
@@ -276,6 +278,8 @@
 		F150216E1674ACAC0018E3DB /* app_icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "app_icon@2x.png"; sourceTree = "<group>"; };
 		F15021701674ACCD0018E3DB /* app_icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = app_icon.png; sourceTree = "<group>"; };
 		F15021721674ACD80018E3DB /* app_icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "app_icon@2x.png"; sourceTree = "<group>"; };
+		F1502174167526800018E3DB /* SkyDriveIconBlack_32x32.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = SkyDriveIconBlack_32x32.png; sourceTree = "<group>"; };
+		F1502176167526950018E3DB /* SkyDriveIconBlack_32x32@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "SkyDriveIconBlack_32x32@2x.png"; sourceTree = "<group>"; };
 		F152EEF5166249930093E423 /* _blank@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "_blank@2x.png"; sourceTree = "<group>"; };
 		F152EEF6166249940093E423 /* _page@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "_page@2x.png"; sourceTree = "<group>"; };
 		F152EEF7166249940093E423 /* aac@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "aac@2x.png"; sourceTree = "<group>"; };
@@ -830,6 +834,7 @@
 				F1B7EDD1164FD88000A9ABE0 /* 1351499593_arrow_up.png */,
 				F10169F0164D470D002AE454 /* SkyDriveIconWhite_32x32.png */,
 				F10169F4164D48F3002AE454 /* SkyDriveIconBlue_32x32.png */,
+				F1502174167526800018E3DB /* SkyDriveIconBlack_32x32.png */,
 				F10169F1164D470D002AE454 /* dropbox_cell_Image.png */,
 				F194DB56164A8AFF00631792 /* button_background_base.png */,
 			);
@@ -853,6 +858,7 @@
 				F194DB54164A87F100631792 /* nav_menu_icon@2x.png */,
 				F16011B6164E1AAF00098D8C /* SkyDriveIconWhite_32x32@2x.png */,
 				F18309CD16597FE800FF6C64 /* SkyDriveIconBlue_32x32@2x.png */,
+				F1502176167526950018E3DB /* SkyDriveIconBlack_32x32@2x.png */,
 			);
 			path = Retina;
 			sourceTree = "<group>";
@@ -1283,6 +1289,8 @@
 				F150216F1674ACAC0018E3DB /* app_icon@2x.png in Resources */,
 				F15021711674ACCE0018E3DB /* app_icon.png in Resources */,
 				F15021731674ACD90018E3DB /* app_icon@2x.png in Resources */,
+				F1502175167526800018E3DB /* SkyDriveIconBlack_32x32.png in Resources */,
+				F1502177167526950018E3DB /* SkyDriveIconBlack_32x32@2x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

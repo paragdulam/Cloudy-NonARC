@@ -93,7 +93,7 @@
   
     fileOperationsToolbar = [[UIToolbar alloc] initWithFrame:CGRectMake(0, self.view.frame.size.height - (TOOLBAR_HEIGHT * 2), self.view.frame.size.width, TOOLBAR_HEIGHT)];
     fileOperationsToolbar.barStyle = UIBarStyleDefault;
-//    fileOperationsToolbar.tintColor = NAVBAR_COLOR;
+    fileOperationsToolbar.tintColor = NAVBAR_COLOR;
     [self.view addSubview:fileOperationsToolbar];
     [fileOperationsToolbar release];
     
@@ -818,7 +818,7 @@
             [self.appDelegate.menuController setLeftButtonImage:[UIImage imageNamed:@"dropbox_cell_Image.png"]];
             break;
         case SKYDRIVE:
-            [self.appDelegate.menuController setLeftButtonImage:[UIImage imageNamed:@"SkyDriveIconBlue_32x32.png"]];
+            [self.appDelegate.menuController setLeftButtonImage:[UIImage imageNamed:@"SkyDriveIconBlack_32x32.png"]];
             break;
         default:
             [self.appDelegate.menuController setLeftButtonImage:[UIImage imageNamed:@"nav_menu_icon.png"]];

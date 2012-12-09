@@ -216,17 +216,6 @@
         cell = [[[CLAccountCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:@"CLAccountCell"] autorelease];
     }
     [cell setData:[tableDataArray objectAtIndex:indexPath.section] forCellAtIndexPath:indexPath];
-    
-//    switch (indexPath.section) {
-//        case DROPBOX:
-//            [cell.imageView setImage:[UIImage imageNamed:@"dropbox_cell_Image.png"]];
-//            break;
-//        case SKYDRIVE:
-//            [cell.imageView setImage:[UIImage imageNamed:@"SkyDriveIconBlue_32x32.png"]];
-//            break;
-//        default:
-//            break;
-//    }
     return cell;
 }
 

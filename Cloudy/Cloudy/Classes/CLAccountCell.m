@@ -103,7 +103,7 @@
             {
                 totalConsumedBytes = ([[quotaDictionary objectForKey:@"quota"] doubleValue] - [[quotaDictionary objectForKey:@"available"] doubleValue]) / (1024 * 1024 * 1024);
                 totalBytes = [[quotaDictionary objectForKey:@"quota"] doubleValue] / (1024 * 1024 * 1024);
-                cellImage = [UIImage imageNamed:@"SkyDriveIconBlue_32x32.png"];
+                cellImage = [UIImage imageNamed:@"SkyDriveIconBlack_32x32.png"];
             }
                 break;
             default:
