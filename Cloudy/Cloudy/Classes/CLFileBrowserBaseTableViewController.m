@@ -667,11 +667,11 @@
 -(void) createToolbarItems
 {
     UIImage *baseImage = [UIImage imageNamed:@"button_background_base.png"];
-    UIImage *buttonImage = [baseImage resizableImageWithCapInsets:UIEdgeInsetsMake(0, 15, 0, 15)];
+    UIImage *buttonImage = [baseImage resizableImageWithCapInsets:UIEdgeInsetsMake(0, 25, 0, 25)];
     
     createFolderButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    createFolderButton.frame = CGRectMake(0, 0, 50, 30);
-    [createFolderButton setTitle:@"Folder"
+    createFolderButton.frame = CGRectMake(0, 0, 100, 30);
+    [createFolderButton setTitle:@"Create Folder"
                         forState:UIControlStateNormal];
     [createFolderButton setTitleColor:[UIColor whiteColor]
                              forState:UIControlStateNormal];
@@ -683,7 +683,6 @@
                  forControlEvents:UIControlEventTouchUpInside];
     toolBarItems = [[NSMutableArray alloc] init];
     UIBarButtonItem *createFolderBarButton = [[UIBarButtonItem alloc] initWithCustomView:createFolderButton];
-//    UIBarButtonItem *createFolderBarButton = [[UIBarButtonItem alloc] initWithTitle:@"Folder" style:UIBarButtonItemStyleBordered target:self action:@selector(createFolderButtonClicked:)];
 
     [toolBarItems addObject:createFolderBarButton];
     [createFolderBarButton release];

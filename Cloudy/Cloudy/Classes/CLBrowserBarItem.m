@@ -21,21 +21,31 @@
 
 
 
+-(void) setImage:(UIImage *) image WithInsets:(UIEdgeInsets) inset
+{
+    UIImage *buttonImage = [image resizableImageWithCapInsets:inset];
+    [button setBackgroundImage:buttonImage
+                      forState:UIControlStateNormal];
+}
+
+
+-(void) setFrame:(CGRect)frame
+{
+    [super setFrame:frame];
+    button.frame = CGRectMake(0, 0, frame.size.width, frame.size.height);
+    activityIndicator.center = CGPointMake(CGRectGetMaxX(button.frame) - (activityIndicator.frame.size.width/2), button.center.y);
+}
+
 - (id)initWithFrame:(CGRect)frame
 {
     self = [super initWithFrame:frame];
     if (self) {
         // Initialization code
-        UIImage *baseImage = [UIImage imageNamed:@"button_background_base.png"];
-        UIImage *buttonImage = [baseImage resizableImageWithCapInsets:UIEdgeInsetsMake(0, 15, 0, 15)];
 
         button = [UIButton buttonWithType:UIButtonTypeCustom];
-        button.frame = CGRectMake(0, 0, frame.size.width, frame.size.height);
 
         [button setTitleColor:[UIColor whiteColor]
                          forState:UIControlStateNormal];
-        [button setBackgroundImage:buttonImage
-                              forState:UIControlStateNormal];
         [button.titleLabel setFont:[UIFont boldSystemFontOfSize:12.f]];
         [button addTarget:self
                        action:@selector(buttonClicked:)
@@ -45,7 +55,6 @@
         
         activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
         activityIndicator.hidesWhenStopped = YES;
-        activityIndicator.center = CGPointMake(CGRectGetMaxX(button.frame) - (activityIndicator.frame.size.width/2), button.center.y);
         [self addSubview:activityIndicator];
         [activityIndicator release];
     }

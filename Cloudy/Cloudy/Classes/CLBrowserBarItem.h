@@ -21,6 +21,8 @@
 -(void) deselectAll;
 -(void)hideEditButton:(BOOL) aBool;
 -(void) setTitle:(NSString *) title forState:(UIControlState)state;
+-(void) setImage:(UIImage *) image WithInsets:(UIEdgeInsets) inset;
+
 
 @end
 

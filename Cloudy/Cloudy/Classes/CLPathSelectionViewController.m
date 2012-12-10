@@ -51,6 +51,11 @@
     [super viewDidLoad];
     [self completeToolbarItems];
     [fileOperationsToolbar setItems:toolBarItems animated:YES];
+    [self setTitle:@"Select Path"];
+    [barItem setFrame:CGRectMake(0, 0, 60, 30)];
+    [barItem setImage:[UIImage imageNamed:@"button_background_base.png"]
+           WithInsets:UIEdgeInsetsMake(0, 10, 0, 10)];
+
 	// Do any additional setup after loading the view.
 }
 

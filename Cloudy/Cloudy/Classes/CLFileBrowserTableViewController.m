@@ -64,6 +64,9 @@
     [fileOperationsToolbar setItems:toolBarItems animated:YES];
     [self createEditingToolbarItems];
     //currentFileOperation = INFINITY;
+    [barItem setFrame:CGRectMake(0, 0, 50, 30)];
+    [barItem setImage:[UIImage imageNamed:@"button_background_base.png"]
+           WithInsets:UIEdgeInsetsMake(0, 10, 0, 5)];
     [barItem setTitle:@"Edit" forState:UIControlStateNormal];
     [barItem setTitle:@"Done" forState:UIControlStateSelected];
 }
@@ -383,11 +386,11 @@ loadedSharableLink:(NSString *)link
 -(void) completeToolbarItems
 {
     UIImage *baseImage = [UIImage imageNamed:@"button_background_base.png"];
-    UIImage *buttonImage = [baseImage resizableImageWithCapInsets:UIEdgeInsetsMake(0, 15, 0, 15)];
+    UIImage *buttonImage = [baseImage resizableImageWithCapInsets:UIEdgeInsetsMake(0, 20, 0, 20)];
     
     
     uploadButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    uploadButton.frame = CGRectMake(0, 0, 50, 30);
+    uploadButton.frame = CGRectMake(0, 0, 60, 30);
     [uploadButton setTitle:@"Upload"
                   forState:UIControlStateNormal];
     [uploadButton setTitleColor:[UIColor whiteColor]
@@ -414,11 +417,12 @@ loadedSharableLink:(NSString *)link
 -(void) createEditingToolbarItems
 {
     UIImage *baseImage = [UIImage imageNamed:@"button_background_base.png"];
-    UIImage *buttonImage = [baseImage resizableImageWithCapInsets:UIEdgeInsetsMake(0, 15, 0, 15)];
+    UIImage *buttonImage = [baseImage resizableImageWithCapInsets:UIEdgeInsetsMake(0, 20, 0, 20)];
 
-    
     deleteButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    deleteButton.frame = CGRectMake(0, 0, 50, 30);
+    [deleteButton setBackgroundColor:[UIColor redColor]];
+    deleteButton.layer.cornerRadius = 5.f;
+    deleteButton.frame = CGRectMake(0, 0, 60, 30);
     [deleteButton setTitle:@"Delete"
                   forState:UIControlStateNormal];
     [deleteButton setTitleColor:[UIColor whiteColor]
@@ -433,7 +437,7 @@ loadedSharableLink:(NSString *)link
     
     
     moveButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    moveButton.frame = CGRectMake(0, 0, 50, 30);
+    moveButton.frame = CGRectMake(0, 0, 60, 30);
     [moveButton setTitle:@"Move"
                 forState:UIControlStateNormal];
     [moveButton setTitleColor:[UIColor whiteColor]
@@ -448,7 +452,7 @@ loadedSharableLink:(NSString *)link
     
     
     copyButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    copyButton.frame = CGRectMake(0, 0, 50, 30);
+    copyButton.frame = CGRectMake(0, 0, 60, 30);
     [copyButton setTitle:@"Copy"
                 forState:UIControlStateNormal];
     [copyButton setTitleColor:[UIColor whiteColor]
@@ -463,7 +467,7 @@ loadedSharableLink:(NSString *)link
     
     
     shareButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    shareButton.frame = CGRectMake(0, 0, 50, 30);
+    shareButton.frame = CGRectMake(0, 0, 60, 30);
     [shareButton setTitle:@"Share"
                  forState:UIControlStateNormal];
     [shareButton setTitleColor:[UIColor whiteColor]

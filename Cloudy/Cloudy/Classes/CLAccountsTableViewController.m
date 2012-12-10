@@ -50,7 +50,7 @@
     [editButton setTitle:@"Edit" forState:UIControlStateNormal];
     [editButton setTitle:@"Done" forState:UIControlStateSelected];
     UIImage *baseImage = [UIImage imageNamed:@"button_background_base.png"];
-    UIImage *buttonImage = [baseImage resizableImageWithCapInsets:UIEdgeInsetsMake(0, 15, 0, 15)];
+    UIImage *buttonImage = [baseImage resizableImageWithCapInsets:UIEdgeInsetsMake(0, 10, 0, 5)];
     [editButton setBackgroundImage:buttonImage
                           forState:UIControlStateNormal];
     [editButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
@@ -58,7 +58,7 @@
                    action:@selector(editButtonTapped:)
          forControlEvents:UIControlEventTouchUpInside];
     [editButton.titleLabel setFont:[UIFont boldSystemFontOfSize:12.f]];
-    [editButton setFrame:CGRectMake(0, 0, 60, 30)];
+    [editButton setFrame:CGRectMake(0, 0, 50, 30)];
     UIBarButtonItem *editBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:editButton];
     [self.navigationItem setLeftBarButtonItem:editBarButtonItem];
     [editBarButtonItem release];
