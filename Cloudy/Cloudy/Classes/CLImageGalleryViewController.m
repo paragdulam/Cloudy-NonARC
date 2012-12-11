@@ -309,6 +309,7 @@
     NSDictionary *data = [images objectAtIndex:index];
     [downloadProgressButton setImage:[UIImage imageWithData:[data objectForKey:THUMBNAIL_DATA]] forState:UIControlStateNormal];
     [downloadProgressButton setProgressViewHidden:NO];
+    [currentImageIndexLabel setTextColor:NAVBAR_COLOR];
     switch (viewType) {
         case DROPBOX:
         {
