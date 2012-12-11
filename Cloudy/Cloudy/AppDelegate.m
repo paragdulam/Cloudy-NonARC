@@ -206,36 +206,43 @@
 }
 
 
--(void) animationDidFinish:(id)obj
-{
-    NSLog(@"obj %@",obj);
-}
-
 +(void) showError:(NSError *) error
       alertOnView:(UIView *) view
 {
-    UILabel *alert = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 200,200)];
+    CGRect frame = view.frame;
+    UILabel *alert = [[UILabel alloc] initWithFrame:CGRectMake(frame.origin.x + 10.f,
+                                                               frame.origin.y + 10.f,
+                                                               frame.size.width - 20.f,
+                                                               0)];
     alert.layer.cornerRadius = 5.f;
     alert.numberOfLines = 0;
     alert.lineBreakMode = UILineBreakModeWordWrap;
-    alert.backgroundColor = [UIColor blackColor];
+    alert.backgroundColor = [UIColor redColor];
     alert.userInteractionEnabled = NO;
     alert.textColor = [UIColor whiteColor];
+    alert.textAlignment = UITextAlignmentCenter;
     NSString *errorString = [error.userInfo objectForKey:@"error"];
     if (![errorString length]) {
         errorString = [error localizedDescription];
     }
     [alert setText:errorString];
-    alert.center = view.center;
+    CGSize size = [alert sizeThatFits:alert.frame.size];
+    CGRect finalFrame;
+    finalFrame.origin.x = alert.frame.origin.x;
+    finalFrame.origin.y = alert.frame.origin.y;
+    finalFrame.size.width = alert.frame.size.width;
+    finalFrame.size.height = size.height;
+    alert.frame = finalFrame;
     [view addSubview:alert];
     [alert release];
     
-    [UIView beginAnimations:@"FADE" context:alert];
-    [UIView setAnimationDuration:5.f];
-    [UIView setAnimationDelegate:self];
-    [UIView setAnimationDidStopSelector:@selector(animationDidFinish:)];
-    alert.alpha = 0.f;
-    [UIView commitAnimations];
+    
+    [UIView animateWithDuration:5.f
+                     animations:^{
+                         alert.alpha = 0.f;
+                     } completion:^(BOOL finished) {
+                         [alert removeFromSuperview];
+                     }];
 }
 
 #pragma mark - Uploads Operation

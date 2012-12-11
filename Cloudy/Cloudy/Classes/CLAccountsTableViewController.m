@@ -366,17 +366,7 @@
 {
     NSIndexPath *indexPath = [NSIndexPath indexPathForRow:0 inSection:DROPBOX];
     [self stopAnimatingCellAtIndexPath:indexPath];
-    
-    UIView *alert = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 200,200)];
-    alert.backgroundColor = [UIColor blackColor];
-    alert.center = self.view.center;
-    [self.view addSubview:alert];
-    [alert release];
-    
-    [UIView beginAnimations:nil context:NULL];
-    [UIView setAnimationDuration:3.f];
-    alert.alpha = 0.f;
-    [UIView commitAnimations];
+    [AppDelegate showError:error alertOnView:self.view];
 }
 
 
