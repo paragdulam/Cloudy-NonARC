@@ -18,6 +18,7 @@
 		F10169F2164D470D002AE454 /* SkyDriveIconWhite_32x32.png in Resources */ = {isa = PBXBuildFile; fileRef = F10169F0164D470D002AE454 /* SkyDriveIconWhite_32x32.png */; };
 		F10169F3164D470D002AE454 /* dropbox_cell_Image.png in Resources */ = {isa = PBXBuildFile; fileRef = F10169F1164D470D002AE454 /* dropbox_cell_Image.png */; };
 		F10169F5164D48F3002AE454 /* SkyDriveIconBlue_32x32.png in Resources */ = {isa = PBXBuildFile; fileRef = F10169F4164D48F3002AE454 /* SkyDriveIconBlue_32x32.png */; };
+		F14CC06516773B8D002E2807 /* CLAboutViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F14CC06416773B8C002E2807 /* CLAboutViewController.m */; };
 		F150216D1674AC9D0018E3DB /* app_icon.png in Resources */ = {isa = PBXBuildFile; fileRef = F150216C1674AC9D0018E3DB /* app_icon.png */; };
 		F150216F1674ACAC0018E3DB /* app_icon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = F150216E1674ACAC0018E3DB /* app_icon@2x.png */; };
 		F15021711674ACCE0018E3DB /* app_icon.png in Resources */ = {isa = PBXBuildFile; fileRef = F15021701674ACCD0018E3DB /* app_icon.png */; };
@@ -277,6 +278,8 @@
 		F10169F0164D470D002AE454 /* SkyDriveIconWhite_32x32.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = SkyDriveIconWhite_32x32.png; sourceTree = "<group>"; };
 		F10169F1164D470D002AE454 /* dropbox_cell_Image.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = dropbox_cell_Image.png; sourceTree = "<group>"; };
 		F10169F4164D48F3002AE454 /* SkyDriveIconBlue_32x32.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = SkyDriveIconBlue_32x32.png; sourceTree = "<group>"; };
+		F14CC06316773B8C002E2807 /* CLAboutViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CLAboutViewController.h; sourceTree = "<group>"; };
+		F14CC06416773B8C002E2807 /* CLAboutViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CLAboutViewController.m; sourceTree = "<group>"; };
 		F150216C1674AC9D0018E3DB /* app_icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = app_icon.png; sourceTree = "<group>"; };
 		F150216E1674ACAC0018E3DB /* app_icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "app_icon@2x.png"; sourceTree = "<group>"; };
 		F15021701674ACCD0018E3DB /* app_icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = app_icon.png; sourceTree = "<group>"; };
@@ -815,6 +818,8 @@
 				F1DC76141666DBC50043965A /* CLUploadCell.m */,
 				F100AF851673467F0065E1A9 /* CLMediaPlayerViewController.h */,
 				F100AF861673467F0065E1A9 /* CLMediaPlayerViewController.m */,
+				F14CC06316773B8C002E2807 /* CLAboutViewController.h */,
+				F14CC06416773B8C002E2807 /* CLAboutViewController.m */,
 			);
 			path = Classes;
 			sourceTree = "<group>";
@@ -1364,6 +1369,7 @@
 				F1DC76121666D3E70043965A /* CLUploadsTableViewController.m in Sources */,
 				F1DC76151666DBC50043965A /* CLUploadCell.m in Sources */,
 				F100AF871673467F0065E1A9 /* CLMediaPlayerViewController.m in Sources */,
+				F14CC06516773B8D002E2807 /* CLAboutViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

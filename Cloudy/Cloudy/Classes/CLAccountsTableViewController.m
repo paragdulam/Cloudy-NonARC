@@ -364,9 +364,11 @@
 
 - (void)restClient:(DBRestClient*)client loadAccountInfoFailedWithError:(NSError*)error
 {
-    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:0 inSection:DROPBOX];
+    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:0
+                                                inSection:DROPBOX];
     [self stopAnimatingCellAtIndexPath:indexPath];
-    [AppDelegate showError:error alertOnView:self.view];
+    [AppDelegate showError:error
+               alertOnView:self.view];
 }
 
 

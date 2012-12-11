@@ -13,10 +13,11 @@
     UIImageView *mainImageView;
     NSMutableArray *liveOperations;
     CGRect originalViewRect;
-    int currentIndex;
+    int currentDownloadIndex;
     UIToolbar *progressToolBar;
     UIButton *saveButton;
     CLUploadProgressButton *downloadProgressButton;
+    UILabel *currentImageIndexLabel;
 }
 
 -(void) downloadImageAtIndex:(int) index;
@@ -83,8 +84,8 @@
     
     liveOperations = [[NSMutableArray alloc] init];
     if ([images count]) {
-        currentIndex = [images indexOfObject:currentImage];
-        [self downloadImageAtIndex:currentIndex];
+        currentDownloadIndex = [images indexOfObject:currentImage];
+        [self downloadImageAtIndex:currentDownloadIndex];
     }
     [self showImage];
     
@@ -148,6 +149,20 @@
     UIBarButtonItem *flexiSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
     [items addObject:flexiSpace];
     [flexiSpace release];
+    
+    currentImageIndexLabel = [[UILabel alloc] init];
+    [currentImageIndexLabel setBackgroundColor:[UIColor clearColor]];
+    [currentImageIndexLabel setTextColor:[UIColor whiteColor]];
+    [currentImageIndexLabel setFont:[UIFont boldSystemFontOfSize:16.f]];
+    UIBarButtonItem *currentImageIndexLabelBarButton = [[UIBarButtonItem alloc] initWithCustomView:currentImageIndexLabel];
+    [currentImageIndexLabel release];
+    [items addObject:currentImageIndexLabelBarButton];
+    [currentImageIndexLabelBarButton release];
+    
+    flexiSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
+    [items addObject:flexiSpace];
+    [flexiSpace release];
+
 
     downloadProgressButton = [[CLUploadProgressButton alloc] init];
     [downloadProgressButton setFrame:CGRectMake(0, 0, 30, 30)];
@@ -217,8 +232,8 @@
 -(void) downloadProgressButtonClicked:(UIButton *) btn
 {
     if ([downloadProgressButton progressViewHidden]) {
-        currentIndex = [images indexOfObject:currentImage];
-        [self downloadImageAtIndex:currentIndex];
+        currentDownloadIndex = [images indexOfObject:currentImage];
+        [self downloadImageAtIndex:currentDownloadIndex];
     }
 }
 
@@ -364,6 +379,14 @@
                                     forState:UIControlStateNormal];
         }
     }
+    int index = [images indexOfObject:currentImage];
+    if (index == currentDownloadIndex) {
+        [currentImageIndexLabel setTextColor:NAVBAR_COLOR];
+    } else {
+        [currentImageIndexLabel setTextColor:[UIColor whiteColor]];
+    }
+    [currentImageIndexLabel setText:[NSString stringWithFormat:@"%d/%d",index + 1,[images count]]];
+    [currentImageIndexLabel sizeToFit];
     [mainImageView setImage:imageToBeShown];
 }
 
