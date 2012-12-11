@@ -768,6 +768,23 @@
     dataTableView.tableHeaderView = nil;
     self.path = pathString;
     self.viewType = type;
+    
+    
+    //Temp Root Path Setting
+    if ([CLCacheManager isRootPath:path
+                    WithinViewType:viewType]) {
+        switch (viewType) {
+            case DROPBOX:
+                [self.navigationItem setTitle:DROPBOX_STRING];
+                break;
+            case SKYDRIVE:
+                [self.navigationItem setTitle:SKYDRIVE_STRING];
+                break;
+            default:
+                break;
+        }
+    }
+    //Temp Root Path Setting
 
     //Read Cache Starts
     [self readCacheUpdateView];

@@ -44,7 +44,9 @@
     [super viewWillAppear:animated];
     
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleBlackTranslucent animated:YES];
+    self.navigationController.navigationBar.tintColor = [UIColor blackColor];
     self.navigationController.navigationBar.barStyle = UIBarStyleBlackTranslucent;
+    [self.navigationController.navigationBar setTranslucent:YES];
     
     
     
@@ -66,7 +68,9 @@
     [CLCacheManager deleteAllContentsOfFolderAtPath:[CLCacheManager getTemporaryDirectory]];
 
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
+    self.navigationController.navigationBar.tintColor = NAVBAR_COLOR;
     self.navigationController.navigationBar.barStyle = UIBarStyleDefault;
+    [self.navigationController.navigationBar setTranslucent:NO];
     
     self.appDelegate.window.rootViewController.view.frame = originalViewRect;
     self.navigationController.view.frame = self.appDelegate.window.rootViewController.view.bounds;
