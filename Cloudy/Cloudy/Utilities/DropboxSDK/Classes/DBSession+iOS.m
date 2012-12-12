@@ -87,7 +87,7 @@ static NSString *kDBProtocolDropbox = @"dbapi-1";
                   kDBProtocolHTTPS, kDBDropboxWebHost, kDBDropboxAPIVersion, consumerKey, secret, userIdStr];
         UIViewController *connectController = [[[DBConnectController alloc] initWithUrl:[NSURL URLWithString:urlStr] fromController:rootController] autorelease];
         UINavigationController *navController = [[[UINavigationController alloc] initWithRootViewController:connectController] autorelease];
-//        navController.navigationBar.tintColor = [UIColor blackColor];
+        navController.navigationBar.tintColor = [UIColor colorWithRed:75.f/255.f green:144.f/255.f blue:183.f/255.f alpha:1.f];
         if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
             connectController.modalPresentationStyle = UIModalPresentationFormSheet;
             navController.modalPresentationStyle = UIModalPresentationFormSheet;

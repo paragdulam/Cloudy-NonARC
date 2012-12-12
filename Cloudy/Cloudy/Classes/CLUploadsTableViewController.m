@@ -44,6 +44,8 @@
     CLBrowserBarItem *barItem = [[CLBrowserBarItem alloc] initWithFrame:CGRectMake(0, 0, 60, 30)];
     barItem.delegate = self;
     [barItem setTitle:@"Cancel" forState:UIControlStateNormal];
+    [barItem setImage:[UIImage imageNamed:@"button_background_base.png"]
+           WithInsets:UIEdgeInsetsMake(0, 10, 0, 10)];
     UIBarButtonItem *cancelBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:barItem];
     [barItem release];
     

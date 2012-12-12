@@ -537,7 +537,18 @@ loadedSharableLink:(NSString *)link
     
     MFMailComposeViewController* controller = [[MFMailComposeViewController alloc] init];
     controller.mailComposeDelegate = self;
-    [controller setSubject:@"Sharing Files"];
+    NSString *cloudPlatform = nil;
+    switch (viewType) {
+        case DROPBOX:
+            cloudPlatform = DROPBOX_STRING;
+            break;
+        case SKYDRIVE:
+            cloudPlatform = SKYDRIVE_STRING;
+            break;
+        default:
+            break;
+    }
+    [controller setSubject:[NSString stringWithFormat:@"Sharing Files Using %@",cloudPlatform]];
     [controller setMessageBody:htmlString isHTML:YES];
     [self presentModalViewController:controller animated:YES];
     [controller release];
