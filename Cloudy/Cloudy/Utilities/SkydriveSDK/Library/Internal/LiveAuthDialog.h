@@ -7,6 +7,7 @@
 
 #import <UIKit/UIKit.h>
 #import "LiveAuthDialogDelegate.h"
+#import "CLConstants.h"
 
 @interface LiveAuthDialog : UIViewController<UIWebViewDelegate>
 {

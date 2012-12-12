@@ -676,12 +676,14 @@ loadedSharableLink:(NSString *)link
             headerView.frame = CGRectMake(0, 0, 320.f, 64.f);
             headerView.contentMode = UIViewContentModeLeft;
             dataTableView.tableHeaderView = headerView;
+            dataTableView.separatorStyle = UITableViewCellSeparatorStyleNone;
+            [self.navigationItem setTitle:@"Cloudy"];
+            [tableDataArray removeAllObjects];
+            viewType = INFINITY;
+            [self hideButtons:[NSArray arrayWithObjects:uploadButton,createFolderButton, nil]];
+            [barItem hideEditButton:YES];
+            [self updateView];
         }
-        [tableDataArray removeAllObjects];
-        viewType = INFINITY;
-        [self hideButtons:[NSArray arrayWithObjects:uploadButton,createFolderButton, nil]];
-        [barItem hideEditButton:YES];
-        [self updateView];
         return;
     }
     

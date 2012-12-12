@@ -78,7 +78,7 @@
     //Load the Url request in the UIWebView.
     NSURLRequest *requestObj = [NSURLRequest requestWithURL:_startUrl];
     [webView loadRequest:requestObj];
-//    self.navigationController.navigationBar.tintColor = [UIColor blackColor];
+    self.navigationController.navigationBar.tintColor = NAVBAR_COLOR;
 }
 
 - (void) viewDidAppear:(BOOL)animated

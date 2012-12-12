@@ -766,6 +766,7 @@
 -(void) loadFilesForPath:(NSString *) pathString WithInViewType:(VIEW_TYPE) type
 {
     dataTableView.tableHeaderView = nil;
+    dataTableView.separatorStyle = UITableViewCellSeparatorStyleSingleLine;
     self.path = pathString;
     self.viewType = type;
     
