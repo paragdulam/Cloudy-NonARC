@@ -18,7 +18,7 @@
     [retVal setObject:[NSNumber numberWithLongLong:quota.sharedConsumedBytes] forKey:@"sharedConsumedBytes"];
     [retVal setObject:[NSNumber numberWithLongLong:quota.totalConsumedBytes] forKey:@"totalConsumedBytes"];
     [retVal setObject:[NSNumber numberWithLongLong:quota.totalBytes] forKey:@"totalBytes"];
-    return retVal;
+    return [retVal autorelease];
 }
 
 
@@ -50,7 +50,7 @@
             [retVal setObject:[NSNumber numberWithInt:SKYDRIVE] forKey:ACCOUNT_TYPE];
         }
     }
-    return retVal;
+    return [retVal autorelease];
 }
 
 
@@ -88,11 +88,12 @@
     if ([metadata.contents count]) {
         NSMutableArray *contents = [[NSMutableArray alloc] init];
         [retVal setObject:contents forKey:@"contents"];
+        [contents release]; //released By Parag
         for (DBMetadata *data in metadata.contents) {
             [contents addObject:[CLDictionaryConvertor dictionaryFromMetadata:data]];
         }
     } 
-    return retVal;
+    return [retVal autorelease];
 }
 
 

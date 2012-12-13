@@ -374,9 +374,12 @@
         [keyTimes addObject:[NSNumber numberWithFloat:1.0f]];
         
         animation.timingFunctions = timingFunctions;
+        [timingFunctions release]; //released By Parag
         animation.keyTimes = keyTimes;
+        [keyTimes release]; //released By Parag
         //animation.calculationMode = @"cubic";
         animation.values = values;
+        [values release]; //released By Parag
         animation.duration = duration;   
         animation.removedOnCompletion = NO;
         animation.fillMode = kCAFillModeForwards;
@@ -474,6 +477,7 @@
 //        leftButton = barButton;
         UIBarButtonItem *button = [[barButtonItemClass alloc] initWithCustomView:leftButton];
         topController.navigationItem.leftBarButtonItem = button;
+        [button release]; //released By Parag
     } else {
 		if(topController.navigationItem.leftBarButtonItem.target == self) {
 			topController.navigationItem.leftBarButtonItem = nil;
@@ -483,6 +487,7 @@
     if (_menuFlags.canShowRight) {
         UIBarButtonItem *button = [[barButtonItemClass alloc] initWithImage:[UIImage imageNamed:@"add_user.png"] style:UIBarButtonItemStyleBordered  target:self action:@selector(showRight:)];
         topController.navigationItem.rightBarButtonItem = button;
+        [button release]; //released By Parag
     } else {
 		if(topController.navigationItem.rightBarButtonItem.target == self) {
 			topController.navigationItem.rightBarButtonItem = nil;

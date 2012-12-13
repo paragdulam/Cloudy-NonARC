@@ -154,12 +154,6 @@ return nil;
 {
     NSMutableArray *accounts = [NSMutableArray arrayWithArray:[CLCacheManager accounts]];
     int index;
-//    [accounts enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-//        NSDictionary *objDict = (NSDictionary *)obj;
-//        if ([[objDict objectForKey:ACCOUNT_TYPE] integerValue] == [[account objectForKey:ACCOUNT_TYPE] integerValue]) {
-//            index = idx;
-//        }
-//    }];
     for (NSDictionary *anAccount in accounts) {
         if ([[anAccount objectForKey:ACCOUNT_TYPE] integerValue] == [[account objectForKey:ACCOUNT_TYPE] integerValue]) {
             index = [accounts indexOfObject:anAccount];
@@ -706,7 +700,9 @@ whereTraversingPointer:(NSMutableDictionary *)traversingDictionary
     }
 }
 
-+(BOOL) updateOldFile:(NSMutableDictionary *)oldFile withNewFile:(NSDictionary *) newFile forViewType:(VIEW_TYPE) type
++(BOOL) updateOldFile:(NSMutableDictionary *)oldFile
+          withNewFile:(NSDictionary *) newFile
+          forViewType:(VIEW_TYPE) type
 {
     NSString *contentKey = nil;
     NSString *idKey = nil;

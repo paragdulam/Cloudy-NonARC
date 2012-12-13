@@ -135,9 +135,6 @@
         [operation cancel];
     }
     
-    [liveOperations release];
-    liveOperations = nil;
-
     [createFoldertoolBarItems release];
     createFoldertoolBarItems = nil;
     
@@ -146,6 +143,9 @@
     
     [path release];
     path = nil;
+    
+    [liveOperations release];
+    liveOperations = nil;
     
     [super dealloc];
 }
@@ -587,19 +587,23 @@
                            ForViewType:viewType];
             //    //Reading Cache is skipped only reading Table Contents Starts
             if (viewType == SKYDRIVE) { //cache is not referred
-                NSArray *contents = [operation.result objectForKey:@"data"];
-//                NSArray *contents = [self getCachedTableDataArrayForViewType:SKYDRIVE];
+//                NSArray *contents = [operation.result objectForKey:@"data"];
+                NSArray *contents = [self getCachedTableDataArrayForViewType:SKYDRIVE];
                 [self updateModel:contents];
                 [self updateView];
                 //Looking For images and then downloading thumnails Starts
                 for (NSDictionary *data in contents) {
-                    if (![data objectForKey:THUMBNAIL_DATA]) {
-                        NSArray *images = [data objectForKey:@"images"];
-                        if ([images count]) {
-                            NSDictionary *image = [images objectAtIndex:2];
-                            LiveDownloadOperation *downloadOperation =                         [self.appDelegate.liveClient downloadFromPath:[image objectForKey:@"source"] delegate:self userState:[data objectForKey:@"name"]];
-                            [liveOperations addObject:downloadOperation];
-                            currentFileOperation = DOWNLOAD;
+                    if ([[data objectForKey:@"type"] isEqualToString:@"photo"]) {
+                        NSData *thumbData = [data objectForKey:THUMBNAIL_DATA];
+                        if (!thumbData) {
+                            NSArray *images = [data objectForKey:@"images"];
+                            if ([images count]) {
+                                NSDictionary *image = [images objectAtIndex:2];
+                                LiveDownloadOperation *downloadOperation =                         [self.appDelegate.liveClient downloadFromPath:[image objectForKey:@"source"] delegate:self userState:[data objectForKey:@"name"]];
+                                [liveOperations addObject:downloadOperation];
+                                currentFileOperation = DOWNLOAD;
+                                break;
+                            }
                         }
                     }
                 }
@@ -640,7 +644,8 @@
             if (index < [tableDataArray count]) {
                 NSDictionary *data = [tableDataArray objectAtIndex:index];
                 NSMutableDictionary *updatedData = [NSMutableDictionary dictionaryWithDictionary:data];
-                [updatedData setObject:downloadOperation.data forKey:THUMBNAIL_DATA];
+                [updatedData setObject:downloadOperation.data
+                                forKey:THUMBNAIL_DATA];
                 
                 
                 [CLCacheManager updateFile:updatedData
@@ -655,6 +660,24 @@
                 [dataTableView reloadRowsAtIndexPaths:[NSArray arrayWithObject:indexPath]
                                      withRowAnimation:UITableViewRowAnimationAutomatic];
                 [dataTableView endUpdates];
+                
+                //Looking For images and then downloading thumnails Starts
+                for (NSDictionary *data in tableDataArray) {
+                    if ([[data objectForKey:@"type"] isEqualToString:@"photo"]) {
+                        NSData *thumbData = [data objectForKey:THUMBNAIL_DATA];
+                        if (!thumbData) {
+                            NSArray *images = [data objectForKey:@"images"];
+                            if ([images count]) {
+                                NSDictionary *image = [images objectAtIndex:2];
+                                LiveDownloadOperation *downloadOperation =                         [self.appDelegate.liveClient downloadFromPath:[image objectForKey:@"source"] delegate:self userState:[data objectForKey:@"name"]];
+                                [liveOperations addObject:downloadOperation];
+                                currentFileOperation = DOWNLOAD;
+                                break;
+                            }
+                        }
+                    }
+                }
+                //Looking For images and then downloading thumnails Ends
             }
         }
             break;
@@ -846,7 +869,6 @@
 
 -(NSDictionary *) readCachedFileStructure
 {
-//    return [CLCacheManager metaDataDictionaryForPath:path ForView:viewType];
     return [CLCacheManager metaDataForPath:path
                     whereTraversingPointer:nil
                        WithinFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]

@@ -449,6 +449,7 @@
         
         //update the account dictionary
         [CLCacheManager updateAccount:skyDriveAccount];
+        [skyDriveAccount release];
         [self initialModelSetup];
         [self updateView];
         if (![initialUserState isEqualToString:@"InitialAllocation"]) {

@@ -145,6 +145,7 @@
                 cellImage = [UIImage imageNamed:@"folder.png"]; 
             } else {
                 cellImage = [UIImage imageWithData:[dataDictionary objectForKey:THUMBNAIL_DATA]];
+                NSLog(@"cellImage %@",cellImage);
                 if (!cellImage) {
                     NSString *extention = [[titleText pathExtension] lowercaseString];
                     cellImage = [UIImage imageNamed:[NSString stringWithFormat:@"%@.png",extention]];

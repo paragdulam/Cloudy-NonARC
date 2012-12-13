@@ -156,8 +156,8 @@ loadedSharableLink:(NSString *)link
     if (![selectedItems count]) {
         [self stopAnimating];
         [self shareURLsThroughMail:urls];
-        [urls release];
     }
+    [urls release];  //released By Parag
 }
 
 
@@ -550,6 +550,7 @@ loadedSharableLink:(NSString *)link
     }
     [controller setSubject:[NSString stringWithFormat:@"Sharing Files Using %@",cloudPlatform]];
     [controller setMessageBody:htmlString isHTML:YES];
+    [htmlString release]; //released By Parag
     [self presentModalViewController:controller animated:YES];
     [controller release];
 }
@@ -683,10 +684,12 @@ loadedSharableLink:(NSString *)link
             
             UIImageView *headerView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"1351499593_arrow_up.png"]];
             [headerView addSubview:addAccountLabel];
+            [addAccountLabel release];
             addAccountLabel.center = CGPointMake(roundf(headerView.center.x + 150.f), roundf(headerView.center.y));
             headerView.frame = CGRectMake(0, 0, 320.f, 64.f);
             headerView.contentMode = UIViewContentModeLeft;
             dataTableView.tableHeaderView = headerView;
+            [headerView release];
             dataTableView.separatorStyle = UITableViewCellSeparatorStyleNone;
             [self.navigationItem setTitle:@"Cloudy"];
             [tableDataArray removeAllObjects];
