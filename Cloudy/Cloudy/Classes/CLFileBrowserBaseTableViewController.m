@@ -587,8 +587,8 @@
                            ForViewType:viewType];
             //    //Reading Cache is skipped only reading Table Contents Starts
             if (viewType == SKYDRIVE) { //cache is not referred
-//                NSArray *contents = [operation.result objectForKey:@"data"];
-                NSArray *contents = [self getCachedTableDataArrayForViewType:SKYDRIVE];
+                NSArray *contents = [operation.result objectForKey:@"data"];
+//                NSArray *contents = [self getCachedTableDataArrayForViewType:SKYDRIVE];
                 [self updateModel:contents];
                 [self updateView];
                 //Looking For images and then downloading thumnails Starts
