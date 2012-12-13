@@ -9,6 +9,9 @@
 #import "CLAboutViewController.h"
 
 @interface CLAboutViewController ()
+{
+    UIButton *cancelButton;
+}
 
 @end
 
@@ -27,6 +30,30 @@
 {
     [super viewDidLoad];
 	// Do any additional setup after loading the view.
+    cancelButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    [cancelButton setTitle:@"Cancel" forState:UIControlStateNormal];
+    UIImage *baseImage = [UIImage imageNamed:@"button_background_base.png"];
+    UIImage *buttonImage = [baseImage resizableImageWithCapInsets:UIEdgeInsetsMake(0, 10, 0, 10)];
+    [cancelButton setBackgroundImage:buttonImage
+                           forState:UIControlStateNormal];
+    [cancelButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    [cancelButton addTarget:self
+                    action:@selector(cancelButtonTapped:)
+          forControlEvents:UIControlEventTouchUpInside];
+    [cancelButton.titleLabel setFont:[UIFont boldSystemFontOfSize:12.f]];
+    [cancelButton setFrame:CGRectMake(0, 0, 60, 30)];
+    UIBarButtonItem *cancelBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:cancelButton];
+    [self.navigationItem setRightBarButtonItem:cancelBarButtonItem];
+    [cancelBarButtonItem release];
+    
+    //Setting Up About Button End
+
+}
+
+
+-(void) cancelButtonTapped:(UIButton *) btn
+{
+    [self dismissModalViewControllerAnimated:YES];
 }
 
 - (void)didReceiveMemoryWarning

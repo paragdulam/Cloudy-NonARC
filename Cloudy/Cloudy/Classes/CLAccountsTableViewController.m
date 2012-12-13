@@ -8,10 +8,12 @@
 
 #import "CLAccountsTableViewController.h"
 #import "CLFileBrowserBaseTableViewController.h"
+#import "CLAboutViewController.h"
 
 @interface CLAccountsTableViewController ()
 {
     UIButton *editButton;
+    UIButton *aboutButton;
     NSString *initialUserState;
 }
 -(void) initialModelSetup;
@@ -65,6 +67,27 @@
     
     //Setting Up Edit Button End
     
+    //Setting Up About Button Start
+    
+    aboutButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    [aboutButton setTitle:@"About" forState:UIControlStateNormal];
+    buttonImage = [baseImage resizableImageWithCapInsets:UIEdgeInsetsMake(0, 10, 0, 5)];
+    [aboutButton setBackgroundImage:buttonImage
+                          forState:UIControlStateNormal];
+    [aboutButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    [aboutButton addTarget:self
+                   action:@selector(aboutButtonTapped:)
+         forControlEvents:UIControlEventTouchUpInside];
+    [aboutButton.titleLabel setFont:[UIFont boldSystemFontOfSize:12.f]];
+    [aboutButton setFrame:CGRectMake(0, 0, 50, 30)];
+    UIBarButtonItem *aboutBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:aboutButton];
+    [self.navigationItem setRightBarButtonItem:aboutBarButtonItem];
+    [aboutBarButtonItem release];
+    
+    //Setting Up About Button End
+
+    
+    
     [self initialModelSetup];
     [self updateView];
 }
@@ -90,6 +113,16 @@
 }
 
 #pragma mark - IBActions
+
+-(void) aboutButtonTapped:(UIButton *) btn
+{
+    CLAboutViewController *aboutViewController = [[CLAboutViewController alloc] init];
+    UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:aboutViewController];
+    [aboutViewController release];
+    [self.appDelegate.window.rootViewController presentModalViewController:navController animated:YES];
+    [navController release];
+}
+
 
 -(void)editButtonTapped:(UIButton *) btn
 {
