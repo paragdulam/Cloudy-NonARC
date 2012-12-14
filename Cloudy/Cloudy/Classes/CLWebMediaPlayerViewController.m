@@ -62,6 +62,8 @@
     [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
 //    [webView loadHTMLString:[NSString stringWithFormat:@"<html><body><p><a href=\%@>Play mp3</a></p><script src=\"http://mediaplayer.yahoo.com/js\"></script></body></html>",[url absoluteString]]
 //                    baseURL:nil];
+//    [webView loadHTMLString:[NSString stringWithFormat:@"<html><body><embed height=\"100\" width=\"100\" src=%@></embed><p>If you cannot hear the sound, your computer or browser doesn't support the sound format.</p><p>Or, you have your speakers turned off.</p></body></html>",[url absoluteString]]
+//                    baseURL:nil];
     [webView loadRequest:[NSURLRequest requestWithURL:url]];
 }
 

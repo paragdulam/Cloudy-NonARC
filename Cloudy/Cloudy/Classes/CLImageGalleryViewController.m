@@ -112,6 +112,9 @@
 }
 
 
+
+
+
 -(void) dealloc
 {
     self.appDelegate.restClient.delegate = nil;
@@ -131,79 +134,10 @@
 }
 
 
-#pragma Helper Methods
-
--(void) createToolBarItems
-{
-    NSMutableArray *items = [[NSMutableArray alloc] init];
-    
-    saveButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    UIImage *saveImage = [UIImage imageNamed:@"save.png"];
-    saveButton.frame = CGRectMake(0, 0, saveImage.size.width, saveImage.size.height);
-    [saveButton setImage:saveImage forState:UIControlStateNormal];
-    [saveButton addTarget:self action:@selector(saveButtonClicked:) forControlEvents:UIControlEventTouchUpInside];
-    UIBarButtonItem *saveBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:saveButton];
-    [items addObject:saveBarButtonItem];
-    [saveBarButtonItem release];
-    
-    UIBarButtonItem *flexiSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
-    [items addObject:flexiSpace];
-    [flexiSpace release];
-    
-    currentImageIndexLabel = [[UILabel alloc] init];
-    [currentImageIndexLabel setBackgroundColor:[UIColor clearColor]];
-    [currentImageIndexLabel setTextColor:[UIColor whiteColor]];
-    [currentImageIndexLabel setFont:[UIFont boldSystemFontOfSize:16.f]];
-    UIBarButtonItem *currentImageIndexLabelBarButton = [[UIBarButtonItem alloc] initWithCustomView:currentImageIndexLabel];
-    [currentImageIndexLabel release];
-    [items addObject:currentImageIndexLabelBarButton];
-    [currentImageIndexLabelBarButton release];
-    
-    flexiSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
-    [items addObject:flexiSpace];
-    [flexiSpace release];
-
-
-    downloadProgressButton = [[CLUploadProgressButton alloc] init];
-    [downloadProgressButton setFrame:CGRectMake(0, 0, 30, 30)];
-    [downloadProgressButton addTarget:self
-                               action:@selector(downloadProgressButtonClicked:)
-                     forControlEvents:UIControlEventTouchUpInside];
-    UIBarButtonItem *progressBarbuttonItem = [[UIBarButtonItem alloc] initWithCustomView:downloadProgressButton];
-    [items addObject:progressBarbuttonItem];
-    [progressBarbuttonItem release];
-    
-    [progressToolBar setItems:items animated:YES];
-    [items release];
-    
-}
 
 
 
--(void)imageDidSave
-{
-//    CATransition *animation = [CATransition animation];
-//    animation.type = @"suckEffect";
-//    animation.duration = 2.0f;
-//    animation.timingFunction = UIViewAnimationCurveEaseInOut;
-//    mainImageView.layer.opacity = 1.0f;
-//    [mainImageView.layer addAnimation:animation forKey:@"transitionViewAnimation"];
-    
-    
-    UIImageView *anImageView = [[UIImageView alloc] initWithFrame:mainImageView.bounds];
-    [mainImageView addSubview:anImageView];
-    [anImageView setImage:mainImageView.image];
-    
-    [UIView beginAnimations:@"suck" context:NULL];
-    [UIView setAnimationDuration:1.f];
-    [UIView setAnimationTransition:103 forView:mainImageView cache:YES];
-    [UIView setAnimationPosition:CGPointMake(saveButton.center.x, CGRectGetMaxY(anImageView.frame))];
-    [anImageView removeFromSuperview];
-    [UIView commitAnimations];
-    
-    [anImageView release];
 
-}
 
 #pragma mark - IBActions
 
@@ -303,6 +237,24 @@
 #pragma mark - Helper methods
 
 
+-(void)imageDidSave
+{
+    UIImageView *anImageView = [[UIImageView alloc] initWithFrame:mainImageView.bounds];
+    [mainImageView addSubview:anImageView];
+    [anImageView setImage:mainImageView.image];
+    
+    [UIView beginAnimations:@"suck" context:NULL];
+    [UIView setAnimationDuration:1.f];
+    [UIView setAnimationTransition:103 forView:mainImageView cache:YES];
+    [UIView setAnimationPosition:CGPointMake(saveButton.center.x, CGRectGetMaxY(anImageView.frame))];
+    [anImageView removeFromSuperview];
+    [UIView commitAnimations];
+    
+    [anImageView release];
+    
+}
+
+
 
 -(void) downloadImageAtIndex:(int) index
 {
@@ -392,6 +344,54 @@
 }
 
 
+
+-(void) createToolBarItems
+{
+    NSMutableArray *items = [[NSMutableArray alloc] init];
+    
+    saveButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    UIImage *saveImage = [UIImage imageNamed:@"save.png"];
+    saveButton.frame = CGRectMake(0, 0, saveImage.size.width, saveImage.size.height);
+    [saveButton setImage:saveImage forState:UIControlStateNormal];
+    [saveButton addTarget:self action:@selector(saveButtonClicked:) forControlEvents:UIControlEventTouchUpInside];
+    UIBarButtonItem *saveBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:saveButton];
+    [items addObject:saveBarButtonItem];
+    [saveBarButtonItem release];
+    
+    UIBarButtonItem *flexiSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
+    [items addObject:flexiSpace];
+    [flexiSpace release];
+    
+    currentImageIndexLabel = [[UILabel alloc] init];
+    [currentImageIndexLabel setBackgroundColor:[UIColor clearColor]];
+    [currentImageIndexLabel setTextColor:[UIColor whiteColor]];
+    [currentImageIndexLabel setFont:[UIFont boldSystemFontOfSize:16.f]];
+    UIBarButtonItem *currentImageIndexLabelBarButton = [[UIBarButtonItem alloc] initWithCustomView:currentImageIndexLabel];
+    [currentImageIndexLabel release];
+    [items addObject:currentImageIndexLabelBarButton];
+    [currentImageIndexLabelBarButton release];
+    
+    flexiSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
+    [items addObject:flexiSpace];
+    [flexiSpace release];
+    
+    
+    downloadProgressButton = [[CLUploadProgressButton alloc] init];
+    [downloadProgressButton setFrame:CGRectMake(0, 0, 30, 30)];
+    [downloadProgressButton addTarget:self
+                               action:@selector(downloadProgressButtonClicked:)
+                     forControlEvents:UIControlEventTouchUpInside];
+    UIBarButtonItem *progressBarbuttonItem = [[UIBarButtonItem alloc] initWithCustomView:downloadProgressButton];
+    [items addObject:progressBarbuttonItem];
+    [progressBarbuttonItem release];
+    
+    [progressToolBar setItems:items animated:YES];
+    [items release];
+    
+}
+
+
+
 #pragma mark - Gestures
 
 
@@ -443,6 +443,9 @@
 {
     return YES;
 }
+
+
+
 
 
 @end

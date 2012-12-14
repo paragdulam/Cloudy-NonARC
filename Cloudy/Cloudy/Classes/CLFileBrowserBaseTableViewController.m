@@ -705,6 +705,7 @@
     
     createFolderButton = [UIButton buttonWithType:UIButtonTypeCustom];
     createFolderButton.frame = CGRectMake(0, 0, 100, 30);
+    createFolderButton.autoresizingMask = UIViewAutoresizingFlexibleHeight;
     [createFolderButton setTitle:@"Create Folder"
                         forState:UIControlStateNormal];
     [createFolderButton setTitleColor:[UIColor whiteColor]

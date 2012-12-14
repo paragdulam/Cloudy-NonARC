@@ -50,7 +50,7 @@
         [button addTarget:self
                        action:@selector(buttonClicked:)
              forControlEvents:UIControlEventTouchUpInside];
-        
+        button.autoresizingMask = UIViewAutoresizingFlexibleHeight;
         [self addSubview:button];
         
         activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
