@@ -313,18 +313,23 @@ loadedSharableLink:(NSString *)link
     [selectedItems removeAllObjects];
     [self stopAnimating];
     [controller dismissModalViewControllerAnimated:YES];
+    [controller dismissModalViewControllerAnimated:YES];
     switch (result) {
         case MFMailComposeResultSent:
-            //Success
-            break;
-        case MFMailComposeResultSaved:
-            //Saved
+            [AppDelegate showMessage:@"Your Message is sent successfully"
+                           withColor:[UIColor greenColor]
+                         alertOnView:self.view];
             break;
         case MFMailComposeResultCancelled:
-            //Cancelled
             break;
         case MFMailComposeResultFailed:
-            //Failed
+            [AppDelegate showError:error
+                       alertOnView:self.view];
+            break;
+        case MFMailComposeResultSaved:
+            [AppDelegate showMessage:@"Your Message is saved successfully"
+                           withColor:NAVBAR_COLOR
+                         alertOnView:self.view];
             break;
         default:
             break;

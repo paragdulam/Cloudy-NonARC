@@ -206,6 +206,44 @@
 }
 
 
+
++(void) showMessage:(NSString *) message
+          withColor:(UIColor *) color
+        alertOnView:(UIView *) view
+{
+    CGRect frame = view.frame;
+    UILabel *alert = [[UILabel alloc] initWithFrame:CGRectMake(frame.origin.x + 10.f,
+                                                               frame.origin.y + 70.f,
+                                                               frame.size.width - 20.f,
+                                                               0)];
+    alert.layer.cornerRadius = 5.f;
+    alert.numberOfLines = 0;
+    alert.lineBreakMode = UILineBreakModeWordWrap;
+    alert.backgroundColor = color;
+    alert.userInteractionEnabled = NO;
+    alert.textColor = [UIColor whiteColor];
+    alert.textAlignment = UITextAlignmentCenter;
+    [alert setText:message];
+    CGSize size = [alert sizeThatFits:alert.frame.size];
+    CGRect finalFrame;
+    finalFrame.origin.x = alert.frame.origin.x;
+    finalFrame.origin.y = alert.frame.origin.y;
+    finalFrame.size.width = alert.frame.size.width;
+    finalFrame.size.height = size.height;
+    alert.frame = finalFrame;
+    [view addSubview:alert];
+    [alert release];
+    
+    
+    [UIView animateWithDuration:5.f
+                     animations:^{
+                         alert.alpha = 0.f;
+                     } completion:^(BOOL finished) {
+                         [alert removeFromSuperview];
+                     }];
+}
+
+
 +(void) showError:(NSError *) error
       alertOnView:(UIView *) view
 {

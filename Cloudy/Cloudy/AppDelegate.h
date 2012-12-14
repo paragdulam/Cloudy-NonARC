@@ -51,5 +51,9 @@
           ForViewType:(VIEW_TYPE) type;
 +(void) showError:(NSError *) error
       alertOnView:(UIView *) view;
++(void) showMessage:(NSString *) message
+          withColor:(UIColor *) color
+        alertOnView:(UIView *) view;
+
 
 @end

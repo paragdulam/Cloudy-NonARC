@@ -88,9 +88,31 @@
 #pragma mark - MFMailComposeViewControllerDelegate
 
 
-- (void)mailComposeController:(MFMailComposeViewController *)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError *)error
+- (void)mailComposeController:(MFMailComposeViewController *)controller
+          didFinishWithResult:(MFMailComposeResult)result
+                        error:(NSError *)error
 {
     [controller dismissModalViewControllerAnimated:YES];
+    switch (result) {
+        case MFMailComposeResultSent:
+            [AppDelegate showMessage:@"Your Message is sent successfully"
+                           withColor:[UIColor greenColor]
+                         alertOnView:self.view];
+            break;
+        case MFMailComposeResultCancelled:
+            break;
+        case MFMailComposeResultFailed:
+            [AppDelegate showError:error
+                       alertOnView:self.view];
+            break;
+        case MFMailComposeResultSaved:
+            [AppDelegate showMessage:@"Your Message is saved successfully"
+                           withColor:NAVBAR_COLOR
+                         alertOnView:self.view];
+            break;
+        default:
+            break;
+    }
 }
 
 
