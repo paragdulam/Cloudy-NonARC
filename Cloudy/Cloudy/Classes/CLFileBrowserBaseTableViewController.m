@@ -12,6 +12,7 @@
 #import "CLFileDetailViewController.h"
 #import "CLUploadsTableViewController.h"
 #import "CLMediaPlayerViewController.h"
+#import "CLWebMediaPlayerViewController.h"
 
 
 @interface CLFileBrowserBaseTableViewController ()
@@ -318,9 +319,14 @@
                     [self.navigationController pushViewController:imageGalleryViewController animated:YES];
                     [imageGalleryViewController release];
                 } else if ([[metadata objectForKey:@"icon"] isEqualToString:@"page_white_film"] || [[metadata objectForKey:@"icon"] isEqualToString:@"page_white_sound"] ) {
-                    CLMediaPlayerViewController *moviePlayer = [[CLMediaPlayerViewController alloc] initWithVideoFile:metadata withInViewType:viewType];
-                    [self.navigationController pushViewController:moviePlayer animated:YES];
-                    [moviePlayer release];
+//                    CLMediaPlayerViewController *moviePlayer = [[CLMediaPlayerViewController alloc] initWithVideoFile:metadata withInViewType:viewType];
+//                    [self.navigationController pushViewController:moviePlayer animated:YES];
+//                    [moviePlayer release];
+                    
+                    CLWebMediaPlayerViewController *webMediaPlayer = [[CLWebMediaPlayerViewController alloc] initWithFile:metadata WithinViewType:viewType];
+                    [self.navigationController pushViewController:webMediaPlayer animated:YES];
+                    [webMediaPlayer release];
+                    
                 }else {
                     CLFileDetailViewController *fileDetailViewController = [[CLFileDetailViewController alloc] initWithFile:metadata WithinViewType:DROPBOX];
                     [self.navigationController pushViewController:fileDetailViewController animated:YES];
@@ -350,9 +356,14 @@
                     [self.navigationController pushViewController:imageGalleryViewController animated:YES];
                     [imageGalleryViewController release];
                 } else if (([[metadata objectForKey:@"type"] isEqualToString:@"video"] || [[metadata objectForKey:@"type"] isEqualToString:@"audio"])) {
-                    CLMediaPlayerViewController *moviePlayer = [[CLMediaPlayerViewController alloc] initWithVideoFile:metadata withInViewType:viewType];
-                    [self.navigationController pushViewController:moviePlayer animated:YES];
-                    [moviePlayer release];
+//                    CLMediaPlayerViewController *moviePlayer = [[CLMediaPlayerViewController alloc] initWithVideoFile:metadata withInViewType:viewType];
+//                    [self.navigationController pushViewController:moviePlayer animated:YES];
+//                    [moviePlayer release];
+                    CLWebMediaPlayerViewController *webMediaPlayer = [[CLWebMediaPlayerViewController alloc] initWithFile:metadata WithinViewType:viewType];
+                    [self.navigationController pushViewController:webMediaPlayer animated:YES];
+                    [webMediaPlayer release];
+
+                    
                 } else {
                     CLFileDetailViewController *fileDetailViewController = [[CLFileDetailViewController alloc] initWithFile:metadata WithinViewType:SKYDRIVE];
                     [self.navigationController pushViewController:fileDetailViewController animated:YES];
@@ -587,7 +598,8 @@
                            ForViewType:viewType];
             //    //Reading Cache is skipped only reading Table Contents Starts
             if (viewType == SKYDRIVE) { //cache is not referred
-                NSArray *contents = [operation.result objectForKey:@"data"];
+//                NSArray *contents = [operation.result objectForKey:@"data"];
+                NSArray *contents = [self getCachedTableDataArrayForViewType:SKYDRIVE];
                 [self updateModel:contents];
                 [self updateView];
                 //Looking For images and then downloading thumnails Starts

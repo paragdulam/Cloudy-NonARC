@@ -736,9 +736,11 @@ whereTraversingPointer:(NSMutableDictionary *)traversingDictionary
         for (NSDictionary *updatedData in updatedArray) {
             for (NSDictionary *data in anArray) {
                 if ([[updatedData objectForKey:idKey] isEqualToString:[data objectForKey:idKey]]) {
-                    if ([[data objectForKey:contentKey] count]) {
-                        [finalArray replaceObjectAtIndex:[finalArray indexOfObject:updatedData]
-                                           withObject:data];
+                    if ([[data objectForKey:updationKey] isEqualToString:[updatedData objectForKey:updationKey]]) {
+                        //the logic is if the updated_time is same then keep the old data
+                        int index = [finalArray indexOfObject:updatedData];
+                        [finalArray replaceObjectAtIndex:index
+                                              withObject:data];
                     }
                 }
             }

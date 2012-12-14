@@ -211,13 +211,16 @@
 {
     CGRect frame = view.frame;
     UILabel *alert = [[UILabel alloc] initWithFrame:CGRectMake(frame.origin.x + 10.f,
-                                                               frame.origin.y + 10.f,
+                                                               frame.origin.y + 70.f,
                                                                frame.size.width - 20.f,
                                                                0)];
     alert.layer.cornerRadius = 5.f;
     alert.numberOfLines = 0;
     alert.lineBreakMode = UILineBreakModeWordWrap;
-    alert.backgroundColor = [UIColor redColor];
+    alert.backgroundColor = [UIColor colorWithHue:1.0
+                                       saturation:0.75
+                                       brightness:1.0
+                                            alpha:1.0];
     alert.userInteractionEnabled = NO;
     alert.textColor = [UIColor whiteColor];
     alert.textAlignment = UITextAlignmentCenter;
