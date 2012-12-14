@@ -6,8 +6,9 @@
 //  Copyright (c) 2012 Parag Dulam. All rights reserved.
 //
 
-#import "CLBaseViewController.h"
+#import "CLBaseTableViewController.h"
+#import <MessageUI/MessageUI.h>
 
-@interface CLAboutViewController : CLBaseViewController
+@interface CLAboutViewController : CLBaseTableViewController<MFMailComposeViewControllerDelegate>
 
 @end

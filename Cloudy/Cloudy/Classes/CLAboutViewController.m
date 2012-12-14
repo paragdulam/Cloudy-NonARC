@@ -47,7 +47,9 @@
     [cancelBarButtonItem release];
     
     //Setting Up About Button End
-
+    [tableDataArray addObject:@"Contact"];
+    [self.navigationItem setTitle:@"About"];
+    [self updateView];
 }
 
 
@@ -61,5 +63,35 @@
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
+
+
+
+-(UITableViewCell *) tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    UITableViewCell *cell = [super tableView:tableView
+                       cellForRowAtIndexPath:indexPath];
+    [cell.textLabel setText:[tableDataArray objectAtIndex:indexPath.row]];
+    return cell;
+}
+
+-(void) tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    MFMailComposeViewController *controller = [[MFMailComposeViewController alloc] init];
+    [controller setMailComposeDelegate:self];
+    [controller setToRecipients:[NSArray arrayWithObject:@"paragdulam@gmail.com"]];
+    [controller setSubject:@"Help me with this"];
+    [self presentModalViewController:controller animated:YES];
+    [controller release];
+}
+
+
+#pragma mark - MFMailComposeViewControllerDelegate
+
+
+- (void)mailComposeController:(MFMailComposeViewController *)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError *)error
+{
+    [controller dismissModalViewControllerAnimated:YES];
+}
+
 
 @end

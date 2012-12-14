@@ -116,7 +116,7 @@
 
 -(void) aboutButtonTapped:(UIButton *) btn
 {
-    CLAboutViewController *aboutViewController = [[CLAboutViewController alloc] init];
+    CLAboutViewController *aboutViewController = [[CLAboutViewController alloc] initWithTableViewStyle:UITableViewStyleGrouped];
     UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:aboutViewController];
     [aboutViewController release];
     [self.appDelegate.window.rootViewController presentModalViewController:navController animated:YES];
