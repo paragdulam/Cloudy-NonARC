@@ -11,7 +11,7 @@
 @interface CLPathSelectionViewController ()
 {
     UIButton *selectButton;
-    UIButton *leftBarButton;
+    UIButton *toolBarButton;
 }
 
 -(void) completeToolbarItems;
@@ -55,36 +55,6 @@
     [barItem setFrame:CGRectMake(0, 0, 60, 30)];
     [barItem setImage:[UIImage imageNamed:@"button_background_base.png"]
            WithInsets:UIEdgeInsetsMake(0, 10, 0, 10)];
-    
-    leftBarButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    UIImage *leftBarButtonItemImage = nil;
-    switch (viewType) {
-        case DROPBOX:
-        {
-            leftBarButtonItemImage = [UIImage imageNamed:@"dropbox_cell_Image.png"];
-        }
-            break;
-        case SKYDRIVE:
-        {
-            leftBarButtonItemImage = [UIImage imageNamed:@"SkyDriveIconBlack_32x32.png"];
-        }
-            break;
-        default:
-            break;
-    }
-    [leftBarButton setFrame:CGRectMake(0,
-                                       0,
-                                       leftBarButtonItemImage.size.width, leftBarButtonItemImage.size.height)];
-    [leftBarButton setImage:leftBarButtonItemImage
-                   forState:UIControlStateNormal];
-
-    [leftBarButton addTarget:self
-                      action:@selector(leftBarButtonItemTapped:)
-            forControlEvents:UIControlEventTouchUpInside];
-    UIBarButtonItem *leftBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:leftBarButton];
-    [self.navigationItem setLeftBarButtonItem:leftBarButtonItem];
-    [leftBarButtonItem release];
-
 	// Do any additional setup after loading the view.
 }
 
@@ -117,19 +87,23 @@
 #pragma mark - IBActions
 
 
--(void)leftBarButtonItemTapped:(UIButton *) btn
+-(void)toolBarButtonItemTapped:(UIButton *) btn
 {
     switch (viewType) {
         case DROPBOX:
         {
             self.viewType = SKYDRIVE;
             self.path = ROOT_SKYDRIVE_FOLDER_ID;
+            [btn setImage:[UIImage imageNamed:@"SkyDriveIconBlack_32x32.png"]
+                 forState:UIControlStateNormal];
         }
             break;
         case SKYDRIVE:
         {
             self.viewType = DROPBOX;
             self.path = ROOT_DROPBOX_PATH;
+            [btn setImage:[UIImage imageNamed:@"dropbox_cell_Image.png"]
+                 forState:UIControlStateNormal];
         }
             break;
         default:
@@ -176,31 +150,7 @@
     
     [barItem setTitle:@"Cancel" forState:UIControlStateNormal];
     
-    selectButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    selectButton.frame = CGRectMake(0, 0, 50, 30);
-    [selectButton setTitle:@"Select"
-                  forState:UIControlStateNormal];
-    [selectButton setTitleColor:[UIColor whiteColor]
-                       forState:UIControlStateNormal];
-    [selectButton setBackgroundImage:buttonImage
-                            forState:UIControlStateNormal];
-    [selectButton.titleLabel setFont:[UIFont boldSystemFontOfSize:12.f]];
-    [selectButton addTarget:self
-                     action:@selector(selectButtonClicked:)
-           forControlEvents:UIControlEventTouchUpInside];
-    
-    UIBarButtonItem *flexiSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
-    UIBarButtonItem *selectBarButton = [[UIBarButtonItem alloc] initWithCustomView:selectButton];
-    
-    [toolBarItems addObject:flexiSpace];
-    [flexiSpace release];
-    [toolBarItems addObject:selectBarButton];
-    [selectBarButton release];
-
-}
-
--(void) loadFilesForPath:(NSString *)pathString WithInViewType:(VIEW_TYPE)type
-{
+    toolBarButton = [UIButton buttonWithType:UIButtonTypeCustom];
     UIImage *leftBarButtonItemImage = nil;
     switch (viewType) {
         case DROPBOX:
@@ -216,12 +166,54 @@
         default:
             break;
     }
-    [leftBarButton setFrame:CGRectMake(0,
+    [toolBarButton setFrame:CGRectMake(0,
                                        0,
                                        leftBarButtonItemImage.size.width, leftBarButtonItemImage.size.height)];
-    [leftBarButton setImage:leftBarButtonItemImage
+    [toolBarButton setImage:leftBarButtonItemImage
                    forState:UIControlStateNormal];
+    
+    [toolBarButton addTarget:self
+                      action:@selector(toolBarButtonItemTapped:)
+            forControlEvents:UIControlEventTouchUpInside];
 
+    
+    selectButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    selectButton.frame = CGRectMake(0, 0, 50, 30);
+    [selectButton setTitle:@"Select"
+                  forState:UIControlStateNormal];
+    [selectButton setTitleColor:[UIColor whiteColor]
+                       forState:UIControlStateNormal];
+    [selectButton setBackgroundImage:buttonImage
+                            forState:UIControlStateNormal];
+    [selectButton.titleLabel setFont:[UIFont boldSystemFontOfSize:12.f]];
+    [selectButton addTarget:self
+                     action:@selector(selectButtonClicked:)
+           forControlEvents:UIControlEventTouchUpInside];
+    
+    UIBarButtonItem *space = nil;
+    UIBarButtonItem *selectBarButton = [[UIBarButtonItem alloc] initWithCustomView:selectButton];
+    UIBarButtonItem *toolBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:toolBarButton];
+
+    
+    space = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFixedSpace target:nil action:nil];
+    space.width = 10.f;
+    [toolBarItems addObject:space];
+    [space release];
+    
+    [toolBarItems addObject:toolBarButtonItem];
+    [toolBarButtonItem release];
+    
+    space = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
+    [toolBarItems addObject:space];
+    [space release];
+
+    
+    [toolBarItems addObject:selectBarButton];
+    [selectBarButton release];
+}
+
+-(void) loadFilesForPath:(NSString *)pathString WithInViewType:(VIEW_TYPE)type
+{
     [super loadFilesForPath:pathString WithInViewType:type];
 }
 
@@ -287,6 +279,7 @@
             NSDictionary *metadata = [tableDataArray objectAtIndex:indexPath.row];
             CLPathSelectionViewController *pathSelectionViewController = [[CLPathSelectionViewController alloc] initWithTableViewStyle:UITableViewStylePlain WherePath:[metadata objectForKey:@"path"] WithinViewType:DROPBOX WhereExcludedFolders:excludedFolders];
             pathSelectionViewController.delegate = delegate;
+            pathSelectionViewController.title = [metadata objectForKey:@"filename"];
             [self.navigationController pushViewController:pathSelectionViewController animated:YES];
             [pathSelectionViewController release];
         }
@@ -296,6 +289,7 @@
             NSDictionary *metadata = [tableDataArray objectAtIndex:indexPath.row];
             CLPathSelectionViewController *pathSelectionViewController = [[CLPathSelectionViewController alloc] initWithTableViewStyle:UITableViewStylePlain WherePath:[metadata objectForKey:@"id"] WithinViewType:SKYDRIVE WhereExcludedFolders:excludedFolders];
             pathSelectionViewController.delegate = delegate;
+            pathSelectionViewController.title = [metadata objectForKey:@"name"];
             [self.navigationController pushViewController:pathSelectionViewController animated:YES];
             [pathSelectionViewController release];
         }
