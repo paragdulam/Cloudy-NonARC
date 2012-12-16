@@ -249,60 +249,81 @@ loadedSharableLink:(NSString *)link
 {
     NSLog(@"path %@",pathString);
     NSArray *selectedData = [self getSelectedDataArray];
-    switch (viewController.viewType) {
-        case DROPBOX:
-        {
-            for (NSDictionary *data in selectedData) {
-                NSString *fileName = [[[data objectForKey:@"path"] componentsSeparatedByString:@"/"] lastObject];
+    if (viewType == viewController.viewType) {
+        switch (viewController.viewType) {
+            case DROPBOX:
+            {
+                for (NSDictionary *data in selectedData) {
+                    NSString *fileName = [[[data objectForKey:@"path"] componentsSeparatedByString:@"/"] lastObject];
+                    
+                    switch (currentFileOperation) {
+                        case MOVE:
+                            [self.restClient moveFrom:[data objectForKey:@"path"]
+                                               toPath:[NSString stringWithFormat:@"%@/%@",pathString,fileName]];
+                            break;
+                        case COPY:
+                            [self.restClient copyFrom:[data objectForKey:@"path"]
+                                               toPath:[NSString stringWithFormat:@"%@/%@",pathString,fileName]];
+                            break;
+                            
+                        default:
+                            break;
+                    }
+                }
+            }
+                break;
+            case SKYDRIVE:
+            {
+                pathString = [NSString stringWithFormat:@"%@",[[pathString componentsSeparatedByString:@"/"] objectAtIndex:0]];
+                if (![pathString hasPrefix:@"folder."]) { //only folders are input here
+                    pathString = [NSString stringWithFormat:@"folder.%@",pathString];
+                }
+                for (NSDictionary *data in selectedData) {
+                    switch (currentFileOperation) {
+                        case MOVE:
+                        {
+                            LiveOperation *moveOperation =                         [self.appDelegate.liveClient moveFromPath:[data objectForKey:@"id"]
+                                                                                                               toDestination:pathString delegate:self userState:[data objectForKey:@"id"]];
+                            [liveOperations addObject:moveOperation];
+                        }
+                            break;
+                        case COPY:
+                        {
+                            LiveOperation *copyOperation =                          [self.appDelegate.liveClient copyFromPath:[data objectForKey:@"id"]
+                                                                                                                toDestination:pathString delegate:self userState:[data objectForKey:@"id"]];
+                            [liveOperations addObject:copyOperation];
+                            
+                        }
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+                break;
+            default:
+                break;
+        }
+    } else {
+        switch (viewController.viewType) {
+            case DROPBOX:
+            {
+                //File Operation From Skydrive to Dropbox
+                NSLog(@"From Skydrive to Dropbox");
+            }
+                break;
+            case SKYDRIVE:
+            {
+                //File Operation From Dropbox to SkyDrive
+                NSLog(@"From Dropbox to SkyDrive");
+            }
+                break;
                 
-                switch (currentFileOperation) {
-                    case MOVE:
-                        [self.restClient moveFrom:[data objectForKey:@"path"]
-                                           toPath:[NSString stringWithFormat:@"%@/%@",pathString,fileName]];
-                        break;
-                    case COPY:
-                        [self.restClient copyFrom:[data objectForKey:@"path"]
-                                           toPath:[NSString stringWithFormat:@"%@/%@",pathString,fileName]];
-                        break;
-                        
-                    default:
-                        break;
-                }
-            }
+            default:
+                break;
         }
-            break;
-        case SKYDRIVE:
-        {
-            pathString = [NSString stringWithFormat:@"%@",[[pathString componentsSeparatedByString:@"/"] objectAtIndex:0]];
-            if (![pathString hasPrefix:@"folder."]) { //only folders are input here
-                pathString = [NSString stringWithFormat:@"folder.%@",pathString];
-            }
-            for (NSDictionary *data in selectedData) {
-                switch (currentFileOperation) {
-                    case MOVE:
-                    {
-                        LiveOperation *moveOperation =                         [self.appDelegate.liveClient moveFromPath:[data objectForKey:@"id"]
-                                                                                                           toDestination:pathString delegate:self userState:[data objectForKey:@"id"]];
-                        [liveOperations addObject:moveOperation];
-                    }
-                        break;
-                    case COPY:
-                    {
-                        LiveOperation *copyOperation =                          [self.appDelegate.liveClient copyFromPath:[data objectForKey:@"id"]
-                                                                                                            toDestination:pathString delegate:self userState:[data objectForKey:@"id"]];
-                        [liveOperations addObject:copyOperation];
-
-                    }
-                        break;
-                    default:
-                        break;
-                }
-            }
-        }
-            break;
-        default:
-            break;
     }
+    
     [self startAnimating];
 }
 
@@ -444,7 +465,7 @@ loadedSharableLink:(NSString *)link
     
     moveButton = [UIButton buttonWithType:UIButtonTypeCustom];
     moveButton.frame = CGRectMake(0, 0, 60, 30);
-    [moveButton setTitle:@"Move"
+    [moveButton setTitle:@"Move To"
                 forState:UIControlStateNormal];
     [moveButton setTitleColor:[UIColor whiteColor]
                      forState:UIControlStateNormal];
@@ -459,7 +480,7 @@ loadedSharableLink:(NSString *)link
     
     copyButton = [UIButton buttonWithType:UIButtonTypeCustom];
     copyButton.frame = CGRectMake(0, 0, 60, 30);
-    [copyButton setTitle:@"Copy"
+    [copyButton setTitle:@"Copy To"
                 forState:UIControlStateNormal];
     [copyButton setTitleColor:[UIColor whiteColor]
                      forState:UIControlStateNormal];

@@ -11,6 +11,7 @@
 @interface CLPathSelectionViewController ()
 {
     UIButton *selectButton;
+    UIButton *leftBarButton;
 }
 
 -(void) completeToolbarItems;
@@ -51,10 +52,38 @@
     [super viewDidLoad];
     [self completeToolbarItems];
     [fileOperationsToolbar setItems:toolBarItems animated:YES];
-    [self setTitle:@"Select Path"];
     [barItem setFrame:CGRectMake(0, 0, 60, 30)];
     [barItem setImage:[UIImage imageNamed:@"button_background_base.png"]
            WithInsets:UIEdgeInsetsMake(0, 10, 0, 10)];
+    
+    leftBarButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    UIImage *leftBarButtonItemImage = nil;
+    switch (viewType) {
+        case DROPBOX:
+        {
+            leftBarButtonItemImage = [UIImage imageNamed:@"dropbox_cell_Image.png"];
+        }
+            break;
+        case SKYDRIVE:
+        {
+            leftBarButtonItemImage = [UIImage imageNamed:@"SkyDriveIconBlack_32x32.png"];
+        }
+            break;
+        default:
+            break;
+    }
+    [leftBarButton setFrame:CGRectMake(0,
+                                       0,
+                                       leftBarButtonItemImage.size.width, leftBarButtonItemImage.size.height)];
+    [leftBarButton setImage:leftBarButtonItemImage
+                   forState:UIControlStateNormal];
+
+    [leftBarButton addTarget:self
+                      action:@selector(leftBarButtonItemTapped:)
+            forControlEvents:UIControlEventTouchUpInside];
+    UIBarButtonItem *leftBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:leftBarButton];
+    [self.navigationItem setLeftBarButtonItem:leftBarButtonItem];
+    [leftBarButtonItem release];
 
 	// Do any additional setup after loading the view.
 }
@@ -85,6 +114,31 @@
 }
 
 
+#pragma mark - IBActions
+
+
+-(void)leftBarButtonItemTapped:(UIButton *) btn
+{
+    switch (viewType) {
+        case DROPBOX:
+        {
+            self.viewType = SKYDRIVE;
+            self.path = ROOT_SKYDRIVE_FOLDER_ID;
+        }
+            break;
+        case SKYDRIVE:
+        {
+            self.viewType = DROPBOX;
+            self.path = ROOT_DROPBOX_PATH;
+        }
+            break;
+        default:
+            break;
+    }
+    [self loadFilesForPath:path
+            WithInViewType:viewType];
+}
+    
 
 
 #pragma mark - LiveOperationDelegate
@@ -147,6 +201,27 @@
 
 -(void) loadFilesForPath:(NSString *)pathString WithInViewType:(VIEW_TYPE)type
 {
+    UIImage *leftBarButtonItemImage = nil;
+    switch (viewType) {
+        case DROPBOX:
+        {
+            leftBarButtonItemImage = [UIImage imageNamed:@"dropbox_cell_Image.png"];
+        }
+            break;
+        case SKYDRIVE:
+        {
+            leftBarButtonItemImage = [UIImage imageNamed:@"SkyDriveIconBlack_32x32.png"];
+        }
+            break;
+        default:
+            break;
+    }
+    [leftBarButton setFrame:CGRectMake(0,
+                                       0,
+                                       leftBarButtonItemImage.size.width, leftBarButtonItemImage.size.height)];
+    [leftBarButton setImage:leftBarButtonItemImage
+                   forState:UIControlStateNormal];
+
     [super loadFilesForPath:pathString WithInViewType:type];
 }
 
