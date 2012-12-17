@@ -97,7 +97,6 @@
             case SKYDRIVE:
                 path = ROOT_SKYDRIVE_PATH;
                 break;
-    
             default:
                 break;
         }

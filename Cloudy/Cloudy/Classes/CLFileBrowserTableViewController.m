@@ -720,7 +720,7 @@ loadedSharableLink:(NSString *)link
             dataTableView.tableHeaderView = headerView;
             [headerView release];
             dataTableView.separatorStyle = UITableViewCellSeparatorStyleNone;
-            [self.navigationItem setTitle:@"Cloudy"];
+            [self.navigationItem setTitle:@"OverClouded"];
             [tableDataArray removeAllObjects];
             viewType = INFINITY;
             [self hideButtons:[NSArray arrayWithObjects:uploadButton,createFolderButton, nil]];
