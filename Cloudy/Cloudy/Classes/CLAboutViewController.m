@@ -80,7 +80,13 @@
     [controller setMailComposeDelegate:self];
     [controller setToRecipients:[NSArray arrayWithObject:@"paragdulam@gmail.com"]];
     [controller setSubject:@"Help me with this"];
-    [self presentModalViewController:controller animated:YES];
+    if ([MFMailComposeViewController canSendMail]) {
+        [self presentModalViewController:controller animated:YES];
+    } else {
+        [AppDelegate showMessage:@"Please Configure your Mail"
+                       withColor:[UIColor redColor]
+                     alertOnView:self.view];
+    }
     [controller release];
 }
 

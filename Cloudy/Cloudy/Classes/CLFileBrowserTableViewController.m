@@ -580,7 +580,13 @@ loadedSharableLink:(NSString *)link
     [controller setSubject:[NSString stringWithFormat:@"Sharing Files Using OverClouded on %@",cloudPlatform]];
     [controller setMessageBody:htmlString isHTML:YES];
     [htmlString release]; //released By Parag
-    [self presentModalViewController:controller animated:YES];
+    if ([MFMailComposeViewController canSendMail]) {
+        [self presentModalViewController:controller animated:YES];
+    } else {
+        [AppDelegate showMessage:@"Please Configure your Mail"
+                       withColor:[UIColor redColor]
+                     alertOnView:self.view];
+    }
     [controller release];
 }
 
