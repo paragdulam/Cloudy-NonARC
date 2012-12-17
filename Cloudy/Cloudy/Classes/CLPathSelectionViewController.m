@@ -109,8 +109,7 @@
         default:
             break;
     }
-    [self loadFilesForPath:path
-            WithInViewType:viewType];
+    [self readCacheUpdateView];
 }
     
 
