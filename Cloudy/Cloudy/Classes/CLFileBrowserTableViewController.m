@@ -561,6 +561,8 @@ loadedSharableLink:(NSString *)link
         [htmlString appendFormat:@"<a href=\"%@\">%@</a><br/>",[[dict allValues] objectAtIndex:0],[[dict allKeys] objectAtIndex:0]];
     }
     
+    [htmlString appendFormat:@"<br/>"];
+    [htmlString appendFormat:@"Share stuff with only who you want with <a href=\"https://itunes.apple.com/us/app/overclouded/id588285774?ls=1&mt=8\">OverClouded</a>"];
     
     MFMailComposeViewController* controller = [[MFMailComposeViewController alloc] init];
     controller.mailComposeDelegate = self;
@@ -575,7 +577,7 @@ loadedSharableLink:(NSString *)link
         default:
             break;
     }
-    [controller setSubject:[NSString stringWithFormat:@"Sharing Files Using %@",cloudPlatform]];
+    [controller setSubject:[NSString stringWithFormat:@"Sharing Files Using OverClouded on %@",cloudPlatform]];
     [controller setMessageBody:htmlString isHTML:YES];
     [htmlString release]; //released By Parag
     [self presentModalViewController:controller animated:YES];

@@ -47,7 +47,7 @@
     [cancelBarButtonItem release];
     
     //Setting Up About Button End
-    [tableDataArray addObject:@"Contact"];
+    [tableDataArray addObject:@"Contact the Developer"];
     [self.navigationItem setTitle:@"About"];
     [self updateView];
 }
