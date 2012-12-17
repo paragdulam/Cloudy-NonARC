@@ -55,6 +55,25 @@
     [barItem setFrame:CGRectMake(0, 0, 60, 30)];
     [barItem setImage:[UIImage imageNamed:@"button_background_base.png"]
            WithInsets:UIEdgeInsetsMake(0, 10, 0, 10)];
+    
+//    UILabel *selectPathLabel = [[UILabel alloc] init];
+//    selectPathLabel.backgroundColor = [UIColor clearColor];
+//    selectPathLabel.textColor = [UIColor whiteColor];
+//    selectPathLabel.font = [UIFont boldSystemFontOfSize:14.f];
+//    selectPathLabel.text = @"Select Destination";
+//    [selectPathLabel sizeToFit];
+//    [self.navigationController.navigationBar addSubview:selectPathLabel];
+//    [selectPathLabel release];
+//    selectPathLabel.center = CGPointMake(self.navigationController.navigationBar.center.x , self.navigationController.navigationBar.center.y - 25.f);
+    
+    CGRect navBarFrame = self.navigationController.navigationBar.frame;
+    navBarFrame.size.height = 64.f;
+    self.navigationController.navigationBar.frame = navBarFrame;
+    
+    CGRect tableFrame = dataTableView.frame;
+    tableFrame.origin.y = 20;
+    tableFrame.size.height = self.view.frame.size.height - navBarFrame.size.height ;
+    dataTableView.frame = tableFrame;
 	// Do any additional setup after loading the view.
 }
 
@@ -174,6 +193,7 @@
     [toolBarButton addTarget:self
                       action:@selector(toolBarButtonItemTapped:)
             forControlEvents:UIControlEventTouchUpInside];
+    toolBarButton.hidden = YES;
 
     
     selectButton = [UIButton buttonWithType:UIButtonTypeCustom];
