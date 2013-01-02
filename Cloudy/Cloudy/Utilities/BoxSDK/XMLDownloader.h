@@ -9,25 +9,29 @@
 #import <Foundation/Foundation.h>
 
 
-@protocol XMLDownloaderDelagate
-
--(void) connection:(NSURLConnection *)connection didFailWithError:(NSError *)error;
--(void) connection:(NSURLConnection *)connection didReceiveData:(NSData *)data;
--(void) connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response ;
--(void) connectionDidFinishLoading:(NSURLConnection *)connection WithData:(NSData *) data;
-
-@end
-
-
+@protocol XMLDownloaderDelagate ;
 
 @interface XMLDownloader : NSObject {
 	NSMutableData *downloadedData;
 	id downloadDelagate;
+    int tag;
 }
 
 @property (nonatomic,assign) id downloadDelagate;
+@property (nonatomic,assign) int tag;
 
 -(id) initWithURL:(NSURL *) url;
 -(id) initWithURLString:(NSString *) urlString;
+
+@end
+
+
+@protocol XMLDownloaderDelagate
+
+-(void) downloader:(XMLDownloader *)dloader didFailWithError:(NSError *)error;
+-(void) downloader:(XMLDownloader *)dloader didReceiveData:(NSData *)data;
+-(void) downloader:(XMLDownloader *)dloader didReceiveResponse:(NSURLResponse *)response ;
+-(void) downloaderDidFinishLoading:(XMLDownloader *)dloader WithData:(NSData *) data;
+
 
 @end

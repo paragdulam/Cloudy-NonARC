@@ -251,6 +251,12 @@
             }
             break;
         }
+        case BOX:
+        {
+            [self.boxClient login];
+            CLAccountCell *cell = (CLAccountCell *)[dataTableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:BOX]];
+            [cell startAnimating];
+        }
         default:
             break;
     }
@@ -338,6 +344,36 @@
 }
 
 
+#pragma mark - BoxClientDelegate
+
+-(void) authenticationDone
+{
+    [self.boxClient getAccountInfo];
+    [self startAnimatingCellAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:BOX]];
+}
+
+
+-(void) boxClient:(BoxClient *)client didLoadAccountInfo:(NSDictionary *)accountInfo
+{
+    BOOL isAccountStored = [CLCacheManager storeAccount:accountInfo];
+    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:0 inSection:BOX];
+    [self stopAnimatingCellAtIndexPath:indexPath];
+    if (isAccountStored) {
+        [tableDataArray replaceObjectAtIndex:BOX withObject:accountInfo];
+        NSArray *sequenceArray = [NSArray arrayWithObjects:[NSNumber numberWithInteger:UITableViewRowAnimationLeft],[NSNumber numberWithInteger:UITableViewRowAnimationRight], nil];
+        [self performTableViewAnimationForIndexPath:indexPath
+                              withAnimationSequence:sequenceArray];
+    }
+    editButton.hidden = NO;
+    [self tableView:dataTableView didSelectRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:BOX]];
+
+}
+
+
+-(void) boxClient:(BoxClient *)client didLoadFailedAccountInfoWithError:(NSError *)error
+{
+    [AppDelegate showError:error alertOnView:self.view];
+}
 
 #pragma mark - DBRestClientDelegate
 

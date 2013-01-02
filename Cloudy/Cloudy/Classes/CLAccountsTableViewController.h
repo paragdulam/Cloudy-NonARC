@@ -12,4 +12,6 @@
 @interface CLAccountsTableViewController : CLBaseTableViewController<DBSessionDelegate,LiveAuthDelegate,LiveOperationDelegate>
 -(void)authenticationDoneForSession:(DBSession *)session;
 -(void)  authenticationCancelledManuallyForSession:(DBSession *) session;
+-(void) authenticationDone;
 @end
+

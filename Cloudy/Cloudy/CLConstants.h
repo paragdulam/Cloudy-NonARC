@@ -24,6 +24,11 @@
 #define SKYDRIVE_CLIENT_ID @"000000004C0C6832"
 #define SCOPE_ARRAY [NSArray arrayWithObjects:@"wl.signin",@"wl.basic",@"wl.skydrive",@"wl.offline_access",@"wl.skydrive_update", nil]
 
+#define BOX_API_KEY @"ux3ux0v2rl17tppcfry7ddnuj57h3bl8"
+#define BOX_CREDENTIALS @"BOX_CREDENTIALS"
+#define TICKET @"ticket"
+#define AUTH_TOKEN @"auth_token"
+
 
 #define GOOGLE_DRIVE_KEYCHAIN_ITEM_NAME @"Drive-Box"
 #define GOOGLE_DRIVE_CLIENT_ID @"1029215508929.apps.googleusercontent.com"
@@ -59,7 +64,8 @@
 
 typedef enum CLOUD_PROVIDERS {
     DROPBOX = 0,
-    SKYDRIVE
+    SKYDRIVE,
+    BOX
 } VIEW_TYPE;
 
 typedef enum FILE_TYPE {

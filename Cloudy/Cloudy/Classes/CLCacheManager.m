@@ -172,12 +172,6 @@ return nil;
 {
     NSMutableArray *accounts = [NSMutableArray arrayWithArray:[CLCacheManager accounts]];
     BOOL retVal = YES;
-//    [accounts enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-//        NSDictionary *objDict = (NSDictionary *)obj;
-//        if ([[objDict objectForKey:ACCOUNT_TYPE] integerValue] == [[account objectForKey:ACCOUNT_TYPE] integerValue]) {
-//            retVal = NO;
-//        }
-//    }];
     for (NSDictionary *anAccount in accounts) {
         if ([[anAccount objectForKey:ACCOUNT_TYPE] integerValue] == [[account objectForKey:ACCOUNT_TYPE] integerValue]) {
             retVal = NO;

@@ -106,6 +106,10 @@
                 cellImage = [UIImage imageNamed:@"SkyDriveIconBlack_32x32.png"];
             }
                 break;
+            case BOX:
+            {
+                
+            }
             default:
                 break;
         }

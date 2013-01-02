@@ -68,15 +68,36 @@
   sourceApplication:(NSString *)sourceApplication
          annotation:(id)annotation
 {
-    if ([dropboxSession handleOpenURL:url]) {
-        if ([dropboxSession isLinked]) {
-            //auth Done
-            if (![[[[url absoluteString] componentsSeparatedByString:@"/"] lastObject] isEqualToString:@"cancel"]) {
-                [callbackViewController authenticationDoneForSession:dropboxSession];
-                return YES;
-            } else {
-                [callbackViewController authenticationCancelledManuallyForSession:dropboxSession];
-                return NO;
+    if ([[url absoluteString] hasPrefix:[NSString stringWithFormat:@"box-%@",BOX_API_KEY]]) {
+        NSLog(@"url %@",url);
+        NSArray *callBackMainURLs = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleURLTypes"] ;
+        NSDictionary *callBackUrlsDictionary = [callBackMainURLs objectAtIndex:0];
+        NSArray *callBackUrls = [callBackUrlsDictionary objectForKey:@"CFBundleURLSchemes"];
+        NSString *callBackURL = [NSString stringWithFormat:@"%@://auth_token_recieved?",[callBackUrls objectAtIndex:1]];
+        NSString *absoluteURLString = [url absoluteString];
+        NSString *contentString = [absoluteURLString stringByReplacingOccurrencesOfString:callBackURL withString:@""];
+        NSArray *components = [contentString componentsSeparatedByString:@"&"];
+        NSMutableDictionary *boxCredentials = [[NSMutableDictionary alloc] init];
+        for (NSString *component in components) {
+            NSArray *subComponents = [component componentsSeparatedByString:@"="];
+            [boxCredentials setObject:[subComponents objectAtIndex:1]
+                               forKey:[subComponents objectAtIndex:0]];
+        }
+        [[NSUserDefaults standardUserDefaults] setObject:boxCredentials
+                                                  forKey:BOX_CREDENTIALS];
+        [boxCredentials release];
+        [callbackViewController authenticationDone];
+    } else {
+        if ([dropboxSession handleOpenURL:url]) {
+            if ([dropboxSession isLinked]) {
+                //auth Done
+                if (![[[[url absoluteString] componentsSeparatedByString:@"/"] lastObject] isEqualToString:@"cancel"]) {
+                    [callbackViewController authenticationDoneForSession:dropboxSession];
+                    return YES;
+                } else {
+                    [callbackViewController authenticationCancelledManuallyForSession:dropboxSession];
+                    return NO;
+                }
             }
         }
     }
