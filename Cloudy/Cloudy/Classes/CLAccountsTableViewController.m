@@ -169,47 +169,10 @@
 {
     NSMutableArray *accounts = nil;
     NSArray *storedAccounts = [CLCacheManager accounts];
-    if (![storedAccounts count]) {
-        accounts = [[NSMutableArray alloc] initWithObjects:DROPBOX_STRING,SKYDRIVE_STRING, nil];
-    } else {
-        accounts = [[NSMutableArray alloc] initWithArray:storedAccounts];
-        switch ([storedAccounts count]) {
-            case 0:
-                break;
-            case 1:
-            {
-                NSDictionary *account = [accounts objectAtIndex:0];
-                VIEW_TYPE accountType = [[account objectForKey:ACCOUNT_TYPE] intValue];
-                switch (accountType) {
-                    case DROPBOX:
-                        [accounts insertObject:SKYDRIVE_STRING atIndex:1];
-                        break;
-                    case SKYDRIVE:
-                        [accounts insertObject:DROPBOX_STRING atIndex:0];
-                        break;
-                    default:
-                        break;
-                }
-            }
-                break;
-            case 2:
-            {
-                NSDictionary *account = [accounts objectAtIndex:0];
-                VIEW_TYPE accountType = [[account objectForKey:ACCOUNT_TYPE] intValue];
-                switch (accountType) {
-                    case SKYDRIVE:
-                    {
-                        [accounts exchangeObjectAtIndex:0 withObjectAtIndex:1];
-                    }
-                        break;
-                        
-                    default:
-                        break;
-                }
-
-            }
-                break;
-        }
+    accounts = [[NSMutableArray alloc] initWithObjects:DROPBOX_STRING,SKYDRIVE_STRING,BOX_STRING, nil];
+    for (NSDictionary *account in storedAccounts) {
+        VIEW_TYPE accountType = [[account objectForKey:ACCOUNT_TYPE] intValue];
+        [accounts replaceObjectAtIndex:accountType withObject:account];
     }
     [self updateModel:accounts];
     [accounts release];
