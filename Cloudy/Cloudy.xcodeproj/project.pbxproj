@@ -93,6 +93,8 @@
 		F1533072165F7DFC00CD2E23 /* editButton@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = F1533071165F7DFC00CD2E23 /* editButton@2x.png */; };
 		F153E110167A20ED00F5EE49 /* CLFileDetailBaseViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F153E10F167A20ED00F5EE49 /* CLFileDetailBaseViewController.m */; };
 		F153E113167A24D200F5EE49 /* CLWebMediaPlayerViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F153E112167A24D100F5EE49 /* CLWebMediaPlayerViewController.m */; };
+		F15424C01694446700DDDA85 /* XMLDownloader.m in Sources */ = {isa = PBXBuildFile; fileRef = F15424BD1694446700DDDA85 /* XMLDownloader.m */; };
+		F15424C11694446700DDDA85 /* XMLReader.m in Sources */ = {isa = PBXBuildFile; fileRef = F15424BF1694446700DDDA85 /* XMLReader.m */; };
 		F16011B7164E1AAF00098D8C /* SkyDriveIconWhite_32x32@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = F16011B6164E1AAF00098D8C /* SkyDriveIconWhite_32x32@2x.png */; };
 		F16011B9164E1BA300098D8C /* dropbox_cell_Image@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = F16011B8164E1BA300098D8C /* dropbox_cell_Image@2x.png */; };
 		F18309C41658F8ED00FF6C64 /* CLUploadProgressButton.m in Sources */ = {isa = PBXBuildFile; fileRef = F18309C31658F8ED00FF6C64 /* CLUploadProgressButton.m */; };
@@ -360,6 +362,10 @@
 		F153E10F167A20ED00F5EE49 /* CLFileDetailBaseViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CLFileDetailBaseViewController.m; sourceTree = "<group>"; };
 		F153E111167A24D100F5EE49 /* CLWebMediaPlayerViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CLWebMediaPlayerViewController.h; sourceTree = "<group>"; };
 		F153E112167A24D100F5EE49 /* CLWebMediaPlayerViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CLWebMediaPlayerViewController.m; sourceTree = "<group>"; };
+		F15424BC1694446700DDDA85 /* XMLDownloader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XMLDownloader.h; sourceTree = "<group>"; };
+		F15424BD1694446700DDDA85 /* XMLDownloader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XMLDownloader.m; sourceTree = "<group>"; };
+		F15424BE1694446700DDDA85 /* XMLReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XMLReader.h; sourceTree = "<group>"; };
+		F15424BF1694446700DDDA85 /* XMLReader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XMLReader.m; sourceTree = "<group>"; };
 		F16011B6164E1AAF00098D8C /* SkyDriveIconWhite_32x32@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "SkyDriveIconWhite_32x32@2x.png"; sourceTree = "<group>"; };
 		F16011B8164E1BA300098D8C /* dropbox_cell_Image@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "dropbox_cell_Image@2x.png"; sourceTree = "<group>"; };
 		F18309C21658F8ED00FF6C64 /* CLUploadProgressButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CLUploadProgressButton.h; sourceTree = "<group>"; };
@@ -653,6 +659,17 @@
 			path = File_Thumbnails;
 			sourceTree = "<group>";
 		};
+		F15424BB1694446700DDDA85 /* BoxSDK */ = {
+			isa = PBXGroup;
+			children = (
+				F15424BC1694446700DDDA85 /* XMLDownloader.h */,
+				F15424BD1694446700DDDA85 /* XMLDownloader.m */,
+				F15424BE1694446700DDDA85 /* XMLReader.h */,
+				F15424BF1694446700DDDA85 /* XMLReader.m */,
+			);
+			path = BoxSDK;
+			sourceTree = "<group>";
+		};
 		F18B7D15165A20B600D2EECF /* File_Thumbnails */ = {
 			isa = PBXGroup;
 			children = (
@@ -890,6 +907,7 @@
 		F194DB31164A65AB00631792 /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
+				F15424BB1694446700DDDA85 /* BoxSDK */,
 				F1FA4F2816561F6C0027E4CC /* DDPopoverBackgroundView */,
 				F194DBDA164AED2800631792 /* DropboxSDK.xcodeproj */,
 				F194DB58164AECF200631792 /* AGImagePickerController */,
@@ -1382,6 +1400,8 @@
 				F14CC06516773B8D002E2807 /* CLAboutViewController.m in Sources */,
 				F153E110167A20ED00F5EE49 /* CLFileDetailBaseViewController.m in Sources */,
 				F153E113167A24D200F5EE49 /* CLWebMediaPlayerViewController.m in Sources */,
+				F15424C01694446700DDDA85 /* XMLDownloader.m in Sources */,
+				F15424C11694446700DDDA85 /* XMLReader.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

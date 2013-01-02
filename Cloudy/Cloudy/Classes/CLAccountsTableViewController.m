@@ -176,7 +176,6 @@
     }
     [self updateModel:accounts];
     [accounts release];
-    
     editButton.hidden = [storedAccounts count] ? NO : YES ;
 }
 
