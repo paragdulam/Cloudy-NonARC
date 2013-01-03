@@ -355,14 +355,9 @@
                     [self.navigationController pushViewController:imageGalleryViewController animated:YES];
                     [imageGalleryViewController release];
                 } else if (([[metadata objectForKey:@"type"] isEqualToString:@"video"] || [[metadata objectForKey:@"type"] isEqualToString:@"audio"])) {
-//                    CLMediaPlayerViewController *moviePlayer = [[CLMediaPlayerViewController alloc] initWithVideoFile:metadata withInViewType:viewType];
-//                    [self.navigationController pushViewController:moviePlayer animated:YES];
-//                    [moviePlayer release];
                     CLWebMediaPlayerViewController *webMediaPlayer = [[CLWebMediaPlayerViewController alloc] initWithFile:metadata WithinViewType:viewType];
                     [self.navigationController pushViewController:webMediaPlayer animated:YES];
                     [webMediaPlayer release];
-
-                    
                 } else {
                     CLFileDetailViewController *fileDetailViewController = [[CLFileDetailViewController alloc] initWithFile:metadata WithinViewType:SKYDRIVE];
                     [self.navigationController pushViewController:fileDetailViewController animated:YES];
@@ -370,6 +365,20 @@
                 }
             }
                 break;
+            case BOX:
+            {
+                NSDictionary *metadata = [tableDataArray objectAtIndex:indexPath.row];
+                NSLog(@"metadata %@",metadata);
+                if ([metadata objectForKey:@"file_count"]) {
+                    //folder
+                    CLFileBrowserTableViewController *fileBrowserViewController = [[CLFileBrowserTableViewController alloc] initWithTableViewStyle:UITableViewStylePlain WherePath:[metadata objectForKey:@"id"] WithinViewType:BOX];
+                    [self.navigationController pushViewController:fileBrowserViewController animated:YES];
+                    fileBrowserViewController.title = [metadata objectForKey:@"name"];
+                    [fileBrowserViewController release];
+                } else {
+                    
+                }
+            }
             default:
                 break;
         }
@@ -389,7 +398,9 @@
 -(void) boxClient:(BoxClient *)client loadedMetadata:(NSDictionary *) metaData
 {
     [self stopAnimating];
-    NSDictionary *folderData = [[[metaData objectForKey:@"response"] objectForKey:@"tree"] objectForKey:@"folder"];
+
+    NSMutableDictionary *folderData = [NSMutableDictionary dictionaryWithDictionary:[[[metaData objectForKey:@"response"] objectForKey:@"tree"] objectForKey:@"folder"]];
+    
     NSMutableArray *tableData = [[NSMutableArray alloc] init];
     id object = [[folderData objectForKey:@"folders"] objectForKey:@"folder"];
     if ([object isKindOfClass:[NSDictionary class]]) {
@@ -398,16 +409,27 @@
         [tableData addObjectsFromArray:object];
     }
     
-    object = [[folderData objectForKey:@"folders"] objectForKey:@"folder"];
+    object = [[folderData objectForKey:@"files"] objectForKey:@"file"];
     if ([object isKindOfClass:[NSDictionary class]]) {
         [tableData addObject:object];
     } else {
         [tableData addObjectsFromArray:object];
     }
-
+    
+    [folderData setObject:tableData forKey:@"contents"];
+    [folderData removeObjectForKey:@"folders"];
+    [folderData removeObjectForKey:@"files"];
+    
+    [CLCacheManager updateFile:folderData
+        whereTraversingPointer:nil
+               inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
+                   ForViewType:viewType];
+    
     [self updateModel:tableData];
     [tableData release];
     [self updateView];
+
+
 }
 
 -(void) boxClient:(BoxClient *)client loadMetadataDidFailWithError:(NSError *) error
@@ -922,6 +944,9 @@
             break;
         case SKYDRIVE:
             contents = [cachedFileStructure objectForKey:@"data"];
+            break;
+        case BOX:
+            contents = [cachedFileStructure objectForKey:@"contents"];
             break;
         default:
             break;

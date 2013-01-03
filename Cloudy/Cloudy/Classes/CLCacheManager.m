@@ -447,6 +447,9 @@ ContainsFileWithPath:(NSString *) filePath
         case SKYDRIVE:
             return [folder objectForKey:@"data"];
             break;
+        case BOX:
+            return [folder objectForKey:@"contents"];
+            break;
         default:
             return nil;
             break;
