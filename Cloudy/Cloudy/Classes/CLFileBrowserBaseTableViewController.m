@@ -389,21 +389,20 @@
 -(void) boxClient:(BoxClient *)client loadedMetadata:(NSDictionary *) metaData
 {
     [self stopAnimating];
-    NSLog(@"metaData %@",metaData);
     NSDictionary *folderData = [[[metaData objectForKey:@"response"] objectForKey:@"tree"] objectForKey:@"folder"];
     NSMutableArray *tableData = [[NSMutableArray alloc] init];
     id object = [[folderData objectForKey:@"folders"] objectForKey:@"folder"];
     if ([object isKindOfClass:[NSDictionary class]]) {
         [tableData addObject:object];
     } else {
-        [tableData addObjectsFromArray:[[folderData objectForKey:@"folders"] objectForKey:@"folder"]];
+        [tableData addObjectsFromArray:object];
     }
     
     object = [[folderData objectForKey:@"folders"] objectForKey:@"folder"];
     if ([object isKindOfClass:[NSDictionary class]]) {
         [tableData addObject:object];
     } else {
-        [tableData addObjectsFromArray:[[folderData objectForKey:@"files"] objectForKey:@"file"]];
+        [tableData addObjectsFromArray:object];
     }
 
     [self updateModel:tableData];

@@ -53,6 +53,9 @@
         case SKYDRIVE:
             return [NSString stringWithFormat:@"%@/%@",[CLCacheManager getSkyDriveCacheFolderPath],FILE_STRUCTURE_PLIST];
             break;
+        case BOX:
+            return [NSString stringWithFormat:@"%@/%@",[CLCacheManager getBoxCacheFolderPath],FILE_STRUCTURE_PLIST];
+            break;
         default:
             break;
     }
