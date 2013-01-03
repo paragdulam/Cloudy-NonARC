@@ -39,8 +39,6 @@
 
 -(void) getAuthenticationTicket
 {
-    //GET https://www.box.com/api/1.0/rest?action=get_ticket&api_key=ux3ux0v2rl17tppcfry7ddnuj57h3bl8
-
     NSString *urlString = [NSString stringWithFormat:@"https://www.box.com/api/1.0/rest?action=get_ticket&api_key=%@",apiKey];
     XMLDownloader *xmlDownloader = [[[XMLDownloader alloc] initWithURLString:urlString] autorelease];
     [xmlDownloader setDownloadDelagate:self];
@@ -55,7 +53,14 @@
 }
 
 
-
+-(void) logout
+{
+    [[NSUserDefaults standardUserDefaults] removeObjectForKey:BOX_CREDENTIALS];
+    NSString *urlString = [NSString stringWithFormat:@"https://www.box.net/api/1.0/rest?action=logout&api_key=%@&auth_token=%@",apiKey,[self auth_token]];
+    XMLDownloader *xmlDownloader = [[[XMLDownloader alloc] initWithURLString:urlString] autorelease];
+    [xmlDownloader setDownloadDelagate:self];
+    [xmlDownloader setTag:LOGOUT];
+}
 
 -(void) getAccountInfo
 {
@@ -94,6 +99,14 @@
             }
         }
             break;
+        case LOGOUT:
+        {
+            if ([delegate respondsToSelector:@selector(boxClient:DidLogOutFailWithError:)]) {
+                [delegate boxClient:self
+             DidLogOutFailWithError:error];
+            }
+        }
+            break;
         default:
             break;
     }
@@ -129,6 +142,15 @@ didReceiveResponse:(NSURLResponse *)response
             NSDictionary *dataDictionary = [XMLReader dictionaryForXMLData:data error:&error];
             if ([delegate respondsToSelector:@selector(boxClient:didLoadAccountInfo:)]) {
                 [delegate boxClient:self didLoadAccountInfo:dataDictionary];
+            }
+        }
+            break;
+        case LOGOUT:
+        {
+            NSError *error = nil;
+            NSDictionary *dataDictionary = [XMLReader dictionaryForXMLData:data error:&error];
+            if ([delegate respondsToSelector:@selector(boxClient:DidLogOutWithData:)]) {
+                [delegate boxClient:self DidLogOutWithData:dataDictionary];
             }
         }
             break;

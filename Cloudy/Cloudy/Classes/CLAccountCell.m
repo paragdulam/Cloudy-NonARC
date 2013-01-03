@@ -87,6 +87,7 @@
         [self setAccessoryView:activityIndicator];
     } else if ([data isKindOfClass:[NSDictionary class]]) {
         NSDictionary *dataDictionary = (NSDictionary *)data;
+        titleText = [dataDictionary objectForKey:@"displayName"];
         NSDictionary *quotaDictionary = [dataDictionary objectForKey:@"quota"];
         double totalConsumedBytes = 0;
         double totalBytes = 0;
@@ -108,7 +109,10 @@
                 break;
             case BOX:
             {
-                
+                titleText = [[[[dataDictionary objectForKey:@"response"] objectForKey:@"user"] objectForKey:@"email"] objectForKey:@"text"];
+                totalConsumedBytes = [[[[[dataDictionary objectForKey:@"response"] objectForKey:@"user"] objectForKey:@"space_used"] objectForKey:@"text"] floatValue] / (1024 * 1024 * 1024);
+                totalBytes = [[[[[dataDictionary objectForKey:@"response"] objectForKey:@"user"] objectForKey:@"space_amount"] objectForKey:@"text"] floatValue] / (1024 * 1024 * 1024);
+                cellImage = [UIImage imageNamed:@"SkyDriveIconBlack_32x32.png"];
             }
             default:
                 break;
@@ -118,7 +122,6 @@
         } else {
             detailText = @"Calculating...";
         }
-        titleText = [dataDictionary objectForKey:@"displayName"];
         [self setAccessoryView:nil];
         [self setAccessoryType:UITableViewCellAccessoryDisclosureIndicator];
     }

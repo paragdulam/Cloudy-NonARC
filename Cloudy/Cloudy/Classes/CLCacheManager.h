@@ -68,6 +68,7 @@ whereTraversingPointer:(NSMutableDictionary *)traversingDictionary
 +(BOOL) isRootPath:(NSString *) filePath
     WithinViewType:(VIEW_TYPE) type;
 +(void) deleteAllContentsOfFolderAtPath:(NSString *) path;
++(NSString *) getBoxCacheFolderPath;
 
 
 

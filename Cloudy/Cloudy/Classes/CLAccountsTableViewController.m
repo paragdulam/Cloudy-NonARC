@@ -253,9 +253,16 @@
         }
         case BOX:
         {
-            [self.boxClient login];
-            CLAccountCell *cell = (CLAccountCell *)[dataTableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:BOX]];
-            [cell startAnimating];
+            if (![self.boxClient auth_token]) {
+                [self.boxClient login];
+                CLAccountCell *cell = (CLAccountCell *)[dataTableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:BOX]];
+                [cell startAnimating];
+            } else {
+                UINavigationController *navController = (UINavigationController *)self.appDelegate.menuController.rootViewController;
+                [navController popToRootViewControllerAnimated:NO];
+                [self.appDelegate.menuController setRootController:navController animated:YES];
+                //load root folder Metadata here
+            }
         }
         default:
             break;
@@ -316,21 +323,28 @@
     [CLCacheManager deleteFileStructureForView:indexPath.section];
     
     switch (indexPath.section) {
-        case 0:
+        case DROPBOX:
         {
-            [tableDataArray replaceObjectAtIndex:0 withObject:DROPBOX_STRING];
+            [tableDataArray replaceObjectAtIndex:DROPBOX withObject:DROPBOX_STRING];
             DBSession *sharedSession = self.appDelegate.dropboxSession;
             NSString *userId = [[sharedSession userIds] objectAtIndex:0];
             [sharedSession unlinkUserId:userId];
         }
             break;
-        case 1:
+        case SKYDRIVE:
         {
-            [tableDataArray replaceObjectAtIndex:1 withObject:SKYDRIVE_STRING];
+            [tableDataArray replaceObjectAtIndex:SKYDRIVE withObject:SKYDRIVE_STRING];
             [self.appDelegate.liveClient logoutWithDelegate:self
                                                   userState:@"LOGOUT_SKYDRIVE"];
         }
             break;
+        case BOX:
+        {
+            [tableDataArray replaceObjectAtIndex:BOX withObject:BOX_STRING];
+            [self.boxClient logout];
+        }
+            break;
+
         default:
             break;
     }
@@ -355,7 +369,14 @@
 
 -(void) boxClient:(BoxClient *)client didLoadAccountInfo:(NSDictionary *)accountInfo
 {
-    BOOL isAccountStored = [CLCacheManager storeAccount:accountInfo];
+    //Compatible Dictionary Conversion Starts
+    NSMutableDictionary *accountData = [[NSMutableDictionary alloc] init];
+    [accountData addEntriesFromDictionary:accountInfo];
+    [accountData setObject:[NSNumber numberWithInt:BOX] forKey:ACCOUNT_TYPE];
+    BOOL isAccountStored = [CLCacheManager storeAccount:accountData];
+    [accountData release];
+    //Compatible Dictionary Conversion Ends
+    
     NSIndexPath *indexPath = [NSIndexPath indexPathForRow:0 inSection:BOX];
     [self stopAnimatingCellAtIndexPath:indexPath];
     if (isAccountStored) {
@@ -371,6 +392,17 @@
 
 
 -(void) boxClient:(BoxClient *)client didLoadFailedAccountInfoWithError:(NSError *)error
+{
+    [AppDelegate showError:error alertOnView:self.view];
+}
+
+
+-(void) boxClient:(BoxClient *)client DidLogOutWithData:(NSDictionary *)data
+{
+    
+}
+
+-(void) boxClient:(BoxClient *)client DidLogOutFailWithError:(NSError *)error
 {
     [AppDelegate showError:error alertOnView:self.view];
 }

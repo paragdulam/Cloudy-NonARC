@@ -38,6 +38,12 @@
 }
 
 
++(NSString *) getBoxCacheFolderPath
+{
+    return [NSString stringWithFormat:@"%@/%@",[CLCacheManager getAppCacheFolderPath],BOX_STRING];
+}
+
+
 +(NSString *) getFileStructurePath:(VIEW_TYPE) type
 {
     switch (type) {
@@ -222,6 +228,9 @@ return nil;
     return [skyDriveAccount objectForKey:@"id"];
 }
 
+
+
+
 #pragma mark - Initial Setup
 
 
@@ -267,6 +276,19 @@ return nil;
     }
     if (error) {
         NSLog(@"error creating Uploads Folder %@",error);
+    }
+
+    NSString *boxFolderCachePath = [CLCacheManager getBoxCacheFolderPath];
+    aBool = YES;
+    BOOL isBoxFolderAlreadyPresent = [[NSFileManager defaultManager] fileExistsAtPath:boxFolderCachePath isDirectory:&aBool];
+    if (!isBoxFolderAlreadyPresent) {
+        [[NSFileManager defaultManager] createDirectoryAtPath:boxFolderCachePath
+                                  withIntermediateDirectories:YES
+                                                   attributes:nil
+                                                        error:&error];
+    }
+    if (error) {
+        NSLog(@"error creating Box Folder %@",error);
     }
 
     
