@@ -155,18 +155,30 @@
             }
         }
             break;
-
+        case BOX:
+        {
+            titleText = [dataDictionary objectForKey:@"file_name"];
+            if (!titleText) {
+                titleText = [dataDictionary objectForKey:@"name"];
+                cellImage = [UIImage imageNamed:@"folder.png"];
+            } else {
+                NSString *extention = [[titleText pathExtension] lowercaseString];
+                cellImage = [UIImage imageNamed:[NSString stringWithFormat:@"%@.png",extention]];
+                if (!cellImage) {
+                    cellImage = [UIImage imageNamed:[NSString stringWithFormat:@"_blank.png"]];
+                }
+            }
+            float sizeValue = [[dataDictionary objectForKey:@"size"] floatValue]/(1024*1024);
+            detailText = [NSString stringWithFormat:@"%.2f MB",sizeValue];
+        }
+            break;
         default:
             break;
     }
-    
-    
-    
-    
+   
     [self.textLabel setText:titleText];
     [self.detailTextLabel setText:detailText];
     [self.imageView setImage:cellImage];
-
 }
 
 @end

@@ -70,6 +70,15 @@
     [xmlDownloader setTag:GET_ACCOUNT_INFO];
 }
 
+
+-(void) loadMetadataForFolderId:(NSString *) folderId
+{
+    NSString *urlString = [NSString stringWithFormat:@"https://www.box.net/api/1.0/rest?action=get_account_tree&api_key=%@&auth_token=%@&folder_id=%@&params[]=onelevel&params[]=nozip",apiKey,[self auth_token],folderId];
+    XMLDownloader *xmlDownloader = [[[XMLDownloader alloc] initWithURLString:urlString] autorelease];
+    [xmlDownloader setDownloadDelagate:self];
+    [xmlDownloader setTag:GET_METADATA];
+}
+
 -(void) dealloc
 {
     delegate = nil;
@@ -104,6 +113,13 @@
             if ([delegate respondsToSelector:@selector(boxClient:DidLogOutFailWithError:)]) {
                 [delegate boxClient:self
              DidLogOutFailWithError:error];
+            }
+        }
+            break;
+        case GET_METADATA:
+        {
+            if ([delegate respondsToSelector:@selector(boxClient:loadMetadataDidFailWithError:)]) {
+                [delegate boxClient:self loadMetadataDidFailWithError:error];
             }
         }
             break;
@@ -151,6 +167,15 @@ didReceiveResponse:(NSURLResponse *)response
             NSDictionary *dataDictionary = [XMLReader dictionaryForXMLData:data error:&error];
             if ([delegate respondsToSelector:@selector(boxClient:DidLogOutWithData:)]) {
                 [delegate boxClient:self DidLogOutWithData:dataDictionary];
+            }
+        }
+            break;
+        case GET_METADATA:
+        {
+            NSError *error = nil;
+            NSDictionary *dataDictionary = [XMLReader dictionaryForXMLData:data error:&error];
+            if ([delegate respondsToSelector:@selector(boxClient:loadedMetadata:)]) {
+                [delegate boxClient:self loadedMetadata:dataDictionary];
             }
         }
             break;

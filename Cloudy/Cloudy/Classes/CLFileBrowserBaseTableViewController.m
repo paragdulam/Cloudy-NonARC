@@ -285,7 +285,6 @@
     if (!cell) {
         cell = [[[CLFileBrowserCell alloc] initWithStyle:UITableViewCellStyleSubtitle
                                          reuseIdentifier:@"CLFileBrowserCell"] autorelease];
-//        [cell setBackgroundImage:[UIImage imageNamed:@"cell_background.png"]];
     }
     [cell setData:[tableDataArray objectAtIndex:indexPath.row]
       ForViewType:viewType];
@@ -381,6 +380,41 @@
 -(void) tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
 {
     cell.backgroundColor = CELL_BACKGROUND_COLOR;
+}
+
+
+#pragma mark - BoxClientDelegate
+
+
+-(void) boxClient:(BoxClient *)client loadedMetadata:(NSDictionary *) metaData
+{
+    [self stopAnimating];
+    NSLog(@"metaData %@",metaData);
+    NSDictionary *folderData = [[[metaData objectForKey:@"response"] objectForKey:@"tree"] objectForKey:@"folder"];
+    NSMutableArray *tableData = [[NSMutableArray alloc] init];
+    id object = [[folderData objectForKey:@"folders"] objectForKey:@"folder"];
+    if ([object isKindOfClass:[NSDictionary class]]) {
+        [tableData addObject:object];
+    } else {
+        [tableData addObjectsFromArray:[[folderData objectForKey:@"folders"] objectForKey:@"folder"]];
+    }
+    
+    object = [[folderData objectForKey:@"folders"] objectForKey:@"folder"];
+    if ([object isKindOfClass:[NSDictionary class]]) {
+        [tableData addObject:object];
+    } else {
+        [tableData addObjectsFromArray:[[folderData objectForKey:@"files"] objectForKey:@"file"]];
+    }
+
+    [self updateModel:tableData];
+    [tableData release];
+    [self updateView];
+}
+
+-(void) boxClient:(BoxClient *)client loadMetadataDidFailWithError:(NSError *) error
+{
+    [self stopAnimating];
+    [AppDelegate showError:error alertOnView:self.view];
 }
 
 
@@ -830,6 +864,12 @@
             currentFileOperation = METADATA;
         }
             break;
+        case BOX:
+        {
+            NSString *aPathString = [NSString stringWithFormat:@"%@",path];
+            [self.boxClient loadMetadataForFolderId:aPathString];
+        }
+            break;
         default:
             break;
     }
@@ -854,6 +894,9 @@
             break;
         case SKYDRIVE:
             [self.appDelegate.menuController setLeftButtonImage:[UIImage imageNamed:@"SkyDriveIconBlack_32x32.png"]];
+            break;
+        case BOX:
+            [self.appDelegate.menuController setLeftButtonImage:[UIImage imageNamed:@"box_cellImage.png"]];
             break;
         default:
             [self.appDelegate.menuController setLeftButtonImage:[UIImage imageNamed:@"nav_menu_icon.png"]];
@@ -899,6 +942,9 @@
                 break;
             case SKYDRIVE:
                 [self.navigationItem setTitle:SKYDRIVE_STRING];
+                break;
+            case BOX:
+                [self.navigationItem setTitle:BOX_STRING];
                 break;
             default:
                 break;

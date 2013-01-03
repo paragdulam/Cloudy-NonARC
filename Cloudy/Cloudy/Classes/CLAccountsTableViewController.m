@@ -262,6 +262,8 @@
                 [navController popToRootViewControllerAnimated:NO];
                 [self.appDelegate.menuController setRootController:navController animated:YES];
                 //load root folder Metadata here
+                [self.appDelegate.rootFileBrowserViewController loadFilesForPath:@"0" WithInViewType:BOX];
+
             }
         }
         default:

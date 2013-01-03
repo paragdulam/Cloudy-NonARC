@@ -16,7 +16,8 @@
 typedef enum REQUEST_TYPE {
     GET_AUTHENTICATION_TICKET = 0,
     GET_ACCOUNT_INFO,
-    LOGOUT
+    LOGOUT,
+    GET_METADATA
 } REQUEST_TYPE;
 
 
@@ -31,6 +32,7 @@ typedef enum REQUEST_TYPE {
 -(void) getAccountInfo;
 -(NSString *) auth_token;
 - (void) logout;
+-(void) loadMetadataForFolderId:(NSString *) folderId;
 
 
 
@@ -49,6 +51,10 @@ typedef enum REQUEST_TYPE {
 
 -(void) boxClient:(BoxClient *)client DidLogOutWithData:(NSDictionary *)data;
 -(void) boxClient:(BoxClient *)client DidLogOutFailWithError:(NSError *) error;
+
+
+-(void) boxClient:(BoxClient *)client loadedMetadata:(NSDictionary *) metaData;
+-(void) boxClient:(BoxClient *)client loadMetadataDidFailWithError:(NSError *) error;
 
 
 @end

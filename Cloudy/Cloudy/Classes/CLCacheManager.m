@@ -459,6 +459,9 @@ ContainsFileWithPath:(NSString *) filePath
         case SKYDRIVE:
             return [CLCacheManager fileIdForSkyDriveFile:file];
             break;
+        case BOX:
+            return [file objectForKey:@"id"];
+            break;
         default:
             break;
     }
@@ -478,6 +481,11 @@ ContainsFileWithPath:(NSString *) filePath
         {
             retVal = [filePath isEqualToString:ROOT_SKYDRIVE_PATH] ||
                      [filePath isEqualToString:ROOT_SKYDRIVE_FOLDER_ID];
+        }
+            break;
+        case BOX:
+        {
+            retVal = [filePath isEqualToString:ROOT_BOX_PATH];
         }
             break;
         default:
