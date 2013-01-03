@@ -112,7 +112,7 @@
                 titleText = [[[[dataDictionary objectForKey:@"response"] objectForKey:@"user"] objectForKey:@"email"] objectForKey:@"text"];
                 totalConsumedBytes = [[[[[dataDictionary objectForKey:@"response"] objectForKey:@"user"] objectForKey:@"space_used"] objectForKey:@"text"] floatValue] / (1024 * 1024 * 1024);
                 totalBytes = [[[[[dataDictionary objectForKey:@"response"] objectForKey:@"user"] objectForKey:@"space_amount"] objectForKey:@"text"] floatValue] / (1024 * 1024 * 1024);
-                cellImage = [UIImage imageNamed:@"SkyDriveIconBlack_32x32.png"];
+                cellImage = [UIImage imageNamed:@"box_cellImage.png"];
             }
             default:
                 break;

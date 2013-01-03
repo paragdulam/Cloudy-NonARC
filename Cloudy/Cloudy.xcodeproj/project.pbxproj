@@ -96,6 +96,8 @@
 		F15424C01694446700DDDA85 /* XMLDownloader.m in Sources */ = {isa = PBXBuildFile; fileRef = F15424BD1694446700DDDA85 /* XMLDownloader.m */; };
 		F15424C11694446700DDDA85 /* XMLReader.m in Sources */ = {isa = PBXBuildFile; fileRef = F15424BF1694446700DDDA85 /* XMLReader.m */; };
 		F15424C716949F3400DDDA85 /* BoxClient.m in Sources */ = {isa = PBXBuildFile; fileRef = F15424C616949F3400DDDA85 /* BoxClient.m */; };
+		F159F0DC1695677400D1786C /* box_cellImage.png in Resources */ = {isa = PBXBuildFile; fileRef = F159F0DB1695677400D1786C /* box_cellImage.png */; };
+		F159F0DE1695677E00D1786C /* box_cellImage@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = F159F0DD1695677E00D1786C /* box_cellImage@2x.png */; };
 		F16011B7164E1AAF00098D8C /* SkyDriveIconWhite_32x32@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = F16011B6164E1AAF00098D8C /* SkyDriveIconWhite_32x32@2x.png */; };
 		F16011B9164E1BA300098D8C /* dropbox_cell_Image@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = F16011B8164E1BA300098D8C /* dropbox_cell_Image@2x.png */; };
 		F18309C41658F8ED00FF6C64 /* CLUploadProgressButton.m in Sources */ = {isa = PBXBuildFile; fileRef = F18309C31658F8ED00FF6C64 /* CLUploadProgressButton.m */; };
@@ -369,6 +371,8 @@
 		F15424BF1694446700DDDA85 /* XMLReader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XMLReader.m; sourceTree = "<group>"; };
 		F15424C516949F3400DDDA85 /* BoxClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BoxClient.h; sourceTree = "<group>"; };
 		F15424C616949F3400DDDA85 /* BoxClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BoxClient.m; sourceTree = "<group>"; };
+		F159F0DB1695677400D1786C /* box_cellImage.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = box_cellImage.png; sourceTree = "<group>"; };
+		F159F0DD1695677E00D1786C /* box_cellImage@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "box_cellImage@2x.png"; sourceTree = "<group>"; };
 		F16011B6164E1AAF00098D8C /* SkyDriveIconWhite_32x32@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "SkyDriveIconWhite_32x32@2x.png"; sourceTree = "<group>"; };
 		F16011B8164E1BA300098D8C /* dropbox_cell_Image@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "dropbox_cell_Image@2x.png"; sourceTree = "<group>"; };
 		F18309C21658F8ED00FF6C64 /* CLUploadProgressButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CLUploadProgressButton.h; sourceTree = "<group>"; };
@@ -868,6 +872,7 @@
 		F194DB2F164A659300631792 /* Normal */ = {
 			isa = PBXGroup;
 			children = (
+				F159F0DB1695677400D1786C /* box_cellImage.png */,
 				F150216C1674AC9D0018E3DB /* app_icon.png */,
 				F1DC76071666A1710043965A /* save.png */,
 				F153306F165F7DEF00CD2E23 /* editButton.png */,
@@ -890,6 +895,7 @@
 		F194DB30164A659300631792 /* Retina */ = {
 			isa = PBXGroup;
 			children = (
+				F159F0DD1695677E00D1786C /* box_cellImage@2x.png */,
 				F150216E1674ACAC0018E3DB /* app_icon@2x.png */,
 				F1DC76091666A17D0043965A /* save@2x.png */,
 				F152EEF4166249930093E423 /* File_Thumbnails */,
@@ -1341,6 +1347,8 @@
 				F150A1AD1675EEF8001552F1 /* Default-568h@2x.png in Resources */,
 				F150A1AF1675F039001552F1 /* Default@2x.png in Resources */,
 				F150A1B11675F068001552F1 /* Default.png in Resources */,
+				F159F0DC1695677400D1786C /* box_cellImage.png in Resources */,
+				F159F0DE1695677E00D1786C /* box_cellImage@2x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
