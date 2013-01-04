@@ -249,9 +249,7 @@
     [UIView setAnimationPosition:CGPointMake(saveButton.center.x, CGRectGetMaxY(anImageView.frame))];
     [anImageView removeFromSuperview];
     [UIView commitAnimations];
-    
     [anImageView release];
-    
 }
 
 

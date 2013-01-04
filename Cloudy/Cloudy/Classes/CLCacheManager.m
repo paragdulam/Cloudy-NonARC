@@ -378,6 +378,18 @@ ContainsFileWithPath:(NSString *) filePath
             }
         }
             break;
+        case BOX:
+        {
+            for (NSDictionary *data in array) {
+                //                NSString *folderId = [CLCacheManager fileIdForSkyDriveFile:data];
+                NSString *folderId = [data objectForKey:@"id"];
+                if ([folderId isEqualToString:filePath]) {
+                    retVal = [array indexOfObject:data];
+                    break;
+                }
+            }
+        }
+            break;
         default:
             break;
     }
@@ -519,6 +531,9 @@ ContainsFileWithPath:(NSString *) filePath
             retVal = [array objectAtIndex:index];
             break;
         case SKYDRIVE:
+            retVal = [array objectAtIndex:index];
+            break;
+        case BOX:
             retVal = [array objectAtIndex:index];
             break;
         default:
@@ -723,6 +738,11 @@ whereTraversingPointer:(NSMutableDictionary *)traversingDictionary
                     [array replaceObjectAtIndex:index withObject:file];
                 }
             }
+        }
+            break;
+        case BOX:
+        {
+            [array replaceObjectAtIndex:index withObject:file];
         }
             break;
         default:

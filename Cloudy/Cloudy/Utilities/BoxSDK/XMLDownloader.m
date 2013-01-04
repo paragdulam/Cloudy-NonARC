@@ -100,6 +100,7 @@
 {
 	downloadDelagate = nil;
 	[downloadedData release];
+    downloadedData = nil;
     
     [urlConnection release];
     urlConnection = nil;

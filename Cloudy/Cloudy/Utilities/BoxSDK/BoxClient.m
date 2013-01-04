@@ -12,10 +12,13 @@
 @interface BoxClient ()
 {
     NSString *apiKey;
+    NSMutableArray *requests;
 }
 
 @property (nonatomic,retain) NSString *apiKey;
 
+-(void) downloadFromURLString:(NSString *) urlString
+                      WithTag:(REQUEST_TYPE) type;
 
 
 @end
@@ -33,16 +36,17 @@
 {
     if (self = [super init]) {
         self.apiKey = aKey;
+        requests = [[NSMutableArray alloc] init];
     }
     return self;
 }
 
+
 -(void) getAuthenticationTicket
 {
     NSString *urlString = [NSString stringWithFormat:@"https://www.box.com/api/1.0/rest?action=get_ticket&api_key=%@",apiKey];
-    XMLDownloader *xmlDownloader = [[[XMLDownloader alloc] initWithURLString:urlString] autorelease];
-    [xmlDownloader setDownloadDelagate:self];
-    [xmlDownloader setTag:GET_AUTHENTICATION_TICKET];
+    [self downloadFromURLString:urlString
+                        WithTag:GET_AUTHENTICATION_TICKET];
 }
 
 
@@ -57,37 +61,59 @@
 {
     [[NSUserDefaults standardUserDefaults] removeObjectForKey:BOX_CREDENTIALS];
     NSString *urlString = [NSString stringWithFormat:@"https://www.box.net/api/1.0/rest?action=logout&api_key=%@&auth_token=%@",apiKey,[self auth_token]];
-    XMLDownloader *xmlDownloader = [[[XMLDownloader alloc] initWithURLString:urlString] autorelease];
-    [xmlDownloader setDownloadDelagate:self];
-    [xmlDownloader setTag:LOGOUT];
+    [self downloadFromURLString:urlString
+                        WithTag:LOGOUT];
 }
 
 -(void) getAccountInfo
 {
     NSString *urlString = [NSString stringWithFormat:@"https://www.box.net/api/1.0/rest?action=get_account_info&api_key=%@&auth_token=%@",apiKey,[self auth_token]];
-    XMLDownloader *xmlDownloader = [[[XMLDownloader alloc] initWithURLString:urlString] autorelease];
-    [xmlDownloader setDownloadDelagate:self];
-    [xmlDownloader setTag:GET_ACCOUNT_INFO];
+    [self downloadFromURLString:urlString
+                        WithTag:GET_ACCOUNT_INFO];
 }
 
 
 -(void) loadMetadataForFolderId:(NSString *) folderId
 {
-    NSString *urlString = [NSString stringWithFormat:@"https://www.box.net/api/1.0/rest?action=get_account_tree&api_key=%@&auth_token=%@&folder_id=%@&params[]=onelevel&params[]=nozip",apiKey,[self auth_token],folderId];
-    XMLDownloader *xmlDownloader = [[[XMLDownloader alloc] initWithURLString:urlString] autorelease];
-    [xmlDownloader setDownloadDelagate:self];
-    [xmlDownloader setTag:GET_METADATA];
+    NSString *urlString = [NSString stringWithFormat:@"https://www.box.net/api/1.0/rest?action=get_account_tree&api_key=%@&auth_token=%@&folder_id=%@&params[]=onelevel&params[]=nozip&params[]=show_path_ids",apiKey,[self auth_token],folderId];
+    [self downloadFromURLString:urlString WithTag:GET_METADATA];
 }
 
 -(void) dealloc
 {
     delegate = nil;
     
+    for (XMLDownloader *downloader in requests) {
+        [downloader cancelDownload];
+    }
+    
+    [requests release];
+    requests = nil;
+    
     [apiKey release];
     apiKey = nil;
     
     [super dealloc];
 }
+
+
+#pragma mark - Private Methods
+
+-(NSString *) baseURLString
+{
+    return @"https://www.box.net/api/1.0/rest?action=";
+}
+
+-(void) downloadFromURLString:(NSString *) urlString
+                      WithTag:(REQUEST_TYPE) type
+{
+    XMLDownloader *xmlDownloader = [[XMLDownloader alloc] initWithURLString:urlString];
+    [xmlDownloader setDownloadDelagate:self];
+    [xmlDownloader setTag:type];
+    [requests addObject:xmlDownloader];
+    [xmlDownloader release];
+}
+
 
 #pragma mark - XMLDownloaderDelegate
 

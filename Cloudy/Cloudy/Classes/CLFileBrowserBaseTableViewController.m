@@ -400,7 +400,8 @@
     [self stopAnimating];
 
     NSMutableDictionary *folderData = [NSMutableDictionary dictionaryWithDictionary:[[[metaData objectForKey:@"response"] objectForKey:@"tree"] objectForKey:@"folder"]];
-    
+    NSString *file_path_ids = [folderData objectForKey:@"folder_path_ids"];
+    NSString *parent = [file_path_ids length] ? [[file_path_ids componentsSeparatedByString:@"/"] lastObject] : @"0";
     NSMutableArray *tableData = [[NSMutableArray alloc] init];
     id object = [[folderData objectForKey:@"folders"] objectForKey:@"folder"];
     if ([object isKindOfClass:[NSDictionary class]]) {
@@ -417,6 +418,7 @@
     }
     
     [folderData setObject:tableData forKey:@"contents"];
+    [folderData setObject:parent forKey:@"parent"];
     [folderData removeObjectForKey:@"folders"];
     [folderData removeObjectForKey:@"files"];
     
@@ -889,6 +891,7 @@
         {
             NSString *aPathString = [NSString stringWithFormat:@"%@",path];
             [self.boxClient loadMetadataForFolderId:aPathString];
+            currentFileOperation = METADATA;
         }
             break;
         default:

@@ -22,6 +22,8 @@
 
 -(id) initWithURL:(NSURL *) url;
 -(id) initWithURLString:(NSString *) urlString;
+-(void) cancelDownload;
+
 
 @end
 
