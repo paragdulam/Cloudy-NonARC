@@ -8,7 +8,15 @@
 #import "LiveAuthDialog.h"
 #import "LiveAuthHelper.h"
 
+@interface LiveAuthDialog ()
+{
+    UIActivityIndicatorView *activityIndicator;
+}
+@end
+
+
 @implementation LiveAuthDialog
+
 
 @synthesize webView, canDismiss, delegate = _delegate;
 
@@ -69,7 +77,13 @@
     
     [button addTarget:self 
                action:@selector(dismissView:) 
-     forControlEvents:UIControlEventTouchUpInside]; 
+     forControlEvents:UIControlEventTouchUpInside];
+    
+    activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
+    UIBarButtonItem *rightBarButton = [[UIBarButtonItem alloc] initWithCustomView:activityIndicator];
+    [activityIndicator release];
+    self.navigationItem.rightBarButtonItem = rightBarButton;
+    [rightBarButton release];
     
     //create a UIBarButtonItem with the button as a custom view
     self.navigationItem.leftBarButtonItem = [[[UIBarButtonItem alloc]
@@ -132,6 +146,7 @@
 
 - (void)webViewDidFinishLoad:(UIWebView *)webView 
 {
+    [activityIndicator stopAnimating];
 }
 
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error 
@@ -150,7 +165,7 @@
 
 - (void)webViewDidStartLoad:(UIWebView *)webView
 {
-    
+    [activityIndicator startAnimating];
 }
 
 @end
