@@ -13,12 +13,14 @@
 
 @interface XMLDownloader : NSObject {
 	NSMutableData *downloadedData;
+    id userData;
 	id downloadDelagate;
     int tag;
 }
 
 @property (nonatomic,assign) id downloadDelagate;
 @property (nonatomic,assign) int tag;
+@property (nonatomic,retain) id userData;
 
 -(id) initWithURL:(NSURL *) url;
 -(id) initWithURLString:(NSString *) urlString;

@@ -23,6 +23,7 @@
 @synthesize downloadDelagate;
 @synthesize urlConnection;
 @synthesize tag;
+@synthesize userData;
 
 -(id) initWithURL:(NSURL *) url
 {
@@ -98,6 +99,9 @@
 
 -(void) dealloc
 {
+    [userData release];
+    userData = nil;
+    
 	downloadDelagate = nil;
 	[downloadedData release];
     downloadedData = nil;

@@ -162,10 +162,13 @@
                 titleText = [dataDictionary objectForKey:@"name"];
                 cellImage = [UIImage imageNamed:@"folder.png"];
             } else {
-                NSString *extention = [[titleText pathExtension] lowercaseString];
-                cellImage = [UIImage imageNamed:[NSString stringWithFormat:@"%@.png",extention]];
+                cellImage = [UIImage imageWithData:[dataDictionary objectForKey:THUMBNAIL_DATA]];
                 if (!cellImage) {
-                    cellImage = [UIImage imageNamed:[NSString stringWithFormat:@"_blank.png"]];
+                    NSString *extention = [[titleText pathExtension] lowercaseString];
+                    cellImage = [UIImage imageNamed:[NSString stringWithFormat:@"%@.png",extention]];
+                    if (!cellImage) {
+                        cellImage = [UIImage imageNamed:[NSString stringWithFormat:@"_blank.png"]];
+                    }
                 }
             }
             float sizeValue = [[dataDictionary objectForKey:@"size"] floatValue]/(1024*1024);

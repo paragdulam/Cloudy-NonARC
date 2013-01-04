@@ -368,7 +368,6 @@
             case BOX:
             {
                 NSDictionary *metadata = [tableDataArray objectAtIndex:indexPath.row];
-                NSLog(@"metadata %@",metadata);
                 if ([metadata objectForKey:@"file_count"]) {
                     //folder
                     CLFileBrowserTableViewController *fileBrowserViewController = [[CLFileBrowserTableViewController alloc] initWithTableViewStyle:UITableViewStylePlain WherePath:[metadata objectForKey:@"id"] WithinViewType:BOX];
@@ -376,7 +375,7 @@
                     fileBrowserViewController.title = [metadata objectForKey:@"name"];
                     [fileBrowserViewController release];
                 } else {
-                    
+                    NSLog(@"metadata %@",metadata);
                 }
             }
             default:
@@ -394,6 +393,37 @@
 
 #pragma mark - BoxClientDelegate
 
+#pragma mark - Thumbnail Methods
+-(void) boxClient:(BoxClient *)client loadedData:(NSData *) data withUserData:(id) uData
+{
+    NSMutableDictionary *mData = (NSMutableDictionary *)uData;
+    int index = [self getIndexOfObjectForKey:[CLCacheManager pathFiedForViewType:viewType]
+                                   withValue:[mData objectForKey:@"id"]];
+    [mData setObject:data
+              forKey:THUMBNAIL_DATA];
+    [CLCacheManager updateFile:mData
+        whereTraversingPointer:nil
+               inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
+                   ForViewType:viewType];
+    if (index < [tableDataArray count]) {
+        [tableDataArray replaceObjectAtIndex:index withObject:mData];
+        NSIndexPath *indexPath = [NSIndexPath indexPathForRow:index
+                                                    inSection:0];
+        
+        [dataTableView beginUpdates];
+        [dataTableView reloadRowsAtIndexPaths:[NSArray arrayWithObject:indexPath]
+                             withRowAnimation:UITableViewRowAnimationAutomatic];
+        [dataTableView endUpdates];
+    }
+}
+
+-(void) boxClient:(BoxClient *)client loadDataFailedWithError:(NSError *) error withUserData:(id) uData
+{
+    [AppDelegate showError:error alertOnView:self.view];
+}
+
+
+#pragma mark - Metadata Methods
 
 -(void) boxClient:(BoxClient *)client loadedMetadata:(NSDictionary *) metaData
 {
@@ -431,7 +461,13 @@
     [tableData release];
     [self updateView];
 
-
+    for (NSDictionary *data in tableDataArray) {
+        NSString *urlString = [data objectForKey:@"thumbnail"];
+        if (urlString) {
+            [self.boxClient loadDataFromURLString:urlString
+                                      forUserData:data];
+        }
+    }
 }
 
 -(void) boxClient:(BoxClient *)client loadMetadataDidFailWithError:(NSError *) error
@@ -605,6 +641,7 @@
         NSDictionary *objDict = (NSDictionary *)obj;
         if ([[objDict objectForKey:keyString] isEqualToString:valueString]) {
             index = idx;
+            *stop = YES;
         }
     }];
     return index;

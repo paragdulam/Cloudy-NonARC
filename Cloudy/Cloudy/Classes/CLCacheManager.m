@@ -112,7 +112,9 @@
         case SKYDRIVE:
             return @"id";
             break;
-            
+        case BOX:
+            return @"id";
+            break;
         default:
             break;
     }
@@ -771,6 +773,13 @@ whereTraversingPointer:(NSMutableDictionary *)traversingDictionary
             contentKey = @"data";
             idKey = @"id";
             updationKey = @"updated_time";
+        }
+            break;
+        case BOX:
+        {
+            contentKey = @"contents";
+            idKey = @"id";
+            updationKey = @"updated";
         }
             break;
         default:

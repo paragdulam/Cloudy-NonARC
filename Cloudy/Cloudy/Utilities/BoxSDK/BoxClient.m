@@ -79,6 +79,14 @@
     [self downloadFromURLString:urlString WithTag:GET_METADATA];
 }
 
+-(void) loadDataFromURLString:(NSString *) urlString
+                  forUserData:(id) uData
+{
+    [self downloadFromURLString:urlString
+                   withUserData:uData
+                        WithTag:THUMBNAIL_DOWNLOAD];
+}
+
 -(void) dealloc
 {
     delegate = nil;
@@ -103,6 +111,20 @@
 {
     return @"https://www.box.net/api/1.0/rest?action=";
 }
+
+
+-(void) downloadFromURLString:(NSString *) urlString
+                 withUserData:(id) uData
+                      WithTag:(REQUEST_TYPE) type
+{
+    XMLDownloader *xmlDownloader = [[XMLDownloader alloc] initWithURLString:urlString];
+    [xmlDownloader setUserData:uData];
+    [xmlDownloader setDownloadDelagate:self];
+    [xmlDownloader setTag:type];
+    [requests addObject:xmlDownloader];
+    [xmlDownloader release];
+}
+
 
 -(void) downloadFromURLString:(NSString *) urlString
                       WithTag:(REQUEST_TYPE) type
@@ -149,6 +171,14 @@
             }
         }
             break;
+        case THUMBNAIL_DOWNLOAD:
+        {
+            if ([delegate respondsToSelector:@selector(boxClient:loadDataFailedWithError:withUserData::)]) {
+                [delegate boxClient:self
+            loadDataFailedWithError:error
+                       withUserData:dloader.userData];
+            }
+        }
         default:
             break;
     }
@@ -173,7 +203,8 @@ didReceiveResponse:(NSURLResponse *)response
         case GET_AUTHENTICATION_TICKET:
         {
             NSError *error = nil;
-            NSDictionary *dataDictionary = [XMLReader dictionaryForXMLData:data error:&error];
+            NSDictionary *dataDictionary = [XMLReader dictionaryForXMLData:data
+                                                                     error:&error];
             NSString *authTicket = [[[dataDictionary objectForKey:@"response"]  objectForKey:@"ticket"] objectForKey:@"text"];
             [[UIApplication sharedApplication] openURL:[NSURL URLWithString:[NSString stringWithFormat:@"https://m.box.com/api/1.0/auth/%@", authTicket]]];
         }
@@ -183,7 +214,8 @@ didReceiveResponse:(NSURLResponse *)response
             NSError *error = nil;
             NSDictionary *dataDictionary = [XMLReader dictionaryForXMLData:data error:&error];
             if ([delegate respondsToSelector:@selector(boxClient:didLoadAccountInfo:)]) {
-                [delegate boxClient:self didLoadAccountInfo:dataDictionary];
+                [delegate boxClient:self
+                 didLoadAccountInfo:dataDictionary];
             }
         }
             break;
@@ -192,7 +224,8 @@ didReceiveResponse:(NSURLResponse *)response
             NSError *error = nil;
             NSDictionary *dataDictionary = [XMLReader dictionaryForXMLData:data error:&error];
             if ([delegate respondsToSelector:@selector(boxClient:DidLogOutWithData:)]) {
-                [delegate boxClient:self DidLogOutWithData:dataDictionary];
+                [delegate boxClient:self
+                  DidLogOutWithData:dataDictionary];
             }
         }
             break;
@@ -201,10 +234,21 @@ didReceiveResponse:(NSURLResponse *)response
             NSError *error = nil;
             NSDictionary *dataDictionary = [XMLReader dictionaryForXMLData:data error:&error];
             if ([delegate respondsToSelector:@selector(boxClient:loadedMetadata:)]) {
-                [delegate boxClient:self loadedMetadata:dataDictionary];
+                [delegate boxClient:self
+                     loadedMetadata:dataDictionary];
             }
         }
             break;
+        case THUMBNAIL_DOWNLOAD:
+        {
+            if ([delegate respondsToSelector:@selector(boxClient:loadedData:withUserData:)]) {
+                [delegate boxClient:self
+                         loadedData:data
+                       withUserData:dloader.userData];
+            }
+        }
+            break;
+
         default:
             break;
     }

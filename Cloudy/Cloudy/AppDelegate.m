@@ -118,6 +118,9 @@
             case SKYDRIVE:
                 path = ROOT_SKYDRIVE_PATH;
                 break;
+            case BOX:
+                path = ROOT_BOX_PATH;
+                break;
             default:
                 break;
         }
