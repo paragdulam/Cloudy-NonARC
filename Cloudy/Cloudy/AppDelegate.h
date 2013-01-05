@@ -12,12 +12,13 @@
 #import <DropboxSDK/DropboxSDK.h>
 #import "CLUploadProgressButton.h"
 #import "CLConstants.h"
+#import "BoxClient.h"
 
 
 @class CLFileBrowserTableViewController;
 @class CLUploadsTableViewController;
 
-@interface AppDelegate : UIResponder <UIApplicationDelegate,DBRestClientDelegate,LiveUploadOperationDelegate>
+@interface AppDelegate : UIResponder <UIApplicationDelegate,DBRestClientDelegate,LiveUploadOperationDelegate,BoxClientDelegate>
 {
     DDMenuController *menuController;
     CLFileBrowserTableViewController *rootFileBrowserViewController;
@@ -27,6 +28,7 @@
     CLUploadProgressButton *uploadProgressButton;
     NSMutableArray *uploads;
     DBRestClient *restClient;
+    BoxClient *boxClient;
     CLUploadsTableViewController *uploadsViewController;
 }
 
@@ -39,6 +41,7 @@
 @property (nonatomic,retain) CLUploadProgressButton *uploadProgressButton;
 @property (nonatomic,retain) NSMutableArray *uploads;
 @property (nonatomic,retain) DBRestClient *restClient;
+@property (nonatomic,retain) BoxClient *boxClient;
 @property (nonatomic,assign) CLUploadsTableViewController *uploadsViewController;
 
 

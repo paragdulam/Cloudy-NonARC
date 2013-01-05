@@ -87,6 +87,15 @@
                         WithTag:THUMBNAIL_DOWNLOAD];
 }
 
+
+-(void) loadDataForFileId:(NSString *) fileId forUserData:(id) uData
+{
+    NSString *urlString = [NSString stringWithFormat:@"https://www.box.net/api/1.0/download/%@/%@",[self auth_token],fileId];
+    [self downloadFromURLString:urlString
+                   withUserData:uData
+                        WithTag:DATA_DOWNLOAD];
+}
+
 -(void) dealloc
 {
     delegate = nil;
@@ -172,6 +181,7 @@
         }
             break;
         case THUMBNAIL_DOWNLOAD:
+        case DATA_DOWNLOAD:
         {
             if ([delegate respondsToSelector:@selector(boxClient:loadDataFailedWithError:withUserData::)]) {
                 [delegate boxClient:self
@@ -187,13 +197,22 @@
 -(void) downloader:(XMLDownloader *)dloader
     didReceiveData:(NSData *)data
 {
-    
+    switch (dloader.tag) {
+        case DATA_DOWNLOAD:
+            if ([delegate respondsToSelector:@selector(boxClient:loadDataProgress:withUserData:)]) {
+                NSLog(@"length  %d",[data length]);
+                [delegate boxClient:self loadDataProgress:(float)[data length]/(float)dloader.bytesToBeDownloaded withUserData:dloader.userData];
+            }
+            break;
+        default:
+            break;
+    }
 }
 
 -(void) downloader:(XMLDownloader *)dloader
 didReceiveResponse:(NSURLResponse *)response
 {
-    
+    [dloader setBytesToBeDownloaded:[response expectedContentLength] ];
 }
 
 -(void) downloaderDidFinishLoading:(XMLDownloader *)dloader
@@ -240,6 +259,7 @@ didReceiveResponse:(NSURLResponse *)response
         }
             break;
         case THUMBNAIL_DOWNLOAD:
+        case DATA_DOWNLOAD:
         {
             if ([delegate respondsToSelector:@selector(boxClient:loadedData:withUserData:)]) {
                 [delegate boxClient:self

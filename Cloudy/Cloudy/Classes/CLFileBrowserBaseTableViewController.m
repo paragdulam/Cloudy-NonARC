@@ -376,6 +376,9 @@
                     [fileBrowserViewController release];
                 } else {
                     NSLog(@"metadata %@",metadata);
+                    CLFileDetailViewController *fileDetailViewController = [[CLFileDetailViewController alloc] initWithFile:metadata WithinViewType:BOX];
+                    [self.navigationController pushViewController:fileDetailViewController animated:YES];
+                    [fileDetailViewController release];
                 }
             }
             default:

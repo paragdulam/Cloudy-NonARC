@@ -18,7 +18,8 @@ typedef enum REQUEST_TYPE {
     GET_ACCOUNT_INFO,
     LOGOUT,
     GET_METADATA,
-    THUMBNAIL_DOWNLOAD
+    THUMBNAIL_DOWNLOAD,
+    DATA_DOWNLOAD
 } REQUEST_TYPE;
 
 
@@ -36,6 +37,9 @@ typedef enum REQUEST_TYPE {
 -(void) loadMetadataForFolderId:(NSString *) folderId;
 -(void) loadDataFromURLString:(NSString *) urlString
                   forUserData:(id) uData;
+-(void) loadDataForFileId:(NSString *) fileId
+              forUserData:(id) uData;
+
 
 
 
@@ -61,7 +65,11 @@ typedef enum REQUEST_TYPE {
 -(void) boxClient:(BoxClient *)client loadMetadataDidFailWithError:(NSError *) error;
 
 -(void) boxClient:(BoxClient *)client loadedData:(NSData *) data withUserData:(id) uData;
+-(void) boxClient:(BoxClient *)client loadDataProgress:(float) progress withUserData:(id) uData;
+
 -(void) boxClient:(BoxClient *)client loadDataFailedWithError:(NSError *) error withUserData:(id) uData;
+
+
 
 
 @end

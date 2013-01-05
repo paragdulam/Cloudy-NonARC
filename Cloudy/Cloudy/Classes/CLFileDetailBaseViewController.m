@@ -43,10 +43,21 @@
 {
     [super viewDidLoad];
     
-    NSString *titleString = [file objectForKey:@"filename"];
-    if (!titleString) {
-        titleString = [file objectForKey:@"name"];
+    NSString *titleString = nil;
+    switch (viewType) {
+        case DROPBOX:
+            titleString = [file objectForKey:@"filename"];
+            break;
+        case SKYDRIVE:
+            titleString = [file objectForKey:@"name"];
+            break;
+        case BOX:
+            titleString = [file objectForKey:@"file_name"];
+            break;
+        default:
+            break;
     }
+    
     [self setTitle:titleString];
     webView.backgroundColor = [UIColor redColor];
     
@@ -71,12 +82,14 @@
 {
     [super viewWillAppear:animated];
     self.appDelegate.restClient.delegate = self;
+    self.appDelegate.boxClient.delegate = self;
 }
 
 -(void) viewWillDisappear:(BOOL)animated
 {
     [super viewWillDisappear:animated];
     self.appDelegate.restClient.delegate = nil;
+    self.appDelegate.boxClient.delegate = nil;
 }
 
 - (void)didReceiveMemoryWarning
@@ -108,7 +121,6 @@
                                                 withAnimation:UIStatusBarAnimationSlide];
         [self.navigationController setNavigationBarHidden:YES animated:YES];
     }
-    
 }
 
 

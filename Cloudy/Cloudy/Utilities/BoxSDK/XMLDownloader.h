@@ -16,11 +16,13 @@
     id userData;
 	id downloadDelagate;
     int tag;
+    long long bytesToBeDownloaded;
 }
 
 @property (nonatomic,assign) id downloadDelagate;
 @property (nonatomic,assign) int tag;
 @property (nonatomic,retain) id userData;
+@property (nonatomic,assign) long long bytesToBeDownloaded;
 
 -(id) initWithURL:(NSURL *) url;
 -(id) initWithURLString:(NSString *) urlString;

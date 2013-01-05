@@ -31,12 +31,15 @@
 @synthesize liveClientFlag;
 @synthesize uploadProgressButton;
 @synthesize restClient;
+@synthesize boxClient;
 @synthesize uploads;
 @synthesize uploadsViewController;
 
 - (void)dealloc
 {
     uploadsViewController = nil;
+    [boxClient release];
+    boxClient = nil;
     
     [restClient release];
     restClient = nil;
@@ -176,6 +179,11 @@
     [aRestClient release];
     
     dropboxSession.delegate = callbackViewController;
+    
+    BoxClient *aBoxClient = [[BoxClient alloc] initWithAPIKey:BOX_API_KEY];
+    self.boxClient = aBoxClient;
+    [aBoxClient release];
+    boxClient.delegate = self;
     
     self.liveClientFlag = YES;
     LiveConnectClient *aClient = [[LiveConnectClient alloc] initWithClientId:SKYDRIVE_CLIENT_ID delegate:callbackViewController userState:@"InitialAllocation"];

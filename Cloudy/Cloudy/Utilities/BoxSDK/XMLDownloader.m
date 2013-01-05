@@ -24,6 +24,7 @@
 @synthesize urlConnection;
 @synthesize tag;
 @synthesize userData;
+@synthesize bytesToBeDownloaded;
 
 -(id) initWithURL:(NSURL *) url
 {
@@ -34,6 +35,7 @@
 		[aConnection autorelease];
 		downloadedData = [[NSMutableData data] retain];
 		[downloadedData setLength:0];
+        bytesToBeDownloaded = 0;
 	}
 	return self;
 }
@@ -99,6 +101,8 @@
 
 -(void) dealloc
 {
+    bytesToBeDownloaded = 0;
+    
     [userData release];
     userData = nil;
     
