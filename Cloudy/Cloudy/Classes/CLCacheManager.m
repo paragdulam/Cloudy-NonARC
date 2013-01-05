@@ -94,6 +94,45 @@
 
 #pragma mark - Helper Methods
 
++(NSDictionary *) processDataDictionary:(NSDictionary *) dictionary
+                         WithinViewType:(VIEW_TYPE) type
+{
+    switch (type) {
+        case DROPBOX:
+            break;
+        case SKYDRIVE:
+            break;
+        case BOX:
+        {
+            NSMutableDictionary *folderData = [NSMutableDictionary dictionaryWithDictionary:[[[dictionary objectForKey:@"response"] objectForKey:@"tree"] objectForKey:@"folder"]];
+            NSString *file_path_ids = [folderData objectForKey:@"folder_path_ids"];
+            NSString *parent = [file_path_ids length] ? [[file_path_ids componentsSeparatedByString:@"/"] lastObject] : @"0";
+            NSMutableArray *tableData = [[NSMutableArray alloc] init];
+            id object = [[folderData objectForKey:@"folders"] objectForKey:@"folder"];
+            if ([object isKindOfClass:[NSDictionary class]]) {
+                [tableData addObject:object];
+            } else {
+                [tableData addObjectsFromArray:object];
+            }
+            object = [[folderData objectForKey:@"files"] objectForKey:@"file"];
+            if ([object isKindOfClass:[NSDictionary class]]) {
+                [tableData addObject:object];
+            } else {
+                [tableData addObjectsFromArray:object];
+            }
+            [folderData setObject:tableData forKey:@"contents"];
+            [tableData release];
+            [folderData setObject:parent forKey:@"parent"];
+            [folderData removeObjectForKey:@"folders"];
+            [folderData removeObjectForKey:@"files"];
+            return folderData;
+        }
+            break;
+        default:
+            break;
+    }
+    return nil;
+}
 
 +(void) deleteAllContentsOfFolderAtPath:(NSString *) path
 {
@@ -434,6 +473,12 @@ ContainsFileWithPath:(NSString *) filePath
             retVal = [folderId isEqualToString:[file objectForKey:@"parent_id"]];
         }
             break;
+        case BOX:
+        {
+            NSString *folderId = [folder objectForKey:@"id"];
+            retVal = [folderId isEqualToString:[file objectForKey:@"parent"]];
+        }
+            break;
         default:
             break;
     }
@@ -639,6 +684,7 @@ whereTraversingPointer:(NSMutableDictionary *)traversingDictionary
         default:
             break;
     }
+    return nil;
 }
 
 

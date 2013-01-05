@@ -96,6 +96,14 @@
                         WithTag:DATA_DOWNLOAD];
 }
 
+
+-(void) createFolderWithInFolderId:(NSString *) folderId WithName:(NSString *) name
+{
+    NSString *urlString = [NSString stringWithFormat:@"https://www.box.net/api/1.0/rest?action=create_folder&api_key=%@&auth_token=%@&parent_id=%@&name=%@&share=1",apiKey,[self auth_token],folderId,name];
+    [self downloadFromURLString:urlString
+                        WithTag:CREATE_FOLDER];
+}
+
 -(void) dealloc
 {
     delegate = nil;
@@ -189,6 +197,14 @@
                        withUserData:dloader.userData];
             }
         }
+            break;
+        case CREATE_FOLDER:
+        {
+            if ([delegate respondsToSelector:@selector(boxClient:createFolderDidFailWithError:)]) {
+                [delegate boxClient:self createFolderDidFailWithError:error];
+            }
+        }
+            break;
         default:
             break;
     }
@@ -200,7 +216,6 @@
     switch (dloader.tag) {
         case DATA_DOWNLOAD:
             if ([delegate respondsToSelector:@selector(boxClient:loadDataProgress:withUserData:)]) {
-                NSLog(@"length  %d",[data length]);
                 [delegate boxClient:self loadDataProgress:(float)[data length]/(float)dloader.bytesToBeDownloaded withUserData:dloader.userData];
             }
             break;
@@ -268,7 +283,15 @@ didReceiveResponse:(NSURLResponse *)response
             }
         }
             break;
-
+        case CREATE_FOLDER:
+        {
+            NSError *error = nil;
+            NSDictionary *dataDictionary = [XMLReader dictionaryForXMLData:data error:&error];
+            if ([delegate respondsToSelector:@selector(boxClient:createdFolder:)]) {
+                [delegate boxClient:self createdFolder:dataDictionary];
+            }
+        }
+            break;
         default:
             break;
     }

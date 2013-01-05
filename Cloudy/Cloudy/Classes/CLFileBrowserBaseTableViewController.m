@@ -179,6 +179,12 @@
                 [liveOperations addObject:createFolderOperation];
             }
                 break;
+            case BOX:
+            {
+                [self.boxClient createFolderWithInFolderId:path
+                                                  WithName:inputTextField.text];
+            }
+                break;
             default:
                 break;
         }
@@ -396,6 +402,39 @@
 
 #pragma mark - BoxClientDelegate
 
+#pragma mark - Create Folder Methods
+
+-(void) boxClient:(BoxClient *)client createdFolder:(NSDictionary *) folder
+{
+    NSDictionary *folderDictionary = [CLCacheManager processDataDictionary:folder WithinViewType:BOX];
+    [CLCacheManager insertFile:folderDictionary
+        whereTraversingPointer:nil
+               inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
+                   ForViewType:viewType];
+    
+    
+    //Updating UI
+    [self stopAnimating];
+    
+    [tableDataArray insertObject:folderDictionary atIndex:0];
+    [CLCacheManager arrangeFilesAndFolders:tableDataArray
+                               ForViewType:viewType];
+    
+    
+    [dataTableView beginUpdates];
+    [dataTableView insertRowsAtIndexPaths:[NSArray arrayWithObject:[NSIndexPath indexPathForRow:[tableDataArray indexOfObject:folderDictionary] inSection:0]]
+                         withRowAnimation:UITableViewRowAnimationBottom];
+    [dataTableView endUpdates];
+    //Updating UI
+
+}
+
+-(void) boxClient:(BoxClient *)client createFolderDidFailWithError:(NSError *) error
+{
+    [AppDelegate showError:error alertOnView:self.view];
+}
+
+
 #pragma mark - Thumbnail Methods
 -(void) boxClient:(BoxClient *)client loadedData:(NSData *) data withUserData:(id) uData
 {
@@ -431,37 +470,14 @@
 -(void) boxClient:(BoxClient *)client loadedMetadata:(NSDictionary *) metaData
 {
     [self stopAnimating];
-
-    NSMutableDictionary *folderData = [NSMutableDictionary dictionaryWithDictionary:[[[metaData objectForKey:@"response"] objectForKey:@"tree"] objectForKey:@"folder"]];
-    NSString *file_path_ids = [folderData objectForKey:@"folder_path_ids"];
-    NSString *parent = [file_path_ids length] ? [[file_path_ids componentsSeparatedByString:@"/"] lastObject] : @"0";
-    NSMutableArray *tableData = [[NSMutableArray alloc] init];
-    id object = [[folderData objectForKey:@"folders"] objectForKey:@"folder"];
-    if ([object isKindOfClass:[NSDictionary class]]) {
-        [tableData addObject:object];
-    } else {
-        [tableData addObjectsFromArray:object];
-    }
-    
-    object = [[folderData objectForKey:@"files"] objectForKey:@"file"];
-    if ([object isKindOfClass:[NSDictionary class]]) {
-        [tableData addObject:object];
-    } else {
-        [tableData addObjectsFromArray:object];
-    }
-    
-    [folderData setObject:tableData forKey:@"contents"];
-    [folderData setObject:parent forKey:@"parent"];
-    [folderData removeObjectForKey:@"folders"];
-    [folderData removeObjectForKey:@"files"];
-    
+    NSDictionary *folderData = [CLCacheManager processDataDictionary:metaData
+                                                      WithinViewType:BOX];
     [CLCacheManager updateFile:folderData
         whereTraversingPointer:nil
                inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
                    ForViewType:viewType];
     
-    [self updateModel:tableData];
-    [tableData release];
+    [self updateModel:[folderData objectForKey:@"contents"]];
     [self updateView];
 
     for (NSDictionary *data in tableDataArray) {
