@@ -223,6 +223,7 @@
     [downloadProgressButton setProgress:0];
     [downloadProgressButton setProgressViewHidden:YES];
     [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
+    [AppDelegate showError:error alertOnView:self.view];
 }
 
 - (void) liveDownloadOperationProgressed:(LiveOperationProgress *)progress

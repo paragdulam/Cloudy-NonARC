@@ -79,6 +79,8 @@
                 return NO;
             }
         }
+    } else if ([[url absoluteString] hasPrefix:@"file://"]) {
+        NSLog(@"url %@",url);
     }
     return NO;
 }

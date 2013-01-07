@@ -8,6 +8,6 @@
 
 #import "CLFileDetailBaseViewController.h"
 
-@interface CLFileDetailViewController : CLFileDetailBaseViewController<LiveDownloadOperationDelegate,DBRestClientDelegate>
+@interface CLFileDetailViewController : CLFileDetailBaseViewController<LiveDownloadOperationDelegate,DBRestClientDelegate,UIDocumentInteractionControllerDelegate>
 
 @end

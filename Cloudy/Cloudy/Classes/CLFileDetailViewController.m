@@ -13,16 +13,26 @@
     UIProgressView *progressView;
     LiveDownloadOperation *downloadOperation;
     UIToolbar *progressToolBar;
+    NSURL *fileURL;
+    UIButton *exportButton;
+    UIBarButtonItem *exportBarButton;
+    UIDocumentInteractionController *interactionController;
 }
 
 
 -(void) createToolBarItems;
 -(void) downloadFile;
 
+
+@property(nonatomic,retain) NSURL *fileURL;
+@property(nonatomic,retain) UIDocumentInteractionController *interactionController;
+
+
 @end
 
 @implementation CLFileDetailViewController
-
+@synthesize fileURL;
+@synthesize interactionController;
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
@@ -69,7 +79,7 @@
             break;
     }
     [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:YES];
-
+    [exportButton setHidden:YES];
 }
 
 
@@ -83,6 +93,12 @@
 
 -(void) dealloc
 {
+    [interactionController release];
+    interactionController = nil;
+    
+    [fileURL release];
+    fileURL = nil;
+    
     [downloadOperation  cancel];
     
     [downloadOperation release];
@@ -91,6 +107,15 @@
     [super dealloc];
 }
 
+
+#pragma mark - IBActions
+
+-(void) exportButtonClicked:(UIButton *) btn
+{
+    self.interactionController =[UIDocumentInteractionController interactionControllerWithURL: fileURL];
+    interactionController.delegate = self;
+    [interactionController presentOpenInMenuFromBarButtonItem:exportBarButton animated:YES];
+}
 
 #pragma mark - Helper Methods
 
@@ -112,12 +137,30 @@
     [items addObject:flexiSpace];
     [flexiSpace release];
     
-    
+    exportButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+    [exportButton setFrame:CGRectMake(0, 0, 30, 30)];
+    [exportButton addTarget:self
+                     action:@selector(exportButtonClicked:)
+           forControlEvents:UIControlEventTouchUpInside];
+    UIBarButtonItem *exportBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:exportButton];
+    exportBarButton = exportBarButtonItem;
+    [items addObject:exportBarButton];
+    [exportBarButtonItem release];
+
     [progressToolBar setItems:items animated:YES];
     [items release];
     
 }
 
+
+
+-(void) loadInWebViewURL:(NSURL *) url
+{
+    self.fileURL = url;
+    [webView loadRequest:[NSURLRequest requestWithURL:fileURL]];
+    progressView.hidden = YES;
+    exportButton.hidden = NO;
+}
 
 #pragma mark - Gestures
 
@@ -134,22 +177,50 @@
 }
 
 
+#pragma mark - UIDocumentInteractionControllerDelegate
+
+- (UIViewController *)documentInteractionControllerViewControllerForPreview:(UIDocumentInteractionController *)controller
+{
+    return self;
+}
+
+
+
+// Open in menu presented/dismissed on document.  Use to set up any HI underneath.
+- (void)documentInteractionControllerWillPresentOpenInMenu:(UIDocumentInteractionController *)controller
+{
+    
+}
+
+- (void)documentInteractionControllerDidDismissOpenInMenu:(UIDocumentInteractionController *)controller
+{
+    
+}
+
+// Synchronous.  May be called when inside preview.  Usually followed by app termination.  Can use willBegin... to set annotation.
+- (void)documentInteractionController:(UIDocumentInteractionController *)controller willBeginSendingToApplication:(NSString *)application
+{
+    
+}
+// bundle ID
+
+- (void)documentInteractionController:(UIDocumentInteractionController *)controller didEndSendingToApplication:(NSString *)application
+{
+    
+}
+
 
 #pragma mark - DBRestClientDelegate
 
 -(void) restClient:(DBRestClient *)client loadedFile:(NSString *)destPath contentType:(NSString *)contentType metadata:(DBMetadata *)metadata
 {
-    NSURL *fileURL = [NSURL fileURLWithPath:destPath];
-    [webView loadRequest:[NSURLRequest requestWithURL:fileURL]];
-    progressView.hidden = YES;
+    [self loadInWebViewURL:[NSURL fileURLWithPath:destPath]];
 }
 
 
 -(void) restClient:(DBRestClient *)client loadedFile:(NSString *)destPath
 {
-    NSURL *fileURL = [NSURL fileURLWithPath:destPath];
-    [webView loadRequest:[NSURLRequest requestWithURL:fileURL]];
-    progressView.hidden = YES;
+    [self loadInWebViewURL:[NSURL fileURLWithPath:destPath]];
 }
 
 
@@ -174,10 +245,7 @@
     NSString *filePath = [NSString stringWithFormat:@"%@%@",[CLCacheManager getTemporaryDirectory],operation.userState];
     [operation.data writeToFile:filePath
                      atomically:YES];
-    NSURL *fileURL = [NSURL fileURLWithPath:filePath];
-    [webView loadRequest:[NSURLRequest requestWithURL:fileURL]];
-    progressView.hidden = YES;
-
+    [self loadInWebViewURL:[NSURL fileURLWithPath:filePath]];
 }
 
 - (void) liveOperationFailed:(NSError *)error
