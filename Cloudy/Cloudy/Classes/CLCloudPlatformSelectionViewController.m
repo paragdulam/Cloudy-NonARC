@@ -29,9 +29,20 @@
 {
     [super viewDidLoad];
 	// Do any additional setup after loading the view.
-    
-    [tableDataArray addObject:DROPBOX_STRING];
-    [tableDataArray addObject:SKYDRIVE_STRING];
+
+    for (NSDictionary *account in [CLCacheManager accounts]) {
+        VIEW_TYPE type = [[account objectForKey:TYPE] integerValue];
+        switch (type) {
+            case DROPBOX:
+                [tableDataArray addObject:DROPBOX_STRING];
+                break;
+            case SKYDRIVE:
+                [tableDataArray addObject:SKYDRIVE_STRING];
+                break;
+            default:
+                break;
+        }
+    }
     [self updateView];
 }
 
