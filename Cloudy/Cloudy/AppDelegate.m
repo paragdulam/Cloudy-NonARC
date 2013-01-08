@@ -10,7 +10,7 @@
 #import "CLAccountsTableViewController.h"
 #import "CLFileBrowserTableViewController.h"
 #import "CLUploadsTableViewController.h"
-
+#import "CLCloudPlatformSelectionViewController.h"
 
 
 
@@ -18,8 +18,10 @@
 @interface AppDelegate()
 {
     CLAccountsTableViewController *callbackViewController;
+    NSURL *externalFileURL;
 }
 
+@property (nonatomic,retain) NSURL *externalFileURL;
 
 @end
 
@@ -33,9 +35,13 @@
 @synthesize restClient;
 @synthesize uploads;
 @synthesize uploadsViewController;
+@synthesize externalFileURL;
 
 - (void)dealloc
 {
+    [externalFileURL release];
+    externalFileURL = nil;
+    
     uploadsViewController = nil;
     
     [restClient release];
@@ -79,8 +85,13 @@
                 return NO;
             }
         }
-    } else if ([[url absoluteString] hasPrefix:@"file://"]) {
-        NSLog(@"url %@",url);
+    } else if ([[url absoluteString] hasPrefix:@"file://"]) { //call from another application
+        self.externalFileURL = url;
+        CLCloudPlatformSelectionViewController *platformSelectionViewController = [[CLCloudPlatformSelectionViewController alloc] initWithTableViewStyle:UITableViewStyleGrouped];
+        UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:platformSelectionViewController];
+        [platformSelectionViewController release];
+        [self.window.rootViewController presentModalViewController:navController animated:NO];
+        [navController release];
     }
     return NO;
 }
@@ -320,23 +331,28 @@
         }
     }
     
-    for (ALAsset *asset in info) {
-        ALAssetRepresentation *assetRepresentation = [asset defaultRepresentation];
-        NSDictionary *properties = [asset valueForProperty:ALAssetPropertyURLs];
-        NSURL *url = [properties objectForKey:@"public.jpeg"];
-        UIImage *assetThumnail = [UIImage imageWithCGImage:[asset thumbnail]];
-        NSString *fileName = [assetRepresentation filename];
-        NSString *filePath = [NSString stringWithFormat:@"%@/%@",[CLCacheManager getUploadsFolderPath],fileName];
-        NSData *imageThumbnailData = UIImageJPEGRepresentation(assetThumnail, 0);
-        NSDictionary *imageToBeUploaded = [NSDictionary dictionaryWithObjectsAndKeys:fileName,@"NAME",
-                                         filePath,@"FROMPATH",
-                                             path,@"TOPATH",
-                               imageThumbnailData,@"THUMBNAIL",
-                             [url absoluteString],@"URL",
-                    [NSNumber numberWithInt:type],@"TYPE", nil];
-
-        if (![images containsObject:imageToBeUploaded]) {
-            [images addObject:imageToBeUploaded];
+    for (id obj in info) {
+        if ([obj isKindOfClass:[ALAsset class]]) { //image selected From Gallery
+            ALAsset *asset = (ALAsset *)obj;
+            ALAssetRepresentation *assetRepresentation = [asset defaultRepresentation];
+            NSDictionary *properties = [asset valueForProperty:ALAssetPropertyURLs];
+            NSURL *url = [properties objectForKey:@"public.jpeg"];
+            UIImage *assetThumnail = [UIImage imageWithCGImage:[asset thumbnail]];
+            NSString *fileName = [assetRepresentation filename];
+            NSString *filePath = [NSString stringWithFormat:@"%@/%@",[CLCacheManager getUploadsFolderPath],fileName];
+            NSData *imageThumbnailData = UIImageJPEGRepresentation(assetThumnail, 0);
+            NSDictionary *imageToBeUploaded = [NSDictionary dictionaryWithObjectsAndKeys:fileName,NAME,
+                                               filePath,FROMPATH,
+                                               path,TOPATH,
+                                               imageThumbnailData,THUMBNAIL,
+                                               [url absoluteString],URL_PARAM,
+                                               [NSNumber numberWithInt:type],TYPE, nil];
+            
+            if (![images containsObject:imageToBeUploaded]) {
+                [images addObject:imageToBeUploaded];
+            }
+        } else { //other Data
+            [images addObject:obj];
         }
     }
     [images removeObjectsInArray:uploads];
@@ -349,52 +365,84 @@
 
 -(void) uploadDictionary:(NSDictionary *) data
 {
-    NSString *fileName = [data objectForKey:@"NAME"];
-    NSString *toPath = [data objectForKey:@"TOPATH"];
-    NSString *fromPath = [data objectForKey:@"FROMPATH"];
-    NSData *thumbNailData = [data objectForKey:@"THUMBNAIL"];
-    NSString *mediaurl = [data objectForKey:@"URL"];
-    __block VIEW_TYPE type = [[data objectForKey:@"TYPE"] integerValue];
+    NSString *fileName = [data objectForKey:NAME];
+    NSString *toPath = [data objectForKey:TOPATH];
+    NSString *fromPath = [data objectForKey:FROMPATH];
+    NSData *thumbNailData = [data objectForKey:THUMBNAIL];
+    NSString *mediaurl = [data objectForKey:URL_PARAM];
+    __block VIEW_TYPE type = [[data objectForKey:TYPE] integerValue];
     
-    NSURL *asseturl = [NSURL URLWithString:mediaurl];
-    ALAssetsLibrary* assetslibrary = [[[ALAssetsLibrary alloc] init] autorelease];
-    [assetslibrary assetForURL:asseturl
-                   resultBlock:^(ALAsset *asset) {
-                       ALAssetRepresentation *assetRepresentation = [asset defaultRepresentation];
-                       UIImage *assetImage = [UIImage imageWithCGImage:[assetRepresentation CGImageWithOptions:nil]
-                                                                 scale:[assetRepresentation scale]
-                                                           orientation:[assetRepresentation orientation]];
-                       NSData *imageData = UIImageJPEGRepresentation(assetImage, 1);
-                       if (![CLCacheManager fileExistsAtPath:fromPath]) {
-                           [imageData writeToFile:fromPath atomically:YES];
-                       }
-                       switch (type) {
-                           case DROPBOX:
-                           {
-                               [self.restClient uploadFile:fileName
-                                                    toPath:toPath
-                                             withParentRev:nil
-                                                  fromPath:fromPath];
+    if (fromPath) { //image uploads from gallery
+        NSURL *asseturl = [NSURL URLWithString:mediaurl];
+        ALAssetsLibrary* assetslibrary = [[[ALAssetsLibrary alloc] init] autorelease];
+        [assetslibrary assetForURL:asseturl
+                       resultBlock:^(ALAsset *asset) {
+                           ALAssetRepresentation *assetRepresentation = [asset defaultRepresentation];
+                           UIImage *assetImage = [UIImage imageWithCGImage:[assetRepresentation CGImageWithOptions:nil]
+                                                                     scale:[assetRepresentation scale]
+                                                               orientation:[assetRepresentation orientation]];
+                           NSData *imageData = UIImageJPEGRepresentation(assetImage, 1);
+                           if (![CLCacheManager fileExistsAtPath:fromPath]) {
+                               [imageData writeToFile:fromPath atomically:YES];
                            }
-                               break;
-                           case SKYDRIVE:
-                           {
-                               [self.liveClient uploadToPath:toPath
-                                                    fileName:fileName
-                                                        data:imageData
-                                                    delegate:self];
+                           switch (type) {
+                               case DROPBOX:
+                               {
+                                   [self.restClient uploadFile:fileName
+                                                        toPath:toPath
+                                                 withParentRev:nil
+                                                      fromPath:fromPath];
+                               }
+                                   break;
+                               case SKYDRIVE:
+                               {
+                                   [self.liveClient uploadToPath:toPath
+                                                        fileName:fileName
+                                                            data:imageData
+                                                        delegate:self];
+                               }
+                                   break;
+                               default:
+                                   break;
                            }
-                               break;
-                           default:
-                               break;
-                       }
-                       uploadProgressButton.hidden = NO;
-                       [uploadProgressButton setImage:[UIImage imageWithData:thumbNailData]
-                                             forState:UIControlStateNormal];
-                       NSLog(@"Success");
-                   } failureBlock:^(NSError *error) {
-                       NSLog(@"Failure");
-                   }];
+                           uploadProgressButton.hidden = NO;
+                           [uploadProgressButton setImage:[UIImage imageWithData:thumbNailData]
+                                                 forState:UIControlStateNormal];
+                           NSLog(@"Success");
+                       } failureBlock:^(NSError *error) {
+                           NSLog(@"Failure");
+                       }];
+    } else { //file added from external app
+        NSData *fileData = [NSData dataWithContentsOfURL:[NSURL URLWithString:mediaurl]];
+        switch (type) {
+            case DROPBOX:
+            {
+                fromPath = [NSString stringWithFormat:@"%@/%@",[CLCacheManager getUploadsFolderPath],fileName];
+                if (![CLCacheManager fileExistsAtPath:fromPath]) {
+                    [fileData writeToFile:fromPath atomically:YES];
+                }
+                [self.restClient uploadFile:fileName
+                                     toPath:toPath
+                              withParentRev:nil
+                                   fromPath:fromPath];
+            }
+                break;
+            case SKYDRIVE:
+            {
+                [self.liveClient uploadToPath:toPath
+                                     fileName:fileName
+                                         data:fileData
+                                     delegate:self];
+            }
+                break;
+            default:
+                break;
+        }
+        uploadProgressButton.hidden = NO;
+        [uploadProgressButton setImage:[UIImage imageWithData:thumbNailData]
+                              forState:UIControlStateNormal];
+    }
+    
 }
 
 -(void) updateUploads:(NSArray *)info
@@ -422,6 +470,36 @@
         uploadProgressButton.hidden = YES;
     }
     [self.uploadsViewController removeFirstRowWithAnimation];
+}
+
+
+#pragma mark - CLPathSelectionViewControllerDelegate
+
+-(void) pathDidSelect:(NSString *) pathString ForViewController:(CLPathSelectionViewController *) viewController
+{
+    NSLog(@"path %@ Appdelegate",pathString);
+    NSString *fileName = [[[externalFileURL absoluteString] componentsSeparatedByString:@"/"] lastObject];
+    NSString *toPath = pathString;
+    NSString *extention = [[fileName pathExtension] lowercaseString];
+    UIImage * cellImage = [UIImage imageNamed:[NSString stringWithFormat:@"%@.png",extention]];
+    if (!cellImage) {
+        cellImage = [UIImage imageNamed:[NSString stringWithFormat:@"_blank.png"]];
+    }
+    VIEW_TYPE viewType = viewController.viewType;
+    NSDictionary *imageToBeUploaded = [NSDictionary dictionaryWithObjectsAndKeys:fileName,NAME,
+                                       toPath,TOPATH,
+                                       UIImageJPEGRepresentation(cellImage, 1.0),THUMBNAIL,
+                                       [externalFileURL absoluteString],URL_PARAM,
+                                       [NSNumber numberWithInt:viewType],TYPE, nil];
+    [self updateUploads:[NSArray arrayWithObject:imageToBeUploaded]
+           FolderAtPath:toPath
+            ForViewType:viewType];
+    
+}
+
+-(void) pathSelectionDidCancelForViewController:(CLPathSelectionViewController *) viewController
+{
+    NSLog(@"Cancelled  Appdelegate");
 }
 
 

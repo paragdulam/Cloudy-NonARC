@@ -351,7 +351,7 @@
                             [images addObject:objDict];
                         }
                     }];
-                    CLImageGalleryViewController *imageGalleryViewController = [[CLImageGalleryViewController alloc] initWithViewType:viewType ImagesArray:images CurrentImage:metadata];
+                    CLImageGalleryViewController *imageGalleryViewController = [[CLImageGalleryViewController alloc] initWithViewType:SKYDRIVE ImagesArray:images CurrentImage:metadata];
                     [images release];
                     [self.navigationController pushViewController:imageGalleryViewController animated:YES];
                     [imageGalleryViewController release];
@@ -359,7 +359,7 @@
 //                    CLMediaPlayerViewController *moviePlayer = [[CLMediaPlayerViewController alloc] initWithVideoFile:metadata withInViewType:viewType];
 //                    [self.navigationController pushViewController:moviePlayer animated:YES];
 //                    [moviePlayer release];
-                    CLWebMediaPlayerViewController *webMediaPlayer = [[CLWebMediaPlayerViewController alloc] initWithFile:metadata WithinViewType:viewType];
+                    CLWebMediaPlayerViewController *webMediaPlayer = [[CLWebMediaPlayerViewController alloc] initWithFile:metadata WithinViewType:SKYDRIVE];
                     [self.navigationController pushViewController:webMediaPlayer animated:YES];
                     [webMediaPlayer release];
 

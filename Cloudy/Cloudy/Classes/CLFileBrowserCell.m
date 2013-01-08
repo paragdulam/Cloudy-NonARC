@@ -160,9 +160,6 @@
             break;
     }
     
-    
-    
-    
     [self.textLabel setText:titleText];
     [self.detailTextLabel setText:detailText];
     [self.imageView setImage:cellImage];

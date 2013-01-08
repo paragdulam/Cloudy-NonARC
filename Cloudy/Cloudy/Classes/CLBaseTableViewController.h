@@ -7,6 +7,7 @@
 //
 
 #import "CLBaseViewController.h"
+#import "AppDelegate.h"
 
 @interface CLBaseTableViewController : CLBaseViewController<UITableViewDataSource,UITableViewDelegate,DBRestClientDelegate>
 {

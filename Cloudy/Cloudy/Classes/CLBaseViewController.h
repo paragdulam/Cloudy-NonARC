@@ -8,8 +8,9 @@
 
 #import <UIKit/UIKit.h>
 #import "CLCacheManager.h"
-#import "AppDelegate.h"
 #import "CLDictionaryConvertor.h"
+#import "AppDelegate.h"
+
 
 @interface CLBaseViewController : UIViewController
 {

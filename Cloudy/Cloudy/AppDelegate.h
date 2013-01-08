@@ -14,8 +14,10 @@
 #import "CLConstants.h"
 
 
+
 @class CLFileBrowserTableViewController;
 @class CLUploadsTableViewController;
+@class CLPathSelectionViewController;
 
 @interface AppDelegate : UIResponder <UIApplicationDelegate,DBRestClientDelegate,LiveUploadOperationDelegate>
 {

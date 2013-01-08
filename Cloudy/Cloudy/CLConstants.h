@@ -102,6 +102,13 @@ typedef enum FILE_FOLDER_OPERATIONS {
 
 #define THUMBNAIL_DATA @"THUMBNAIL_DATA"
 
+//Uploads Parameters
+#define NAME @"NAME"
+#define FROMPATH @"FROMPATH"
+#define TOPATH @"TOPATH"
+#define THUMBNAIL @"THUMBNAIL"
+#define URL_PARAM @"URL"
+#define TYPE @"TYPE"
 
 
 #endif
