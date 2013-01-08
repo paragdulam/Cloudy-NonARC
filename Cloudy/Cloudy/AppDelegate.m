@@ -88,6 +88,7 @@
     } else if ([[url absoluteString] hasPrefix:@"file://"]) { //call from another application
         self.externalFileURL = url;
         CLCloudPlatformSelectionViewController *platformSelectionViewController = [[CLCloudPlatformSelectionViewController alloc] initWithTableViewStyle:UITableViewStyleGrouped];
+//        CLAccountsTableViewController *platformSelectionViewController = [[CLAccountsTableViewController alloc] initWithTableViewStyle:UITableViewStyleGrouped];
         UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:platformSelectionViewController];
         [platformSelectionViewController release];
         [self.window.rootViewController presentModalViewController:navController animated:NO];

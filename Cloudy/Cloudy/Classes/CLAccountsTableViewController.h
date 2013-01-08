@@ -10,6 +10,9 @@
 #import "CLAccountCell.h"
 
 @interface CLAccountsTableViewController : CLBaseTableViewController<DBSessionDelegate,LiveAuthDelegate,LiveOperationDelegate>
+{
+    UIButton *editButton;
+}
 -(void)authenticationDoneForSession:(DBSession *)session;
 -(void)  authenticationCancelledManuallyForSession:(DBSession *) session;
 @end

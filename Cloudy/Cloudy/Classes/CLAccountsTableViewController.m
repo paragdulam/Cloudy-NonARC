@@ -12,7 +12,6 @@
 
 @interface CLAccountsTableViewController ()
 {
-    UIButton *editButton;
     UIButton *aboutButton;
     NSString *initialUserState;
 }

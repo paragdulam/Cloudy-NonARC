@@ -8,6 +8,7 @@
 
 #import "CLCloudPlatformSelectionViewController.h"
 #import "CLPathSelectionViewController.h"
+#import "CLAccountCell.h"
 
 
 @interface CLCloudPlatformSelectionViewController ()
@@ -29,7 +30,7 @@
 {
     [super viewDidLoad];
 	// Do any additional setup after loading the view.
-    
+    editButton.hidden = YES;
     CLBrowserBarItem *barItem = [[CLBrowserBarItem alloc] initWithFrame:CGRectMake(0, 0, 60, 30)];
     barItem.delegate = self;
     [barItem setTitle:@"Cancel" forState:UIControlStateNormal];
@@ -40,22 +41,6 @@
     
     [self.navigationItem setRightBarButtonItem:cancelBarButtonItem];
     [cancelBarButtonItem release];
-
-
-    for (NSDictionary *account in [CLCacheManager accounts]) {
-        VIEW_TYPE type = [[account objectForKey:ACCOUNT_TYPE] integerValue];
-        switch (type) {
-            case DROPBOX:
-                [tableDataArray addObject:DROPBOX_STRING];
-                break;
-            case SKYDRIVE:
-                [tableDataArray addObject:SKYDRIVE_STRING];
-                break;
-            default:
-                break;
-        }
-    }
-    [self updateView];
 }
 
 -(void) viewWillAppear:(BOOL)animated
@@ -68,7 +53,6 @@
     CGRect tableFrame = dataTableView.frame;
     tableFrame.origin.y = 0;
     tableFrame.size.height = self.view.frame.size.height - navBarFrame.size.height ;
-
 }
 
 - (void)didReceiveMemoryWarning
@@ -80,34 +64,65 @@
 
 #pragma mark - UITableViewDataSource
 
-- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"CELL"];
-    if (!cell) {
-        cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"CELL"] autorelease];
-    }
-    [cell.textLabel setText:[tableDataArray objectAtIndex:indexPath.row]];
-    return cell;
-}
+//-(NSInteger) numberOfSectionsInTableView:(UITableView *)tableView
+//{
+//    return [tableDataArray count];
+//}
+//
+//-(NSInteger) tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+//{
+//    return 1;
+//}
+//
+//- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+//{
+//    CLAccountCell *cell = (CLAccountCell *)[tableView dequeueReusableCellWithIdentifier:@"CLAccountCell"];
+//    if (!cell) {
+//        cell = [[[CLAccountCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:@"CLAccountCell"] autorelease];
+//    }
+//    [cell setData:[tableDataArray objectAtIndex:indexPath.section]
+//forCellAtIndexPath:indexPath];
+//    return cell;
+//}
 
 
 -(void) tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     NSString *path = nil;
-    switch (indexPath.row) {
-        case DROPBOX:
-            path = ROOT_DROPBOX_PATH;
-            break;
-        case SKYDRIVE:
-            path = ROOT_SKYDRIVE_PATH;
-            break;
-        default:
-            break;
+    id obj = [tableDataArray objectAtIndex:indexPath.section];
+    if ([obj isKindOfClass:[NSDictionary class]]) {
+        switch (indexPath.section) {
+            case DROPBOX:
+                path = ROOT_DROPBOX_PATH;
+                break;
+            case SKYDRIVE:
+                path = ROOT_SKYDRIVE_PATH;
+                break;
+            default:
+                break;
+        }
+        CLPathSelectionViewController *pathSelectionViewController = [[CLPathSelectionViewController alloc] initWithTableViewStyle:UITableViewStylePlain WherePath:path WithinViewType:indexPath.section WhereExcludedFolders:nil];
+        pathSelectionViewController.delegate = self.appDelegate;
+        [self.navigationController pushViewController:pathSelectionViewController
+                                             animated:YES];
+        [pathSelectionViewController release];
+    } else {
+        NSString *errorString = nil;
+        switch (indexPath.section) {
+            case DROPBOX:
+                errorString = @"Please Login to Dropbox Account. OverClouded cannot access your Dropbox Account until then.";
+                break;
+            case SKYDRIVE:
+                errorString = @"Please Login to SkyDrive Account. OverClouded cannot access your SkyDrive Account until then.";
+                break;
+                
+            default:
+                break;
+        }
+        [AppDelegate showMessage:errorString
+                       withColor:[UIColor redColor]
+                     alertOnView:self.view];
     }
-    CLPathSelectionViewController *pathSelectionViewController = [[CLPathSelectionViewController alloc] initWithTableViewStyle:UITableViewStylePlain WherePath:path WithinViewType:indexPath.row WhereExcludedFolders:nil];
-    pathSelectionViewController.delegate = self.appDelegate;
-    [self.navigationController pushViewController:pathSelectionViewController animated:YES];
-    [pathSelectionViewController release];
 }
 
 

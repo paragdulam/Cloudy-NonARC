@@ -6,9 +6,10 @@
 //  Copyright (c) 2013 Parag Dulam. All rights reserved.
 //
 
-#import "CLBaseTableViewController.h"
+//#import "CLBaseTableViewController.h"
+#import "CLAccountsTableViewController.h"
 #import "CLBrowserBarItem.h"
 
-@interface CLCloudPlatformSelectionViewController : CLBaseTableViewController<CLBrowserBarItemDelegate>
+@interface CLCloudPlatformSelectionViewController : CLAccountsTableViewController<CLBrowserBarItemDelegate>
 
 @end
