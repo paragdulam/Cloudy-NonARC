@@ -43,7 +43,7 @@
 
 
     for (NSDictionary *account in [CLCacheManager accounts]) {
-        VIEW_TYPE type = [[account objectForKey:TYPE] integerValue];
+        VIEW_TYPE type = [[account objectForKey:ACCOUNT_TYPE] integerValue];
         switch (type) {
             case DROPBOX:
                 [tableDataArray addObject:DROPBOX_STRING];
