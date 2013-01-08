@@ -45,6 +45,7 @@
     
     self.layer.cornerRadius = 5.f;
     self.backgroundColor = [UIColor clearColor];
+    self.imageView.backgroundColor = [UIColor clearColor];
     
 }
 
