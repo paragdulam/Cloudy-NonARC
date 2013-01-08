@@ -29,6 +29,18 @@
 {
     [super viewDidLoad];
 	// Do any additional setup after loading the view.
+    
+    CLBrowserBarItem *barItem = [[CLBrowserBarItem alloc] initWithFrame:CGRectMake(0, 0, 60, 30)];
+    barItem.delegate = self;
+    [barItem setTitle:@"Cancel" forState:UIControlStateNormal];
+    [barItem setImage:[UIImage imageNamed:@"button_background_base.png"]
+           WithInsets:UIEdgeInsetsMake(0, 10, 0, 10)];
+    UIBarButtonItem *cancelBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:barItem];
+    [barItem release];
+    
+    [self.navigationItem setRightBarButtonItem:cancelBarButtonItem];
+    [cancelBarButtonItem release];
+
 
     for (NSDictionary *account in [CLCacheManager accounts]) {
         VIEW_TYPE type = [[account objectForKey:TYPE] integerValue];
@@ -96,6 +108,12 @@
     pathSelectionViewController.delegate = self.appDelegate;
     [self.navigationController pushViewController:pathSelectionViewController animated:YES];
     [pathSelectionViewController release];
+}
+
+
+-(void) buttonClicked:(UIButton *)btn WithinView:(CLBrowserBarItem *) view
+{
+    [self dismissModalViewControllerAnimated:YES];
 }
 
 

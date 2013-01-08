@@ -7,7 +7,8 @@
 //
 
 #import "CLBaseTableViewController.h"
+#import "CLBrowserBarItem.h"
 
-@interface CLCloudPlatformSelectionViewController : CLBaseTableViewController
+@interface CLCloudPlatformSelectionViewController : CLBaseTableViewController<CLBrowserBarItemDelegate>
 
 @end
