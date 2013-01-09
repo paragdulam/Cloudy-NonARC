@@ -9,6 +9,7 @@
 #import "CLAccountsTableViewController.h"
 #import "CLFileBrowserBaseTableViewController.h"
 #import "CLAboutViewController.h"
+#import "Reachability.h"
 
 @interface CLAccountsTableViewController ()
 {
@@ -99,7 +100,7 @@
         [self authenticationDoneForSession:self.appDelegate.dropboxSession];
     }
     
-    if (!self.appDelegate.liveClient.session && [CLCacheManager getAccountForType:SKYDRIVE]) {
+    if (!self.appDelegate.liveClient.session && [CLCacheManager getAccountForType:SKYDRIVE] && ![[Reachability reachabilityForInternetConnection] connectionRequired]) {
         [self startAnimatingCellAtIndexPath:[NSIndexPath indexPathForRow:0
                                                                inSection:SKYDRIVE]];
     }
@@ -275,7 +276,7 @@
         }
         case SKYDRIVE:
         {
-            if (self.appDelegate.liveClient.session == nil) {
+            if (self.appDelegate.liveClient.session == nil && ![[Reachability reachabilityForInternetConnection] connectionRequired]) {
                 [self.appDelegate.liveClient login:self.appDelegate.menuController
                                             scopes:SCOPE_ARRAY
                                           delegate:self];
