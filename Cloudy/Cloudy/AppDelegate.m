@@ -36,6 +36,7 @@
 @synthesize uploads;
 @synthesize uploadsViewController;
 @synthesize externalFileURL;
+@synthesize backgroundTaskIdentifier;
 
 - (void)dealloc
 {
@@ -185,9 +186,11 @@
     
     [self.window setRootViewController:menuController];
     [self initialSetup];
-    [self updateUploads:nil
-           FolderAtPath:nil
-            ForViewType:INFINITY];
+//    self.backgroundTaskIdentifier = [application beginBackgroundTaskWithExpirationHandler:^{
+        [self updateUploads:nil
+               FolderAtPath:nil
+                ForViewType:INFINITY];
+//    }];
     return YES;
 }
 
@@ -452,6 +455,10 @@
          FolderAtPath:(NSString *)path
           ForViewType:(VIEW_TYPE) type
 {
+    UIApplication *app = [UIApplication sharedApplication];
+    self.backgroundTaskIdentifier = [app beginBackgroundTaskWithExpirationHandler:^{
+        [app endBackgroundTask:backgroundTaskIdentifier];
+    }];
     [self updateUploadsFolder:info destPath:path ForViewType:type];
     if ([uploads count]) {
         NSDictionary *imageToBeUploaded = [uploads objectAtIndex:0];
@@ -473,6 +480,12 @@
         uploadProgressButton.hidden = YES;
     }
     [self.uploadsViewController removeFirstRowWithAnimation];
+    UIApplication *app = [UIApplication sharedApplication];
+    if (backgroundTaskIdentifier != UIBackgroundTaskInvalid) {
+        [app endBackgroundTask:backgroundTaskIdentifier];
+        backgroundTaskIdentifier = UIBackgroundTaskInvalid;
+    }
+//    [[UIApplication sharedApplication] endBackgroundTask:backgroundTaskIdentifier];
 }
 
 
@@ -494,9 +507,11 @@
                                        UIImageJPEGRepresentation(cellImage, 1.0),THUMBNAIL,
                                        [externalFileURL absoluteString],URL_PARAM,
                                        [NSNumber numberWithInt:viewType],TYPE, nil];
-    [self updateUploads:[NSArray arrayWithObject:imageToBeUploaded]
-           FolderAtPath:toPath
-            ForViewType:viewType];
+//    self.backgroundTaskIdentifier = [[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:^{
+        [self updateUploads:[NSArray arrayWithObject:imageToBeUploaded]
+               FolderAtPath:toPath
+                ForViewType:viewType];
+//    }];
     
 }
 
@@ -517,11 +532,11 @@
 
 -(void) liveOperationSucceeded:(LiveOperation *)operation
 {
-    [self uploadCompletionHandler:YES];
     [CLCacheManager insertFile:operation.result
         whereTraversingPointer:nil
                inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:SKYDRIVE]
                    ForViewType:SKYDRIVE];
+    [self uploadCompletionHandler:YES];
 }
 
 
@@ -538,12 +553,12 @@
               from:(NSString*)srcPath
           metadata:(DBMetadata*)metadata
 {
-    [self uploadCompletionHandler:YES];
     NSDictionary *metadataDictionary = [CLDictionaryConvertor dictionaryFromMetadata:metadata];
     [CLCacheManager insertFile:metadataDictionary
         whereTraversingPointer:nil
                inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:SKYDRIVE]
                    ForViewType:SKYDRIVE];
+    [self uploadCompletionHandler:YES];
 }
 
 - (void)restClient:(DBRestClient*)client

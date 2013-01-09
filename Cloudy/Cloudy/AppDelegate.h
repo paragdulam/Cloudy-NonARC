@@ -30,6 +30,7 @@
     NSMutableArray *uploads;
     DBRestClient *restClient;
     CLUploadsTableViewController *uploadsViewController;
+    UIBackgroundTaskIdentifier backgroundTaskIdentifier;
 }
 
 @property (strong, nonatomic) UIWindow *window;
@@ -42,6 +43,7 @@
 @property (nonatomic,retain) NSMutableArray *uploads;
 @property (nonatomic,retain) DBRestClient *restClient;
 @property (nonatomic,assign) CLUploadsTableViewController *uploadsViewController;
+@property (nonatomic,assign) UIBackgroundTaskIdentifier backgroundTaskIdentifier;
 
 
 
