@@ -70,6 +70,7 @@
 - (void)restClient:(DBRestClient*)restClient loadStreamableURLFailedWithError:(NSError*)error
 {
     [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
+    [AppDelegate showError:error alertOnView:self.view];
 }
 
 
