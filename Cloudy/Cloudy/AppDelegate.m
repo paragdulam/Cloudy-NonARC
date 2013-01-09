@@ -87,6 +87,7 @@
             }
         }
     } else if ([[url absoluteString] hasPrefix:@"file://"]) { //call from another application
+        [self.window.rootViewController.modalViewController dismissModalViewControllerAnimated:NO];
         self.externalFileURL = url;
         CLCloudPlatformSelectionViewController *platformSelectionViewController = [[CLCloudPlatformSelectionViewController alloc] initWithTableViewStyle:UITableViewStyleGrouped];
 //        CLAccountsTableViewController *platformSelectionViewController = [[CLAccountsTableViewController alloc] initWithTableViewStyle:UITableViewStyleGrouped];

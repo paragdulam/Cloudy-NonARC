@@ -36,14 +36,17 @@
     progressBarRect.origin.x =  frame.size.width * originPercentage;
     progressBarRect.size.width = frame.size.width * PERCENTAGE;
     progressBarRect.size.height = 5.f;
-    progressBarRect.origin.y =  frame.size.height * (PERCENTAGE - (originPercentage * 2));
+    progressBarRect.origin.y =  frame.size.height * (PERCENTAGE - (originPercentage));
     
     progressBarView.frame = progressBarRect;
     
     self.imageView.frame = self.bounds;
     self.imageView.contentMode = UIViewContentModeScaleAspectFit;
+    self.imageView.clipsToBounds = YES;
+
     
     self.layer.cornerRadius = 5.f;
+    self.clipsToBounds = YES;
     self.backgroundColor = [UIColor clearColor];
     self.imageView.backgroundColor = [UIColor clearColor];
     
