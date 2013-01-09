@@ -8,6 +8,7 @@
 
 #import "CLFileBrowserTableViewController.h"
 #import "CLPathSelectionViewController.h"
+#import "Reachability.h"
 
 
 @interface CLFileBrowserTableViewController ()
@@ -165,7 +166,9 @@ loadedSharableLink:(NSString *)link
 
 -(void) restClient:(DBRestClient *)restClient loadSharableLinkFailedWithError:(NSError *)error
 {
+    [selectedItems removeAllObjects];
     [self stopAnimating];
+    [AppDelegate showError:error alertOnView:self.view];
 }
 
 
@@ -216,7 +219,9 @@ loadedSharableLink:(NSString *)link
 
 - (void)restClient:(DBRestClient*)client movePathFailedWithError:(NSError*)error
 {
+    [selectedItems removeAllObjects];
     [self stopAnimating];
+    [AppDelegate showError:error alertOnView:self.view];
 }
 
 #pragma mark - Delete File Operation Methods
@@ -229,6 +234,7 @@ loadedSharableLink:(NSString *)link
 
 - (void)restClient:(DBRestClient*)client deletePathFailedWithError:(NSError*)error
 {
+    [selectedItems removeAllObjects];
     [self stopAnimating];
     [AppDelegate showError:error alertOnView:self.view];
 }
@@ -794,10 +800,12 @@ loadedSharableLink:(NSString *)link
 
 -(void) uploadButtonClicked:(UIButton *) btn
 {
-    AGImagePickerController *imagePicker = [[AGImagePickerController alloc] initWithDelegate:self];
-    [imagePicker setShouldChangeStatusBarStyle:NO];
-    [self presentModalViewController:imagePicker animated:YES];
-    [imagePicker release];
+    if (![[Reachability reachabilityForInternetConnection] connectionRequired]) {
+        AGImagePickerController *imagePicker = [[AGImagePickerController alloc] initWithDelegate:self];
+        [imagePicker setShouldChangeStatusBarStyle:NO];
+        [self presentModalViewController:imagePicker animated:YES];
+        [imagePicker release];
+    }
 }
 
 
@@ -815,9 +823,11 @@ loadedSharableLink:(NSString *)link
                 }
                 
                 //Animation Delay Because we need to avoid sudden flickering of tableview happening
-                [self performSelector:@selector(startAnimating)
-                           withObject:self
-                           afterDelay:0.3f];
+                if (![[Reachability reachabilityForInternetConnection] connectionRequired]) {
+                    [self performSelector:@selector(startAnimating)
+                               withObject:self
+                               afterDelay:0.3f];
+                }
             }
                 break;
             case SKYDRIVE:
@@ -839,15 +849,27 @@ loadedSharableLink:(NSString *)link
 
 -(void) copyButtonClicked:(UIButton *) sender
 {
-    currentFileOperation = COPY;
-    [self performFileOperation];
+    if (![[Reachability reachabilityForInternetConnection] connectionRequired]) {
+        currentFileOperation = COPY;
+        [self performFileOperation];
+    } else {
+        [AppDelegate showMessage:NO_INTERNET_STRING
+                       withColor:[UIColor redColor]
+                     alertOnView:self.view];
+    }
 }
 
 
 -(void) moveButtonClicked:(UIButton *) sender
 {
-    currentFileOperation = MOVE;
-    [self performFileOperation];
+    if (![[Reachability reachabilityForInternetConnection] connectionRequired]) {
+        currentFileOperation = MOVE;
+        [self performFileOperation];
+    } else {
+        [AppDelegate showMessage:NO_INTERNET_STRING
+                       withColor:[UIColor redColor]
+                     alertOnView:self.view];
+    }
 }
 
 -(void) deleteButtonClicked:(UIButton *) sender
@@ -879,9 +901,11 @@ loadedSharableLink:(NSString *)link
                 break;
         }
         //Animation Delay Because we need to avoid sudden flickering of tableview happening
-        [self performSelector:@selector(startAnimating)
-                   withObject:self
-                   afterDelay:0.3f];
+        if (![[Reachability reachabilityForInternetConnection] connectionRequired]) {
+            [self performSelector:@selector(startAnimating)
+                       withObject:self
+                       afterDelay:0.3f];
+        }
     }
 }
 

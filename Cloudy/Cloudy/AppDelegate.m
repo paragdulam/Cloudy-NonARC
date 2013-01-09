@@ -279,7 +279,7 @@
     if (![errorString length] && [error code] != -1009) {
         errorString = [error localizedDescription];
     } else if ([error code] == -1009) {
-        errorString = @"The Internet connection appears to be offline.";
+        errorString = NO_INTERNET_STRING;
     }
     [alert setText:errorString];
     CGSize size = [alert sizeThatFits:alert.frame.size];

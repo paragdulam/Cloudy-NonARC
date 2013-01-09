@@ -101,6 +101,7 @@ typedef enum FILE_FOLDER_OPERATIONS {
 
 
 #define THUMBNAIL_DATA @"THUMBNAIL_DATA"
+#define NO_INTERNET_STRING @"The Internet connection appears to be offline."
 
 //Uploads Parameters
 #define NAME @"NAME"
