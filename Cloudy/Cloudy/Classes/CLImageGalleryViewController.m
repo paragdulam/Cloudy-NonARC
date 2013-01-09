@@ -370,6 +370,8 @@
     [saveButton setImage:saveImage forState:UIControlStateNormal];
     [saveButton addTarget:self action:@selector(saveButtonClicked:) forControlEvents:UIControlEventTouchUpInside];
     UIBarButtonItem *saveBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:saveButton];
+//    UIBarButtonItem *saveBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCamera target:self action:@selector(saveButtonClicked:)];
+
     [items addObject:saveBarButtonItem];
     [saveBarButtonItem release];
     

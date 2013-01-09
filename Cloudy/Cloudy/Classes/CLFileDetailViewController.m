@@ -14,7 +14,6 @@
     LiveDownloadOperation *downloadOperation;
     UIToolbar *progressToolBar;
     NSURL *fileURL;
-    UIButton *exportButton;
     UIBarButtonItem *exportBarButton;
     UIDocumentInteractionController *interactionController;
 }
@@ -79,7 +78,7 @@
             break;
     }
     [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:YES];
-    [exportButton setHidden:YES];
+    [exportBarButton setEnabled:NO];
 }
 
 
@@ -137,15 +136,12 @@
     [items addObject:flexiSpace];
     [flexiSpace release];
     
-    exportButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
-    [exportButton setFrame:CGRectMake(0, 0, 30, 30)];
-    [exportButton addTarget:self
-                     action:@selector(exportButtonClicked:)
-           forControlEvents:UIControlEventTouchUpInside];
-    UIBarButtonItem *exportBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:exportButton];
-    exportBarButton = exportBarButtonItem;
+    exportBarButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction
+                                                                                         target:self
+                                                                                         action:@selector(exportButtonClicked:)];
+
     [items addObject:exportBarButton];
-    [exportBarButtonItem release];
+    [exportBarButton release];
 
     [progressToolBar setItems:items animated:YES];
     [items release];
@@ -159,7 +155,7 @@
     self.fileURL = url;
     [webView loadRequest:[NSURLRequest requestWithURL:fileURL]];
     progressView.hidden = YES;
-    exportButton.hidden = NO;
+    exportBarButton.enabled = YES;
 }
 
 #pragma mark - Gestures

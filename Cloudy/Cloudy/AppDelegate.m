@@ -480,6 +480,7 @@
         uploadProgressButton.hidden = YES;
     }
     [self.uploadsViewController removeFirstRowWithAnimation];
+
     UIApplication *app = [UIApplication sharedApplication];
     if (backgroundTaskIdentifier != UIBackgroundTaskInvalid) {
         [app endBackgroundTask:backgroundTaskIdentifier];
