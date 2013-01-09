@@ -238,21 +238,35 @@
 #pragma mark - Helper methods
 
 
+-(void) animationDidFinish:(id) obj
+                  finished:(BOOL) finish
+                   context:(void *) cont
+{
+    if ([(NSString *)obj isEqualToString:@"imageView.scale"]) {
+        [(UIImageView *)cont removeFromSuperview];
+    }
+}
+
 -(void)imageDidSave
 {
     UIImageView *anImageView = [[UIImageView alloc] initWithFrame:mainImageView.bounds];
+    anImageView.contentMode = UIViewContentModeScaleAspectFit;
     [mainImageView addSubview:anImageView];
+    [anImageView release];
     [anImageView setImage:mainImageView.image];
     
-    [UIView beginAnimations:@"suck" context:NULL];
+    [UIView beginAnimations:@"imageView.scale" context:anImageView];
     [UIView setAnimationDuration:1.f];
-    [UIView setAnimationTransition:103 forView:mainImageView cache:YES];
-    [UIView setAnimationPosition:CGPointMake(saveButton.center.x, CGRectGetMaxY(anImageView.frame))];
-    [anImageView removeFromSuperview];
+    [UIView setAnimationDelegate:self];
+    [UIView setAnimationDidStopSelector:@selector(animationDidFinish:finished:context:)];
+    
+//    [UIView setAnimationTransition:103 forView:mainImageView cache:YES];
+//    [UIView setAnimationPosition:CGPointMake(saveButton.center.x, CGRectGetMaxY(anImageView.frame))];
+//    [anImageView removeFromSuperview];
+    
+    anImageView.transform = CGAffineTransformMakeScale(0.05, 0.05);
+    anImageView.center = CGPointMake(saveButton.center.x, self.view.frame.size.height - TOOLBAR_HEIGHT + saveButton.center.y);
     [UIView commitAnimations];
-    
-    [anImageView release];
-    
 }
 
 
