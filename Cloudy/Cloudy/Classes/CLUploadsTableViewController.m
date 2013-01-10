@@ -93,11 +93,13 @@
 
 -(void) removeFirstRowWithAnimation
 {
-    [tableDataArray removeObjectAtIndex:0];
-    [dataTableView beginUpdates];
-    [dataTableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:[NSIndexPath indexPathForRow:0 inSection:0]]
-                         withRowAnimation:UITableViewRowAnimationBottom];
-    [dataTableView endUpdates];
+    if ([tableDataArray count]) {
+        [tableDataArray removeObjectAtIndex:0];
+        [dataTableView beginUpdates];
+        [dataTableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:[NSIndexPath indexPathForRow:0 inSection:0]]
+                             withRowAnimation:UITableViewRowAnimationBottom];
+        [dataTableView endUpdates];
+    }
 }
 
 -(void) cancelButtonClicked:(UIButton *) btn
