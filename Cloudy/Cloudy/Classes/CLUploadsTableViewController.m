@@ -83,7 +83,7 @@
 
 -(void) updateFirstCellWhereProgress:(float) progress
 {
-    NSLog(@"Progress %f",progress);
+//    NSLog(@"Progress %f",progress);
     [dataTableView beginUpdates];
     [dataTableView reloadRowsAtIndexPaths:[NSArray arrayWithObject:[NSIndexPath indexPathForRow:0 inSection:0]]
                          withRowAnimation:UITableViewRowAnimationNone];
