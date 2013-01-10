@@ -543,6 +543,7 @@
 -(void) liveOperationFailed:(NSError *)error operation:(LiveOperation *)operation
 {
     [self uploadCompletionHandler:YES];
+    [AppDelegate showError:error alertOnView:self.uploadsViewController.view];
 }
 
 
@@ -573,6 +574,7 @@
 - (void)restClient:(DBRestClient*)client uploadFileFailedWithError:(NSError*)error
 {
     [self uploadCompletionHandler:YES];
+    [AppDelegate showError:error alertOnView:self.uploadsViewController.view];
 }
 
 @end
