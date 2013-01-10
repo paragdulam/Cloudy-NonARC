@@ -132,7 +132,9 @@
     }
     if (self)
     {
-        assets = [[NSMutableArray alloc] init];
+        NSMutableArray * anArray = [[NSMutableArray alloc] init];
+        self.assets = anArray;
+        [anArray release];
         self.assetsGroup = theAssetsGroup;
         self.title = NSLocalizedStringWithDefaultValue(@"AGIPC.Loading", nil, [NSBundle mainBundle], @"Loading...", nil);
     }
@@ -287,6 +289,7 @@
     [self.assets removeAllObjects];
     
     __block AGIPCAssetsController *blockSelf = self;
+    __block NSMutableArray *anArray = [[NSMutableArray alloc] init];
     
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
         
@@ -304,11 +307,12 @@
                 {
                     gridItem.selected = YES;
                 }
-                [blockSelf.assets addObject:gridItem];
+                [anArray addObject:gridItem];
                 [gridItem release];
             }];
         }
-        
+        self.assets = anArray;
+        [anArray release];
         dispatch_async(dispatch_get_main_queue(), ^{
             
             [blockSelf reloadData];
