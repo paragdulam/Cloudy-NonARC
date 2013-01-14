@@ -37,9 +37,14 @@
 @synthesize uploadsViewController;
 @synthesize externalFileURL;
 @synthesize backgroundTaskIdentifier;
+@synthesize currentUploadOperation;
 
 - (void)dealloc
 {
+    [currentUploadOperation cancel];
+    [currentUploadOperation release];
+    currentUploadOperation = nil;
+    
     [externalFileURL release];
     externalFileURL = nil;
     
@@ -90,7 +95,6 @@
         [self.window.rootViewController.modalViewController dismissModalViewControllerAnimated:NO];
         self.externalFileURL = url;
         CLCloudPlatformSelectionViewController *platformSelectionViewController = [[CLCloudPlatformSelectionViewController alloc] initWithTableViewStyle:UITableViewStyleGrouped];
-//        CLAccountsTableViewController *platformSelectionViewController = [[CLAccountsTableViewController alloc] initWithTableViewStyle:UITableViewStyleGrouped];
         UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:platformSelectionViewController];
         [platformSelectionViewController release];
         [self.window.rootViewController presentModalViewController:navController animated:NO];
@@ -129,12 +133,11 @@
     CLUploadProgressButton *aButton = [[CLUploadProgressButton alloc] init];
     aButton.frame = CGRectMake(0, 0, 30, 30);
     self.uploadProgressButton = aButton;
+    [aButton release];
     self.uploadProgressButton.hidden = YES;
     [self.uploadProgressButton addTarget:self
                                   action:@selector(uploadProgressButtonClicked:)
                         forControlEvents:UIControlEventTouchUpInside];
-
-    [aButton release];
     
     NSMutableArray *anArray = [[NSMutableArray alloc] init];
     self.uploads = anArray;
@@ -252,14 +255,28 @@
     [alert release];
     
     
-    [UIView animateWithDuration:5.f
-                     animations:^{
-                         alert.alpha = 0.f;
-                     } completion:^(BOOL finished) {
-                         [alert removeFromSuperview];
-                     }];
+    [UIView beginAnimations:@"alert.fade" context:alert];
+    [UIView setAnimationDuration:5.f];
+    [UIView setAnimationDelegate:self];
+    [UIView setAnimationDidStopSelector:@selector(animationWithId:finished:context:)];
+    alert.alpha = 0.f;
+    [UIView commitAnimations];
+
+//    [UIView animateWithDuration:5.f
+//                     animations:^{
+//                         alert.alpha = 0.f;
+//                     } completion:^(BOOL finished) {
+//                         [alert removeFromSuperview];
+//                     }];
 }
 
+
+-(void) animationWithId:(id) animationId finished:(BOOL) aBool context:(void *) context
+{
+    if ([animationId isEqualToString:@"alert.fade"]) {
+        [(UIView *)context removeFromSuperview];
+    }
+}
 
 +(void) showError:(NSError *) error
       alertOnView:(UIView *) view
@@ -296,13 +313,18 @@
     [view addSubview:alert];
     [alert release];
     
-    
-    [UIView animateWithDuration:5.f
-                     animations:^{
-                         alert.alpha = 0.f;
-                     } completion:^(BOOL finished) {
-                         [alert removeFromSuperview];
-                     }];
+    [UIView beginAnimations:@"alert.fade" context:alert];
+    [UIView setAnimationDuration:5.f];
+    [UIView setAnimationDelegate:self];
+    [UIView setAnimationDidStopSelector:@selector(animationWithId:finished:context:)];
+    alert.alpha = 0.f;
+    [UIView commitAnimations];
+//    [UIView animateWithDuration:5.f
+//                     animations:^{
+//                         alert.alpha = 0.f;
+//                     } completion:^(BOOL finished) {
+//                         [alert removeFromSuperview];
+//                     }];
 }
 
 #pragma mark - Uploads Operation
@@ -323,6 +345,29 @@
     [self showUploadsViewController];
 }
 
+
+-(void) removeUploads:(NSArray *) uploadsToBeRemoved ForViewType:(VIEW_TYPE) type
+{
+    NSString *uploadsFolderPath = [CLCacheManager getUploadsFolderPath];
+    NSString *uploadsPath = [NSString stringWithFormat:@"%@/Uploads.plist",uploadsFolderPath];
+    switch (type) {
+        case DROPBOX:
+            [self.restClient cancelAllRequests];
+            break;
+        case SKYDRIVE:
+            [self.currentUploadOperation cancel];
+            break;
+        default:
+            break;
+    }
+    [uploads removeObjectsInArray:uploadsToBeRemoved];
+    if ([uploads count]) {
+        [uploads writeToFile:uploadsPath atomically:YES];
+    } else {
+        [CLCacheManager deleteFileAtPath:uploadsPath];
+        uploadProgressButton.hidden = YES;
+    }
+}
 
 
 -(void) updateUploadsFolder:(NSArray *) info
@@ -381,7 +426,7 @@
     
     if (fromPath) { //image uploads from gallery
         NSURL *asseturl = [NSURL URLWithString:mediaurl];
-        ALAssetsLibrary* assetslibrary = [[[ALAssetsLibrary alloc] init] autorelease];
+        ALAssetsLibrary* assetslibrary = [[ALAssetsLibrary alloc] init];
         [assetslibrary assetForURL:asseturl
                        resultBlock:^(ALAsset *asset) {
                            ALAssetRepresentation *assetRepresentation = [asset defaultRepresentation];
@@ -403,10 +448,11 @@
                                    break;
                                case SKYDRIVE:
                                {
-                                   [self.liveClient uploadToPath:toPath
-                                                        fileName:fileName
-                                                            data:imageData
-                                                        delegate:self];
+                                   self.currentUploadOperation =                                    [self.liveClient uploadToPath:toPath
+                                                                                                                         fileName:fileName
+                                                                                                                             data:imageData
+                                                                                                                         delegate:self];
+
                                }
                                    break;
                                default:
@@ -416,8 +462,10 @@
                            [uploadProgressButton setImage:[UIImage imageWithData:thumbNailData]
                                                  forState:UIControlStateNormal];
                            NSLog(@"Success");
+                           [assetslibrary release];
                        } failureBlock:^(NSError *error) {
                            NSLog(@"Failure");
+                           [assetslibrary release];
                        }];
     } else { //file added from external app
         NSData *fileData = [NSData dataWithContentsOfURL:[NSURL URLWithString:mediaurl]];
@@ -436,10 +484,11 @@
                 break;
             case SKYDRIVE:
             {
-                [self.liveClient uploadToPath:toPath
-                                     fileName:fileName
-                                         data:fileData
-                                     delegate:self];
+                self.currentUploadOperation =                 [self.liveClient uploadToPath:toPath
+                                                                                   fileName:fileName
+                                                                                       data:fileData
+                                                                                   delegate:self];
+
             }
                 break;
             default:
@@ -469,9 +518,13 @@
 
 -(void) uploadCompletionHandler:(BOOL) remove
 {
-    NSDictionary *uploadedImage = [uploads objectAtIndex:0];
-    [CLCacheManager deleteFileAtPath:[uploadedImage objectForKey:@"FROMPATH"]];
-    [uploads removeObjectAtIndex:0];
+    if ([uploads count]) {
+        NSDictionary *uploadedImage = [uploads objectAtIndex:0];
+        [CLCacheManager deleteFileAtPath:[uploadedImage objectForKey:@"FROMPATH"]];
+        if (!remove) [uploads addObject:[uploads objectAtIndex:0]];
+        [uploads removeObjectAtIndex:0];
+    }
+    
     if ([uploads count]) {
         NSDictionary *imageToBeUploaded = [uploads objectAtIndex:0];
         [self uploadDictionary:imageToBeUploaded];
@@ -542,7 +595,7 @@
 
 -(void) liveOperationFailed:(NSError *)error operation:(LiveOperation *)operation
 {
-    [self uploadCompletionHandler:YES];
+    [self uploadCompletionHandler:NO];
     [AppDelegate showError:error alertOnView:self.uploadsViewController.view];
 }
 
@@ -573,7 +626,7 @@
 
 - (void)restClient:(DBRestClient*)client uploadFileFailedWithError:(NSError*)error
 {
-    [self uploadCompletionHandler:YES];
+    [self uploadCompletionHandler:NO];
     [AppDelegate showError:error alertOnView:self.uploadsViewController.view];
 }
 

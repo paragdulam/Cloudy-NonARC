@@ -83,7 +83,7 @@
 
 -(void) updateFirstCellWhereProgress:(float) progress
 {
-//    NSLog(@"Progress %f",progress);
+    NSLog(@"Progress %f",progress);
     [dataTableView beginUpdates];
     [dataTableView reloadRowsAtIndexPaths:[NSArray arrayWithObject:[NSIndexPath indexPathForRow:0 inSection:0]]
                          withRowAnimation:UITableViewRowAnimationNone];
@@ -170,8 +170,7 @@
 commitEditingStyle:(UITableViewCellEditingStyle)editingStyle
  forRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    [self.appDelegate.uploads removeObjectAtIndex:indexPath.row];
-    [self.appDelegate.uploads writeToFile:[NSString stringWithFormat:@"%@/Uploads.plist",[CLCacheManager getUploadsFolderPath]] atomically:YES];
+    [self.appDelegate removeUploads:[NSArray arrayWithObject:[tableDataArray objectAtIndex:indexPath.row]]];
     [tableDataArray removeObjectAtIndex:indexPath.row];
     [dataTableView beginUpdates];
     [dataTableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath]

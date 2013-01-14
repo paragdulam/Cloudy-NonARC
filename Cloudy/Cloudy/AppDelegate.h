@@ -31,6 +31,7 @@
     DBRestClient *restClient;
     CLUploadsTableViewController *uploadsViewController;
     UIBackgroundTaskIdentifier backgroundTaskIdentifier;
+    LiveOperation *currentUploadOperation;
 }
 
 @property (strong, nonatomic) UIWindow *window;
@@ -44,6 +45,7 @@
 @property (nonatomic,retain) DBRestClient *restClient;
 @property (nonatomic,assign) CLUploadsTableViewController *uploadsViewController;
 @property (nonatomic,assign) UIBackgroundTaskIdentifier backgroundTaskIdentifier;
+@property (retain, nonatomic) LiveOperation *currentUploadOperation;
 
 
 
@@ -58,6 +60,8 @@
 +(void) showMessage:(NSString *) message
           withColor:(UIColor *) color
         alertOnView:(UIView *) view;
+-(void) removeUploads:(NSArray *) uploadsToBeRemoved ForViewType:(VIEW_TYPE) type;
+
 
 
 @end

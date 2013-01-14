@@ -276,7 +276,7 @@
         }
         case SKYDRIVE:
         {
-            if (self.appDelegate.liveClient.session == nil && ![[Reachability reachabilityForInternetConnection] connectionRequired]) {
+            if (![[self.appDelegate.liveClient.session accessToken] length] && ![[Reachability reachabilityForInternetConnection] connectionRequired]) {
                 [self.appDelegate.liveClient login:self.appDelegate.menuController
                                             scopes:SCOPE_ARRAY
                                           delegate:self];
@@ -347,6 +347,20 @@
     [CLCacheManager deleteAccount:account];
     [CLCacheManager deleteFileStructureForView:indexPath.section];
     
+    NSMutableArray *uploadsToBeRemoved = [[NSMutableArray alloc] init];
+    for (NSDictionary *upload in self.appDelegate.uploads) {
+        if ([[upload objectForKey:TYPE] integerValue] == indexPath.section) {
+            [uploadsToBeRemoved addObject:upload];
+        }
+    }
+    [self.appDelegate removeUploads:uploadsToBeRemoved ForViewType:indexPath.section];
+    [uploadsToBeRemoved release];
+    
+    [self.appDelegate updateUploads:nil
+                       FolderAtPath:nil
+                        ForViewType:INFINITY];
+
+
     switch (indexPath.section) {
         case 0:
         {
@@ -366,6 +380,7 @@
         default:
             break;
     }
+
     NSArray *sequenceArray = [NSArray arrayWithObjects:[NSNumber numberWithInteger:UITableViewRowAnimationRight],[NSNumber numberWithInteger:UITableViewRowAnimationLeft], nil];
     [self performTableViewAnimationForIndexPath:indexPath withAnimationSequence:sequenceArray];
     [self editButtonTapped:editButton];
@@ -373,6 +388,7 @@
     if (![[CLCacheManager accounts] count]) {
         editButton.hidden = YES;
     }
+    
 }
 
 
@@ -445,7 +461,8 @@
 - (void) authFailed: (NSError *) error
           userState: (id)userState
 {
-    
+    [AppDelegate showError:error
+               alertOnView:self.appDelegate.window.rootViewController.view];
 }
 
 
