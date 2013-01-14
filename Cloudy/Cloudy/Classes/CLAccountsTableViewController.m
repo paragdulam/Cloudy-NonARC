@@ -461,8 +461,9 @@
 - (void) authFailed: (NSError *) error
           userState: (id)userState
 {
-    [AppDelegate showError:error
-               alertOnView:self.appDelegate.window.rootViewController.view];
+    [AppDelegate showMessage:[error localizedDescription]
+                   withColor:[UIColor redColor]
+                 alertOnView:self.appDelegate.window.rootViewController.view];
 }
 
 
