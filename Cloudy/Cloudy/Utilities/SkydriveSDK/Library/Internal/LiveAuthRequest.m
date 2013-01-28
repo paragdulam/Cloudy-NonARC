@@ -154,13 +154,15 @@ currentViewController:(UIViewController *)currentViewController
                                                          redirectUri:[LiveAuthHelper getDefaultRedirectUrlString] 
                                                               scopes:_scopes];
 
-    NSString *nibName = [LiveAuthHelper isiPad]? @"LiveAuthDialog_iPad" : @"LiveAuthDialog_iPhone";
+//    NSString *nibName = [LiveAuthHelper isiPad]? @"LiveAuthDialog_iPad" : @"LiveAuthDialog_iPhone";
+    NSString *nibName = @"LiveAuthDialog_iPhone"; //have to make changes in future Parag
     
     _authViewController = [[LiveAuthDialog alloc] initWithNibName:nibName
                                                            bundle:[LiveAuthHelper getSDKBundle] 
-                                                         startUrl:authRequestUrl 
+                                                         startUrl:authRequestUrl
                                                            endUrl:[LiveAuthHelper getDefaultRedirectUrlString]
                                                          delegate:self];
+    
     
     // Create a Navigation controller
     UINavigationController *modalDialog = [[[UINavigationController alloc]initWithRootViewController:self.authViewController]

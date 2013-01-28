@@ -394,7 +394,8 @@
     
     
     downloadProgressButton = [[CLUploadProgressButton alloc] init];
-    [downloadProgressButton setFrame:CGRectMake(0, 0, 30, 30)];
+//    [downloadProgressButton setFrame:CGRectMake(0, 0, 30, 30)];
+    downloadProgressButton.frame = CGRectMake(0, 0, 30, 30);
     [downloadProgressButton addTarget:self
                                action:@selector(downloadProgressButtonClicked:)
                      forControlEvents:UIControlEventTouchUpInside];

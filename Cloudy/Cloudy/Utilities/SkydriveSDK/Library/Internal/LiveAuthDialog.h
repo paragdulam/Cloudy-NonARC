@@ -9,6 +9,7 @@
 #import "LiveAuthDialogDelegate.h"
 #import "CLConstants.h"
 
+
 @interface LiveAuthDialog : UIViewController<UIWebViewDelegate>
 {
 @private
@@ -21,6 +22,11 @@
              startUrl:(NSURL *)startUrl 
                endUrl:(NSString *)endUrl
              delegate:(id<LiveAuthDialogDelegate>)delegate;
+
+- (id)initWithStartUrl:(NSURL *)startUrl
+                endUrl:(NSString *)endUrl
+              delegate:(id<LiveAuthDialogDelegate>)delegate;
+
 
 @property (assign, nonatomic) id<LiveAuthDialogDelegate> delegate;
 @property (retain, nonatomic) IBOutlet UIWebView *webView;

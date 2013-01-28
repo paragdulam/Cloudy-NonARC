@@ -81,6 +81,7 @@ NSString * LIVE_ENDPOINT_LOGIN_HOST = @"login.live.com";
 + (NSString *) getAuthDisplayValue
 {
     return [LiveAuthHelper isiPad] ? LIVE_AUTH_DISPLAY_IOS_TABLET : LIVE_AUTH_DISPLAY_IOS_PHONE;
+//    return LIVE_AUTH_DISPLAY_IOS_PHONE;
 }
 
 + (NSURL *) buildAuthUrlWithClientId:(NSString *)clientId

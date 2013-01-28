@@ -39,6 +39,32 @@
     return self;
 }
 
+
+
+
+- (id)initWithStartUrl:(NSURL *)startUrl
+                endUrl:(NSString *)endUrl
+              delegate:(id<LiveAuthDialogDelegate>)delegate
+{
+    self = [super init];
+    if (self)
+    {
+        _startUrl = [startUrl retain];
+        _endUrl =  [endUrl retain];
+        _delegate = delegate;
+        canDismiss = NO;
+        
+        UIWebView *aWebView = [[UIWebView alloc] initWithFrame:self.view.frame];
+        self.webView = aWebView;
+        [aWebView release];
+        
+        [self.view addSubview:webView];
+    }
+    
+    return self;
+}
+
+
 - (void)dealloc 
 {
     [_startUrl release];
