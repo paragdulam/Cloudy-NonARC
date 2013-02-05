@@ -521,8 +521,8 @@
 
 -(void) uploadCompletionHandler:(BOOL) remove
 {
-    NSTimeInterval ti = [[UIApplication sharedApplication]backgroundTimeRemaining];
-    NSLog(@"backgroundTimeRemaining: %f", ti); // just for debug
+//    NSTimeInterval ti = [[UIApplication sharedApplication]backgroundTimeRemaining];
+//    NSLog(@"backgroundTimeRemaining: %f", ti); // just for debug
     if ([uploads count]) {
         NSDictionary *uploadedImage = [uploads objectAtIndex:0];
         [CLCacheManager deleteFileAtPath:[uploadedImage objectForKey:@"FROMPATH"]];
