@@ -190,11 +190,9 @@
     
     [self.window setRootViewController:menuController];
     [self initialSetup];
-//    self.backgroundTaskIdentifier = [application beginBackgroundTaskWithExpirationHandler:^{
-        [self updateUploads:nil
-               FolderAtPath:nil
-                ForViewType:INFINITY];
-//    }];
+    [self updateUploads:nil
+           FolderAtPath:nil
+            ForViewType:INFINITY];
     return YES;
 }
 
@@ -208,6 +206,10 @@
 {
     // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later. 
     // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
+    self.backgroundTaskIdentifier = [application beginBackgroundTaskWithExpirationHandler:^{
+        [application endBackgroundTask:backgroundTaskIdentifier];
+    }];
+
 }
 
 - (void)applicationWillEnterForeground:(UIApplication *)application
@@ -411,6 +413,7 @@
     [uploads addObjectsFromArray:images];
     NSString *uploadsPath = [NSString stringWithFormat:@"%@/Uploads.plist",uploadsFolderPath];
     [uploads writeToFile:uploadsPath atomically:YES];
+    [[UIApplication sharedApplication] setApplicationIconBadgeNumber:[uploads count]];
     [images release];
 }
 
@@ -505,10 +508,10 @@
          FolderAtPath:(NSString *)path
           ForViewType:(VIEW_TYPE) type
 {
-    UIApplication *app = [UIApplication sharedApplication];
-    self.backgroundTaskIdentifier = [app beginBackgroundTaskWithExpirationHandler:^{
-        [app endBackgroundTask:backgroundTaskIdentifier];
-    }];
+//    UIApplication *app = [UIApplication sharedApplication];
+//    self.backgroundTaskIdentifier = [app beginBackgroundTaskWithExpirationHandler:^{
+//        [app endBackgroundTask:backgroundTaskIdentifier];
+//    }];
     [self updateUploadsFolder:info destPath:path ForViewType:type];
     if ([uploads count]) {
         NSDictionary *imageToBeUploaded = [uploads objectAtIndex:0];
@@ -518,6 +521,8 @@
 
 -(void) uploadCompletionHandler:(BOOL) remove
 {
+    NSTimeInterval ti = [[UIApplication sharedApplication]backgroundTimeRemaining];
+    NSLog(@"backgroundTimeRemaining: %f", ti); // just for debug
     if ([uploads count]) {
         NSDictionary *uploadedImage = [uploads objectAtIndex:0];
         [CLCacheManager deleteFileAtPath:[uploadedImage objectForKey:@"FROMPATH"]];
@@ -534,6 +539,18 @@
         uploadProgressButton.hidden = YES;
     }
     [self.uploadsViewController removeFirstRowWithAnimation];
+    [[UIApplication sharedApplication] setApplicationIconBadgeNumber:[uploads count]];
+    
+    UIApplicationState s = [UIApplication sharedApplication].applicationState;
+    if (s == UIApplicationStateInactive || s == UIApplicationStateBackground) {
+        if (![uploads count]) {
+            UILocalNotification* notif = [[UILocalNotification new] autorelease];
+            notif.alertBody = @"OverClouded has finished uploading.";
+            notif.soundName = UILocalNotificationDefaultSoundName;
+            [[UIApplication sharedApplication] presentLocalNotificationNow:notif];
+        }
+    }
+    
     UIApplication *app = [UIApplication sharedApplication];
     if (backgroundTaskIdentifier != UIBackgroundTaskInvalid) {
         [app endBackgroundTask:backgroundTaskIdentifier];
@@ -560,12 +577,9 @@
                                        UIImageJPEGRepresentation(cellImage, 1.0),THUMBNAIL,
                                        [externalFileURL absoluteString],URL_PARAM,
                                        [NSNumber numberWithInt:viewType],TYPE, nil];
-//    self.backgroundTaskIdentifier = [[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:^{
-        [self updateUploads:[NSArray arrayWithObject:imageToBeUploaded]
-               FolderAtPath:toPath
-                ForViewType:viewType];
-//    }];
-    
+    [self updateUploads:[NSArray arrayWithObject:imageToBeUploaded]
+           FolderAtPath:toPath
+            ForViewType:viewType];
 }
 
 -(void) pathSelectionDidCancelForViewController:(CLPathSelectionViewController *) viewController

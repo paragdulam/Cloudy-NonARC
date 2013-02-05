@@ -783,11 +783,9 @@ loadedSharableLink:(NSString *)link
   didFinishPickingMediaWithInfo:(NSArray *)info
 {
     [picker dismissModalViewControllerAnimated:YES];
-//    self.appDelegate.backgroundTaskIdentifier = [[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:^{
-        [self.appDelegate updateUploads:info
-                           FolderAtPath:path
-                            ForViewType:viewType];
-//    }];
+    [self.appDelegate updateUploads:info
+                       FolderAtPath:path
+                        ForViewType:viewType];
     //notify AppDelegate about the Uploads
 }
 
