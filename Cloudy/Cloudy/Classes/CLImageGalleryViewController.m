@@ -18,6 +18,7 @@
     UIButton *saveButton;
     CLUploadProgressButton *downloadProgressButton;
     UILabel *currentImageIndexLabel;
+    UIScrollView *zoomImageScrollView;
 }
 
 -(void) downloadImageAtIndex:(int) index;
@@ -57,10 +58,16 @@
     [super viewDidLoad];
     
     self.view.backgroundColor = [UIColor blackColor];
-    mainImageView = [[UIImageView alloc] initWithFrame:self.view.bounds];
+    
+    zoomImageScrollView = [[UIScrollView alloc] initWithFrame:self.view.bounds];
+    zoomImageScrollView.delegate = self;
+    zoomImageScrollView.minimumZoomScale = 1.0;
+    zoomImageScrollView.maximumZoomScale = 2.0;
+    mainImageView = [[UIImageView alloc] initWithFrame:zoomImageScrollView.bounds];
     mainImageView.userInteractionEnabled = YES;
     mainImageView.contentMode = UIViewContentModeScaleAspectFit;
-    [self.view addSubview:mainImageView];
+    [zoomImageScrollView addSubview:mainImageView];
+    [self.view addSubview:zoomImageScrollView];
     [mainImageView release];
     
     
@@ -415,13 +422,15 @@
 
 -(void) panGesture:(UIGestureRecognizer *) gesture
 {
-    UIView *view = [gesture view];
-    float width = view.frame.size.width;
-    float ratio = width / [images count];
-    CGPoint touchPoint = [gesture locationInView:view];
-    int index = touchPoint.x / ratio;
-    self.currentImage = [images objectAtIndex:index];
-    [self showImage];
+    if ([gesture numberOfTouches] == 1) {
+        UIView *view = [gesture view];
+        float width = view.frame.size.width;
+        float ratio = width / [images count];
+        CGPoint touchPoint = [gesture locationInView:view];
+        int index = touchPoint.x / ratio;
+        self.currentImage = [images objectAtIndex:index];
+        [self showImage];
+    }
 }
 
 -(void) tapGesture:(UIGestureRecognizer *) gesture
@@ -462,6 +471,13 @@
     return YES;
 }
 
+
+#pragma mark 
+
+- (UIView *)viewForZoomingInScrollView:(UIScrollView *)scrollView
+{
+    return mainImageView;
+}
 
 
 
