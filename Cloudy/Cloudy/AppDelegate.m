@@ -451,10 +451,15 @@
                                    break;
                                case SKYDRIVE:
                                {
-                                   self.currentUploadOperation =                                    [self.liveClient uploadToPath:toPath
-                                                                                                                         fileName:fileName
-                                                                                                                             data:imageData
-                                                                                                                         delegate:self];
+                                   self.currentUploadOperation = [self.liveClient uploadToPath:toPath
+                                                                                      fileName:fileName
+                                                                                          data:imageData
+                                                                                     overwrite:LiveUploadRename delegate:self
+                                                                                     userState:fileName];
+//                                   self.currentUploadOperation =                                    [self.liveClient uploadToPath:toPath
+//                                                                                                                         fileName:fileName
+//                                                                                                                             data:imageData
+//                                                                                                                         delegate:self];
 
                                }
                                    break;
