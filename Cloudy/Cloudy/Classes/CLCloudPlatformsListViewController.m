@@ -7,6 +7,7 @@
 //
 
 #import "CLCloudPlatformsListViewController.h"
+#import "CLAccountsTableViewController.h"
 
 @interface CLCloudPlatformsListViewController ()
 
@@ -112,9 +113,16 @@
 
 -(void) tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    if ([delegate respondsToSelector:@selector(cloudPlatformListViewController:didSelectPlatForm:)]) {
-        [delegate cloudPlatformListViewController:self
-                                didSelectPlatForm:indexPath.row];
+    switch (indexPath.row) {
+        case DROPBOX:
+            [self.appDelegate.dropboxSession linkFromController:self];
+            break;
+        case SKYDRIVE:
+            [self.appDelegate.liveClient login:self
+                                        scopes:SCOPE_ARRAY
+                                      delegate:(CLAccountsTableViewController *)self.presentingViewController];
+        default:
+            break;
     }
 }
 

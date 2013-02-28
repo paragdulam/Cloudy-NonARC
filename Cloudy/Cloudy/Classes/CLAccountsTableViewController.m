@@ -456,6 +456,7 @@
 
 -(void)authenticationDoneForSession:(DBSession *)session
 {
+    [self.presentingViewController dismissModalViewControllerAnimated:YES];
     [self.restClient loadAccountInfo];
     [self startAnimatingCellAtIndexPath:[NSIndexPath indexPathForRow:0
                                                            inSection:DROPBOX]];
@@ -479,6 +480,7 @@
                session: (LiveConnectSession *) session
              userState: (id) userState
 {
+    [self.presentingViewController dismissModalViewControllerAnimated:YES];
     initialUserState = [userState retain];
     [self.appDelegate.liveClient getWithPath:@"/me"
                                     delegate:self
