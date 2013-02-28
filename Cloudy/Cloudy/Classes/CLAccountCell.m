@@ -74,6 +74,37 @@
 }
 
 
+-(void) setData:(id)data
+{
+    NSString *titleText = nil;
+    NSString *detailText = nil;
+    UIImage *cellImage = nil;
+
+    if ([data isKindOfClass:[NSString class]]) {
+        titleText = (NSString *)data;
+    } else if ([data isKindOfClass:[NSDictionary class]]) {
+        NSDictionary *dataDictionary = (NSDictionary *)data;
+        titleText = [dataDictionary objectForKey:NAME];
+        double used = [[dataDictionary objectForKey:USED] doubleValue];
+        double total = [[dataDictionary objectForKey:TOTAL] doubleValue];
+        detailText = [NSString stringWithFormat:@"%.2f of %.2f GB Used",used,total];
+        switch ([[dataDictionary objectForKey:ACCOUNT_TYPE] integerValue]) {
+            case DROPBOX:
+                cellImage = [UIImage imageNamed:@"dropbox_cell_Image.png"];
+                break;
+            case SKYDRIVE:
+                cellImage = [UIImage imageNamed:@"SkyDriveIconBlack_32x32.png"];
+                break;
+            default:
+                break;
+        }
+    }
+    
+    [self.textLabel setText:titleText];
+    [self.detailTextLabel setText:detailText];
+    [self.imageView setImage:cellImage];
+}
+
 -(void) setData:(id) data forCellAtIndexPath:(NSIndexPath *)indexPath
 {
     NSString *titleText = nil;

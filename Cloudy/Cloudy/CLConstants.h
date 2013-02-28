@@ -68,6 +68,9 @@ typedef enum CLOUD_PROVIDERS {
     BOX
 } VIEW_TYPE;
 
+
+
+
 typedef enum FILE_TYPE {
     PDF_FILE,
     PPT_FILE,
@@ -109,6 +112,35 @@ typedef enum FILE_FOLDER_OPERATIONS {
 
 
 #define THUMBNAIL_DATA @"THUMBNAIL_DATA"
+
+
+typedef enum DATA_TYPE {
+    DATA_ACCOUNT,
+    DATA_METADATA,
+    DATA_QUOTA
+} TYPE_DATA;
+
+
+//Account Keys
+#define NAME @"NAME"
+#define ID @"ID"
+#define USERNAME @"USERNAME"
+#define EMAIL @"EMAIL"
+#define USED @"USED"
+#define TOTAL @"TOTAL"
+
+
+//Metadata Keys
+#define FILE_ID @"FILE_ID"
+#define FILE_NAME @"FILE_NAME"
+#define FILE_SIZE @"FILE_SIZE"
+#define FILE_TYPE @"FILE_TYPE"
+#define FILE_LAST_UPDATED_TIME @"FILE_LAST_UPDATED_TIME"
+#define FILE_CREATED_TIME @"FILE_CREATED_TIME"
+#define FILE_PATH @"FILE_PATH"
+#define FILE_IS_DIRECTORY @"FILE_IS_DIRECTORY"
+#define FILE_EXTENSION @"FILE_EXTENSION"
+#define FILE_THUMBNAIL @"FILE_THUMBNAIL"
 
 
 

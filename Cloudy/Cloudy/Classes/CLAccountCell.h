@@ -14,6 +14,7 @@
 -(void) startAnimating;
 -(void) stopAnimating;
 -(void) stopAnimating:(BOOL) accountAdded;
+-(void) setData:(id) data;
 -(void) setData:(id) data forCellAtIndexPath:(NSIndexPath *)indexPath;
 @property (nonatomic) BOOL isAnimating;
 @end

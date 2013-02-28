@@ -9,6 +9,7 @@
 #import "CLAccountsTableViewController.h"
 #import "CLFileBrowserBaseTableViewController.h"
 #import "CLAboutViewController.h"
+#import "CacheManager.h"
 
 @interface CLAccountsTableViewController ()
 {
@@ -168,8 +169,10 @@
 -(void) initialModelSetup
 {
     NSMutableArray *accounts = nil;
-    NSArray *storedAccounts = [CLCacheManager accounts];
-    accounts = [[NSMutableArray alloc] initWithObjects:DROPBOX_STRING,SKYDRIVE_STRING,BOX_STRING, nil];
+//    NSArray *storedAccounts = [CLCacheManager accounts];
+    NSArray *storedAccounts = [sharedManager accounts];
+//    accounts = [[NSMutableArray alloc] initWithObjects:DROPBOX_STRING,SKYDRIVE_STRING,BOX_STRING, nil];
+    accounts = [[NSMutableArray alloc] initWithObjects:@"Add Account", nil];
     for (NSDictionary *account in storedAccounts) {
         VIEW_TYPE accountType = [[account objectForKey:ACCOUNT_TYPE] intValue];
         [accounts replaceObjectAtIndex:accountType withObject:account];
@@ -188,7 +191,6 @@
 -(void) updateView
 {
     [super updateView];
-    [dataTableView reloadData];
 }
 
 #pragma mark - UITableViewDataSource & UITableViewDelegate
@@ -196,12 +198,12 @@
 
 -(NSInteger) numberOfSectionsInTableView:(UITableView *)tableView
 {
-    return [tableDataArray count];
+    return 1;
 }
 
 -(NSInteger) tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    return 1;
+    return [tableDataArray count];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -210,7 +212,8 @@
     if (!cell) {
         cell = [[[CLAccountCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:@"CLAccountCell"] autorelease];
     }
-    [cell setData:[tableDataArray objectAtIndex:indexPath.section] forCellAtIndexPath:indexPath];
+    [cell setData:[tableDataArray objectAtIndex:indexPath.row]];
+//    [cell setData:[tableDataArray objectAtIndex:indexPath.section] forCellAtIndexPath:indexPath];
     return cell;
 }
 
@@ -222,53 +225,61 @@
 
 -(void) tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    switch (indexPath.section) {
-        case DROPBOX:
-        {
-            if (![self.appDelegate.dropboxSession isLinked]) {
-                [self.appDelegate.dropboxSession linkFromController:self.appDelegate.menuController];
-            } else {
-                UINavigationController *navController = (UINavigationController *)self.appDelegate.menuController.rootViewController;
-                [navController popToRootViewControllerAnimated:NO];
-                [self.appDelegate.menuController setRootController:navController animated:YES];
-                
-                [self.appDelegate.rootFileBrowserViewController loadFilesForPath:@"/" WithInViewType:DROPBOX];
-            }
-            break;
-        }
-        case SKYDRIVE:
-        {
-            if (self.appDelegate.liveClient.session == nil) {
-                [self.appDelegate.liveClient login:self.appDelegate.menuController
-                                            scopes:SCOPE_ARRAY
-                                          delegate:self];
-            } else {
-                UINavigationController *navController = (UINavigationController *)self.appDelegate.menuController.rootViewController;
-                [navController popToRootViewControllerAnimated:NO];
-                [self.appDelegate.menuController setRootController:navController animated:YES];
-                
-                [self.appDelegate.rootFileBrowserViewController loadFilesForPath:ROOT_SKYDRIVE_PATH WithInViewType:SKYDRIVE];
-            }
-            break;
-        }
-        case BOX:
-        {
-            if (![self.boxClient auth_token]) {
-                [self.boxClient login];
-                CLAccountCell *cell = (CLAccountCell *)[dataTableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:BOX]];
-                [cell startAnimating];
-            } else {
-                UINavigationController *navController = (UINavigationController *)self.appDelegate.menuController.rootViewController;
-                [navController popToRootViewControllerAnimated:NO];
-                [self.appDelegate.menuController setRootController:navController animated:YES];
-                //load root folder Metadata here
-                [self.appDelegate.rootFileBrowserViewController loadFilesForPath:@"0" WithInViewType:BOX];
-
-            }
-        }
-        default:
-            break;
+    if (indexPath.row == [tableDataArray count] - 1) {
+        CLCloudPlatformsListViewController *cloudPlatformListViewController = [[CLCloudPlatformsListViewController alloc] initWithTableViewStyle:UITableViewStyleGrouped];
+        [cloudPlatformListViewController setDelegate:self];
+        UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:cloudPlatformListViewController];
+        [cloudPlatformListViewController release];
+        [self.appDelegate.menuController presentModalViewController:navController animated:YES];
+        [navController release];
     }
+//    switch (indexPath.section) {
+//        case DROPBOX:
+//        {
+//            if (![self.appDelegate.dropboxSession isLinked]) {
+//                [self.appDelegate.dropboxSession linkFromController:self.appDelegate.menuController];
+//            } else {
+//                UINavigationController *navController = (UINavigationController *)self.appDelegate.menuController.rootViewController;
+//                [navController popToRootViewControllerAnimated:NO];
+//                [self.appDelegate.menuController setRootController:navController animated:YES];
+//                
+//                [self.appDelegate.rootFileBrowserViewController loadFilesForPath:@"/" WithInViewType:DROPBOX];
+//            }
+//            break;
+//        }
+//        case SKYDRIVE:
+//        {
+//            if (self.appDelegate.liveClient.session == nil) {
+//                [self.appDelegate.liveClient login:self.appDelegate.menuController
+//                                            scopes:SCOPE_ARRAY
+//                                          delegate:self];
+//            } else {
+//                UINavigationController *navController = (UINavigationController *)self.appDelegate.menuController.rootViewController;
+//                [navController popToRootViewControllerAnimated:NO];
+//                [self.appDelegate.menuController setRootController:navController animated:YES];
+//                
+//                [self.appDelegate.rootFileBrowserViewController loadFilesForPath:ROOT_SKYDRIVE_PATH WithInViewType:SKYDRIVE];
+//            }
+//            break;
+//        }
+//        case BOX:
+//        {
+//            if (![self.boxClient auth_token]) {
+//                [self.boxClient login];
+//                CLAccountCell *cell = (CLAccountCell *)[dataTableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:BOX]];
+//                [cell startAnimating];
+//            } else {
+//                UINavigationController *navController = (UINavigationController *)self.appDelegate.menuController.rootViewController;
+//                [navController popToRootViewControllerAnimated:NO];
+//                [self.appDelegate.menuController setRootController:navController animated:YES];
+//                //load root folder Metadata here
+//                [self.appDelegate.rootFileBrowserViewController loadFilesForPath:@"0" WithInViewType:BOX];
+//
+//            }
+//        }
+//        default:
+//            break;
+//    }
 }
 
 
@@ -414,7 +425,9 @@
 - (void)restClient:(DBRestClient*)client loadedAccountInfo:(DBAccountInfo*)info
 {
     NSDictionary *accountDictionary = [CLDictionaryConvertor dictionaryFromAccountInfo:info];
-    BOOL isAccountStored = [CLCacheManager storeAccount:accountDictionary];
+//    BOOL isAccountStored = [CLCacheManager storeAccount:accountDictionary];
+    BOOL isAccountStored = [sharedManager addAccount:accountDictionary];
+
     NSIndexPath *indexPath = [NSIndexPath indexPathForRow:0 inSection:DROPBOX];
     [self stopAnimatingCellAtIndexPath:indexPath];
     if (isAccountStored) {
@@ -424,7 +437,7 @@
                               withAnimationSequence:sequenceArray];
     }
     editButton.hidden = NO;
-    [self tableView:dataTableView didSelectRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:DROPBOX]];
+//    [self tableView:dataTableView didSelectRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:DROPBOX]];
 }
 
 - (void)restClient:(DBRestClient*)client loadAccountInfoFailedWithError:(NSError*)error
@@ -485,9 +498,33 @@
 
 - (void) liveOperationSucceeded:(LiveOperation *)operation
 {
-    if ([operation.userState isEqualToString:@"/me"]) {
+    if ([operation.userState isKindOfClass:[NSDictionary class]]) {
+        //read the quota dictionary
+        NSDictionary *quotaDictionary = operation.result;
+        NSMutableDictionary *accountDictionary = [NSMutableDictionary dictionaryWithDictionary:operation.userState];
+        //Read the current skydrive account
+//        NSMutableDictionary *skyDriveAccount = [[NSMutableDictionary alloc] initWithDictionary:[CLCacheManager getAccountForType:SKYDRIVE]];
+        
+        //Add the quota dictionary to the current skydrive account
+        [accountDictionary setObject:quotaDictionary forKey:@"quota"];
+        
+        //update the account dictionary
+        [sharedManager updateAccount:accountDictionary];
+//        [CLCacheManager updateAccount:skyDriveAccount];
+//        [skyDriveAccount release];
+        [self initialModelSetup];
+        [self updateView];
+        if (![initialUserState isEqualToString:@"InitialAllocation"]) {
+            [self tableView:dataTableView didSelectRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:SKYDRIVE]];
+        } else {
+            [initialUserState release];
+            initialUserState = nil;
+        }
+    } else  if ([operation.userState isEqualToString:@"/me"]) {
         NSDictionary *accountDictionary = [CLDictionaryConvertor dictionaryFromAccountInfo:operation.result];
-        BOOL isAccountStored = [CLCacheManager storeAccount:accountDictionary];
+        //        BOOL isAccountStored = [CLCacheManager storeAccount:accountDictionary];
+        BOOL isAccountStored = [sharedManager addAccount:accountDictionary];
+        
         NSIndexPath *indexPath = [NSIndexPath indexPathForRow:0
                                                     inSection:SKYDRIVE];
         CLAccountCell *cell = [self cellAtIndexPath:indexPath];
@@ -501,28 +538,7 @@
         editButton.hidden = NO;
         [self.appDelegate.liveClient getWithPath:@"/me/skydrive/quota"
                                         delegate:self
-                                       userState:@"/me/skydrive/quota"];
-    } else if ([operation.userState isEqualToString:@"/me/skydrive/quota"]) {
-        //read the quota dictionary
-        NSDictionary *quotaDictionary = operation.result;
-        
-        //Read the current skydrive account
-        NSMutableDictionary *skyDriveAccount = [[NSMutableDictionary alloc] initWithDictionary:[CLCacheManager getAccountForType:SKYDRIVE]];
-        
-        //Add the quota dictionary to the current skydrive account
-        [skyDriveAccount setObject:quotaDictionary forKey:@"quota"];
-        
-        //update the account dictionary
-        [CLCacheManager updateAccount:skyDriveAccount];
-        [skyDriveAccount release];
-        [self initialModelSetup];
-        [self updateView];
-        if (![initialUserState isEqualToString:@"InitialAllocation"]) {
-            [self tableView:dataTableView didSelectRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:SKYDRIVE]];
-        } else {
-            [initialUserState release];
-            initialUserState = nil;
-        }
+                                       userState:accountDictionary];
     }
 }
 
@@ -533,6 +549,35 @@
     [self stopAnimatingCellAtIndexPath:indexPath];
 }
 
+
+
+
+#pragma mark - CLCloudPlatformListViewControllerDelegate
+
+
+-(void) login:(NSNumber *) number
+{
+    switch ([number intValue]) {
+        case DROPBOX:
+            [self.appDelegate.dropboxSession linkFromController:self.appDelegate.menuController];
+            break;
+        case SKYDRIVE:
+            [self.appDelegate.liveClient login:self.appDelegate.menuController
+                                        scopes:SCOPE_ARRAY
+                                      delegate:self];
+        default:
+            break;
+    }
+}
+
+
+-(void) cloudPlatformListViewController:(CLCloudPlatformsListViewController *) viewController didSelectPlatForm:(VIEW_TYPE) type
+{
+    [viewController dismissModalViewControllerAnimated:YES];
+    [self performSelector:@selector(login:)
+               withObject:[NSNumber numberWithInt:type]
+               afterDelay:.5f];
+}
 
 
 @end

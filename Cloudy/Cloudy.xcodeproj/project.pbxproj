@@ -100,6 +100,8 @@
 		F159F0DE1695677E00D1786C /* box_cellImage@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = F159F0DD1695677E00D1786C /* box_cellImage@2x.png */; };
 		F16011B7164E1AAF00098D8C /* SkyDriveIconWhite_32x32@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = F16011B6164E1AAF00098D8C /* SkyDriveIconWhite_32x32@2x.png */; };
 		F16011B9164E1BA300098D8C /* dropbox_cell_Image@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = F16011B8164E1BA300098D8C /* dropbox_cell_Image@2x.png */; };
+		F164A71516DF422C00AD929C /* CacheManager.m in Sources */ = {isa = PBXBuildFile; fileRef = F164A71416DF422C00AD929C /* CacheManager.m */; };
+		F164A71B16DFC81000AD929C /* CLCloudPlatformsListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F164A71A16DFC80F00AD929C /* CLCloudPlatformsListViewController.m */; };
 		F18309C41658F8ED00FF6C64 /* CLUploadProgressButton.m in Sources */ = {isa = PBXBuildFile; fileRef = F18309C31658F8ED00FF6C64 /* CLUploadProgressButton.m */; };
 		F18309C61659730200FF6C64 /* cell_background.png in Resources */ = {isa = PBXBuildFile; fileRef = F18309C51659730200FF6C64 /* cell_background.png */; };
 		F18309C81659730A00FF6C64 /* cell_background@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = F18309C71659730A00FF6C64 /* cell_background@2x.png */; };
@@ -375,6 +377,10 @@
 		F159F0DD1695677E00D1786C /* box_cellImage@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "box_cellImage@2x.png"; sourceTree = "<group>"; };
 		F16011B6164E1AAF00098D8C /* SkyDriveIconWhite_32x32@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "SkyDriveIconWhite_32x32@2x.png"; sourceTree = "<group>"; };
 		F16011B8164E1BA300098D8C /* dropbox_cell_Image@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "dropbox_cell_Image@2x.png"; sourceTree = "<group>"; };
+		F164A71316DF422C00AD929C /* CacheManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CacheManager.h; sourceTree = "<group>"; };
+		F164A71416DF422C00AD929C /* CacheManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CacheManager.m; sourceTree = "<group>"; };
+		F164A71916DFC80E00AD929C /* CLCloudPlatformsListViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CLCloudPlatformsListViewController.h; sourceTree = "<group>"; };
+		F164A71A16DFC80F00AD929C /* CLCloudPlatformsListViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CLCloudPlatformsListViewController.m; sourceTree = "<group>"; };
 		F18309C21658F8ED00FF6C64 /* CLUploadProgressButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CLUploadProgressButton.h; sourceTree = "<group>"; };
 		F18309C31658F8ED00FF6C64 /* CLUploadProgressButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CLUploadProgressButton.m; sourceTree = "<group>"; };
 		F18309C51659730200FF6C64 /* cell_background.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cell_background.png; sourceTree = "<group>"; };
@@ -856,6 +862,10 @@
 				F153E10F167A20ED00F5EE49 /* CLFileDetailBaseViewController.m */,
 				F153E111167A24D100F5EE49 /* CLWebMediaPlayerViewController.h */,
 				F153E112167A24D100F5EE49 /* CLWebMediaPlayerViewController.m */,
+				F164A71316DF422C00AD929C /* CacheManager.h */,
+				F164A71416DF422C00AD929C /* CacheManager.m */,
+				F164A71916DFC80E00AD929C /* CLCloudPlatformsListViewController.h */,
+				F164A71A16DFC80F00AD929C /* CLCloudPlatformsListViewController.m */,
 			);
 			path = Classes;
 			sourceTree = "<group>";
@@ -1416,6 +1426,8 @@
 				F15424C01694446700DDDA85 /* XMLDownloader.m in Sources */,
 				F15424C11694446700DDDA85 /* XMLReader.m in Sources */,
 				F15424C716949F3400DDDA85 /* BoxClient.m in Sources */,
+				F164A71516DF422C00AD929C /* CacheManager.m in Sources */,
+				F164A71B16DFC81000AD929C /* CLCloudPlatformsListViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
