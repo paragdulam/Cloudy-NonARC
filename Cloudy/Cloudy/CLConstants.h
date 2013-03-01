@@ -142,6 +142,8 @@ typedef enum DATA_TYPE {
 #define FILE_EXTENSION @"FILE_EXTENSION"
 #define FILE_THUMBNAIL @"FILE_THUMBNAIL"
 
+#define INVALID_INDEX -1
+
 
 
 #endif

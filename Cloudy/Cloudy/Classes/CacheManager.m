@@ -213,7 +213,7 @@
 
 -(int) isAccountPresent:(NSDictionary *) account
 {
-    __block int index = INFINITY;
+    __block int index = INVALID_INDEX;
     [accounts enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
         NSDictionary *objDict = (NSDictionary *)obj;
         if ([[objDict objectForKey:ID] isEqualToString:[account objectForKey:ID]]) {
@@ -228,12 +228,11 @@
 {
     NSDictionary *compatibleDictionary = [CacheManager processDictionary:account
                                                              ForDataType:DATA_ACCOUNT AndViewType:[[account objectForKey:ACCOUNT_TYPE] intValue]];
-    if (![self isAccountPresent:compatibleDictionary]) {
+    if ([self isAccountPresent:compatibleDictionary] == INVALID_INDEX) {
         [accounts addObject:compatibleDictionary];
-    } else {
-        [self updateAccount:compatibleDictionary];
+        return [self updateAccounts];
     }
-    return [self updateAccounts];
+    return NO;
 }
 
 
@@ -241,15 +240,10 @@
 {
     NSDictionary *compatibleDictionary = [CacheManager processDictionary:account
                                                              ForDataType:DATA_ACCOUNT AndViewType:[[account objectForKey:ACCOUNT_TYPE] intValue]];
-    __block int index = INFINITY;
-    [accounts enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-        NSDictionary *objDict = (NSDictionary *)obj;
-        if ([[objDict objectForKey:ID] isEqualToString:[compatibleDictionary objectForKey:ID]]) {
-            index = idx;
-            *stop = YES;
-        }
-    }];
-    [accounts replaceObjectAtIndex:index withObject:compatibleDictionary];
+    int index = [self isAccountPresent:compatibleDictionary];
+    if (index != INFINITY) {
+        [accounts replaceObjectAtIndex:index withObject:compatibleDictionary];
+    }
     return [self updateAccounts];
 }
 

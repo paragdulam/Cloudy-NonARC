@@ -85,8 +85,8 @@
     } else if ([data isKindOfClass:[NSDictionary class]]) {
         NSDictionary *dataDictionary = (NSDictionary *)data;
         titleText = [dataDictionary objectForKey:NAME];
-        double used = [[dataDictionary objectForKey:USED] doubleValue];
-        double total = [[dataDictionary objectForKey:TOTAL] doubleValue];
+        double used = [[dataDictionary objectForKey:USED] doubleValue]/(1024 * 1024 * 1024);
+        double total = [[dataDictionary objectForKey:TOTAL] doubleValue]/(1024 * 1024 * 1024);
         detailText = [NSString stringWithFormat:@"%.2f of %.2f GB Used",used,total];
         switch ([[dataDictionary objectForKey:ACCOUNT_TYPE] integerValue]) {
             case DROPBOX:

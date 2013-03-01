@@ -171,8 +171,8 @@
     NSMutableArray *accounts = nil;
 //    NSArray *storedAccounts = [CLCacheManager accounts];
     NSArray *storedAccounts = [sharedManager accounts];
-//    accounts = [[NSMutableArray alloc] initWithObjects:DROPBOX_STRING,SKYDRIVE_STRING,BOX_STRING, nil];
-    accounts = [[NSMutableArray alloc] initWithObjects:@"Add Account", nil];
+    accounts = [[NSMutableArray alloc] initWithObjects:DROPBOX_STRING,SKYDRIVE_STRING, nil];
+//    accounts = [[NSMutableArray alloc] initWithObjects:@"Add Account", nil];
     for (NSDictionary *account in storedAccounts) {
         VIEW_TYPE accountType = [[account objectForKey:ACCOUNT_TYPE] intValue];
         [accounts replaceObjectAtIndex:accountType withObject:account];
@@ -198,12 +198,12 @@
 
 -(NSInteger) numberOfSectionsInTableView:(UITableView *)tableView
 {
-    return 1;
+    return [tableDataArray count];
 }
 
 -(NSInteger) tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    return [tableDataArray count];
+    return 1;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -212,7 +212,7 @@
     if (!cell) {
         cell = [[[CLAccountCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:@"CLAccountCell"] autorelease];
     }
-    [cell setData:[tableDataArray objectAtIndex:indexPath.row]];
+    [cell setData:[tableDataArray objectAtIndex:indexPath.section]];
 //    [cell setData:[tableDataArray objectAtIndex:indexPath.section] forCellAtIndexPath:indexPath];
     return cell;
 }
@@ -225,61 +225,61 @@
 
 -(void) tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    if (indexPath.row == [tableDataArray count] - 1) {
-        CLCloudPlatformsListViewController *cloudPlatformListViewController = [[CLCloudPlatformsListViewController alloc] initWithTableViewStyle:UITableViewStyleGrouped];
-        [cloudPlatformListViewController setDelegate:self];
-        UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:cloudPlatformListViewController];
-        [cloudPlatformListViewController release];
-        [self.appDelegate.menuController presentModalViewController:navController animated:YES];
-        [navController release];
-    }
-//    switch (indexPath.section) {
-//        case DROPBOX:
-//        {
-//            if (![self.appDelegate.dropboxSession isLinked]) {
-//                [self.appDelegate.dropboxSession linkFromController:self.appDelegate.menuController];
-//            } else {
-//                UINavigationController *navController = (UINavigationController *)self.appDelegate.menuController.rootViewController;
-//                [navController popToRootViewControllerAnimated:NO];
-//                [self.appDelegate.menuController setRootController:navController animated:YES];
-//                
-//                [self.appDelegate.rootFileBrowserViewController loadFilesForPath:@"/" WithInViewType:DROPBOX];
-//            }
-//            break;
-//        }
-//        case SKYDRIVE:
-//        {
-//            if (self.appDelegate.liveClient.session == nil) {
-//                [self.appDelegate.liveClient login:self.appDelegate.menuController
-//                                            scopes:SCOPE_ARRAY
-//                                          delegate:self];
-//            } else {
-//                UINavigationController *navController = (UINavigationController *)self.appDelegate.menuController.rootViewController;
-//                [navController popToRootViewControllerAnimated:NO];
-//                [self.appDelegate.menuController setRootController:navController animated:YES];
-//                
-//                [self.appDelegate.rootFileBrowserViewController loadFilesForPath:ROOT_SKYDRIVE_PATH WithInViewType:SKYDRIVE];
-//            }
-//            break;
-//        }
-//        case BOX:
-//        {
-//            if (![self.boxClient auth_token]) {
-//                [self.boxClient login];
-//                CLAccountCell *cell = (CLAccountCell *)[dataTableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:BOX]];
-//                [cell startAnimating];
-//            } else {
-//                UINavigationController *navController = (UINavigationController *)self.appDelegate.menuController.rootViewController;
-//                [navController popToRootViewControllerAnimated:NO];
-//                [self.appDelegate.menuController setRootController:navController animated:YES];
-//                //load root folder Metadata here
-//                [self.appDelegate.rootFileBrowserViewController loadFilesForPath:@"0" WithInViewType:BOX];
-//
-//            }
-//        }
-//        default:
-//            break;
+//    if (indexPath.row == [tableDataArray count] - 1) {
+//        CLCloudPlatformsListViewController *cloudPlatformListViewController = [[CLCloudPlatformsListViewController alloc] initWithTableViewStyle:UITableViewStyleGrouped];
+//        [cloudPlatformListViewController setDelegate:self];
+//        UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:cloudPlatformListViewController];
+//        [cloudPlatformListViewController release];
+//        [self.appDelegate.menuController presentModalViewController:navController animated:YES];
+//        [navController release];
 //    }
+    switch (indexPath.section) {
+        case DROPBOX:
+        {
+            if (![self.appDelegate.dropboxSession isLinked]) {
+                [self.appDelegate.dropboxSession linkFromController:self.appDelegate.menuController];
+            } else {
+                UINavigationController *navController = (UINavigationController *)self.appDelegate.menuController.rootViewController;
+                [navController popToRootViewControllerAnimated:NO];
+                [self.appDelegate.menuController setRootController:navController animated:YES];
+                
+                [self.appDelegate.rootFileBrowserViewController loadFilesForPath:@"/" WithInViewType:DROPBOX];
+            }
+            break;
+        }
+        case SKYDRIVE:
+        {
+            if (self.appDelegate.liveClient.session == nil) {
+                [self.appDelegate.liveClient login:self.appDelegate.menuController
+                                            scopes:SCOPE_ARRAY
+                                          delegate:self];
+            } else {
+                UINavigationController *navController = (UINavigationController *)self.appDelegate.menuController.rootViewController;
+                [navController popToRootViewControllerAnimated:NO];
+                [self.appDelegate.menuController setRootController:navController animated:YES];
+                
+                [self.appDelegate.rootFileBrowserViewController loadFilesForPath:ROOT_SKYDRIVE_PATH WithInViewType:SKYDRIVE];
+            }
+            break;
+        }
+        case BOX:
+        {
+            if (![self.boxClient auth_token]) {
+                [self.boxClient login];
+                CLAccountCell *cell = (CLAccountCell *)[dataTableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:BOX]];
+                [cell startAnimating];
+            } else {
+                UINavigationController *navController = (UINavigationController *)self.appDelegate.menuController.rootViewController;
+                [navController popToRootViewControllerAnimated:NO];
+                [self.appDelegate.menuController setRootController:navController animated:YES];
+                //load root folder Metadata here
+                [self.appDelegate.rootFileBrowserViewController loadFilesForPath:@"0" WithInViewType:BOX];
+
+            }
+        }
+        default:
+            break;
+    }
 }
 
 
