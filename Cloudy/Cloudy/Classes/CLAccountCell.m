@@ -79,15 +79,24 @@
     NSString *titleText = nil;
     NSString *detailText = nil;
     UIImage *cellImage = nil;
+    UITableViewCellAccessoryType type = UITableViewCellAccessoryNone;
 
     if ([data isKindOfClass:[NSString class]]) {
         titleText = (NSString *)data;
     } else if ([data isKindOfClass:[NSDictionary class]]) {
         NSDictionary *dataDictionary = (NSDictionary *)data;
         titleText = [dataDictionary objectForKey:NAME];
+        
         double used = [[dataDictionary objectForKey:USED] doubleValue]/(1024 * 1024 * 1024);
         double total = [[dataDictionary objectForKey:TOTAL] doubleValue]/(1024 * 1024 * 1024);
-        detailText = [NSString stringWithFormat:@"%.2f of %.2f GB Used",used,total];
+        if (!total) {
+            detailText = @"Getting Usage Data...";
+            [self startAnimating];
+        } else {
+            detailText = [NSString stringWithFormat:@"%.2f of %.2f GB Used",used,total];
+            [self stopAnimating];
+        }
+        
         switch ([[dataDictionary objectForKey:ACCOUNT_TYPE] integerValue]) {
             case DROPBOX:
                 cellImage = [UIImage imageNamed:@"dropbox_cell_Image.png"];
@@ -98,11 +107,15 @@
             default:
                 break;
         }
+        
+        type = UITableViewCellAccessoryDisclosureIndicator;
     }
     
     [self.textLabel setText:titleText];
     [self.detailTextLabel setText:detailText];
     [self.imageView setImage:cellImage];
+    [self setAccessoryType:type];
+
 }
 
 -(void) setData:(id) data forCellAtIndexPath:(NSIndexPath *)indexPath

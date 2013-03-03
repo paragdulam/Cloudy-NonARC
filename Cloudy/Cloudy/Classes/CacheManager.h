@@ -24,7 +24,12 @@
 +(CacheManager *) sharedManager;
 -(BOOL) addAccount:(NSDictionary *) account;
 -(BOOL) updateAccount:(NSDictionary *)account;
-
+-(BOOL) deleteAccount:(NSDictionary *) account;
+-(BOOL) deleteAccountAtIndex:(int) index;
+-(NSDictionary *)accountOfType:(VIEW_TYPE) type;
++(NSDictionary *) processDictionary:(NSDictionary *) dictionary
+                        ForDataType:(TYPE_DATA) dataType
+                        AndViewType:(VIEW_TYPE) type;
 
 
 @end

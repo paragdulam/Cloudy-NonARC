@@ -19,6 +19,7 @@
                         ForDataType:(TYPE_DATA) dataType
                         AndViewType:(VIEW_TYPE) type;
 
++(NSString *) getAccountsPlistPath;
 
 
 @end
@@ -75,8 +76,15 @@
 {
     __block BOOL retVal = NO;
     dispatch_async(dispatch_get_main_queue(), ^{
-        retVal = [object writeToFile:path
-                          atomically:YES];
+        NSData *plistData = [NSPropertyListSerialization dataFromPropertyList:object
+                                                                       format:kCFPropertyListXMLFormat_v1_0
+                                                             errorDescription:nil];
+        NSError *error = nil;
+        [plistData writeToFile:path
+                       options:NSDataWritingAtomic
+                         error:&error];
+        retVal = error ? NO : YES;
+        NSLog(@"error %@",error);
     });
     return retVal;
 }
@@ -152,25 +160,13 @@
             switch (dataType) {
                 case DATA_ACCOUNT:
                 {
-                    [CacheManager setObjectInDictionary:retVal
-                                                 forKey:NAME
-                                         FromDictionary:dictionary
-                                                 forKey:@"displayName"];
+                    NSString *displayName = [NSString stringWithFormat:@"%@ %@",[dictionary objectForKey:@"first_name"],[dictionary objectForKey:@"last_name"]];
+                    [retVal setObject:displayName forKey:NAME];
                     
                     [CacheManager setObjectInDictionary:retVal
                                                  forKey:ID
                                          FromDictionary:dictionary
                                                  forKey:@"id"];
-                    
-                    double used = [[[dictionary objectForKey:@"quota"] objectForKey:@"quota"] doubleValue] - [[[dictionary objectForKey:@"quota"] objectForKey:@"available"] doubleValue];
-                    
-                    [retVal setObject:[NSNumber numberWithFloat:used]
-                               forKey:USED];
-                    
-                    [CacheManager setObjectInDictionary:retVal
-                                                 forKey:TOTAL
-                                         FromDictionary:[dictionary objectForKey:@"quota"]
-                                                 forKey:@"quota"];
 
                     //Email and UserName not Provided
 
@@ -183,7 +179,16 @@
                     break;
                 case DATA_QUOTA:
                 {
+                    double used = [[dictionary objectForKey:@"quota"] doubleValue] - [[dictionary objectForKey:@"available"] doubleValue];
                     
+                    [retVal setObject:[NSNumber numberWithFloat:used]
+                               forKey:USED];
+                    
+                    [CacheManager setObjectInDictionary:retVal
+                                                 forKey:TOTAL
+                                         FromDictionary:dictionary
+                                                 forKey:@"quota"];
+
                 }
                     break;
                 default:
@@ -226,27 +231,64 @@
 
 -(BOOL) addAccount:(NSDictionary *) account
 {
-    NSDictionary *compatibleDictionary = [CacheManager processDictionary:account
-                                                             ForDataType:DATA_ACCOUNT AndViewType:[[account objectForKey:ACCOUNT_TYPE] intValue]];
-    if ([self isAccountPresent:compatibleDictionary] == INVALID_INDEX) {
-        [accounts addObject:compatibleDictionary];
-        return [self updateAccounts];
+    if ([self isAccountPresent:account] == INVALID_INDEX) {
+        [accounts addObject:account];
+        [self updateAccounts];
+        return YES;
     }
     return NO;
 }
 
 
--(BOOL) updateAccount:(NSDictionary *)account
+-(BOOL) deleteAccount:(NSDictionary *) account
 {
-    NSDictionary *compatibleDictionary = [CacheManager processDictionary:account
-                                                             ForDataType:DATA_ACCOUNT AndViewType:[[account objectForKey:ACCOUNT_TYPE] intValue]];
-    int index = [self isAccountPresent:compatibleDictionary];
-    if (index != INFINITY) {
-        [accounts replaceObjectAtIndex:index withObject:compatibleDictionary];
-    }
-    return [self updateAccounts];
+    int index = [accounts indexOfObject:account];
+    return [self deleteAccountAtIndex:index];
 }
 
+
+-(BOOL) deleteAccountAtIndex:(int) index
+{
+    [accounts removeObjectAtIndex:index];
+    if (![accounts count]) {
+        [CacheManager deleteFileAtPath:[CacheManager getAccountsPlistPath]];
+    }
+    [self updateAccounts];
+    return YES;
+}
+
+-(BOOL) updateAccount:(NSDictionary *)account
+{
+    int index = [self isAccountPresent:account];
+    if (index != INVALID_INDEX) {
+        [accounts replaceObjectAtIndex:index withObject:account];
+        [self updateAccounts];
+        return YES;
+    }
+    return NO;
+}
+
+-(NSDictionary *)accountOfType:(VIEW_TYPE) type
+{
+    __block NSDictionary *retVal = nil;
+    [accounts enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        NSDictionary *objDict = (NSDictionary *)obj;
+        if ([[objDict objectForKey:ACCOUNT_TYPE] intValue] == type) {
+            retVal = objDict;
+            *stop = YES;
+        }
+    }];
+    return retVal;
+}
+
+
+#pragma mark - File Folder Operations
+
++(BOOL) deleteFileAtPath:(NSString *) path
+{
+    return [[NSFileManager defaultManager] removeItemAtPath:path
+                                                      error:nil];
+}
 
 #pragma mark - Folder Paths
 
