@@ -90,11 +90,11 @@
         double used = [[dataDictionary objectForKey:USED] doubleValue]/(1024 * 1024 * 1024);
         double total = [[dataDictionary objectForKey:TOTAL] doubleValue]/(1024 * 1024 * 1024);
         if (!total) {
-            detailText = @"Getting Usage Data...";
+            detailText = @"Getting Usage Info...";
             [self startAnimating];
         } else {
             detailText = [NSString stringWithFormat:@"%.2f of %.2f GB Used",used,total];
-            [self stopAnimating];
+            [self stopAnimating:YES];
         }
         
         switch ([[dataDictionary objectForKey:ACCOUNT_TYPE] integerValue]) {
