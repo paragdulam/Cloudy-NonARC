@@ -156,10 +156,8 @@
 -(void) initialModelSetup
 {
     NSMutableArray *accounts = nil;
-//    NSArray *storedAccounts = [CLCacheManager accounts];
     NSArray *storedAccounts = [sharedManager accounts];
     accounts = [[NSMutableArray alloc] initWithObjects:DROPBOX_STRING,SKYDRIVE_STRING, nil];
-//    accounts = [[NSMutableArray alloc] initWithObjects:@"Add Account", nil];
     for (NSDictionary *account in storedAccounts) {
         VIEW_TYPE accountType = [[account objectForKey:ACCOUNT_TYPE] intValue];
         [accounts replaceObjectAtIndex:accountType withObject:account];
@@ -216,7 +214,10 @@
             rootPath = ROOT_DROPBOX_PATH;
             break;
         case SKYDRIVE:
-            rootPath = ROOT_SKYDRIVE_PATH;
+        {
+            NSDictionary *skyDriveAccount = [sharedManager accountOfType:type];
+            rootPath = [NSString stringWithFormat:@"%@/skydrive",[skyDriveAccount objectForKey:ID]];
+        }
             break;
             
         default:
