@@ -126,23 +126,28 @@
                     [CacheManager setObjectInDictionary:retVal
                                                  forKey:NAME
                                          FromDictionary:dictionary
-                                                 forKey:@"displayName"];
+                                                 forKey:@"display_name"];
                     
                     [CacheManager setObjectInDictionary:retVal
                                                  forKey:ID
                                          FromDictionary:dictionary
-                                                 forKey:@"userId"];
+                                                 forKey:@"uid"];
+                    
+                    [CacheManager setObjectInDictionary:retVal
+                                                 forKey:EMAIL
+                                         FromDictionary:dictionary
+                                                 forKey:@"email"];
                     
                     [CacheManager setObjectInDictionary:retVal
                                                  forKey:TOTAL
-                                         FromDictionary:[dictionary objectForKey:@"quota"]
-                                                 forKey:@"totalBytes"];
+                                         FromDictionary:[dictionary objectForKey:@"quota_info"]
+                                                 forKey:@"quota"];
 
                     [CacheManager setObjectInDictionary:retVal
                                                  forKey:USED
-                                         FromDictionary:[dictionary objectForKey:@"quota"]
-                                                 forKey:@"totalConsumedBytes"];
-                    //Email,UserName not Provided
+                                         FromDictionary:[dictionary objectForKey:@"quota_info"]
+                                                 forKey:@"normal"];
+                    //UserName not Provided
                 }
                     break;
                 case DATA_METADATA:

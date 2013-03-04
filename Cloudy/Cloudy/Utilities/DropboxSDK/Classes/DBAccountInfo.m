@@ -77,4 +77,10 @@
     }
 }
 
+
+- (NSDictionary *) original
+{
+    return original;
+}
+
 @end

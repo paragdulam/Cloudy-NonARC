@@ -414,17 +414,16 @@
 
 - (void)restClient:(DBRestClient*)client loadedAccountInfo:(DBAccountInfo*)info
 {
-    NSDictionary *accountDictionary = [CLDictionaryConvertor dictionaryFromAccountInfo:info];
-//    BOOL isAccountStored = [CLCacheManager storeAccount:accountDictionary];
-    BOOL isAccountStored = [sharedManager addAccount:accountDictionary];
+    NSDictionary *accountDictionary = [info original];
+    NSLog(@"accountDictionary %@",accountDictionary);
+    NSDictionary *accountInfoDictionary = [CacheManager processDictionary:accountDictionary ForDataType:DATA_ACCOUNT AndViewType:DROPBOX];
+
+    BOOL isAccountStored = [sharedManager addAccount:accountInfoDictionary];
 
     if (isAccountStored) {
-        [tableDataArray replaceObjectAtIndex:DROPBOX withObject:accountDictionary];
-//        [dataTableView reloadRowsAtIndexPaths:[NSArray arrayWithObject:[NSIndexPath indexPathForRow:0 inSection:DROPBOX]]
-//                             withRowAnimation:UITableViewRowAnimationRight];
-//        NSArray *sequenceArray = [NSArray arrayWithObjects:[NSNumber numberWithInteger:UITableViewRowAnimationLeft],[NSNumber numberWithInteger:UITableViewRowAnimationRight], nil];
-//        [self performTableViewAnimationForIndexPath:indexPath
-//                              withAnimationSequence:sequenceArray];
+        [tableDataArray replaceObjectAtIndex:DROPBOX withObject:accountInfoDictionary];
+        [dataTableView reloadRowsAtIndexPaths:[NSArray arrayWithObject:[NSIndexPath indexPathForRow:0 inSection:DROPBOX]]
+                             withRowAnimation:UITableViewRowAnimationRight];
     }
     editButton.hidden = NO;
 //    [self tableView:dataTableView didSelectRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:DROPBOX]];
@@ -443,6 +442,9 @@
 
 -(void)authenticationDoneForSession:(DBSession *)session
 {
+    self.animatingIndexPath = [NSIndexPath indexPathForRow:0 inSection:DROPBOX];
+    [self updateView];
+    [self.restClient loadAccountInfo];
 }
 
 -(void)  authenticationCancelledManuallyForSession:(DBSession *) session

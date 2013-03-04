@@ -19,11 +19,13 @@
 }
 
 - (id)initWithDictionary:(NSDictionary*)dict;
+- (NSDictionary *) original;
 
 @property (nonatomic, readonly) NSString* country;
 @property (nonatomic, readonly) NSString* displayName;
 @property (nonatomic, readonly) DBQuota* quota;
 @property (nonatomic, readonly) NSString* userId;
 @property (nonatomic, readonly) NSString* referralLink;
+
 
 @end
