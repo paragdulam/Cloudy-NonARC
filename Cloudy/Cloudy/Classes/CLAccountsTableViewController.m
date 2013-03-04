@@ -490,6 +490,8 @@
         [self.appDelegate.liveClient getWithPath:@"/me"
                                         delegate:self
                                        userState:@"GET_SKYDRIVE_USER_DETAILS"];
+    } else if ([userState isEqualToString:@"LOGOUT_SKYDRIVE"]) {
+        
     }
 }
 
@@ -520,6 +522,7 @@
             
             [self getSkyDriveQuotaForUserAccount:accountDictionary];
             
+        } else if ([operation.userState isEqualToString:@"LOGOUT_SKYDRIVE"]) {
         }
     } else { //quota dictionary with account dictionary UserState
         NSDictionary *resultDictionary = operation.result;
