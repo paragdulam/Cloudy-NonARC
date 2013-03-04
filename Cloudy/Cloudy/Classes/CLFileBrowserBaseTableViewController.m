@@ -69,9 +69,7 @@
     CGRect tableFrame = dataTableView.frame;
     tableFrame.size.height -= TOOLBAR_HEIGHT;
     dataTableView.frame = tableFrame;
-//    dataTableView.backgroundColor = [UIColor clearColor];
     dataTableView.allowsMultipleSelectionDuringEditing = YES;
-//    dataTableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     
     [self createToolbarItems];
     [self createFolderToolbarItems];
@@ -132,6 +130,20 @@
 
 -(void) dealloc
 {
+    [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                    name:UIKeyboardWillShowNotification
+                                                  object:nil];
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                    name:UIKeyboardWillShowNotification
+                                                  object:nil];
+
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                    name:UIKeyboardWillShowNotification
+                                                  object:nil];
+
+    
     for (LiveOperation *operation in liveOperations) {
         [operation cancel];
     }
@@ -595,55 +607,62 @@
 
 - (void)restClient:(DBRestClient*)client loadedMetadata:(DBMetadata*)metadata
 {
-    [self stopAnimating];
-    NSDictionary *metadataDictionary = [CLDictionaryConvertor dictionaryFromMetadata:metadata];
-    [CLCacheManager updateFile:metadataDictionary
-        whereTraversingPointer:nil
-               inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
-                   ForViewType:viewType];
-    
-    //Reading Cache is skipped only reading Table Contents Starts
-    if (viewType == DROPBOX) { //cache is not referred
-        NSArray *contents = [metadataDictionary objectForKey:@"contents"];
-        [self updateModel:contents];
-        [self updateView];
-        
-        //Look for images in current directory and load thumbnails for them
-        NSString *dropboxCachePath = [CLCacheManager getDropboxCacheFolderPath];
-        for (NSDictionary *data in contents) {
-            if ([[data objectForKey:@"thumbnailExists"] boolValue]) {
-                [self.restClient loadThumbnail:[data objectForKey:@"path"]
-                                        ofSize:@"small"
-                                      intoPath:[NSString stringWithFormat:@"%@/%@",dropboxCachePath,[data objectForKey:@"filename"]]];
-            }
-        }
-        //Look for images in current directory and load thumbnails for them
-    }
-    //Reading Cache is skipped only reading Table Contents Ends
-    
-    
+    NSDictionary *metadataDictionary = [metadata original];
+    NSDictionary *compatibleMetaData = [CacheManager processDictionary:metadataDictionary ForDataType:DATA_METADATA AndViewType:DROPBOX];
+    NSLog(@"compatibleMetaData %@",compatibleMetaData);
 }
 
-- (void)restClient:(DBRestClient*)client metadataUnchangedAtPath:(NSString*)path
-{
-    [self stopAnimating];
-    [tableDataArray enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-        NSDictionary *objDict = (NSDictionary *)obj;
-        if ([[objDict objectForKey:@"thumbnailExists"] boolValue]) {
-            if (![objDict objectForKey:THUMBNAIL_DATA]) {
-                [self.restClient loadThumbnail:[objDict objectForKey:@"path"]
-                                        ofSize:@"small"
-                                      intoPath:[NSString stringWithFormat:@"%@/%@",[CLCacheManager getDropboxCacheFolderPath],[objDict objectForKey:@"filename"]]];
-            }
-        }
-    }];
-}
-
-- (void)restClient:(DBRestClient*)client loadMetadataFailedWithError:(NSError*)error
-{
-    [self stopAnimating];
-    [AppDelegate showError:error alertOnView:self.view];
-}
+//- (void)restClient:(DBRestClient*)client loadedMetadata:(DBMetadata*)metadata
+//{
+//    [self stopAnimating];
+//    NSDictionary *metadataDictionary = [CLDictionaryConvertor dictionaryFromMetadata:metadata];
+//    [CLCacheManager updateFile:metadataDictionary
+//        whereTraversingPointer:nil
+//               inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
+//                   ForViewType:viewType];
+//    
+//    //Reading Cache is skipped only reading Table Contents Starts
+//    if (viewType == DROPBOX) { //cache is not referred
+//        NSArray *contents = [metadataDictionary objectForKey:@"contents"];
+//        [self updateModel:contents];
+//        [self updateView];
+//        
+//        //Look for images in current directory and load thumbnails for them
+//        NSString *dropboxCachePath = [CLCacheManager getDropboxCacheFolderPath];
+//        for (NSDictionary *data in contents) {
+//            if ([[data objectForKey:@"thumbnailExists"] boolValue]) {
+//                [self.restClient loadThumbnail:[data objectForKey:@"path"]
+//                                        ofSize:@"small"
+//                                      intoPath:[NSString stringWithFormat:@"%@/%@",dropboxCachePath,[data objectForKey:@"filename"]]];
+//            }
+//        }
+//        //Look for images in current directory and load thumbnails for them
+//    }
+//    //Reading Cache is skipped only reading Table Contents Ends
+//    
+//    
+//}
+//
+//- (void)restClient:(DBRestClient*)client metadataUnchangedAtPath:(NSString*)path
+//{
+//    [self stopAnimating];
+//    [tableDataArray enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+//        NSDictionary *objDict = (NSDictionary *)obj;
+//        if ([[objDict objectForKey:@"thumbnailExists"] boolValue]) {
+//            if (![objDict objectForKey:THUMBNAIL_DATA]) {
+//                [self.restClient loadThumbnail:[objDict objectForKey:@"path"]
+//                                        ofSize:@"small"
+//                                      intoPath:[NSString stringWithFormat:@"%@/%@",[CLCacheManager getDropboxCacheFolderPath],[objDict objectForKey:@"filename"]]];
+//            }
+//        }
+//    }];
+//}
+//
+//- (void)restClient:(DBRestClient*)client loadMetadataFailedWithError:(NSError*)error
+//{
+//    [self stopAnimating];
+//    [AppDelegate showError:error alertOnView:self.view];
+//}
 
 
 
@@ -915,6 +934,38 @@
 {
     dataTableView.tableHeaderView = nil;
     dataTableView.separatorStyle = UITableViewCellSeparatorStyleSingleLine;
+    
+    self.path = pathString;
+    self.viewType = type;
+
+    //read Cache code
+    switch (viewType) {
+        case DROPBOX:
+            [self.restClient loadMetadata:path
+                                 withHash:nil]; //previous hash should be sent
+            break;
+            
+        case SKYDRIVE:
+        {
+            LiveOperation *metadataOperation = [self.appDelegate.liveClient getWithPath:path delegate:self userState:path];
+            [liveOperations addObject:metadataOperation];
+        }
+            break;
+        default:
+            break;
+    }
+    
+
+    [self startAnimating];
+}
+
+
+/*
+-(void) loadFilesForPath:(NSString *) pathString WithInViewType:(VIEW_TYPE) type
+{
+    dataTableView.tableHeaderView = nil;
+    dataTableView.separatorStyle = UITableViewCellSeparatorStyleSingleLine;
+    
     self.path = pathString;
     self.viewType = type;
     
@@ -957,7 +1008,7 @@
     //Web Request Ends
 
 }
-
+*/
 
 -(void) updateModel:(NSArray *) model
 {

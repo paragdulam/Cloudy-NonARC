@@ -20,6 +20,7 @@
                         AndViewType:(VIEW_TYPE) type;
 
 +(NSString *) getAccountsPlistPath;
+-(void) readCache;
 
 
 @end
@@ -50,11 +51,7 @@
 {
     if (self = [super init]) {
         //read Account Dictionary and Metadata
-        NSString *accountsPlistPath = [CacheManager getAccountsPlistPath];
-        NSMutableArray *oldAccounts = [[NSMutableArray alloc] initWithContentsOfFile:accountsPlistPath];
-        accounts = [[NSMutableArray alloc] init];
-        [accounts addObjectsFromArray:oldAccounts];
-        [oldAccounts release];
+        [self readCache];
     }
     return self;
 }
@@ -68,6 +65,16 @@
     [super dealloc];
 }
 
+#pragma mark - Read Methods
+
+-(void) readCache
+{
+    NSString *accountsPlistPath = [CacheManager getAccountsPlistPath];
+    NSMutableArray *oldAccounts = [[NSMutableArray alloc] initWithContentsOfFile:accountsPlistPath];
+    accounts = [[NSMutableArray alloc] init];
+    [accounts addObjectsFromArray:oldAccounts];
+    [oldAccounts release];
+}
 
 #pragma mark - Write Methods
 
@@ -152,6 +159,55 @@
                     break;
                 case DATA_METADATA:
                 {
+                    [CacheManager setObjectInDictionary:retVal
+                                                 forKey:FILE_THUMBNAIL
+                                         FromDictionary:dictionary
+                                                 forKey:@"thumb_exists"];
+                    
+                    [CacheManager setObjectInDictionary:retVal
+                                                 forKey:FILE_SIZE
+                                         FromDictionary:dictionary
+                                                 forKey:@"size"];
+                    
+                    [CacheManager setObjectInDictionary:retVal
+                                                 forKey:FILE_LAST_UPDATED_TIME
+                                         FromDictionary:dictionary
+                                                 forKey:@"modified"];
+                    
+                    [CacheManager setObjectInDictionary:retVal
+                                                 forKey:FILE_PATH
+                                         FromDictionary:dictionary
+                                                 forKey:@"path"];
+                    NSString *fileName = [[[dictionary objectForKey:@"path"] componentsSeparatedByString:@"/"] lastObject];
+                    if (![fileName length]) {
+                        fileName = ROOT_DROPBOX_PATH;
+                    }
+                    [retVal setObject:fileName forKey:FILE_NAME];
+                    
+                    [CacheManager setObjectInDictionary:retVal
+                                                 forKey:FILE_CONTENTS
+                                         FromDictionary:dictionary
+                                                 forKey:@"contents"];
+                    
+                    [CacheManager setObjectInDictionary:retVal
+                                                 forKey:FILE_HASH
+                                         FromDictionary:dictionary
+                                                 forKey:@"hash"];
+                    
+                    [CacheManager setObjectInDictionary:retVal
+                                                 forKey:FILE_TYPE
+                                         FromDictionary:dictionary
+                                                 forKey:@"is_dir"];
+                    
+                    NSArray *contents = [dictionary objectForKey:@"contents"];
+                    if ([contents count]) {
+                        NSMutableArray *mutableContents = [[NSMutableArray alloc] init];
+                        for (NSDictionary *metadata in contents) {
+                            [mutableContents addObject:[CacheManager processDictionary:metadata ForDataType:DATA_METADATA AndViewType:DROPBOX]];
+                        }
+                        [retVal setObject:mutableContents forKey:FILE_CONTENTS];
+                        [mutableContents release];
+                    }
                 }
                     break;
                 default:

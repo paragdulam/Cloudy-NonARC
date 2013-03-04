@@ -24,9 +24,11 @@
     BOOL isDeleted;
 
     NSString *filename;
+    NSDictionary *original;
 }
 
 - (id)initWithDictionary:(NSDictionary*)dict;
+- (NSDictionary *) original;
 
 
 @property (nonatomic, readonly) BOOL thumbnailExists;

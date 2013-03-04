@@ -29,6 +29,7 @@
 
 - (id)initWithDictionary:(NSDictionary*)dict {
     if ((self = [super init])) {
+        original = [dict retain];
         thumbnailExists = [[dict objectForKey:@"thumb_exists"] boolValue];
         totalBytes = [[dict objectForKey:@"bytes"] longLongValue];
 
@@ -74,7 +75,13 @@
 }
 
 
+-(NSDictionary *) original
+{
+    return original;
+}
+
 - (void)dealloc {
+    [original release];
     [lastModifiedDate release];
     [clientMtime release];
     [path release];
