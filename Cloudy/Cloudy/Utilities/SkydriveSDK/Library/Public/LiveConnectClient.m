@@ -153,6 +153,20 @@
 
 #pragma mark Auth members
 
+-(NSString *) getSystemDirectoryPath:(NSSearchPathDirectory) directoryType
+{
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(directoryType,     NSUserDomainMask, YES);
+    return [paths objectAtIndex:0];
+}
+
+
+- (BOOL) isRefreshTokenAvailable
+{
+    NSString *libraryPath = [NSString stringWithFormat:@"%@/LiveService_auth.plist",[self getSystemDirectoryPath:NSLibraryDirectory]];
+    NSDictionary *authDictionary = [NSDictionary dictionaryWithContentsOfFile:libraryPath];
+    return [authDictionary objectForKey:LIVE_AUTH_REFRESH_TOKEN] ? YES : NO;
+}
+
 - (LiveConnectSession *) session 
 {
     [self validateInit];

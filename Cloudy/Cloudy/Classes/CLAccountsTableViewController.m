@@ -19,7 +19,9 @@
     NSIndexPath *animatingIndexPath;
 }
 -(void) initialModelSetup;
--(void) performTableViewAnimationForIndexPath:(NSIndexPath *) indexPath withAnimationSequence:(NSArray *) sequence;
+-(void) updateTableCellWithData:(id) data
+                    AtIndexPath:(NSIndexPath *)index
+              WithCellAnimation:(UITableViewRowAnimation) animation;
 -(void) updateModel:(NSArray *) model;
 
 @property (nonatomic,retain) NSIndexPath *animatingIndexPath;
@@ -180,11 +182,27 @@
 
 -(void) getSkyDriveQuotaForUserAccount:(NSDictionary *) account
 {
+    NSMutableDictionary *accountDictionary = [NSMutableDictionary dictionaryWithDictionary:account];
+    [accountDictionary removeObjectForKey:TOTAL];
     NSString *quotaPathString = [NSString stringWithFormat:@"%@/skydrive/quota",[account objectForKey:ID]];
     [self.appDelegate.liveClient getWithPath:quotaPathString
                                     delegate:self
                                    userState:account];
+    
+    [self updateTableCellWithData:accountDictionary
+                      AtIndexPath:[NSIndexPath indexPathForRow:0 inSection:SKYDRIVE]
+                WithCellAnimation:UITableViewRowAnimationAutomatic];
 }
+
+-(void) updateTableCellWithData:(id) data
+                    AtIndexPath:(NSIndexPath *)index
+              WithCellAnimation:(UITableViewRowAnimation) animation
+{
+    [tableDataArray replaceObjectAtIndex:index.section withObject:data];
+    [dataTableView reloadRowsAtIndexPaths:[NSArray arrayWithObject:index]
+                         withRowAnimation:animation];
+}
+
 
 #pragma mark - UITableViewDataSource & UITableViewDelegate
 
@@ -239,7 +257,7 @@
         }
         case SKYDRIVE:
         {
-            if (self.appDelegate.liveClient.session == nil) {
+            if (![self.appDelegate.liveClient isRefreshTokenAvailable]) {
                 [self.appDelegate.liveClient login:self.appDelegate.menuController
                                             scopes:SCOPE_ARRAY
                                           delegate:self
@@ -321,44 +339,43 @@
 
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
 {
-//    NSDictionary *account = [CLCacheManager getAccountForType:indexPath.section];
-//    [CLCacheManager deleteAccount:account];
-//    [CLCacheManager deleteFileStructureForView:indexPath.section];
-    
     BOOL success = [sharedManager deleteAccount:[sharedManager accountOfType:indexPath.section]];
-    
-    switch (indexPath.section) {
-        case DROPBOX:
-        {
-            [tableDataArray replaceObjectAtIndex:DROPBOX withObject:DROPBOX_STRING];
-            DBSession *sharedSession = self.appDelegate.dropboxSession;
-            NSString *userId = [[sharedSession userIds] objectAtIndex:0];
-            [sharedSession unlinkUserId:userId];
+    NSString *data = nil;
+    if (success) {
+        switch (indexPath.section) {
+            case DROPBOX:
+            {
+                data = DROPBOX_STRING;
+                DBSession *sharedSession = self.appDelegate.dropboxSession;
+                NSString *userId = [[sharedSession userIds] objectAtIndex:0];
+                [sharedSession unlinkUserId:userId];
+            }
+                break;
+            case SKYDRIVE:
+            {
+                data = SKYDRIVE_STRING;
+                [self.appDelegate.liveClient logoutWithDelegate:self
+                                                    userState:@"LOGOUT_SKYDRIVE"];
+            }
+                break;
+            case BOX:
+            {
+                data = BOX_STRING;
+                [self.boxClient logout];
+            }
+                break;
+                
+            default:
+                break;
         }
-            break;
-        case SKYDRIVE:
-        {
-            [tableDataArray replaceObjectAtIndex:SKYDRIVE withObject:SKYDRIVE_STRING];
-            [self.appDelegate.liveClient logoutWithDelegate:self
-                                                  userState:@"LOGOUT_SKYDRIVE"];
+        self.animatingIndexPath = nil;
+        [self updateTableCellWithData:data
+                          AtIndexPath:indexPath
+                    WithCellAnimation:UITableViewRowAnimationLeft];
+        
+        if (![[sharedManager accounts] count]) {
+            editButton.hidden = YES;
         }
-            break;
-        case BOX:
-        {
-            [tableDataArray replaceObjectAtIndex:BOX withObject:BOX_STRING];
-            [self.boxClient logout];
-        }
-            break;
-
-        default:
-            break;
-    }
-    NSArray *sequenceArray = [NSArray arrayWithObjects:[NSNumber numberWithInteger:UITableViewRowAnimationRight],[NSNumber numberWithInteger:UITableViewRowAnimationLeft], nil];
-    [self performTableViewAnimationForIndexPath:indexPath withAnimationSequence:sequenceArray];
-    [self editButtonTapped:editButton];
-    [self.appDelegate initialSetup];
-    if (![[CLCacheManager accounts] count]) {
-        editButton.hidden = YES;
     }
 }
 
@@ -421,9 +438,9 @@
     BOOL isAccountStored = [sharedManager addAccount:accountInfoDictionary];
 
     if (isAccountStored) {
-        [tableDataArray replaceObjectAtIndex:DROPBOX withObject:accountInfoDictionary];
-        [dataTableView reloadRowsAtIndexPaths:[NSArray arrayWithObject:[NSIndexPath indexPathForRow:0 inSection:DROPBOX]]
-                             withRowAnimation:UITableViewRowAnimationRight];
+        [self updateTableCellWithData:accountInfoDictionary
+                          AtIndexPath:[NSIndexPath indexPathForRow:0 inSection:DROPBOX]
+                    WithCellAnimation:UITableViewRowAnimationRight];
     }
     editButton.hidden = NO;
 //    [self tableView:dataTableView didSelectRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:DROPBOX]];
@@ -465,7 +482,8 @@
                session: (LiveConnectSession *) session
              userState: (id) userState
 {
-    if ([userState isEqualToString:@"LOGIN_ACCOUNT_VC"]) {
+    if ([userState isEqualToString:@"LOGIN_ACCOUNT_VC"] ||
+        ([userState isEqualToString:@"InitialAllocation"] && [self.appDelegate.liveClient isRefreshTokenAvailable])) {
         self.animatingIndexPath = [NSIndexPath indexPathForRow:0
                                                      inSection:SKYDRIVE];
         [self updateView];
@@ -495,10 +513,9 @@
             
             if (isAccountAdded) {
                 //perform UI Operations
-                [tableDataArray replaceObjectAtIndex:SKYDRIVE
-                                          withObject:accountDictionary];
-                [dataTableView reloadRowsAtIndexPaths:[NSArray arrayWithObject:[NSIndexPath indexPathForRow:0 inSection:SKYDRIVE]]
-                                     withRowAnimation:UITableViewRowAnimationRight];
+                [self updateTableCellWithData:accountDictionary
+                                  AtIndexPath:[NSIndexPath indexPathForRow:0 inSection:SKYDRIVE]
+                            WithCellAnimation:UITableViewRowAnimationRight];
             }
             
             [self getSkyDriveQuotaForUserAccount:accountDictionary];
@@ -513,11 +530,10 @@
         [finalAccountDictionary addEntriesFromDictionary:quota];
         BOOL isAccountUpdated = [sharedManager updateAccount:finalAccountDictionary];
         if (isAccountUpdated) {
-            [tableDataArray replaceObjectAtIndex:SKYDRIVE
-                                      withObject:finalAccountDictionary];
             self.animatingIndexPath = nil;
-            [dataTableView reloadRowsAtIndexPaths:[NSArray arrayWithObject:[NSIndexPath indexPathForRow:0 inSection:SKYDRIVE]]
-                                 withRowAnimation:UITableViewRowAnimationAutomatic];
+            [self updateTableCellWithData:finalAccountDictionary
+                              AtIndexPath:[NSIndexPath indexPathForRow:0 inSection:SKYDRIVE]
+                        WithCellAnimation:UITableViewRowAnimationAutomatic];
         }
     }
 }

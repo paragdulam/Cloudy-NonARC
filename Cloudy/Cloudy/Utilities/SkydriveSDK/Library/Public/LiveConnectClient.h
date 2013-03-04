@@ -67,6 +67,9 @@
 
 #pragma mark - login* methods
 
+- (BOOL) isRefreshTokenAvailable;
+
+
 // login* methods are async methods used to present a modal window and show login and authorization forms so 
 // that the user can login with his/her Microsoft account and authorize the app to access the Live services on
 // the user behalf. 

@@ -83,6 +83,7 @@
 
     if ([data isKindOfClass:[NSString class]]) {
         titleText = (NSString *)data;
+        [self stopAnimating];
     } else if ([data isKindOfClass:[NSDictionary class]]) {
         NSDictionary *dataDictionary = (NSDictionary *)data;
         titleText = [dataDictionary objectForKey:NAME];

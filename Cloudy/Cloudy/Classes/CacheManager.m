@@ -226,7 +226,7 @@
     __block int index = INVALID_INDEX;
     [accounts enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
         NSDictionary *objDict = (NSDictionary *)obj;
-        if ([[objDict objectForKey:ID] isEqualToString:[account objectForKey:ID]]) {
+        if ([[objDict objectForKey:ID] isEqual:[account objectForKey:ID]]) {
             index = idx;
             *stop = YES;
         }
