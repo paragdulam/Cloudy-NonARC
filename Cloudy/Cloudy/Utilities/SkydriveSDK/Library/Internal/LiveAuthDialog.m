@@ -8,6 +8,12 @@
 #import "LiveAuthDialog.h"
 #import "LiveAuthHelper.h"
 
+@interface LiveAuthDialog ()
+{
+    UIActivityIndicatorView *activityIndicator;
+}
+@end
+
 @implementation LiveAuthDialog
 
 @synthesize webView, canDismiss, delegate = _delegate;
@@ -57,6 +63,14 @@
     
     self.webView.delegate = self;
     self.title = @"SkyDrive";
+    
+    activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
+    [activityIndicator setHidesWhenStopped:YES];
+    UIBarButtonItem *rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:activityIndicator];
+    [activityIndicator release];
+    [self.navigationItem setRightBarButtonItem:rightBarButtonItem];
+    [rightBarButtonItem release];
+    
     // Override the left button to show a back button
     // which is used to dismiss the modal view    
     UIImage *buttonImage = [LiveAuthHelper getBackButtonImage]; 
@@ -132,6 +146,7 @@
 
 - (void)webViewDidFinishLoad:(UIWebView *)webView 
 {
+    [activityIndicator stopAnimating];
 }
 
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error 
@@ -150,7 +165,7 @@
 
 - (void)webViewDidStartLoad:(UIWebView *)webView
 {
-    
+    [activityIndicator startAnimating];
 }
 
 @end
