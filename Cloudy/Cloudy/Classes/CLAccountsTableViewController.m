@@ -204,6 +204,29 @@
 }
 
 
+-(void) showDetailViewControllerForViewType:(VIEW_TYPE) type
+{
+    UINavigationController *navController = (UINavigationController *)self.appDelegate.menuController.rootViewController;
+    [navController popToRootViewControllerAnimated:NO];
+    [self.appDelegate.menuController setRootController:navController animated:YES];
+    
+    NSString *rootPath = nil;
+    switch (type) {
+        case DROPBOX:
+            rootPath = ROOT_DROPBOX_PATH;
+            break;
+        case SKYDRIVE:
+            rootPath = ROOT_SKYDRIVE_PATH;
+            break;
+            
+        default:
+            break;
+    }
+    
+    [self.appDelegate.rootFileBrowserViewController loadFilesForPath:rootPath
+                                                      WithInViewType:type];
+}
+
 #pragma mark - UITableViewDataSource & UITableViewDelegate
 
 
@@ -247,11 +270,7 @@
             if (![self.appDelegate.dropboxSession isLinked]) {
                 [self.appDelegate.dropboxSession linkFromController:self.appDelegate.menuController];
             } else {
-//                UINavigationController *navController = (UINavigationController *)self.appDelegate.menuController.rootViewController;
-//                [navController popToRootViewControllerAnimated:NO];
-//                [self.appDelegate.menuController setRootController:navController animated:YES];
-//                
-//                [self.appDelegate.rootFileBrowserViewController loadFilesForPath:@"/" WithInViewType:DROPBOX];
+                [self showDetailViewControllerForViewType:DROPBOX];
             }
             break;
         }
@@ -263,11 +282,7 @@
                                           delegate:self
                                          userState:@"LOGIN_ACCOUNT_VC"];
             } else {
-//                UINavigationController *navController = (UINavigationController *)self.appDelegate.menuController.rootViewController;
-//                [navController popToRootViewControllerAnimated:NO];
-//                [self.appDelegate.menuController setRootController:navController animated:YES];
-//                
-//                [self.appDelegate.rootFileBrowserViewController loadFilesForPath:ROOT_SKYDRIVE_PATH WithInViewType:SKYDRIVE];
+                [self showDetailViewControllerForViewType:SKYDRIVE];
             }
             break;
         }
@@ -526,12 +541,17 @@
         }
     } else { //quota dictionary with account dictionary UserState
         NSDictionary *resultDictionary = operation.result;
+        
         NSDictionary *quota = [CacheManager processDictionary:resultDictionary
                                                   ForDataType:DATA_QUOTA
                                                   AndViewType:SKYDRIVE];
+        
         NSMutableDictionary *finalAccountDictionary = [NSMutableDictionary dictionaryWithDictionary:operation.userState];
+        
         [finalAccountDictionary addEntriesFromDictionary:quota];
+        
         BOOL isAccountUpdated = [sharedManager updateAccount:finalAccountDictionary];
+        
         if (isAccountUpdated) {
             self.animatingIndexPath = nil;
             [self updateTableCellWithData:finalAccountDictionary
