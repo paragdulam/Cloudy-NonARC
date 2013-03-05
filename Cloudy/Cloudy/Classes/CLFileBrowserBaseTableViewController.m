@@ -24,6 +24,8 @@
     
     NSArray *createFoldertoolBarItems;
     DDPopoverBackgroundView *popOverView;
+    
+    
 }
 
 -(NSArray *) getCachedTableDataArrayForViewType:(VIEW_TYPE) type;
@@ -65,6 +67,17 @@
 {
     [super viewDidLoad];
 	// Do any additional setup after loading the view.
+
+    fileSearchBar = [[UISearchBar alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 44.f)];
+    [fileSearchBar setDelegate:self];
+    fileSearchBar.tintColor = NAVBAR_COLOR;
+    
+    searchController = [[UISearchDisplayController alloc] initWithSearchBar:fileSearchBar contentsController:self];
+    [fileSearchBar release];
+
+    [searchController setSearchResultsDataSource:self];
+    [searchController setDelegate:self];
+    
     
     CGRect tableFrame = dataTableView.frame;
     tableFrame.size.height -= TOOLBAR_HEIGHT;
@@ -117,6 +130,7 @@
 -(void) viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
+    
     if ([path length]) {
         [self readCacheUpdateView];
     }
@@ -130,6 +144,9 @@
 
 -(void) dealloc
 {
+    [searchController release];
+    searchController = nil;
+    
     [[NSNotificationCenter defaultCenter] removeObserver:self
                                                     name:UIKeyboardWillShowNotification
                                                   object:nil];
@@ -164,12 +181,20 @@
 }
 
 
+
+#pragma mark - UISearchBarDelegate
+
+#pragma mark - UISearchDisplayDelegate
+
+
+
 #pragma mark - IBActions
 
 
 
 -(void) createFolderButtonClicked:(UIButton *) btn
 {
+    btn.selected = !btn.selected;
     [fileOperationsToolbar setItems:createFoldertoolBarItems animated:YES];
     [inputTextField becomeFirstResponder];
 }
@@ -255,17 +280,18 @@
     NSValue* keyboardFrameBegin = [keyboardInfo valueForKey:UIKeyboardFrameBeginUserInfoKey];
     CGRect keyboardFrameBeginRect = [keyboardFrameBegin CGRectValue];
     float keyBoardHeight = keyboardFrameBeginRect.size.height;
-    
-    CGRect fileOperationsFrame = fileOperationsToolbar.frame;
-    fileOperationsFrame.origin.y = self.view.frame.size.height - keyBoardHeight - TOOLBAR_HEIGHT;
-    
-    [UIView beginAnimations:nil context:NULL];
-    [UIView setAnimationDuration:0.3f];
-    
-    [fileOperationsToolbar setFrame:fileOperationsFrame];
-    
-    [UIView commitAnimations];
-    dataTableView.userInteractionEnabled = NO;
+    if (createFolderButton.selected) {
+        CGRect fileOperationsFrame = fileOperationsToolbar.frame;
+        fileOperationsFrame.origin.y = self.view.frame.size.height - keyBoardHeight - TOOLBAR_HEIGHT;
+        
+        [UIView beginAnimations:nil context:NULL];
+        [UIView setAnimationDuration:0.3f];
+        
+        [fileOperationsToolbar setFrame:fileOperationsFrame];
+        
+        [UIView commitAnimations];
+        dataTableView.userInteractionEnabled = NO;
+    }
 }
 
 
@@ -273,13 +299,15 @@
 {
     CGRect fileOperationsFrame = fileOperationsToolbar.frame;
     fileOperationsFrame.origin.y = self.view.frame.size.height - TOOLBAR_HEIGHT;
-    
-    [UIView beginAnimations:nil context:NULL];
-    [UIView setAnimationDuration:0.3f];
-    
-    [fileOperationsToolbar setFrame:fileOperationsFrame];
-    
-    [UIView commitAnimations];
+    if (createFolderButton.selected) {
+        [UIView beginAnimations:nil context:NULL];
+        [UIView setAnimationDuration:0.3f];
+        
+        [fileOperationsToolbar setFrame:fileOperationsFrame];
+        
+        [UIView commitAnimations];
+    }
+    createFolderButton.selected = NO;
 }
 
 -(void) keyboardDidHide:(NSNotification *) notification
@@ -507,9 +535,36 @@
     [AppDelegate showError:error alertOnView:self.view];
 }
 
-
 #pragma mark - LiveOperationDelegate
 
+- (void) liveOperationSucceeded:(LiveOperation *)operation
+{
+    [liveOperations removeObject:operation];
+    NSLog(@"result %@",operation.result);
+    NSDictionary *compatibleMetaData = [CacheManager processDictionary:operation.result ForDataType:DATA_METADATA AndViewType:SKYDRIVE];
+    NSLog(@"compatibleMetaData %@",compatibleMetaData);
+//    [self.appDelegate.liveClient getWithPath:operation.userState
+//                                    delegate:<#(id<LiveOperationDelegate>)#>
+//                                   userState:<#(id)#>];
+
+    
+    /*
+     #define FILE_ID @"FILE_ID"
+     #define FILE_NAME @"FILE_NAME"
+     #define FILE_SIZE @"FILE_SIZE"
+     #define FILE_TYPE @"FILE_TYPE"
+     #define FILE_LAST_UPDATED_TIME @"FILE_LAST_UPDATED_TIME"
+     #define FILE_CREATED_TIME @"FILE_CREATED_TIME"
+     #define FILE_CONTENTS @"FILE_CONTENTS"
+     #define FILE_HASH @"FILE_HASH"
+     #define FILE_PATH @"FILE_PATH"
+     #define FILE_THUMBNAIL @"FILE_THUMBNAIL"
+     */
+}
+
+
+
+/*
 - (void) liveOperationSucceeded:(LiveOperation *)operation
 {
     [liveOperations removeObject:operation];
@@ -523,7 +578,7 @@
     [self stopAnimating];
     [AppDelegate showError:error alertOnView:self.view];
 }
-
+*/
 
 
 #pragma mark - DBRestClientDelegate
@@ -932,7 +987,8 @@
 
 -(void) loadFilesForPath:(NSString *) pathString WithInViewType:(VIEW_TYPE) type
 {
-    dataTableView.tableHeaderView = nil;
+    [dataTableView setContentOffset:CGPointMake(0, fileSearchBar.frame.size.height)];
+    dataTableView.tableHeaderView = fileSearchBar;
     dataTableView.separatorStyle = UITableViewCellSeparatorStyleSingleLine;
     
     self.path = pathString;
@@ -947,7 +1003,8 @@
             
         case SKYDRIVE:
         {
-            LiveOperation *metadataOperation = [self.appDelegate.liveClient getWithPath:path delegate:self userState:path];
+            NSString *aPathString = [NSString stringWithFormat:@"%@/files",path];
+            LiveOperation *metadataOperation = [self.appDelegate.liveClient getWithPath:aPathString delegate:self userState:path];
             [liveOperations addObject:metadataOperation];
         }
             break;

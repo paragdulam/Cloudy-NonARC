@@ -74,6 +74,12 @@
     accounts = [[NSMutableArray alloc] init];
     [accounts addObjectsFromArray:oldAccounts];
     [oldAccounts release];
+    
+    NSString *metadataPlistPath = [CacheManager getMetadataPlistPath];
+    NSDictionary *cachedMetadata = [[NSDictionary alloc] initWithContentsOfFile:metadataPlistPath];
+    metadata = [[NSMutableDictionary alloc] init];
+    [metadata addEntriesFromDictionary:cachedMetadata];
+    [cachedMetadata release];
 }
 
 #pragma mark - Write Methods
@@ -91,7 +97,6 @@
                        options:NSDataWritingAtomic
                          error:&error];
         retVal = error ? NO : YES;
-        NSLog(@"error %@",error);
     });
     return retVal;
 }
@@ -235,7 +240,52 @@
                     break;
                 case DATA_METADATA:
                 {
+                    [CacheManager setObjectInDictionary:retVal
+                                                 forKey:FILE_ID
+                                         FromDictionary:dictionary
+                                                 forKey:@"id"];
+
+                    [CacheManager setObjectInDictionary:retVal
+                                                 forKey:FILE_NAME
+                                         FromDictionary:dictionary
+                                                 forKey:@"name"];
                     
+                    [CacheManager setObjectInDictionary:retVal
+                                                 forKey:FILE_SIZE
+                                         FromDictionary:dictionary
+                                                 forKey:@"size"];
+                    
+                    [CacheManager setObjectInDictionary:retVal
+                                                 forKey:FILE_SIZE
+                                         FromDictionary:dictionary
+                                                 forKey:@"size"];
+                    if ([[dictionary objectForKey:@"type"] isEqualToString:@"folder"] || [[dictionary objectForKey:@"type"] isEqualToString:@"album"]) {
+                        [retVal setObject:[NSNumber numberWithInt:1]
+                                   forKey:FILE_TYPE];
+                    } else {
+                        [retVal setObject:[NSNumber numberWithInt:1]
+                                   forKey:FILE_TYPE];
+                    }
+                    
+                    [CacheManager setObjectInDictionary:retVal
+                                                 forKey:FILE_LAST_UPDATED_TIME
+                                         FromDictionary:dictionary
+                                                 forKey:@"updated_time"];
+                    
+//                    if ([[retVal objectForKey:NAME] isEqualToString:@"SkyDrive"]) {
+//                        //its the root path
+//                        [retVal setObject:@"/"
+//                                   forKey:FILE_PATH];
+//                    } else {
+//                        []
+//                    }
+                    
+                    
+                    
+                    
+                    
+                    
+
                 }
                     break;
                 case DATA_QUOTA:
@@ -266,6 +316,29 @@
     return [retVal autorelease];
 }
 
+
+#pragma mark - Metadata Manipulation Methods
+
+//dictionary with account_type = {metadata dictionary}
+-(BOOL) updateMetadata:(NSDictionary *) metadataDict
+{
+    VIEW_TYPE type = [[metadataDict objectForKey:ACCOUNT_TYPE] intValue];
+    switch (type) {
+        case DROPBOX:
+        {
+            if (![metadata objectForKey:[metadataDict objectForKey:FILE_PATH]]) { //previous metadata is present
+                
+            } else {
+                
+            }
+        }
+            break;
+            
+        default:
+            break;
+    }
+    return YES;
+}
 
 #pragma mark - Account Manipulation Methods
 
@@ -352,6 +425,12 @@
 }
 
 #pragma mark - Folder Paths
+
+
++(NSString *) getMetadataPlistPath
+{
+    return [NSString stringWithFormat:@"%@/%@",[CacheManager getSystemDirectoryPath:NSLibraryDirectory],METADATA_PLIST];
+}
 
 
 +(NSString *) getAccountsPlistPath

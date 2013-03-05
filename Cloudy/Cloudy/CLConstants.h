@@ -37,6 +37,8 @@
 
 
 #define ACCOUNTS_PLIST @"Accounts.plist"
+#define METADATA_PLIST @"Metadata.plist"
+
 #define OFFSET 40.f
 
 #define ACCOUNTS @"Accounts"

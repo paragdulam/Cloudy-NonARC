@@ -12,17 +12,22 @@
 
 
 
-@interface CLFileBrowserBaseTableViewController : CLBaseTableViewController<LiveOperationDelegate,CLBrowserBarItemDelegate,UITextFieldDelegate,LiveDownloadOperationDelegate>
+@interface CLFileBrowserBaseTableViewController : CLBaseTableViewController<LiveOperationDelegate,CLBrowserBarItemDelegate,UITextFieldDelegate,LiveDownloadOperationDelegate,UISearchBarDelegate,UISearchDisplayDelegate>
 {
     NSString *path;
     VIEW_TYPE viewType;
+    
     UIToolbar *fileOperationsToolbar;
     CLBrowserBarItem *barItem;
+    UIButton *createFolderButton;
+    
     NSMutableArray *liveOperations;
     NSMutableArray *toolBarItems;
     
     FILE_FOLDER_OPERATION currentFileOperation;
-    UIButton *createFolderButton;
+    
+    UISearchBar *fileSearchBar;
+    UISearchDisplayController *searchController;
 }
 
 @property(nonatomic,retain) NSString *path;

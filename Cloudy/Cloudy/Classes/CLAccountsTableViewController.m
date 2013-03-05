@@ -98,6 +98,9 @@
 -(void) viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
+    if ([self.appDelegate.dropboxSession isLinked]) {
+        [self authenticationDoneForSession:self.appDelegate.dropboxSession];
+    }
 }
 
 - (void)didReceiveMemoryWarning
