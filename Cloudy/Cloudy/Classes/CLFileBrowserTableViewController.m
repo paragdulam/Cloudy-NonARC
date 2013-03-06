@@ -709,7 +709,7 @@ loadedSharableLink:(NSString *)link
 -(void) loadFilesForPath:(NSString *)pathString WithInViewType:(VIEW_TYPE)type
 {
     if (!pathString) {
-        if (![[CLCacheManager accounts] count]) {
+        if (![[sharedManager accounts] count]) {
             UILabel *addAccountLabel = [[UILabel alloc] init];
             addAccountLabel.text = @"Tap here to add an account";
             [addAccountLabel setFont:[UIFont boldSystemFontOfSize:16.f]];

@@ -556,9 +556,7 @@
         NSDictionary *compatibleMetaData = [CacheManager processDictionary:operation.result ForDataType:DATA_METADATA AndViewType:SKYDRIVE];
         [finalMetaData addEntriesFromDictionary:compatibleMetaData];
         [sharedManager updateMetadata:finalMetaData];
-        
-        [self updateModel:[compatibleMetaData objectForKey:FILE_CONTENTS]];
-        [self updateView]; //updates view
+        [self readCacheUpdateView];
     }
 }
 
@@ -666,9 +664,7 @@
     NSDictionary *metadataDictionary = [metadata original];
     NSDictionary *compatibleMetaData = [CacheManager processDictionary:metadataDictionary ForDataType:DATA_METADATA AndViewType:DROPBOX];
     [sharedManager updateMetadata:compatibleMetaData]; //updates cache
-    
-    [self updateModel:[compatibleMetaData objectForKey:FILE_CONTENTS]];
-    [self updateView]; //updates view
+    [self readCacheUpdateView];
 }
 
 //- (void)restClient:(DBRestClient*)client loadedMetadata:(DBMetadata*)metadata
@@ -1074,6 +1070,7 @@
 }
 */
 
+
 -(void) updateModel:(NSArray *) model
 {
     [tableDataArray removeAllObjects];
@@ -1134,7 +1131,9 @@
     NSDictionary *cachedMetadata = [sharedManager metadataAtPath:path
                                                       InViewType:viewType];
     NSString *titleText = [cachedMetadata objectForKey:FILE_NAME];
-    [self.navigationItem setTitle:[titleText isEqualToString:ROOT_DROPBOX_PATH] ? DROPBOX_STRING : titleText];
+    if ([titleText length]) {
+        [self.navigationItem setTitle:[titleText isEqualToString:ROOT_DROPBOX_PATH] ? DROPBOX_STRING : titleText];
+    }
     [self updateModel:[cachedMetadata objectForKey:FILE_CONTENTS]];
     [self updateView];
 }

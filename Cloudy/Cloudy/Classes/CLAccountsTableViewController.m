@@ -359,6 +359,7 @@
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
 {
     BOOL success = [sharedManager deleteAccount:[sharedManager accountOfType:indexPath.section]];
+    [sharedManager deleteMetadata:indexPath.section];
     NSString *data = nil;
     if (success) {
         switch (indexPath.section) {
@@ -392,10 +393,15 @@
                           AtIndexPath:indexPath
                     WithCellAnimation:UITableViewRowAnimationLeft];
         
+        VIEW_TYPE type = INFINITY;
         if (![[sharedManager accounts] count]) {
             editButton.hidden = YES;
+        } else {
+            NSDictionary *account = [[sharedManager accounts] objectAtIndex:0];
+            type = [[account objectForKey:ACCOUNT_TYPE] intValue];
         }
-    }
+        [self showDetailViewControllerForViewType:type];
+     }
 }
 
 
@@ -461,7 +467,7 @@
                     WithCellAnimation:UITableViewRowAnimationRight];
     }
     editButton.hidden = NO;
-//    [self tableView:dataTableView didSelectRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:DROPBOX]];
+    [self showDetailViewControllerForViewType:DROPBOX];
 }
 
 - (void)restClient:(DBRestClient*)client loadAccountInfoFailedWithError:(NSError*)error
@@ -561,6 +567,7 @@
                               AtIndexPath:[NSIndexPath indexPathForRow:0 inSection:SKYDRIVE]
                         WithCellAnimation:UITableViewRowAnimationAutomatic];
         }
+        [self showDetailViewControllerForViewType:SKYDRIVE];
     }
 }
 

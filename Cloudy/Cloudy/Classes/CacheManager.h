@@ -34,6 +34,8 @@
 -(BOOL) updateMetadata:(NSDictionary *) metadataDict;
 -(NSDictionary *) metadataAtPath:(NSString *) path
                       InViewType:(VIEW_TYPE) type;
+-(BOOL) deleteMetadata:(VIEW_TYPE) type;
+
 
 
 @end

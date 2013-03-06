@@ -413,6 +413,13 @@
     return YES;
 }
 
+-(BOOL) deleteMetadata:(VIEW_TYPE) type
+{
+    [metadata removeObjectForKey:[NSString stringWithFormat:@"%d",type]];
+    [self updateMetadata];
+    return YES;
+}
+
 -(BOOL) updateMetadata
 {
     NSString *path = [NSString stringWithFormat:@"%@/%@",[CacheManager getSystemDirectoryPath:NSLibraryDirectory],METADATA_PLIST];

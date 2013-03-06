@@ -109,7 +109,7 @@
 
 -(void) initialSetup
 {
-    NSArray *accounts = [CLCacheManager accounts];
+    NSArray *accounts = [[CacheManager sharedManager] accounts];
     NSString *path = nil;
     NSDictionary *accountData = nil;
     if ([accounts count]) {
