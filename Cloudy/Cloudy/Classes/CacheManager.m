@@ -250,6 +250,10 @@
                                          FromDictionary:dictionary
                                                  forKey:@"name"];
                     
+                    if ([[dictionary objectForKey:NAME] isEqualToString:@"SkyDrive"]) {
+                        [retVal setObject:@"/" forKey:FILE_PATH];
+                    }
+                    
                     [CacheManager setObjectInDictionary:retVal
                                                  forKey:FILE_SIZE
                                          FromDictionary:dictionary
@@ -397,22 +401,13 @@
     VIEW_TYPE type = [[metadataDict objectForKey:ACCOUNT_TYPE] intValue];
     NSNumber *typeNumber = [NSNumber numberWithInt:type];
     NSDictionary *oldMetadata = [metadata objectForKey:[typeNumber stringValue]];
-    switch (type) {
-        case DROPBOX:
-        {
-            NSString *path = [metadataDict objectForKey:FILE_PATH];
-            NSDictionary *dict = [self metadataAtPath:path
-                                           InViewType:type];
-            if (!dict) {
-                [metadata setObject:metadataDict forKey:[typeNumber stringValue]];
-            } else {
-                
-            }
-        }
-            break;
-            
-        default:
-            break;
+    NSString *path = [metadataDict objectForKey:FILE_PATH];
+    NSDictionary *dict = [self metadataAtPath:path
+                                   InViewType:type];
+    if (!dict) {
+        [metadata setObject:metadataDict forKey:[typeNumber stringValue]];
+    } else {
+        
     }
     [self updateMetadata];
     return YES;

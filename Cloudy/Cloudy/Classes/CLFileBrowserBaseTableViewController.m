@@ -131,9 +131,9 @@
 {
     [super viewWillAppear:animated];
     
-//    if ([path length]) {
-//        [self readCacheUpdateView];
-//    }
+    if ([path length]) {
+        [self readCacheUpdateView];
+    }
 }
 
 - (void)didReceiveMemoryWarning
@@ -541,12 +541,11 @@
 - (void) liveOperationSucceeded:(LiveOperation *)operation
 {
     [liveOperations removeObject:operation];
-    NSLog(@"result %@",operation.result);
+    [self stopAnimating];
     
     if ([operation.userState isKindOfClass:[NSString class]]) {
         if ([operation.userState isEqualToString:path]) {
             NSDictionary *compatibleMetaData = [CacheManager processDictionary:operation.result ForDataType:DATA_METADATA AndViewType:SKYDRIVE];
-            NSLog(@"compatibleMetaData %@",compatibleMetaData);
             NSString *pathStr = [NSString stringWithFormat:@"%@/files",operation.userState];
             [self.appDelegate.liveClient getWithPath:pathStr
                                             delegate:self
@@ -556,8 +555,10 @@
         NSMutableDictionary *finalMetaData = [NSMutableDictionary dictionaryWithDictionary:operation.userState];
         NSDictionary *compatibleMetaData = [CacheManager processDictionary:operation.result ForDataType:DATA_METADATA AndViewType:SKYDRIVE];
         [finalMetaData addEntriesFromDictionary:compatibleMetaData];
-        NSLog(@"finalMetaData %@",finalMetaData);
         [sharedManager updateMetadata:finalMetaData];
+        
+        [self updateModel:[compatibleMetaData objectForKey:FILE_CONTENTS]];
+        [self updateView]; //updates view
     }
 }
 
@@ -998,11 +999,7 @@
     self.viewType = type;
 
     //read Cache code
-    NSDictionary *cachedMetadata = [sharedManager metadataAtPath:path
-                                                      InViewType:viewType];
-    
-    [self updateModel:[cachedMetadata objectForKey:FILE_CONTENTS]];
-    [self updateView];
+    [self readCacheUpdateView];
     
     switch (viewType) {
         case DROPBOX:
@@ -1134,26 +1131,11 @@
 
 -(void) readCacheUpdateView
 {
-    //Temp Root Path Setting
-    if ([CLCacheManager isRootPath:path
-                    WithinViewType:viewType]) {
-        switch (viewType) {
-            case DROPBOX:
-                [self.navigationItem setTitle:DROPBOX_STRING];
-                break;
-            case SKYDRIVE:
-                [self.navigationItem setTitle:SKYDRIVE_STRING];
-                break;
-            case BOX:
-                [self.navigationItem setTitle:BOX_STRING];
-                break;
-            default:
-                break;
-        }
-    }
-    //Temp Root Path Setting
-
-    [self updateModel:[self getCachedTableDataArrayForViewType:viewType]];
+    NSDictionary *cachedMetadata = [sharedManager metadataAtPath:path
+                                                      InViewType:viewType];
+    NSString *titleText = [cachedMetadata objectForKey:FILE_NAME];
+    [self.navigationItem setTitle:[titleText isEqualToString:ROOT_BOX_PATH] ? DROPBOX_STRING : titleText];
+    [self updateModel:[cachedMetadata objectForKey:FILE_CONTENTS]];
     [self updateView];
 }
 

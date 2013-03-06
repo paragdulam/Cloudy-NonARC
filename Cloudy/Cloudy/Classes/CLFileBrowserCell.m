@@ -118,7 +118,9 @@
     UIImage *cellImage = nil;
     
     titleText = [dataDictionary objectForKey:FILE_NAME];
-    detailText = [dataDictionary objectForKey:FILE_SIZE];
+    
+    id size = [dataDictionary objectForKey:FILE_SIZE];
+    detailText = [size isKindOfClass:[NSNumber class]] ? [NSString stringWithFormat:@"%.2f MB",[size floatValue]/(1024*1024)] : size;
     
     switch ([[dataDictionary objectForKey:FILE_TYPE] intValue]) {
         case 0: //file
