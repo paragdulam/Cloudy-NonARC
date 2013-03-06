@@ -1134,7 +1134,7 @@
     NSDictionary *cachedMetadata = [sharedManager metadataAtPath:path
                                                       InViewType:viewType];
     NSString *titleText = [cachedMetadata objectForKey:FILE_NAME];
-    [self.navigationItem setTitle:[titleText isEqualToString:ROOT_BOX_PATH] ? DROPBOX_STRING : titleText];
+    [self.navigationItem setTitle:[titleText isEqualToString:ROOT_DROPBOX_PATH] ? DROPBOX_STRING : titleText];
     [self updateModel:[cachedMetadata objectForKey:FILE_CONTENTS]];
     [self updateView];
 }
