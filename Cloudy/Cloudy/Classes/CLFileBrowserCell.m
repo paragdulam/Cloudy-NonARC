@@ -109,6 +109,39 @@
 }
 
 
+
+-(void) setData:(id)data
+{
+    NSDictionary *dataDictionary = (NSDictionary *)data;
+    NSString *titleText = nil;
+    NSString *detailText = nil;
+    UIImage *cellImage = nil;
+    
+    titleText = [dataDictionary objectForKey:FILE_NAME];
+    detailText = [dataDictionary objectForKey:FILE_SIZE];
+    
+    switch ([[dataDictionary objectForKey:FILE_TYPE] intValue]) {
+        case 0: //file
+        {
+            NSString *extention = [[titleText pathExtension] lowercaseString];
+            cellImage = [UIImage imageNamed:[NSString stringWithFormat:@"%@.png",extention]];
+            if (!cellImage) {
+                cellImage = [UIImage imageNamed:[NSString stringWithFormat:@"_blank.png"]];
+            }
+        }
+            break;
+        case 1: //folder
+            cellImage = [UIImage imageNamed:@"folder.png"];
+            break;
+        default:
+            break;
+    }
+    
+    [self.textLabel setText:titleText];
+    [self.detailTextLabel setText:detailText];
+    [self.imageView setImage:cellImage];
+}
+
 -(void) setData:(id) data ForViewType:(VIEW_TYPE) type
 {
     NSDictionary *dataDictionary = (NSDictionary *)data;

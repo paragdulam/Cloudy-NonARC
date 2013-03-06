@@ -131,9 +131,9 @@
 {
     [super viewWillAppear:animated];
     
-    if ([path length]) {
-        [self readCacheUpdateView];
-    }
+//    if ([path length]) {
+//        [self readCacheUpdateView];
+//    }
 }
 
 - (void)didReceiveMemoryWarning
@@ -332,8 +332,9 @@
         cell = [[[CLFileBrowserCell alloc] initWithStyle:UITableViewCellStyleSubtitle
                                          reuseIdentifier:@"CLFileBrowserCell"] autorelease];
     }
-    [cell setData:[tableDataArray objectAtIndex:indexPath.row]
-      ForViewType:viewType];
+    [cell setData:[tableDataArray objectAtIndex:indexPath.row]];
+//    [cell setData:[tableDataArray objectAtIndex:indexPath.row]
+//      ForViewType:viewType];
     return cell;
 }
 
@@ -541,25 +542,23 @@
 {
     [liveOperations removeObject:operation];
     NSLog(@"result %@",operation.result);
-    NSDictionary *compatibleMetaData = [CacheManager processDictionary:operation.result ForDataType:DATA_METADATA AndViewType:SKYDRIVE];
-    NSLog(@"compatibleMetaData %@",compatibleMetaData);
-//    [self.appDelegate.liveClient getWithPath:operation.userState
-//                                    delegate:<#(id<LiveOperationDelegate>)#>
-//                                   userState:<#(id)#>];
-
     
-    /*
-     #define FILE_ID @"FILE_ID"
-     #define FILE_NAME @"FILE_NAME"
-     #define FILE_SIZE @"FILE_SIZE"
-     #define FILE_TYPE @"FILE_TYPE"
-     #define FILE_LAST_UPDATED_TIME @"FILE_LAST_UPDATED_TIME"
-     #define FILE_CREATED_TIME @"FILE_CREATED_TIME"
-     #define FILE_CONTENTS @"FILE_CONTENTS"
-     #define FILE_HASH @"FILE_HASH"
-     #define FILE_PATH @"FILE_PATH"
-     #define FILE_THUMBNAIL @"FILE_THUMBNAIL"
-     */
+    if ([operation.userState isKindOfClass:[NSString class]]) {
+        if ([operation.userState isEqualToString:path]) {
+            NSDictionary *compatibleMetaData = [CacheManager processDictionary:operation.result ForDataType:DATA_METADATA AndViewType:SKYDRIVE];
+            NSLog(@"compatibleMetaData %@",compatibleMetaData);
+            NSString *pathStr = [NSString stringWithFormat:@"%@/files",operation.userState];
+            [self.appDelegate.liveClient getWithPath:pathStr
+                                            delegate:self
+                                           userState:compatibleMetaData];
+        }
+    } else {
+        NSMutableDictionary *finalMetaData = [NSMutableDictionary dictionaryWithDictionary:operation.userState];
+        NSDictionary *compatibleMetaData = [CacheManager processDictionary:operation.result ForDataType:DATA_METADATA AndViewType:SKYDRIVE];
+        [finalMetaData addEntriesFromDictionary:compatibleMetaData];
+        NSLog(@"finalMetaData %@",finalMetaData);
+        [sharedManager updateMetadata:finalMetaData];
+    }
 }
 
 
@@ -662,9 +661,13 @@
 
 - (void)restClient:(DBRestClient*)client loadedMetadata:(DBMetadata*)metadata
 {
+    [self stopAnimating];
     NSDictionary *metadataDictionary = [metadata original];
     NSDictionary *compatibleMetaData = [CacheManager processDictionary:metadataDictionary ForDataType:DATA_METADATA AndViewType:DROPBOX];
-    NSLog(@"compatibleMetaData %@",compatibleMetaData);
+    [sharedManager updateMetadata:compatibleMetaData]; //updates cache
+    
+    [self updateModel:[compatibleMetaData objectForKey:FILE_CONTENTS]];
+    [self updateView]; //updates view
 }
 
 //- (void)restClient:(DBRestClient*)client loadedMetadata:(DBMetadata*)metadata
@@ -995,16 +998,23 @@
     self.viewType = type;
 
     //read Cache code
+    NSDictionary *cachedMetadata = [sharedManager metadataAtPath:path
+                                                      InViewType:viewType];
+    
+    [self updateModel:[cachedMetadata objectForKey:FILE_CONTENTS]];
+    [self updateView];
+    
     switch (viewType) {
         case DROPBOX:
+        {
             [self.restClient loadMetadata:path
                                  withHash:nil]; //previous hash should be sent
+        }
             break;
             
         case SKYDRIVE:
         {
-            NSString *aPathString = [NSString stringWithFormat:@"%@/files",path];
-            LiveOperation *metadataOperation = [self.appDelegate.liveClient getWithPath:aPathString delegate:self userState:path];
+            LiveOperation *metadataOperation = [self.appDelegate.liveClient getWithPath:path delegate:self userState:path];
             [liveOperations addObject:metadataOperation];
         }
             break;

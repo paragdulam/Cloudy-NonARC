@@ -255,15 +255,11 @@
                                          FromDictionary:dictionary
                                                  forKey:@"size"];
                     
-                    [CacheManager setObjectInDictionary:retVal
-                                                 forKey:FILE_SIZE
-                                         FromDictionary:dictionary
-                                                 forKey:@"size"];
                     if ([[dictionary objectForKey:@"type"] isEqualToString:@"folder"] || [[dictionary objectForKey:@"type"] isEqualToString:@"album"]) {
                         [retVal setObject:[NSNumber numberWithInt:1]
                                    forKey:FILE_TYPE];
                     } else {
-                        [retVal setObject:[NSNumber numberWithInt:1]
+                        [retVal setObject:[NSNumber numberWithInt:0]
                                    forKey:FILE_TYPE];
                     }
                     
@@ -272,20 +268,24 @@
                                          FromDictionary:dictionary
                                                  forKey:@"updated_time"];
                     
-//                    if ([[retVal objectForKey:NAME] isEqualToString:@"SkyDrive"]) {
-//                        //its the root path
-//                        [retVal setObject:@"/"
-//                                   forKey:FILE_PATH];
-//                    } else {
-//                        []
-//                    }
+                    NSArray *images = [dictionary objectForKey:@"images"];
+                    if ([images count]) {
+                        [retVal setObject:[[images objectAtIndex:2] objectForKey:@"source"]
+                                   forKey:FILE_THUMBNAIL_URL];
+                    }
                     
                     
+                    NSArray *contents = [dictionary objectForKey:@"data"];
+                    if ([contents count]) {
+                        NSMutableArray *mutableContents = [[NSMutableArray alloc] initWithCapacity:0];
+                        for (NSDictionary *metadata in [dictionary objectForKey:@"data"]) {
+                            [mutableContents addObject:[CacheManager processDictionary:metadata ForDataType:DATA_METADATA AndViewType:SKYDRIVE]];
+                        }
+                        [retVal setObject:mutableContents forKey:FILE_CONTENTS];
+                        [mutableContents release];
+                    }
                     
-                    
-                    
-                    
-
+                    //have to work on path calculation
                 }
                     break;
                 case DATA_QUOTA:
@@ -317,17 +317,94 @@
 }
 
 
+
+
+
 #pragma mark - Metadata Manipulation Methods
+
+/*
+-(NSDictionary *) metadataAtPath:(NSString *) path
+                      InViewType:(VIEW_TYPE) type
+{
+    NSNumber *typeNumber = [NSNumber numberWithInt:type];
+    NSDictionary *rootDictionary = [metadata objectForKey:[typeNumber stringValue]];
+    if ([path isEqualToString:ROOT_DROPBOX_PATH]) {
+        return rootDictionary;
+    } else {
+        NSArray *contents = [rootDictionary objectForKey:FILE_CONTENTS];
+        for (NSDictionary *content in contents) {
+            NSDictionary *result = [self metadataAtPath:[content objectForKey:FILE_PATH]
+                                             InViewType:type];
+            if (result) {
+                return result;
+            }
+        }
+    }
+    return nil;
+}
+*/
+
+
++(NSArray *) trimmedArrayForPath:(NSString *) path
+{
+    NSArray *components = [path componentsSeparatedByString:@"/"];
+    __block NSMutableArray *trimmedComponents = [NSMutableArray array];
+    [components enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        NSString *component = (NSString *)obj;
+        if ([component length]) {
+            [trimmedComponents addObject:component];
+        }
+    }];
+    return trimmedComponents;
+}
+
+-(NSDictionary *) metadataAtPath:(NSString *) path
+                      InViewType:(VIEW_TYPE) type
+{
+    NSArray *components = [CacheManager trimmedArrayForPath:path];
+    NSDictionary *metadataDict = [metadata objectForKey:[NSString stringWithFormat:@"%d",type]];
+    NSDictionary *retVal = metadataDict;
+    
+    for (NSString *component in components) {
+        NSArray *contents = [metadataDict objectForKey:FILE_CONTENTS];
+        for (NSDictionary *data in contents) {
+            if ([[data objectForKey:FILE_NAME] isEqualToString:component]) {
+                return retVal;
+            }
+        }
+    }
+    
+//    [components enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+//        NSString *component = (NSString *)obj;
+//        NSArray *contents = [metadataDict objectForKey:FILE_CONTENTS];
+//        [contents enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+//            NSDictionary *data = (NSDictionary *)obj;
+//            if ([[data objectForKey:FILE_NAME] isEqualToString:component]) {
+//                retVal = data;
+//                *stop = YES;
+//            }
+//        }];
+//        *stop = YES;
+//    }];
+    
+    return retVal;
+}
+
 
 //dictionary with account_type = {metadata dictionary}
 -(BOOL) updateMetadata:(NSDictionary *) metadataDict
 {
     VIEW_TYPE type = [[metadataDict objectForKey:ACCOUNT_TYPE] intValue];
+    NSNumber *typeNumber = [NSNumber numberWithInt:type];
+    NSDictionary *oldMetadata = [metadata objectForKey:[typeNumber stringValue]];
     switch (type) {
         case DROPBOX:
         {
-            if (![metadata objectForKey:[metadataDict objectForKey:FILE_PATH]]) { //previous metadata is present
-                
+            NSString *path = [metadataDict objectForKey:FILE_PATH];
+            NSDictionary *dict = [self metadataAtPath:path
+                                           InViewType:type];
+            if (!dict) {
+                [metadata setObject:metadataDict forKey:[typeNumber stringValue]];
             } else {
                 
             }
@@ -337,8 +414,17 @@
         default:
             break;
     }
+    [self updateMetadata];
     return YES;
 }
+
+-(BOOL) updateMetadata
+{
+    NSString *path = [NSString stringWithFormat:@"%@/%@",[CacheManager getSystemDirectoryPath:NSLibraryDirectory],METADATA_PLIST];
+    return [self writeObject:metadata
+                      atPath:path];
+}
+
 
 #pragma mark - Account Manipulation Methods
 

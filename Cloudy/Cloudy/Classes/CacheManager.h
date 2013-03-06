@@ -31,5 +31,9 @@
                         ForDataType:(TYPE_DATA) dataType
                         AndViewType:(VIEW_TYPE) type;
 
+-(BOOL) updateMetadata:(NSDictionary *) metadataDict;
+-(NSDictionary *) metadataAtPath:(NSString *) path
+                      InViewType:(VIEW_TYPE) type;
+
 
 @end

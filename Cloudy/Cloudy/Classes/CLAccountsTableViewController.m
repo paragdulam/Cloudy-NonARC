@@ -98,7 +98,7 @@
 -(void) viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-    if ([self.appDelegate.dropboxSession isLinked]) {
+    if ([self.appDelegate.dropboxSession isLinked] && ![sharedManager accountOfType:DROPBOX]) {
         [self authenticationDoneForSession:self.appDelegate.dropboxSession];
     }
 }
@@ -451,7 +451,6 @@
 - (void)restClient:(DBRestClient*)client loadedAccountInfo:(DBAccountInfo*)info
 {
     NSDictionary *accountDictionary = [info original];
-    NSLog(@"accountDictionary %@",accountDictionary);
     NSDictionary *accountInfoDictionary = [CacheManager processDictionary:accountDictionary ForDataType:DATA_ACCOUNT AndViewType:DROPBOX];
 
     BOOL isAccountStored = [sharedManager addAccount:accountInfoDictionary];
