@@ -31,10 +31,13 @@
                         ForDataType:(TYPE_DATA) dataType
                         AndViewType:(VIEW_TYPE) type;
 
--(BOOL) updateMetadata:(NSDictionary *) metadataDict;
--(NSDictionary *) metadataAtPath:(NSString *) path
-                      InViewType:(VIEW_TYPE) type;
+-(BOOL) updateMetadata:(NSDictionary *) metadataDict
+      inParentMetadata:(NSMutableDictionary *) root;
+-(NSDictionary *) metadata:(NSDictionary *) metaData
+                    AtPath:(NSString *) path
+                InViewType:(VIEW_TYPE) type;
 -(BOOL) deleteMetadata:(VIEW_TYPE) type;
+-(NSMutableDictionary *)rootDictionary:(VIEW_TYPE) type;
 
 
 

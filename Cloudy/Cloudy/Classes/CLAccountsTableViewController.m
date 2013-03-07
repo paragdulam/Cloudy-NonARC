@@ -393,14 +393,9 @@
                           AtIndexPath:indexPath
                     WithCellAnimation:UITableViewRowAnimationLeft];
         
-        VIEW_TYPE type = INFINITY;
         if (![[sharedManager accounts] count]) {
             editButton.hidden = YES;
-        } else {
-            NSDictionary *account = [[sharedManager accounts] objectAtIndex:0];
-            type = [[account objectForKey:ACCOUNT_TYPE] intValue];
-        }
-        [self showDetailViewControllerForViewType:type];
+        } 
      }
 }
 
@@ -567,7 +562,6 @@
                               AtIndexPath:[NSIndexPath indexPathForRow:0 inSection:SKYDRIVE]
                         WithCellAnimation:UITableViewRowAnimationAutomatic];
         }
-        [self showDetailViewControllerForViewType:SKYDRIVE];
     }
 }
 

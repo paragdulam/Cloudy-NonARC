@@ -76,10 +76,7 @@
     [oldAccounts release];
     
     NSString *metadataPlistPath = [CacheManager getMetadataPlistPath];
-    NSDictionary *cachedMetadata = [[NSDictionary alloc] initWithContentsOfFile:metadataPlistPath];
-    metadata = [[NSMutableDictionary alloc] init];
-    [metadata addEntriesFromDictionary:cachedMetadata];
-    [cachedMetadata release];
+    metadata = [[NSMutableDictionary alloc] initWithDictionary:[self mutableDeepCopy:[NSDictionary dictionaryWithContentsOfFile:metadataPlistPath]]];
 }
 
 #pragma mark - Write Methods
@@ -114,8 +111,6 @@
     id object = [fromDict objectForKey:key];
     if (object) {
         [toDict setObject:object forKey:aKey];
-    } else {
-        NSLog(@"object not available for %@",key);
     }
 }
 
@@ -362,53 +357,92 @@
     return trimmedComponents;
 }
 
--(NSDictionary *) metadataAtPath:(NSString *) path
-                      InViewType:(VIEW_TYPE) type
+-(NSMutableDictionary *)rootDictionary:(VIEW_TYPE) type
 {
-    NSArray *components = [CacheManager trimmedArrayForPath:path];
-    NSDictionary *metadataDict = [metadata objectForKey:[NSString stringWithFormat:@"%d",type]];
-    NSDictionary *retVal = metadataDict;
-    
-    for (NSString *component in components) {
-        NSArray *contents = [metadataDict objectForKey:FILE_CONTENTS];
-        for (NSDictionary *data in contents) {
-            if ([[data objectForKey:FILE_NAME] isEqualToString:component]) {
+    NSString *typeString = [NSString stringWithFormat:@"%d",type];
+    return [metadata objectForKey:typeString];
+}
+
+
+
+-(int) isMetadata:(NSDictionary *) metdata
+   PresentInArray:(NSArray *) contents
+{
+    __block int index = INVALID_INDEX;
+    [contents enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        NSDictionary *data = (NSDictionary *)obj;
+        if ([[data objectForKey:FILE_NAME] isEqualToString:[metdata objectForKey:FILE_NAME]]) {
+            index = idx;
+            *stop = YES;
+        }
+    }];
+    return index;
+}
+
+-(NSMutableDictionary *) mutableDeepCopy:(NSDictionary *) object
+{
+    NSMutableDictionary *retVal = nil;
+    if (object) {
+        NSMutableDictionary *mutableFileStructure = CFPropertyListCreateDeepCopy(kCFAllocatorDefault, (CFDictionaryRef)object, kCFPropertyListMutableContainers);
+        retVal = [NSMutableDictionary dictionaryWithDictionary:mutableFileStructure];
+        CFRelease(mutableFileStructure);
+    }
+    return retVal;
+}
+
+
+
+
+-(BOOL) updateMetadata:(NSDictionary *) metadataDict
+      inParentMetadata:(NSMutableDictionary *) root
+{
+    if (!root) {
+        [metadata setObject:metadataDict
+                     forKey:[NSString stringWithFormat:@"%@",[metadataDict objectForKey:ACCOUNT_TYPE]]];
+        return [self updateMetadata:metadataDict];
+    } else {
+        NSMutableArray *contents = [root objectForKey:FILE_CONTENTS];
+        int index = [self isMetadata:metadataDict
+                      PresentInArray:contents];
+        if (index != INVALID_INDEX) {
+            [contents replaceObjectAtIndex:index withObject:metadataDict];
+            return [self updateMetadata];
+        } else {
+            for (NSMutableDictionary *data in contents) {
+                [self updateMetadata:metadataDict
+                    inParentMetadata:data];
+            }
+        }
+    }
+    return NO;
+}
+
+
+-(NSDictionary *) metadata:(NSDictionary *) metaData
+                    AtPath:(NSString *) path
+                InViewType:(VIEW_TYPE) type
+{
+    if ([[metaData objectForKey:FILE_PATH] isEqualToString:path]) {
+        return metaData;
+    } else {
+        for (NSDictionary *data in [metaData objectForKey:FILE_CONTENTS]) {
+            NSDictionary *retVal = [self metadata:data
+                                           AtPath:path
+                                       InViewType:type];
+            if (retVal) {
                 return retVal;
             }
         }
     }
-    
-//    [components enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-//        NSString *component = (NSString *)obj;
-//        NSArray *contents = [metadataDict objectForKey:FILE_CONTENTS];
-//        [contents enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-//            NSDictionary *data = (NSDictionary *)obj;
-//            if ([[data objectForKey:FILE_NAME] isEqualToString:component]) {
-//                retVal = data;
-//                *stop = YES;
-//            }
-//        }];
-//        *stop = YES;
-//    }];
-    
-    return retVal;
+    return nil;
 }
 
 
 //dictionary with account_type = {metadata dictionary}
 -(BOOL) updateMetadata:(NSDictionary *) metadataDict
 {
-    VIEW_TYPE type = [[metadataDict objectForKey:ACCOUNT_TYPE] intValue];
-    NSNumber *typeNumber = [NSNumber numberWithInt:type];
-    NSDictionary *oldMetadata = [metadata objectForKey:[typeNumber stringValue]];
-    NSString *path = [metadataDict objectForKey:FILE_PATH];
-    NSDictionary *dict = [self metadataAtPath:path
-                                   InViewType:type];
-    if (!dict) {
-        [metadata setObject:metadataDict forKey:[typeNumber stringValue]];
-    } else {
-        
-    }
+    NSString *key = [[metadataDict objectForKey:ACCOUNT_TYPE] stringValue];
+    [metadata setObject:metadataDict forKey:key];
     [self updateMetadata];
     return YES;
 }
