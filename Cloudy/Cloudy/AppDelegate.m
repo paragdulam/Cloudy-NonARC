@@ -119,7 +119,7 @@
                 path = ROOT_DROPBOX_PATH;
                 break;
             case SKYDRIVE:
-                path = ROOT_SKYDRIVE_PATH;
+                path = [NSString stringWithFormat:@"folder.%@",[accountData objectForKey:ID]];
                 break;
             case BOX:
                 path = ROOT_BOX_PATH;
@@ -135,7 +135,7 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    [CLCacheManager initialSetup];
+//    [CLCacheManager initialSetup];
 
     CLUploadProgressButton *aButton = [[CLUploadProgressButton alloc] init];
     aButton.frame = CGRectMake(0, 0, 30, 30);

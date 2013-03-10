@@ -9,15 +9,13 @@
 #import "CacheManager.h"
 
 @interface CacheManager ()
-
+{
+    NSMutableString *skyDrivePathTracker;
+}
 +(void) setObjectInDictionary:(NSMutableDictionary *) toDict
                        forKey:(NSString *) aKey
                FromDictionary:(NSDictionary *) fromDict
                        forKey:(NSString *) key;
-
-+(NSDictionary *) processDictionary:(NSDictionary *) dictionary
-                        ForDataType:(TYPE_DATA) dataType
-                        AndViewType:(VIEW_TYPE) type;
 
 +(NSString *) getAccountsPlistPath;
 -(void) readCache;
@@ -29,7 +27,6 @@
 @implementation CacheManager
 @synthesize accounts;
 @synthesize metadata;
-
 
 
 
@@ -62,6 +59,10 @@
 {
     accounts = nil;
     metadata = nil;
+    
+    [skyDrivePathTracker release];
+    skyDrivePathTracker = nil;
+    
     [super dealloc];
 }
 
@@ -100,8 +101,37 @@
 
 
 
+
 #pragma mark - Data Compatibility Methods
 
+//only for SkyDrive
+
+-(NSString *) pathForMetadata:(NSDictionary *) mdata
+             inParentMetadata:(NSDictionary *) parent
+{
+    if (![mdata objectForKey:FILE_PARENT_ID] || [[mdata objectForKey:FILE_PARENT_ID] isEqualToString:@"null"] || !parent) {
+        return ROOT_DROPBOX_PATH;
+    } else {
+        if ([[mdata objectForKey:FILE_PARENT_ID] isEqualToString:[parent objectForKey:FILE_ID]]) {
+            NSString *path = [parent objectForKey:FILE_PATH];
+            if ([path isEqualToString:ROOT_DROPBOX_PATH]) {
+                return [NSString stringWithFormat:@"%@%@",path,[mdata objectForKey:FILE_NAME]];
+            } else {
+                return [NSString stringWithFormat:@"%@/%@",path,[mdata objectForKey:FILE_NAME]];
+            }
+        } else {
+            NSArray *contents = [parent objectForKey:FILE_CONTENTS];
+            for (NSDictionary *data in contents) {
+                NSString *path = [self pathForMetadata:mdata
+                                      inParentMetadata:data];
+                if (path) {
+                    return path;
+                }
+            }
+        }
+    }
+    return nil;
+}
 
 +(void) setObjectInDictionary:(NSMutableDictionary *) toDict
                        forKey:(NSString *) aKey
@@ -114,7 +144,7 @@
     }
 }
 
-+(NSDictionary *) processDictionary:(NSDictionary *) dictionary
+-(NSDictionary *) processDictionary:(NSDictionary *) dictionary
                         ForDataType:(TYPE_DATA) dataType
                          AndViewType:(VIEW_TYPE) type
 {
@@ -202,8 +232,8 @@
                     NSArray *contents = [dictionary objectForKey:@"contents"];
                     if ([contents count]) {
                         NSMutableArray *mutableContents = [[NSMutableArray alloc] init];
-                        for (NSDictionary *metadata in contents) {
-                            [mutableContents addObject:[CacheManager processDictionary:metadata ForDataType:DATA_METADATA AndViewType:DROPBOX]];
+                        for (NSDictionary *mdata in contents) {
+                            [mutableContents addObject:[self processDictionary:mdata ForDataType:DATA_METADATA AndViewType:DROPBOX]];
                         }
                         [retVal setObject:mutableContents forKey:FILE_CONTENTS];
                         [mutableContents release];
@@ -235,56 +265,63 @@
                     break;
                 case DATA_METADATA:
                 {
-                    [CacheManager setObjectInDictionary:retVal
-                                                 forKey:FILE_ID
-                                         FromDictionary:dictionary
-                                                 forKey:@"id"];
-
-                    [CacheManager setObjectInDictionary:retVal
-                                                 forKey:FILE_NAME
-                                         FromDictionary:dictionary
-                                                 forKey:@"name"];
-                    
-                    if ([[dictionary objectForKey:NAME] isEqualToString:@"SkyDrive"]) {
-                        [retVal setObject:@"/" forKey:FILE_PATH];
-                    }
-                    
-                    [CacheManager setObjectInDictionary:retVal
-                                                 forKey:FILE_SIZE
-                                         FromDictionary:dictionary
-                                                 forKey:@"size"];
-                    
-                    if ([[dictionary objectForKey:@"type"] isEqualToString:@"folder"] || [[dictionary objectForKey:@"type"] isEqualToString:@"album"]) {
-                        [retVal setObject:[NSNumber numberWithInt:1]
-                                   forKey:FILE_TYPE];
-                    } else {
-                        [retVal setObject:[NSNumber numberWithInt:0]
-                                   forKey:FILE_TYPE];
-                    }
-                    
-                    [CacheManager setObjectInDictionary:retVal
-                                                 forKey:FILE_LAST_UPDATED_TIME
-                                         FromDictionary:dictionary
-                                                 forKey:@"updated_time"];
-                    
-                    NSArray *images = [dictionary objectForKey:@"images"];
-                    if ([images count]) {
-                        [retVal setObject:[[images objectAtIndex:2] objectForKey:@"source"]
-                                   forKey:FILE_THUMBNAIL_URL];
-                    }
-                    
-                    
                     NSArray *contents = [dictionary objectForKey:@"data"];
                     if ([contents count]) {
                         NSMutableArray *mutableContents = [[NSMutableArray alloc] initWithCapacity:0];
-                        for (NSDictionary *metadata in [dictionary objectForKey:@"data"]) {
-                            [mutableContents addObject:[CacheManager processDictionary:metadata ForDataType:DATA_METADATA AndViewType:SKYDRIVE]];
+                        for (NSDictionary *mdata in contents) {
+                            NSMutableDictionary *mutableMetadata = [self mutableDeepCopy:[self processDictionary:mdata ForDataType:DATA_METADATA AndViewType:SKYDRIVE]];
+                            [mutableContents addObject:mutableMetadata];
                         }
                         [retVal setObject:mutableContents forKey:FILE_CONTENTS];
                         [mutableContents release];
+                    } else {
+                        [CacheManager setObjectInDictionary:retVal
+                                                     forKey:FILE_ID
+                                             FromDictionary:dictionary
+                                                     forKey:@"id"];
+                        
+                        [CacheManager setObjectInDictionary:retVal
+                                                     forKey:FILE_NAME
+                                             FromDictionary:dictionary
+                                                     forKey:@"name"];
+                        
+                        [CacheManager setObjectInDictionary:retVal
+                                                     forKey:FILE_SIZE
+                                             FromDictionary:dictionary
+                                                     forKey:@"size"];
+                        
+                        if ([[dictionary objectForKey:@"type"] isEqualToString:@"folder"] || [[dictionary objectForKey:@"type"] isEqualToString:@"album"]) {
+                            [retVal setObject:[NSNumber numberWithInt:1]
+                                       forKey:FILE_TYPE];
+                        } else {
+                            [retVal setObject:[NSNumber numberWithInt:0]
+                                       forKey:FILE_TYPE];
+                        }
+                        
+                        [CacheManager setObjectInDictionary:retVal
+                                                     forKey:FILE_PARENT_ID
+                                             FromDictionary:dictionary
+                                                     forKey:@"parent_id"];
+
+                        
+                        [CacheManager setObjectInDictionary:retVal
+                                                     forKey:FILE_LAST_UPDATED_TIME
+                                             FromDictionary:dictionary
+                                                     forKey:@"updated_time"];
+                        
+                        NSArray *images = [dictionary objectForKey:@"images"];
+                        if ([images count]) {
+                            [retVal setObject:[[images objectAtIndex:2] objectForKey:@"source"]
+                                       forKey:FILE_THUMBNAIL_URL];
+                        }
+                        
+                        NSString *path = [self pathForMetadata:retVal
+                                    inParentMetadata:[self rootDictionary:type]];
+                        NSLog(@"path %@",path);
+                        [retVal setObject:path
+                                   forKey:FILE_PATH];
+
                     }
-                    
-                    //have to work on path calculation
                 }
                     break;
                 case DATA_QUOTA:
@@ -365,6 +402,11 @@
 
 
 
+-(BOOL) isMetadataPresentForViewType:(VIEW_TYPE) type
+{
+    return [metadata objectForKey:[NSString stringWithFormat:@"%d",type]] ? YES : NO;
+}
+
 -(int) isMetadata:(NSDictionary *) metdata
    PresentInArray:(NSArray *) contents
 {
@@ -396,9 +438,7 @@
 -(BOOL) updateMetadata:(NSDictionary *) metadataDict
       inParentMetadata:(NSMutableDictionary *) root
 {
-    if (!root) {
-        [metadata setObject:metadataDict
-                     forKey:[NSString stringWithFormat:@"%@",[metadataDict objectForKey:ACCOUNT_TYPE]]];
+    if (!root || [[metadataDict objectForKey:FILE_PATH] isEqualToString:ROOT_DROPBOX_PATH]) {
         return [self updateMetadata:metadataDict];
     } else {
         NSMutableArray *contents = [root objectForKey:FILE_CONTENTS];
@@ -418,11 +458,27 @@
 }
 
 
+-(NSString *) comparisonKeyForViewType:(VIEW_TYPE) type
+{
+    switch (type) {
+        case DROPBOX:
+            return FILE_PATH;
+            break;
+        case SKYDRIVE:
+            return FILE_ID;
+            break;
+        default:
+            break;
+    }
+    return nil;
+}
+
 -(NSDictionary *) metadata:(NSDictionary *) metaData
                     AtPath:(NSString *) path
                 InViewType:(VIEW_TYPE) type
 {
-    if ([[metaData objectForKey:FILE_PATH] isEqualToString:path]) {
+    NSString *comparisonKey = [self comparisonKeyForViewType:type];
+    if ([[metaData objectForKey:comparisonKey] isEqualToString:path]) {
         return metaData;
     } else {
         for (NSDictionary *data in [metaData objectForKey:FILE_CONTENTS]) {

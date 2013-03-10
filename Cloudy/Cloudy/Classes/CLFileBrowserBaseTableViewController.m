@@ -355,7 +355,18 @@
             case 1:
             {
                 //
-                CLFileBrowserTableViewController *browserTableViewController = [[CLFileBrowserTableViewController alloc] initWithTableViewStyle:UITableViewStylePlain WherePath:[selectedFile objectForKey:FILE_PATH] WithinViewType:viewType];
+                NSString *pathStr = nil;
+                switch (viewType) {
+                    case DROPBOX:
+                        pathStr = [selectedFile objectForKey:FILE_PATH];
+                        break;
+                    case SKYDRIVE:
+                        pathStr = [selectedFile objectForKey:FILE_ID];
+                        break;
+                    default:
+                        break;
+                }
+                CLFileBrowserTableViewController *browserTableViewController = [[CLFileBrowserTableViewController alloc] initWithTableViewStyle:UITableViewStylePlain WherePath:pathStr WithinViewType:viewType];
                 [self.navigationController pushViewController:browserTableViewController animated:YES];
                 [browserTableViewController release];
             }
@@ -474,24 +485,35 @@
 - (void) liveOperationSucceeded:(LiveOperation *)operation
 {
     [liveOperations removeObject:operation];
-    [self stopAnimating];
     
     if ([operation.userState isKindOfClass:[NSString class]]) {
         if ([operation.userState isEqualToString:path]) {
-            NSDictionary *compatibleMetaData = [CacheManager processDictionary:operation.result ForDataType:DATA_METADATA AndViewType:SKYDRIVE];
-            NSString *pathStr = [NSString stringWithFormat:@"%@/files",operation.userState];
-            [self.appDelegate.liveClient getWithPath:pathStr
-                                            delegate:self
-                                           userState:compatibleMetaData];
+            NSDictionary *compatibleMetaData = [sharedManager processDictionary:operation.result ForDataType:DATA_METADATA AndViewType:SKYDRIVE];
+            if (![[compatibleMetaData objectForKey:FILE_LAST_UPDATED_TIME] isEqualToString:[currentFileData objectForKey:FILE_LAST_UPDATED_TIME]] || ![[currentFileData objectForKey:FILE_CONTENTS] count]) {
+                NSString *pathStr = [NSString stringWithFormat:@"%@/files",operation.userState];
+                [self.appDelegate.liveClient getWithPath:pathStr
+                                                delegate:self
+                                               userState:compatibleMetaData];
+            } else {
+                [self stopAnimating];
+            }
         }
     } else {
+        [self stopAnimating];
         NSMutableDictionary *finalMetaData = [NSMutableDictionary dictionaryWithDictionary:operation.userState];
-        NSDictionary *compatibleMetaData = [CacheManager processDictionary:operation.result ForDataType:DATA_METADATA AndViewType:SKYDRIVE];
+        
+        NSDictionary *compatibleMetaData = [sharedManager processDictionary:operation.result ForDataType:DATA_METADATA AndViewType:SKYDRIVE];
         [finalMetaData addEntriesFromDictionary:compatibleMetaData];
+        self.currentFileData = finalMetaData;
         [self writeCacheUpdateView];
     }
 }
 
+
+-(void) liveOperationFailed:(NSError *)error operation:(LiveDownloadOperation *)operation
+{
+   
+}
 
 
 /*
@@ -594,7 +616,7 @@
 {
     [self stopAnimating];
     NSDictionary *metadataDictionary = [metadata original];
-    NSDictionary *compatibleMetaData = [CacheManager processDictionary:metadataDictionary ForDataType:DATA_METADATA AndViewType:DROPBOX];
+    NSDictionary *compatibleMetaData = [sharedManager processDictionary:metadataDictionary ForDataType:DATA_METADATA AndViewType:DROPBOX];
     [currentFileData addEntriesFromDictionary:compatibleMetaData];
     [self writeCacheUpdateView];
 }
@@ -874,12 +896,14 @@
 };
 
 
+
 -(void) loadFilesForPath:(NSString *) pathString WithInViewType:(VIEW_TYPE) type
 {
     [dataTableView setContentOffset:CGPointMake(0, fileSearchBar.frame.size.height)];
     dataTableView.tableHeaderView = fileSearchBar;
     dataTableView.separatorStyle = UITableViewCellSeparatorStyleSingleLine;
     
+//    self.path = [pathString hasPrefix:@"folder."] ? pathString : [NSString stringWithFormat:@"folder.%@",pathString];
     self.path = pathString;
     self.viewType = type;
 

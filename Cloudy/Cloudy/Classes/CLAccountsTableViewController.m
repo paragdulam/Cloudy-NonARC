@@ -219,7 +219,7 @@
         case SKYDRIVE:
         {
             NSDictionary *skyDriveAccount = [sharedManager accountOfType:type];
-            rootPath = [NSString stringWithFormat:@"%@/skydrive",[skyDriveAccount objectForKey:ID]];
+            rootPath = [NSString stringWithFormat:@"folder.%@",[skyDriveAccount objectForKey:ID]];
         }
             break;
             
@@ -452,7 +452,7 @@
 - (void)restClient:(DBRestClient*)client loadedAccountInfo:(DBAccountInfo*)info
 {
     NSDictionary *accountDictionary = [info original];
-    NSDictionary *accountInfoDictionary = [CacheManager processDictionary:accountDictionary ForDataType:DATA_ACCOUNT AndViewType:DROPBOX];
+    NSDictionary *accountInfoDictionary = [sharedManager processDictionary:accountDictionary ForDataType:DATA_ACCOUNT AndViewType:DROPBOX];
 
     BOOL isAccountStored = [sharedManager addAccount:accountInfoDictionary];
 
@@ -528,7 +528,7 @@
     if ([operation.userState isKindOfClass:[NSString class]]) {
         if ([operation.userState isEqualToString:@"GET_SKYDRIVE_USER_DETAILS"]) {
             
-            NSDictionary *accountDictionary = [CacheManager processDictionary:operation.result ForDataType:DATA_ACCOUNT AndViewType:SKYDRIVE];
+            NSDictionary *accountDictionary = [sharedManager processDictionary:operation.result ForDataType:DATA_ACCOUNT AndViewType:SKYDRIVE];
             
             BOOL isAccountAdded = [sharedManager addAccount:accountDictionary];
             
@@ -546,7 +546,7 @@
     } else { //quota dictionary with account dictionary UserState
         NSDictionary *resultDictionary = operation.result;
         
-        NSDictionary *quota = [CacheManager processDictionary:resultDictionary
+        NSDictionary *quota = [sharedManager processDictionary:resultDictionary
                                                   ForDataType:DATA_QUOTA
                                                   AndViewType:SKYDRIVE];
         

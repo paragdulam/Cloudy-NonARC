@@ -27,7 +27,7 @@
 -(BOOL) deleteAccount:(NSDictionary *) account;
 -(BOOL) deleteAccountAtIndex:(int) index;
 -(NSDictionary *)accountOfType:(VIEW_TYPE) type;
-+(NSDictionary *) processDictionary:(NSDictionary *) dictionary
+-(NSDictionary *) processDictionary:(NSDictionary *) dictionary
                         ForDataType:(TYPE_DATA) dataType
                         AndViewType:(VIEW_TYPE) type;
 
@@ -38,6 +38,8 @@
                 InViewType:(VIEW_TYPE) type;
 -(BOOL) deleteMetadata:(VIEW_TYPE) type;
 -(NSMutableDictionary *)rootDictionary:(VIEW_TYPE) type;
+-(NSMutableDictionary *) mutableDeepCopy:(NSDictionary *) object;
+-(BOOL) isMetadataPresentForViewType:(VIEW_TYPE) type;
 
 
 
