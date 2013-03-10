@@ -109,6 +109,33 @@
 -(NSString *) pathForMetadata:(NSDictionary *) mdata
              inParentMetadata:(NSDictionary *) parent
 {
+    if ([[mdata objectForKey:FILE_PARENT_ID] isEqualToString:@"null"] || ![mdata objectForKey:FILE_PARENT_ID]) {
+        return ROOT_DROPBOX_PATH;
+    } else {
+        if ([[mdata objectForKey:FILE_PARENT_ID] isEqualToString:[parent objectForKey:FILE_ID]]) {
+            NSString *path = [parent objectForKey:FILE_PATH];
+            if ([path isEqualToString:ROOT_DROPBOX_PATH]) {
+                return [NSString stringWithFormat:@"/%@",[mdata objectForKey:FILE_NAME]];//
+            } else {
+                return [NSString stringWithFormat:@"%@/%@",path,[mdata objectForKey:FILE_NAME]];//
+            }
+        } else {
+            for (NSDictionary *data in [parent objectForKey:FILE_CONTENTS]) {
+                NSString *path = [self pathForMetadata:mdata
+                                      inParentMetadata:data];
+                if (path) {
+                    return path;
+                }
+            }
+        }
+        return nil;
+    }
+}
+
+/*
+-(NSString *) pathForMetadata:(NSDictionary *) mdata
+             inParentMetadata:(NSDictionary *) parent
+{
     if (![mdata objectForKey:FILE_PARENT_ID] || [[mdata objectForKey:FILE_PARENT_ID] isEqualToString:@"null"] || !parent) {
         return ROOT_DROPBOX_PATH;
     } else {
@@ -132,6 +159,7 @@
     }
     return nil;
 }
+ */
 
 +(void) setObjectInDictionary:(NSMutableDictionary *) toDict
                        forKey:(NSString *) aKey
@@ -269,8 +297,8 @@
                     if ([contents count]) {
                         NSMutableArray *mutableContents = [[NSMutableArray alloc] initWithCapacity:0];
                         for (NSDictionary *mdata in contents) {
-                            NSMutableDictionary *mutableMetadata = [self mutableDeepCopy:[self processDictionary:mdata ForDataType:DATA_METADATA AndViewType:SKYDRIVE]];
-                            [mutableContents addObject:mutableMetadata];
+                            NSDictionary *metdata = [self processDictionary:mdata ForDataType:DATA_METADATA AndViewType:SKYDRIVE];
+                            [mutableContents addObject:metdata];
                         }
                         [retVal setObject:mutableContents forKey:FILE_CONTENTS];
                         [mutableContents release];
