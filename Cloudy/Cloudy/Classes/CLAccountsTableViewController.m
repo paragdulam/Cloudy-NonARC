@@ -513,7 +513,7 @@
         [self updateView];
         [self.appDelegate.liveClient getWithPath:@"/me"
                                         delegate:self
-                                       userState:@"GET_SKYDRIVE_USER_DETAILS"];
+                                       userState:userState];
     } else if ([userState isEqualToString:@"LOGOUT_SKYDRIVE"]) {
         
     }
@@ -531,7 +531,7 @@
 - (void) liveOperationSucceeded:(LiveOperation *)operation
 {
     if ([operation.userState isKindOfClass:[NSString class]]) {
-        if ([operation.userState isEqualToString:@"GET_SKYDRIVE_USER_DETAILS"]) {
+        if ([operation.userState isEqualToString:@"LOGIN_ACCOUNT_VC"] || [operation.userState isEqualToString:@"InitialAllocation"]) {
             
             NSDictionary *accountDictionary = [sharedManager processDictionary:operation.result ForDataType:DATA_ACCOUNT AndViewType:SKYDRIVE];
             
@@ -546,7 +546,8 @@
             [self getSkyDriveQuotaForUserAccount:accountDictionary];
             
             //calls only after login
-            [self showDetailViewControllerForViewType:SKYDRIVE];
+            if ([operation.userState isEqualToString:@"LOGIN_ACCOUNT_VC"])
+                [self showDetailViewControllerForViewType:SKYDRIVE];
         } else if ([operation.userState isEqualToString:@"LOGOUT_SKYDRIVE"]) {
         }
     } else { //quota dictionary with account dictionary UserState

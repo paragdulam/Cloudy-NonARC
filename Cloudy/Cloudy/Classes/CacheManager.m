@@ -358,7 +358,6 @@
                             [retVal setObject:@"Error Getting Path"
                                        forKey:FILE_PATH];
                         }
-
                     }
                 }
                     break;
