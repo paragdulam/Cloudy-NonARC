@@ -112,19 +112,25 @@
     if ([[mdata objectForKey:FILE_PARENT_ID] isEqualToString:@"null"] || ![mdata objectForKey:FILE_PARENT_ID]) {
         return ROOT_DROPBOX_PATH;
     } else {
-        if ([[mdata objectForKey:FILE_PARENT_ID] isEqualToString:[parent objectForKey:FILE_ID]]) {
-            NSString *path = [parent objectForKey:FILE_PATH];
-            if ([path isEqualToString:ROOT_DROPBOX_PATH]) {
-                return [NSString stringWithFormat:@"/%@",[mdata objectForKey:FILE_NAME]];//
-            } else {
-                return [NSString stringWithFormat:@"%@/%@",path,[mdata objectForKey:FILE_NAME]];//
-            }
+        if (!parent) {
+            return [NSString stringWithFormat:@"/%@",[mdata objectForKey:FILE_NAME]];//
         } else {
-            for (NSDictionary *data in [parent objectForKey:FILE_CONTENTS]) {
-                NSString *path = [self pathForMetadata:mdata
-                                      inParentMetadata:data];
-                if (path) {
-                    return path;
+            if ([[mdata objectForKey:FILE_PARENT_ID] isEqualToString:[parent objectForKey:FILE_ID]]) {
+                NSString *path = [parent objectForKey:FILE_PATH];
+                if ([path isEqualToString:ROOT_DROPBOX_PATH]) {
+                    return [NSString stringWithFormat:@"/%@",[mdata objectForKey:FILE_NAME]];
+                } else {
+                    return [NSString stringWithFormat:@"%@/%@",path,[mdata objectForKey:FILE_NAME]];
+                }
+            } else {
+                for (NSDictionary *data in [parent objectForKey:FILE_CONTENTS]) {
+                    NSString *path = [self pathForMetadata:mdata
+                                          inParentMetadata:data];
+                    if (path) {
+                        return path;
+                    } else {
+                        NSLog(@"Path NIL for %@ in %@",[mdata objectForKey:FILE_NAME],[data objectForKey:FILE_PATH]);
+                    }
                 }
             }
         }
@@ -346,8 +352,13 @@
                         NSString *path = [self pathForMetadata:retVal
                                     inParentMetadata:[self rootDictionary:type]];
                         NSLog(@"path %@",path);
-                        [retVal setObject:path
-                                   forKey:FILE_PATH];
+                        if (path) {
+                            [retVal setObject:path
+                                       forKey:FILE_PATH];
+                        } else {
+                            [retVal setObject:@"Error Getting Path"
+                                       forKey:FILE_PATH];
+                        }
 
                     }
                 }
@@ -439,9 +450,10 @@
    PresentInArray:(NSArray *) contents
 {
     __block int index = INVALID_INDEX;
+    NSString *comparisonKey = [self comparisonKeyForViewType:[[metdata objectForKey:ACCOUNT_TYPE] intValue]];
     [contents enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
         NSDictionary *data = (NSDictionary *)obj;
-        if ([[data objectForKey:FILE_NAME] isEqualToString:[metdata objectForKey:FILE_NAME]]) {
+        if ([[data objectForKey:comparisonKey] isEqualToString:[metdata objectForKey:comparisonKey]]) {
             index = idx;
             *stop = YES;
         }
