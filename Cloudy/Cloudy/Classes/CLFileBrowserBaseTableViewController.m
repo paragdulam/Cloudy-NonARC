@@ -374,6 +374,11 @@ shouldReloadTableForSearchScope:(NSInteger)searchOption
 }
 
 
+-(NSInteger) tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+    return [tableDataArray count];
+}
+
 -(UITableViewCell *) tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     CLFileBrowserCell *cell = (CLFileBrowserCell *)[tableView dequeueReusableCellWithIdentifier:@"CLFileBrowserCell"];
@@ -382,15 +387,13 @@ shouldReloadTableForSearchScope:(NSInteger)searchOption
                                          reuseIdentifier:@"CLFileBrowserCell"] autorelease];
     }
     [cell setData:[tableDataArray objectAtIndex:indexPath.row]];
-//    [cell setData:[tableDataArray objectAtIndex:indexPath.row]
-//      ForViewType:viewType];
     return cell;
 }
 
 -(void) tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     if (!dataTableView.editing) {
-        NSDictionary *selectedFile = [[currentFileData objectForKey:FILE_CONTENTS] objectAtIndex:indexPath.row];
+        NSDictionary *selectedFile = [tableDataArray objectAtIndex:indexPath.row];
         switch ([[selectedFile objectForKey:FILE_TYPE] intValue]) {
             case 0:
             {
