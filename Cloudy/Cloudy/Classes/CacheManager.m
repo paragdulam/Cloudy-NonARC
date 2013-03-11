@@ -128,9 +128,9 @@
                                           inParentMetadata:data];
                     if (path) {
                         return path;
-                    } else {
+                    } /*else {
                         NSLog(@"Path NIL for %@ in %@",[mdata objectForKey:FILE_NAME],[data objectForKey:FILE_PATH]);
-                    }
+                    }*/ //debugging
                 }
             }
         }
@@ -351,7 +351,6 @@
                         
                         NSString *path = [self pathForMetadata:retVal
                                     inParentMetadata:[self rootDictionary:type]];
-                        NSLog(@"path %@",path);
                         if (path) {
                             [retVal setObject:path
                                        forKey:FILE_PATH];

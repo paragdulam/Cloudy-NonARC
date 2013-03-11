@@ -78,6 +78,7 @@
 
     [searchController setSearchResultsDataSource:self];
     [searchController setDelegate:self];
+    [searchController setSearchResultsDelegate:self];
     
     
     CGRect tableFrame = dataTableView.frame;
@@ -186,8 +187,54 @@
 
 #pragma mark - UISearchBarDelegate
 
+//- (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText
+//{
+//    NSLog(@"searchText %@",searchText);
+//    [self filterContentForSearchText:searchText
+//                               scope:[[self.searchDisplayController.searchBar scopeButtonTitles]
+//                                      objectAtIndex:[self.searchDisplayController.searchBar
+//                                                     selectedScopeButtonIndex]]];
+//}
+
+- (void)searchBarCancelButtonClicked:(UISearchBar *) searchBar
+{
+    [self readCacheUpdateView];
+}
+
+
+
 #pragma mark - UISearchDisplayDelegate
 
+- (void)filterContentForSearchText:(NSString*)searchText
+                             scope:(NSString*)scope
+{
+    NSPredicate *resultPredicate = [NSPredicate
+                                    predicateWithFormat:@"SELF.FILE_NAME contains[cd] %@",
+                                    searchText];
+    [self updateModel:[[currentFileData objectForKey:FILE_CONTENTS] filteredArrayUsingPredicate:resultPredicate]];
+    [self updateView];
+}
+
+-(BOOL)searchDisplayController:(UISearchDisplayController *)controller
+shouldReloadTableForSearchString:(NSString *)searchString
+{
+    [self filterContentForSearchText:searchString
+                               scope:[[self.searchDisplayController.searchBar scopeButtonTitles]
+                                      objectAtIndex:[self.searchDisplayController.searchBar
+                                                     selectedScopeButtonIndex]]];
+    
+    return YES;
+}
+
+- (BOOL)searchDisplayController:(UISearchDisplayController *)controller
+shouldReloadTableForSearchScope:(NSInteger)searchOption
+{
+    [self filterContentForSearchText:[self.searchDisplayController.searchBar text]
+                               scope:[[self.searchDisplayController.searchBar scopeButtonTitles]
+                                      objectAtIndex:searchOption]];
+    
+    return YES;
+}
 
 
 #pragma mark - IBActions
@@ -865,6 +912,7 @@
     if ([titleText length]) {
         [self.navigationItem setTitle:[titleText isEqualToString:ROOT_DROPBOX_PATH] ? DROPBOX_STRING : titleText];
     }
+    
     [self updateModel:[currentFileData objectForKey:FILE_CONTENTS]];
     [self updateView];
 }
