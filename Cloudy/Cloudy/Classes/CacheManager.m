@@ -397,27 +397,7 @@
 
 #pragma mark - Metadata Manipulation Methods
 
-/*
--(NSDictionary *) metadataAtPath:(NSString *) path
-                      InViewType:(VIEW_TYPE) type
-{
-    NSNumber *typeNumber = [NSNumber numberWithInt:type];
-    NSDictionary *rootDictionary = [metadata objectForKey:[typeNumber stringValue]];
-    if ([path isEqualToString:ROOT_DROPBOX_PATH]) {
-        return rootDictionary;
-    } else {
-        NSArray *contents = [rootDictionary objectForKey:FILE_CONTENTS];
-        for (NSDictionary *content in contents) {
-            NSDictionary *result = [self metadataAtPath:[content objectForKey:FILE_PATH]
-                                             InViewType:type];
-            if (result) {
-                return result;
-            }
-        }
-    }
-    return nil;
-}
-*/
+
 
 
 +(NSArray *) trimmedArrayForPath:(NSString *) path

@@ -546,7 +546,7 @@ shouldReloadTableForSearchScope:(NSInteger)searchOption
         NSMutableDictionary *finalMetaData = [NSMutableDictionary dictionaryWithDictionary:operation.userState];
         NSDictionary *compatibleMetaData = [self getCompatibleDictionary:operation.result ForDataType:DATA_METADATA];
         [finalMetaData addEntriesFromDictionary:compatibleMetaData];
-        self.currentFileData = finalMetaData;
+//        self.currentFileData = finalMetaData;
         [self loadThumbnailForMetadata:currentFileData];
         [self writeCacheUpdateView];
     }
@@ -634,17 +634,13 @@ shouldReloadTableForSearchScope:(NSInteger)searchOption
 -(void) restClient:(DBRestClient *)client createdFolder:(DBMetadata *)folder
 {
     NSDictionary *compatibleMetadata = [self getCompatibleDictionary:[folder original] ForDataType:DATA_METADATA];
-    [sharedManager updateMetadata:compatibleMetadata
-                   WithUpdateType:INSERT_DATA
-                 inParentMetadata:[sharedManager rootDictionary:viewType]];
-    
     
     //Updating UI
     [self stopAnimating];
 
     [tableDataArray insertObject:compatibleMetadata atIndex:0];
-//    [CLCacheManager arrangeFilesAndFolders:tableDataArray
-//                               ForViewType:viewType];
+    [CLCacheManager arrangeFilesAndFolders:tableDataArray
+                               ForViewType:viewType];
     
 
     [dataTableView beginUpdates];
@@ -652,6 +648,14 @@ shouldReloadTableForSearchScope:(NSInteger)searchOption
                          withRowAnimation:UITableViewRowAnimationBottom];
     [dataTableView endUpdates];
     //Updating UI
+    
+    NSMutableArray *tableArrayCopy = [tableDataArray mutableCopy];
+    [currentFileData setObject:tableArrayCopy forKey:FILE_CONTENTS];
+    [tableArrayCopy release];
+    
+    [sharedManager updateMetadata:currentFileData
+                   WithUpdateType:UPDATE_DATA
+                 inParentMetadata:[sharedManager rootDictionary:viewType]]; //
 }
 
 -(void) restClient:(DBRestClient *)client createFolderFailedWithError:(NSError *)error
@@ -818,7 +822,6 @@ shouldReloadTableForSearchScope:(NSInteger)searchOption
     dataTableView.tableHeaderView = fileSearchBar;
     dataTableView.separatorStyle = UITableViewCellSeparatorStyleSingleLine;
     
-//    self.path = [pathString hasPrefix:@"folder."] ? pathString : [NSString stringWithFormat:@"folder.%@",pathString];
     self.path = pathString;
     self.viewType = type;
 
@@ -846,57 +849,6 @@ shouldReloadTableForSearchScope:(NSInteger)searchOption
 
     [self startAnimating];
 }
-
-
-/*
--(void) loadFilesForPath:(NSString *) pathString WithInViewType:(VIEW_TYPE) type
-{
-    dataTableView.tableHeaderView = nil;
-    dataTableView.separatorStyle = UITableViewCellSeparatorStyleSingleLine;
-    
-    self.path = pathString;
-    self.viewType = type;
-    
-    //Read Cache Starts
-    [self readCacheUpdateView];
-    //Read Cache Ends
-    
-    //Web Request Starts
-    switch (viewType) {
-        case DROPBOX:
-        {
-            NSString *hash = [self readCachedHash];
-            [self.restClient loadMetadata:path
-                                 withHash:hash];
-            currentFileOperation = METADATA;
-        }
-            break;
-        case SKYDRIVE:
-        {
-            NSString *aPathString = [NSString stringWithFormat:@"%@/files",path];
-            LiveOperation *operation = [self.appDelegate.liveClient
-                                        getWithPath:aPathString
-                                           delegate:self
-                                          userState:aPathString];
-            [liveOperations addObject:operation];
-            currentFileOperation = METADATA;
-        }
-            break;
-        case BOX:
-        {
-            NSString *aPathString = [NSString stringWithFormat:@"%@",path];
-            [self.boxClient loadMetadataForFolderId:aPathString];
-            currentFileOperation = METADATA;
-        }
-            break;
-        default:
-            break;
-    }
-    [self startAnimating];
-    //Web Request Ends
-
-}
-*/
 
 
 -(void) updateModel:(NSArray *) model
@@ -944,8 +896,8 @@ shouldReloadTableForSearchScope:(NSInteger)searchOption
     if ([titleText length]) {
         [self.navigationItem setTitle:[titleText isEqualToString:ROOT_DROPBOX_PATH] ? DROPBOX_STRING : titleText];
     }
-    
-    [self updateModel:[currentFileData objectForKey:FILE_CONTENTS]];
+    NSArray *contents = [currentFileData objectForKey:FILE_CONTENTS];
+    [self updateModel:contents];
     [self updateView];
 }
 
