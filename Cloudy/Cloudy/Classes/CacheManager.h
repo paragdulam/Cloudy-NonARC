@@ -32,6 +32,7 @@
                         AndViewType:(VIEW_TYPE) type;
 
 -(BOOL) updateMetadata:(NSDictionary *) metadataDict
+        WithUpdateType:(DATA_MANIPULATION_TYPE) type
       inParentMetadata:(NSMutableDictionary *) root;
 -(NSDictionary *) metadata:(NSDictionary *) metaData
                     AtPath:(NSString *) path
@@ -40,7 +41,7 @@
 -(NSMutableDictionary *)rootDictionary:(VIEW_TYPE) type;
 -(NSMutableDictionary *) mutableDeepCopy:(NSDictionary *) object;
 -(BOOL) isMetadataPresentForViewType:(VIEW_TYPE) type;
-
-
++(NSString *) getTemporaryDirectory;
++(BOOL) fileExistsAtPath:(NSString *) path;
 
 @end

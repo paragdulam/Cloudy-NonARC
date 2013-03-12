@@ -345,6 +345,8 @@
                         
                         NSArray *images = [dictionary objectForKey:@"images"];
                         if ([images count]) {
+                            [retVal setObject:[NSNumber numberWithBool:YES]
+                                       forKey:FILE_THUMBNAIL];
                             [retVal setObject:[[images objectAtIndex:2] objectForKey:@"source"]
                                        forKey:FILE_THUMBNAIL_URL];
                         }
@@ -474,6 +476,7 @@
 
 
 -(BOOL) updateMetadata:(NSDictionary *) metadataDict
+        WithUpdateType:(DATA_MANIPULATION_TYPE) type
       inParentMetadata:(NSMutableDictionary *) root
 {
     if (!root || [[metadataDict objectForKey:FILE_PATH] isEqualToString:ROOT_DROPBOX_PATH]) {
@@ -483,12 +486,28 @@
         int index = [self isMetadata:metadataDict
                       PresentInArray:contents];
         if (index != INVALID_INDEX) {
-            [contents replaceObjectAtIndex:index withObject:metadataDict];
+            switch (type) {
+                case UPDATE_DATA:
+                    [contents replaceObjectAtIndex:index withObject:metadataDict];
+                    break;
+                case INSERT_DATA:
+                    [contents insertObject:metadataDict atIndex:index];
+                    break;
+                case DELETE_DATA:
+                    [contents removeObjectAtIndex:index];
+                    break;
+                default:
+                    break;
+            }
             return [self updateMetadata];
         } else {
             for (NSMutableDictionary *data in contents) {
-                [self updateMetadata:metadataDict
-                    inParentMetadata:data];
+                BOOL retVal = [self updateMetadata:metadataDict
+                                    WithUpdateType:type
+                                  inParentMetadata:data];
+                if (retVal) {
+                    return retVal;
+                }
             }
         }
     }
@@ -654,6 +673,17 @@
     return [NSString stringWithFormat:@"%@/%@",[CacheManager getSystemDirectoryPath:NSLibraryDirectory],ACCOUNTS_PLIST];
 }
 
+
++(BOOL) fileExistsAtPath:(NSString *) path
+{
+    return [[NSFileManager defaultManager] fileExistsAtPath:path];
+}
+
+
++(NSString *) getTemporaryDirectory
+{
+    return NSTemporaryDirectory();
+}
 
 
 +(NSString *) getSystemDirectoryPath:(NSSearchPathDirectory) directoryType

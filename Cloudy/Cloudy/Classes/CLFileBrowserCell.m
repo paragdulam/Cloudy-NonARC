@@ -7,6 +7,7 @@
 //
 
 #import "CLFileBrowserCell.h"
+#import "CacheManager.h"
 
 @interface CLFileBrowserCell()
 {
@@ -125,10 +126,16 @@
     switch ([[dataDictionary objectForKey:FILE_TYPE] intValue]) {
         case 0: //file
         {
-            NSString *extention = [[titleText pathExtension] lowercaseString];
-            cellImage = [UIImage imageNamed:[NSString stringWithFormat:@"%@.png",extention]];
-            if (!cellImage) {
-                cellImage = [UIImage imageNamed:[NSString stringWithFormat:@"_blank.png"]];
+            NSString *cloudDataType = [[dataDictionary objectForKey:ACCOUNT_TYPE] intValue] ? SKYDRIVE_STRING : DROPBOX_STRING;
+            NSString *thumbPath = [NSString stringWithFormat:@"%@%@_%@",[CacheManager getTemporaryDirectory],cloudDataType,[[data objectForKey:FILE_PATH] stringByReplacingOccurrencesOfString:@"/" withString:@""]];
+            if ([[data objectForKey:FILE_THUMBNAIL] boolValue] && [CacheManager fileExistsAtPath:thumbPath]) {
+                cellImage = [UIImage imageWithContentsOfFile:thumbPath];
+            } else {
+                NSString *extention = [[titleText pathExtension] lowercaseString];
+                cellImage = [UIImage imageNamed:[NSString stringWithFormat:@"%@.png",extention]];
+                if (!cellImage) {
+                    cellImage = [UIImage imageNamed:[NSString stringWithFormat:@"_blank.png"]];
+                }
             }
         }
             break;

@@ -71,6 +71,11 @@ typedef enum CLOUD_PROVIDERS {
 } VIEW_TYPE;
 
 
+typedef enum DATA_MANIPULATION_TYPE {
+    UPDATE_DATA = 10000,
+    INSERT_DATA,
+    DELETE_DATA
+} DATA_MANIPULATION_TYPE;
 
 
 typedef enum FILE_TYPE {

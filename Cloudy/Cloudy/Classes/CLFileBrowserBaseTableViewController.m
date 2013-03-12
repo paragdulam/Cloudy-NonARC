@@ -187,15 +187,6 @@
 
 #pragma mark - UISearchBarDelegate
 
-//- (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText
-//{
-//    NSLog(@"searchText %@",searchText);
-//    [self filterContentForSearchText:searchText
-//                               scope:[[self.searchDisplayController.searchBar scopeButtonTitles]
-//                                      objectAtIndex:[self.searchDisplayController.searchBar
-//                                                     selectedScopeButtonIndex]]];
-//}
-
 - (void)searchBarCancelButtonClicked:(UISearchBar *) searchBar
 {
     [self readCacheUpdateView];
@@ -530,29 +521,33 @@ shouldReloadTableForSearchScope:(NSInteger)searchOption
 
 #pragma mark - LiveOperationDelegate
 
-- (void) liveOperationSucceeded:(LiveOperation *)operation
+
+-(void) liveOperationSucceeded:(LiveDownloadOperation *)operation
 {
     [liveOperations removeObject:operation];
     
     if ([operation.userState isKindOfClass:[NSString class]]) {
         if ([operation.userState isEqualToString:path]) {
-            NSDictionary *compatibleMetaData = [sharedManager processDictionary:operation.result ForDataType:DATA_METADATA AndViewType:SKYDRIVE];
+            NSDictionary *compatibleMetaData = [self getCompatibleDictionary:operation.result ForDataType:DATA_METADATA];
             if (![[compatibleMetaData objectForKey:FILE_LAST_UPDATED_TIME] isEqualToString:[currentFileData objectForKey:FILE_LAST_UPDATED_TIME]] || ![[currentFileData objectForKey:FILE_CONTENTS] count]) {
                 NSString *pathStr = [NSString stringWithFormat:@"%@/files",operation.userState];
-                [self.appDelegate.liveClient getWithPath:pathStr
-                                                delegate:self
-                                               userState:compatibleMetaData];
+                [liveOperations addObject:[self.appDelegate.liveClient getWithPath:pathStr delegate:self userState:compatibleMetaData]];
             } else {
                 [self stopAnimating];
             }
         }
+    } else if ([operation isKindOfClass:[LiveDownloadOperation class]]) {
+        LiveDownloadOperation *downloadOperation = (LiveDownloadOperation *)operation;
+        NSDictionary *data = (NSDictionary *)downloadOperation.userState;
+        [downloadOperation.data writeToFile:[NSString stringWithFormat:@"%@/%@_%@",[CacheManager getTemporaryDirectory],SKYDRIVE_STRING,[[data objectForKey:FILE_PATH] stringByReplacingOccurrencesOfString:@"/" withString:@""]] atomically:YES];
+        [self reloadRowForMetadata:data];
     } else {
         [self stopAnimating];
         NSMutableDictionary *finalMetaData = [NSMutableDictionary dictionaryWithDictionary:operation.userState];
-        
-        NSDictionary *compatibleMetaData = [sharedManager processDictionary:operation.result ForDataType:DATA_METADATA AndViewType:SKYDRIVE];
+        NSDictionary *compatibleMetaData = [self getCompatibleDictionary:operation.result ForDataType:DATA_METADATA];
         [finalMetaData addEntriesFromDictionary:compatibleMetaData];
         self.currentFileData = finalMetaData;
+        [self loadThumbnailForMetadata:currentFileData];
         [self writeCacheUpdateView];
     }
 }
@@ -585,37 +580,47 @@ shouldReloadTableForSearchScope:(NSInteger)searchOption
 
 #pragma mark - Thumbnail Methods
 
+-(void) loadThumbnailForMetadata:(NSDictionary *) dictionary
+{
+    NSArray *contents = [dictionary objectForKey:FILE_CONTENTS];
+    for (NSDictionary *data in contents) {
+        if ([[data objectForKey:FILE_THUMBNAIL] boolValue]) {
+            NSString *thumbPath = nil;
+            switch (viewType) {
+                case DROPBOX:
+                    thumbPath = [NSString stringWithFormat:@"%@%@_%@",[CacheManager getTemporaryDirectory],DROPBOX_STRING,[[data objectForKey:FILE_PATH] stringByReplacingOccurrencesOfString:@"/" withString:@""]];
+                    break;
+                case SKYDRIVE:
+                    thumbPath = [NSString stringWithFormat:@"%@%@_%@",[CacheManager getTemporaryDirectory],SKYDRIVE_STRING,[[data objectForKey:FILE_PATH] stringByReplacingOccurrencesOfString:@"/" withString:@""]];
+                    break;
+                    
+                default:
+                    break;
+            }
+            if (![CacheManager fileExistsAtPath:thumbPath]) {
+                switch (viewType) {
+                    case DROPBOX:
+                        [self.restClient loadThumbnail:[data objectForKey:FILE_PATH]
+                                                ofSize:@"small"
+                                              intoPath:thumbPath];
+                        break;
+                    case SKYDRIVE:
+                        [liveOperations addObject:[self.appDelegate.liveClient downloadFromPath:[data objectForKey:FILE_THUMBNAIL_URL] delegate:self userState:data]];
+                    default:
+                        break;
+                }
+            }
+        }
+    }
+}
+
 
 -(void) restClient:(DBRestClient *)client
    loadedThumbnail:(NSString *)destPath
           metadata:(DBMetadata *)metadata
 {
-    NSMutableDictionary *mData = [NSMutableDictionary dictionaryWithDictionary:[CLDictionaryConvertor dictionaryFromMetadata:metadata]];
-    int index = [self getIndexOfObjectForKey:[CLCacheManager pathFiedForViewType:viewType]
-                                   withValue:[mData objectForKey:@"path"]];
-    UIImage *image = [UIImage imageWithContentsOfFile:destPath];
-//    NSData *imageData = UIImagePNGRepresentation(image);
-    NSData *imageData = UIImageJPEGRepresentation(image, 1);
-
-    [mData setObject:imageData
-              forKey:THUMBNAIL_DATA];
-    [CLCacheManager deleteFileAtPath:destPath];
-    
-    [CLCacheManager updateFile:mData
-        whereTraversingPointer:nil
-               inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
-                   ForViewType:viewType];
-    if (index < [tableDataArray count]) {
-        [tableDataArray replaceObjectAtIndex:index withObject:mData];
-        NSIndexPath *indexPath = [NSIndexPath indexPathForRow:index
-                                                    inSection:0];
-        
-        [dataTableView beginUpdates];
-        [dataTableView reloadRowsAtIndexPaths:[NSArray arrayWithObject:indexPath]
-                             withRowAnimation:UITableViewRowAnimationAutomatic];
-        [dataTableView endUpdates];
-    }
-    
+    NSDictionary *compatibleMetaData = [self getCompatibleDictionary:[metadata original] ForDataType:DATA_METADATA];
+    [self reloadRowForMetadata:compatibleMetaData];
 }
 
 
@@ -628,23 +633,22 @@ shouldReloadTableForSearchScope:(NSInteger)searchOption
 
 -(void) restClient:(DBRestClient *)client createdFolder:(DBMetadata *)folder
 {
-    NSDictionary *folderDictionary = [CLDictionaryConvertor dictionaryFromMetadata:folder];
-    [CLCacheManager insertFile:folderDictionary
-        whereTraversingPointer:nil
-               inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
-                   ForViewType:viewType];
+    NSDictionary *compatibleMetadata = [self getCompatibleDictionary:[folder original] ForDataType:DATA_METADATA];
+    [sharedManager updateMetadata:compatibleMetadata
+                   WithUpdateType:INSERT_DATA
+                 inParentMetadata:[sharedManager rootDictionary:viewType]];
     
     
     //Updating UI
     [self stopAnimating];
 
-    [tableDataArray insertObject:folderDictionary atIndex:0];
-    [CLCacheManager arrangeFilesAndFolders:tableDataArray
-                               ForViewType:viewType];
+    [tableDataArray insertObject:compatibleMetadata atIndex:0];
+//    [CLCacheManager arrangeFilesAndFolders:tableDataArray
+//                               ForViewType:viewType];
     
 
     [dataTableView beginUpdates];
-    [dataTableView insertRowsAtIndexPaths:[NSArray arrayWithObject:[NSIndexPath indexPathForRow:[tableDataArray indexOfObject:folderDictionary] inSection:0]]
+    [dataTableView insertRowsAtIndexPaths:[NSArray arrayWithObject:[NSIndexPath indexPathForRow:[tableDataArray indexOfObject:compatibleMetadata] inSection:0]]
                          withRowAnimation:UITableViewRowAnimationBottom];
     [dataTableView endUpdates];
     //Updating UI
@@ -663,15 +667,16 @@ shouldReloadTableForSearchScope:(NSInteger)searchOption
 - (void)restClient:(DBRestClient*)client loadedMetadata:(DBMetadata*)metadata
 {
     [self stopAnimating];
-    NSDictionary *metadataDictionary = [metadata original];
-    NSDictionary *compatibleMetaData = [sharedManager processDictionary:metadataDictionary ForDataType:DATA_METADATA AndViewType:DROPBOX];
+    NSDictionary *compatibleMetaData = [sharedManager processDictionary:[metadata original] ForDataType:DATA_METADATA AndViewType:DROPBOX];
     [currentFileData addEntriesFromDictionary:compatibleMetaData];
+    [self loadThumbnailForMetadata:currentFileData];
     [self writeCacheUpdateView];
 }
 
 -(void) restClient:(DBRestClient *)client metadataUnchangedAtPath:(NSString *)path
 {
     [self stopAnimating];
+    [self loadThumbnailForMetadata:currentFileData];
 }
 
 
@@ -682,6 +687,29 @@ shouldReloadTableForSearchScope:(NSInteger)searchOption
 
 #pragma mark - Helper Methods
 
+
+-(NSDictionary *) getCompatibleDictionary:(NSDictionary *) metadata
+                              ForDataType:(TYPE_DATA) type
+{
+    return [sharedManager processDictionary:metadata
+                                ForDataType:type
+                                AndViewType:viewType];
+}
+
+-(void) reloadRowForMetadata:(NSDictionary *) metadata
+{
+    int index = [tableDataArray indexOfObject:metadata];
+    if (index < [tableDataArray count]) {
+        [tableDataArray replaceObjectAtIndex:index withObject:metadata];
+        NSIndexPath *indexPath = [NSIndexPath indexPathForRow:index
+                                                    inSection:0];
+        
+        [dataTableView beginUpdates];
+        [dataTableView reloadRowsAtIndexPaths:[NSArray arrayWithObject:indexPath]
+                             withRowAnimation:UITableViewRowAnimationAutomatic];
+        [dataTableView endUpdates];
+    }
+}
 
 -(void) createToolbarItems
 {
@@ -900,6 +928,7 @@ shouldReloadTableForSearchScope:(NSInteger)searchOption
 -(void) writeCacheUpdateView
 {
     [sharedManager updateMetadata:currentFileData
+                   WithUpdateType:UPDATE_DATA
                  inParentMetadata:[sharedManager rootDictionary:viewType]]; //updates cache
     [self readCacheUpdateView];
 }
