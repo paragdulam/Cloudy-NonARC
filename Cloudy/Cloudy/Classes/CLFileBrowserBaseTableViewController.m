@@ -252,7 +252,7 @@ shouldReloadTableForSearchScope:(NSInteger)searchOption
             case SKYDRIVE:
             {
                 NSDictionary *folder = [NSDictionary dictionaryWithObjectsAndKeys:inputTextField.text,@"name", nil];
-                LiveOperation *createFolderOperation = [self.appDelegate.liveClient postWithPath:path dictBody:folder delegate:self userState:[folder objectForKey:@"name"]];
+                LiveOperation *createFolderOperation = [self.appDelegate.liveClient postWithPath:path dictBody:folder delegate:self userState:folder];
                 [liveOperations addObject:createFolderOperation];
             }
                 break;
@@ -522,7 +522,7 @@ shouldReloadTableForSearchScope:(NSInteger)searchOption
 #pragma mark - LiveOperationDelegate
 
 
--(void) liveOperationSucceeded:(LiveDownloadOperation *)operation
+-(void) liveOperationSucceeded:(LiveOperation *)operation
 {
     [liveOperations removeObject:operation];
     
@@ -541,14 +541,20 @@ shouldReloadTableForSearchScope:(NSInteger)searchOption
         NSDictionary *data = (NSDictionary *)downloadOperation.userState;
         [downloadOperation.data writeToFile:[NSString stringWithFormat:@"%@/%@_%@",[CacheManager getTemporaryDirectory],SKYDRIVE_STRING,[[data objectForKey:FILE_PATH] stringByReplacingOccurrencesOfString:@"/" withString:@""]] atomically:YES];
         [self reloadRowForMetadata:data];
-    } else {
+    } else if ([operation.userState isKindOfClass:[NSDictionary class]]){
         [self stopAnimating];
-        NSMutableDictionary *finalMetaData = [NSMutableDictionary dictionaryWithDictionary:operation.userState];
-        NSDictionary *compatibleMetaData = [self getCompatibleDictionary:operation.result ForDataType:DATA_METADATA];
-        [finalMetaData addEntriesFromDictionary:compatibleMetaData];
-//        self.currentFileData = finalMetaData;
-        [self loadThumbnailForMetadata:currentFileData];
-        [self writeCacheUpdateView];
+        if (([[operation.userState allKeys] count] == 1)) {
+            [self handlecreatedFolder:operation.result];
+        } else { //metadata condition
+            NSMutableDictionary *finalMetaData = [NSMutableDictionary dictionaryWithDictionary:operation.userState];
+            NSDictionary *compatibleMetaData = [self getCompatibleDictionary:operation.result ForDataType:DATA_METADATA];
+            if ([[compatibleMetaData objectForKey:FILE_CONTENTS] count]) {
+                [finalMetaData addEntriesFromDictionary:compatibleMetaData];
+                self.currentFileData = finalMetaData;
+                [self loadThumbnailForMetadata:currentFileData];
+                [self writeCacheUpdateView];
+            }
+        }
     }
 }
 
@@ -557,24 +563,6 @@ shouldReloadTableForSearchScope:(NSInteger)searchOption
 {
    
 }
-
-
-/*
-- (void) liveOperationSucceeded:(LiveOperation *)operation
-{
-    [liveOperations removeObject:operation];
-    [self performFileOperation:operation];
-}
-
-- (void) liveOperationFailed:(NSError *)error
-                   operation:(LiveOperation*)operation
-{
-    [liveOperations removeObject:operation];
-    [self stopAnimating];
-    [AppDelegate showError:error alertOnView:self.view];
-}
-*/
-
 
 #pragma mark - DBRestClientDelegate
 
@@ -631,18 +619,19 @@ shouldReloadTableForSearchScope:(NSInteger)searchOption
 
 #pragma mark - Create Folder Methods
 
--(void) restClient:(DBRestClient *)client createdFolder:(DBMetadata *)folder
+-(void) handlecreatedFolder:(NSDictionary *) folder
 {
-    NSDictionary *compatibleMetadata = [self getCompatibleDictionary:[folder original] ForDataType:DATA_METADATA];
+    NSDictionary *compatibleMetadata = [self getCompatibleDictionary:folder
+                                                         ForDataType:DATA_METADATA];
     
     //Updating UI
     [self stopAnimating];
-
-    [tableDataArray insertObject:compatibleMetadata atIndex:0];
-    [CLCacheManager arrangeFilesAndFolders:tableDataArray
-                               ForViewType:viewType];
     
-
+    [tableDataArray insertObject:compatibleMetadata atIndex:0];
+    //    [CLCacheManager arrangeFilesAndFolders:tableDataArray
+    //                               ForViewType:viewType];
+    
+    
     [dataTableView beginUpdates];
     [dataTableView insertRowsAtIndexPaths:[NSArray arrayWithObject:[NSIndexPath indexPathForRow:[tableDataArray indexOfObject:compatibleMetadata] inSection:0]]
                          withRowAnimation:UITableViewRowAnimationBottom];
@@ -656,6 +645,12 @@ shouldReloadTableForSearchScope:(NSInteger)searchOption
     [sharedManager updateMetadata:currentFileData
                    WithUpdateType:UPDATE_DATA
                  inParentMetadata:[sharedManager rootDictionary:viewType]]; //
+
+}
+
+-(void) restClient:(DBRestClient *)client createdFolder:(DBMetadata *)folder
+{
+    [self handlecreatedFolder:[folder original]];
 }
 
 -(void) restClient:(DBRestClient *)client createFolderFailedWithError:(NSError *)error
