@@ -56,16 +56,6 @@
     [barItem setImage:[UIImage imageNamed:@"button_background_base.png"]
            WithInsets:UIEdgeInsetsMake(0, 10, 0, 10)];
     
-//    UILabel *selectPathLabel = [[UILabel alloc] init];
-//    selectPathLabel.backgroundColor = [UIColor clearColor];
-//    selectPathLabel.textColor = [UIColor whiteColor];
-//    selectPathLabel.font = [UIFont boldSystemFontOfSize:14.f];
-//    selectPathLabel.text = @"Select Destination";
-//    [selectPathLabel sizeToFit];
-//    [self.navigationController.navigationBar addSubview:selectPathLabel];
-//    [selectPathLabel release];
-//    selectPathLabel.center = CGPointMake(self.navigationController.navigationBar.center.x , self.navigationController.navigationBar.center.y - 25.f);
-    
     CGRect navBarFrame = self.navigationController.navigationBar.frame;
     navBarFrame.size.height = 64.f;
     self.navigationController.navigationBar.frame = navBarFrame;
@@ -74,6 +64,17 @@
     tableFrame.origin.y = 20;
     tableFrame.size.height = self.view.frame.size.height - navBarFrame.size.height ;
     dataTableView.frame = tableFrame;
+    
+    UILabel *selectPathLabel = [[UILabel alloc] init];
+    selectPathLabel.backgroundColor = [UIColor clearColor];
+    selectPathLabel.textColor = [UIColor whiteColor];
+    selectPathLabel.font = [UIFont systemFontOfSize:14.f];
+    selectPathLabel.text = @"Select Destination";
+    [selectPathLabel sizeToFit];
+    selectPathLabel.center = CGPointMake(self.navigationController.navigationBar.center.x , self.navigationController.navigationBar.center.y - 40.f);
+    [self.navigationController.navigationBar addSubview:selectPathLabel];
+    [selectPathLabel release];
+
 	// Do any additional setup after loading the view.
 }
 
@@ -245,34 +246,18 @@
     [excludedFolders enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
         NSDictionary *objDict = (NSDictionary *)obj;
         for (NSDictionary *data in computedData) {
-            if (([[data objectForKey:@"id"] isEqualToString:[objDict objectForKey:@"id"]]) || ([[data objectForKey:@"path"] isEqualToString:[objDict objectForKey:@"path"]])) {
+            if ([[data objectForKey:FILE_PATH] isEqualToString:[objDict objectForKey:FILE_PATH]]) {
                 [tempArray addObject:data];
             }
         }
     }];
     
-    
     [computedData removeObjectsInArray:tempArray];
     [tempArray release];
     NSMutableArray *files = [[NSMutableArray alloc] init];
     for (NSDictionary *data in computedData) {
-        switch (viewType) {
-            case DROPBOX:
-            {
-                if (![[data objectForKey:@"isDirectory"] boolValue]) {
-                    [files addObject:data];
-                }
-            }
-                break;
-            case SKYDRIVE:
-            {
-                if (![[data objectForKey:@"type"] isEqualToString:@"folder"] && ![[data objectForKey:@"type"] isEqualToString:@"album"]) {
-                    [files addObject:data];
-                }
-            }
-                break;
-            default:
-                break;
+        if (![[data objectForKey:FILE_TYPE] boolValue]) {
+            [files addObject:data];
         }
     }
     [computedData removeObjectsInArray:files];
@@ -292,30 +277,28 @@
 
 -(void) tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
+    NSDictionary *metadata = [tableDataArray objectAtIndex:indexPath.row];
+    NSString *pathStr = nil;
     switch (viewType) {
         case DROPBOX:
         {
-            NSDictionary *metadata = [tableDataArray objectAtIndex:indexPath.row];
-            CLPathSelectionViewController *pathSelectionViewController = [[CLPathSelectionViewController alloc] initWithTableViewStyle:UITableViewStylePlain WherePath:[metadata objectForKey:@"path"] WithinViewType:DROPBOX WhereExcludedFolders:excludedFolders];
-            pathSelectionViewController.delegate = delegate;
-            pathSelectionViewController.title = [metadata objectForKey:@"filename"];
-            [self.navigationController pushViewController:pathSelectionViewController animated:YES];
-            [pathSelectionViewController release];
+            pathStr = [metadata objectForKey:FILE_PATH];
         }
             break;
         case SKYDRIVE:
         {
-            NSDictionary *metadata = [tableDataArray objectAtIndex:indexPath.row];
-            CLPathSelectionViewController *pathSelectionViewController = [[CLPathSelectionViewController alloc] initWithTableViewStyle:UITableViewStylePlain WherePath:[metadata objectForKey:@"id"] WithinViewType:SKYDRIVE WhereExcludedFolders:excludedFolders];
-            pathSelectionViewController.delegate = delegate;
-            pathSelectionViewController.title = [metadata objectForKey:@"name"];
-            [self.navigationController pushViewController:pathSelectionViewController animated:YES];
-            [pathSelectionViewController release];
+            pathStr = [metadata objectForKey:FILE_ID];
         }
             break;
         default:
             break;
     }
+
+    CLPathSelectionViewController *pathSelectionViewController = [[CLPathSelectionViewController alloc] initWithTableViewStyle:UITableViewStylePlain WherePath:pathStr WithinViewType:viewType WhereExcludedFolders:excludedFolders];
+    pathSelectionViewController.delegate = delegate;
+    pathSelectionViewController.title = [metadata objectForKey:FILE_NAME];
+    [self.navigationController pushViewController:pathSelectionViewController animated:YES];
+    [pathSelectionViewController release];
 }
 
 

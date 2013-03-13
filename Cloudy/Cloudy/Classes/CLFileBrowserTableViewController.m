@@ -23,6 +23,9 @@
     NSArray *editingToolBarItems;
     
     NSMutableArray *selectedItems;
+    
+    UISearchBar *fileSearchBar;
+    UISearchDisplayController *searchController;
 }
 
 
@@ -70,6 +73,17 @@
            WithInsets:UIEdgeInsetsMake(0, 10, 0, 5)];
     [barItem setTitle:@"Edit" forState:UIControlStateNormal];
     [barItem setTitle:@"Done" forState:UIControlStateSelected];
+    
+    fileSearchBar = [[UISearchBar alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 44.f)];
+    [fileSearchBar setDelegate:self];
+    fileSearchBar.tintColor = NAVBAR_COLOR;
+    
+    searchController = [[UISearchDisplayController alloc] initWithSearchBar:fileSearchBar contentsController:self];
+    [fileSearchBar release];
+    
+    [searchController setSearchResultsDataSource:self];
+    [searchController setDelegate:self];
+    [searchController setSearchResultsDelegate:self];
 }
 
 
@@ -88,6 +102,9 @@
 
 -(void) dealloc
 {
+    [searchController release];
+    searchController = nil;
+    
     [editingToolBarItems release];
     editingToolBarItems = nil;
     
@@ -660,7 +677,7 @@ loadedSharableLink:(NSString *)link
                 pathString = ROOT_DROPBOX_PATH;
                 break;
             case SKYDRIVE:
-                pathString = ROOT_SKYDRIVE_PATH;
+                pathString = [NSString stringWithFormat:@"folder.%@",[sharedManager skyDriveRootPath]];
                 break;
                 
             default:
@@ -671,7 +688,6 @@ loadedSharableLink:(NSString *)link
         pathSelectionViewController.delegate = self;
         UINavigationController *nController = [[UINavigationController alloc] initWithRootViewController:pathSelectionViewController];
         [pathSelectionViewController release];
-        
         [self presentModalViewController:nController animated:YES];
         [nController release];
     }
@@ -738,8 +754,54 @@ loadedSharableLink:(NSString *)link
     
     [self showButtons:[NSArray arrayWithObjects:uploadButton,createFolderButton, nil]];
     [barItem hideEditButton:NO];
+    [dataTableView setContentOffset:CGPointMake(0, fileSearchBar.frame.size.height)];
+    dataTableView.tableHeaderView = fileSearchBar;
     [super loadFilesForPath:pathString WithInViewType:type];
 }
+
+
+#pragma mark - UISearchBarDelegate
+
+- (void)searchBarCancelButtonClicked:(UISearchBar *) searchBar
+{
+    [self readCacheUpdateView];
+}
+
+
+
+#pragma mark - UISearchDisplayDelegate
+
+- (void)filterContentForSearchText:(NSString*)searchText
+                             scope:(NSString*)scope
+{
+    NSPredicate *resultPredicate = [NSPredicate
+                                    predicateWithFormat:@"SELF.FILE_NAME contains[cd] %@",
+                                    searchText];
+    [self updateModel:[[currentFileData objectForKey:FILE_CONTENTS] filteredArrayUsingPredicate:resultPredicate]];
+    [self updateView];
+}
+
+-(BOOL)searchDisplayController:(UISearchDisplayController *)controller
+shouldReloadTableForSearchString:(NSString *)searchString
+{
+    [self filterContentForSearchText:searchString
+                               scope:[[self.searchDisplayController.searchBar scopeButtonTitles]
+                                      objectAtIndex:[self.searchDisplayController.searchBar
+                                                     selectedScopeButtonIndex]]];
+    
+    return YES;
+}
+
+- (BOOL)searchDisplayController:(UISearchDisplayController *)controller
+shouldReloadTableForSearchScope:(NSInteger)searchOption
+{
+    [self filterContentForSearchText:[self.searchDisplayController.searchBar text]
+                               scope:[[self.searchDisplayController.searchBar scopeButtonTitles]
+                                      objectAtIndex:searchOption]];
+    
+    return YES;
+}
+
 
 
 #pragma mark - UITableViewDataSource

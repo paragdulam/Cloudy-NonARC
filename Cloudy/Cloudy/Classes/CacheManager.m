@@ -104,6 +104,12 @@
 
 #pragma mark - Data Compatibility Methods
 
+
+-(NSString *) skyDriveRootPath
+{
+    return [[self accountOfType:SKYDRIVE] objectForKey:ID];
+}
+
 //only for SkyDrive
 
 -(NSString *) pathForMetadata:(NSDictionary *) mdata

@@ -43,5 +43,6 @@
 -(BOOL) isMetadataPresentForViewType:(VIEW_TYPE) type;
 +(NSString *) getTemporaryDirectory;
 +(BOOL) fileExistsAtPath:(NSString *) path;
+-(NSString *) skyDriveRootPath;
 
 @end

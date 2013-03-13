@@ -25,7 +25,6 @@
     NSArray *createFoldertoolBarItems;
     DDPopoverBackgroundView *popOverView;
     
-    NSMutableDictionary *currentFileData;
 }
 
 -(NSArray *) getCachedTableDataArrayForViewType:(VIEW_TYPE) type;
@@ -34,7 +33,6 @@
 -(void) createToolbarItems;
 -(void) createPopOverViewForUploads;
 
-@property (nonatomic,retain) NSMutableDictionary *currentFileData;
 
 @end
 
@@ -69,18 +67,6 @@
     [super viewDidLoad];
 	// Do any additional setup after loading the view.
 
-    fileSearchBar = [[UISearchBar alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 44.f)];
-    [fileSearchBar setDelegate:self];
-    fileSearchBar.tintColor = NAVBAR_COLOR;
-    
-    searchController = [[UISearchDisplayController alloc] initWithSearchBar:fileSearchBar contentsController:self];
-    [fileSearchBar release];
-
-    [searchController setSearchResultsDataSource:self];
-    [searchController setDelegate:self];
-    [searchController setSearchResultsDelegate:self];
-    
-    
     CGRect tableFrame = dataTableView.frame;
     tableFrame.size.height -= TOOLBAR_HEIGHT;
     dataTableView.frame = tableFrame;
@@ -147,9 +133,6 @@
     [currentFileData release];
     currentFileData = nil;
     
-    [searchController release];
-    searchController = nil;
-    
     [[NSNotificationCenter defaultCenter] removeObserver:self
                                                     name:UIKeyboardWillShowNotification
                                                   object:nil];
@@ -183,49 +166,6 @@
     [super dealloc];
 }
 
-
-
-#pragma mark - UISearchBarDelegate
-
-- (void)searchBarCancelButtonClicked:(UISearchBar *) searchBar
-{
-    [self readCacheUpdateView];
-}
-
-
-
-#pragma mark - UISearchDisplayDelegate
-
-- (void)filterContentForSearchText:(NSString*)searchText
-                             scope:(NSString*)scope
-{
-    NSPredicate *resultPredicate = [NSPredicate
-                                    predicateWithFormat:@"SELF.FILE_NAME contains[cd] %@",
-                                    searchText];
-    [self updateModel:[[currentFileData objectForKey:FILE_CONTENTS] filteredArrayUsingPredicate:resultPredicate]];
-    [self updateView];
-}
-
--(BOOL)searchDisplayController:(UISearchDisplayController *)controller
-shouldReloadTableForSearchString:(NSString *)searchString
-{
-    [self filterContentForSearchText:searchString
-                               scope:[[self.searchDisplayController.searchBar scopeButtonTitles]
-                                      objectAtIndex:[self.searchDisplayController.searchBar
-                                                     selectedScopeButtonIndex]]];
-    
-    return YES;
-}
-
-- (BOOL)searchDisplayController:(UISearchDisplayController *)controller
-shouldReloadTableForSearchScope:(NSInteger)searchOption
-{
-    [self filterContentForSearchText:[self.searchDisplayController.searchBar text]
-                               scope:[[self.searchDisplayController.searchBar scopeButtonTitles]
-                                      objectAtIndex:searchOption]];
-    
-    return YES;
-}
 
 
 #pragma mark - IBActions
@@ -813,8 +753,6 @@ shouldReloadTableForSearchScope:(NSInteger)searchOption
 
 -(void) loadFilesForPath:(NSString *) pathString WithInViewType:(VIEW_TYPE) type
 {
-    [dataTableView setContentOffset:CGPointMake(0, fileSearchBar.frame.size.height)];
-    dataTableView.tableHeaderView = fileSearchBar;
     dataTableView.separatorStyle = UITableViewCellSeparatorStyleSingleLine;
     
     self.path = pathString;
