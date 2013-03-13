@@ -16,7 +16,6 @@
 
 -(void) completeToolbarItems;
 
-
 @end
 
 @implementation CLPathSelectionViewController
@@ -41,7 +40,7 @@
                                    WherePath:pathString
                               WithinViewType:type])
     {
-        self.excludedFolders = folders;
+        self.excludedFolders = [NSMutableArray arrayWithArray:folders];
     }
     return self;
 }
@@ -148,6 +147,17 @@
 }
 
 
+#pragma mark - DBRestClientDelegate
+
+-(void) handlecreatedFolder:(NSDictionary *) folder
+{
+    [self createFolderUpdateUI:folder];
+    NSMutableArray *totalArray = [[NSMutableArray alloc] init];
+    [totalArray addObjectsFromArray:tableDataArray];
+    [totalArray addObjectsFromArray:excludedFolders];
+    [self updateContentsForCurrentDataWithArray:totalArray];
+    [totalArray release];
+}
 
 
 
@@ -260,6 +270,7 @@
             [files addObject:data];
         }
     }
+    [excludedFolders addObjectsFromArray:files];
     [computedData removeObjectsInArray:files];
     [files release];
     

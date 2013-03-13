@@ -13,11 +13,11 @@
 
 @interface CLPathSelectionViewController : CLFileBrowserBaseTableViewController<UITextFieldDelegate>
 {
-    NSArray *excludedFolders;
+    NSMutableArray *excludedFolders; //Files are also Included Now
     id <CLPathSelectionViewControllerDelegate> delegate;
 }
 
-@property(nonatomic,retain) NSArray *excludedFolders;
+@property(nonatomic,retain) NSMutableArray *excludedFolders;
 @property(nonatomic,assign) id <CLPathSelectionViewControllerDelegate> delegate;
 
 -(id) initWithTableViewStyle:(UITableViewStyle)style WherePath:(NSString *) pathString WithinViewType:(VIEW_TYPE) type WhereExcludedFolders:(NSArray *) folders;

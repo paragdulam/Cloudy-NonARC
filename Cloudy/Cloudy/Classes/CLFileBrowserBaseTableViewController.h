@@ -45,6 +45,10 @@
 -(void) stopAnimating;
 -(void) readCacheUpdateView;
 -(void) updateModel:(NSArray *) model;
+-(void) createFolderUpdateUI:(NSDictionary *) folder;
+-(void) updateContentsForCurrentDataWithArray:(NSArray *) contents;
+-(void) handlecreatedFolder:(NSDictionary *) folder;
+
 -(void) performFileOperation:(LiveOperation *) operation;
 
 -(CLFileBrowserCell *) cellAtIndexPath:(NSIndexPath *)indexPath;

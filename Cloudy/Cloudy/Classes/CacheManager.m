@@ -248,11 +248,28 @@
                                                  forKey:FILE_PATH
                                          FromDictionary:dictionary
                                                  forKey:@"path"];
-                    NSString *fileName = [[[dictionary objectForKey:@"path"] componentsSeparatedByString:@"/"] lastObject];
+                    NSArray *components = [CacheManager trimmedArrayForPath:[dictionary objectForKey:@"path"]];
+                    NSString *fileName = [components lastObject];
                     if (![fileName length]) {
                         fileName = ROOT_DROPBOX_PATH;
                     }
                     [retVal setObject:fileName forKey:FILE_NAME];
+                    
+                    NSMutableString *parentPath = [[NSMutableString alloc] init];
+                    int cnt = [components count] - 1;
+                    if (cnt > 0) {
+                        for (int i = 0; i < cnt; i++) {
+                            NSString *component = [components objectAtIndex:i];
+                            [parentPath appendFormat:@"/%@",component];
+                        }
+                    } else {
+                        if (![fileName isEqualToString:ROOT_DROPBOX_PATH]) {
+                            [parentPath appendFormat:ROOT_DROPBOX_PATH];
+                        }
+                    }
+                    
+                    [retVal setObject:parentPath forKey:FILE_PARENT_ID];
+                    [parentPath release];
                     
                     [CacheManager setObjectInDictionary:retVal
                                                  forKey:FILE_CONTENTS

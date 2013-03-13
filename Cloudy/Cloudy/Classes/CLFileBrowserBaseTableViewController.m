@@ -559,7 +559,18 @@
 
 #pragma mark - Create Folder Methods
 
--(void) handlecreatedFolder:(NSDictionary *) folder
+-(void) updateContentsForCurrentDataWithArray:(NSArray *) contents
+{
+    NSMutableArray *updatedContents = [NSMutableArray arrayWithArray:contents];
+    [currentFileData setObject:updatedContents forKey:FILE_CONTENTS];
+    
+    [sharedManager updateMetadata:currentFileData
+                   WithUpdateType:UPDATE_DATA
+                 inParentMetadata:[sharedManager rootDictionary:viewType]]; //
+}
+
+
+-(void) createFolderUpdateUI:(NSDictionary *) folder
 {
     NSDictionary *compatibleMetadata = [self getCompatibleDictionary:folder
                                                          ForDataType:DATA_METADATA];
@@ -568,23 +579,21 @@
     [self stopAnimating];
     
     [tableDataArray insertObject:compatibleMetadata atIndex:0];
-    //    [CLCacheManager arrangeFilesAndFolders:tableDataArray
-    //                               ForViewType:viewType];
-    
     
     [dataTableView beginUpdates];
     [dataTableView insertRowsAtIndexPaths:[NSArray arrayWithObject:[NSIndexPath indexPathForRow:[tableDataArray indexOfObject:compatibleMetadata] inSection:0]]
                          withRowAnimation:UITableViewRowAnimationBottom];
     [dataTableView endUpdates];
     //Updating UI
+}
+
+
+-(void) handlecreatedFolder:(NSDictionary *) folder
+{
+    [self createFolderUpdateUI:folder];
+    [self updateContentsForCurrentDataWithArray:[[tableDataArray mutableCopy]
+                                                 autorelease]];
     
-    NSMutableArray *tableArrayCopy = [tableDataArray mutableCopy];
-    [currentFileData setObject:tableArrayCopy forKey:FILE_CONTENTS];
-    [tableArrayCopy release];
-    
-    [sharedManager updateMetadata:currentFileData
-                   WithUpdateType:UPDATE_DATA
-                 inParentMetadata:[sharedManager rootDictionary:viewType]]; //
 
 }
 
@@ -625,6 +634,8 @@
 }
 
 #pragma mark - Helper Methods
+
+
 
 
 -(NSDictionary *) getCompatibleDictionary:(NSDictionary *) metadata

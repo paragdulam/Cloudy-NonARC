@@ -164,7 +164,7 @@ loadedSharableLink:(NSString *)link
     NSMutableArray *urls = [[NSMutableArray alloc] init];
     NSDictionary *file = nil;
     for (NSDictionary *data in selectedItems) {
-        if ([[data objectForKey:@"path"] isEqualToString:pathStr]) {
+        if ([[data objectForKey:FILE_PATH] isEqualToString:pathStr]) {
             [urls addObject:[NSDictionary dictionaryWithObject:link
                                                         forKey:[data objectForKey:@"filename"]]];
             file = data;
@@ -189,20 +189,18 @@ loadedSharableLink:(NSString *)link
 
 #pragma mark - Copy File Operation Methods
 
-- (void)restClient:(DBRestClient*)client copiedPath:(NSString *)fromPath to:(DBMetadata *)to
+- (void)restClient:(DBRestClient*)client
+        copiedPath:(NSString *)fromPath
+                to:(DBMetadata *)to
 {
-    NSDictionary *metaData = [CLDictionaryConvertor dictionaryFromMetadata:to];
-    [CLCacheManager insertFile:metaData
-        whereTraversingPointer:nil
-               inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
-                   ForViewType:viewType];
-    int index = INFINITY;
+    int index = INVALID_INDEX;
     for (NSDictionary *data in selectedItems) {
-        if ([[data objectForKey:@"path"] isEqualToString:fromPath]) {
+        if ([[data objectForKey:FILE_PATH] isEqualToString:fromPath]) {
             index = [selectedItems indexOfObject:data];
+            break;
         }
     }
-    if (index < [selectedItems count]) {
+    if (index != INVALID_INDEX) {
         [selectedItems removeObjectAtIndex:index];
     }
     if (![selectedItems count]) {
@@ -220,16 +218,15 @@ loadedSharableLink:(NSString *)link
 
 #pragma mark - Move File Operation Methods
 
-- (void)restClient:(DBRestClient*)client movedPath:(NSString *)from_path to:(DBMetadata *)result
+- (void)restClient:(DBRestClient*)client
+         movedPath:(NSString *)from_path
+                to:(DBMetadata *)result
 {
     //Deletion First Then Insertion
     [self removeSelectedRowForPath:from_path];
     //Deletion First Then Insertion
-    NSDictionary *metaData = [CLDictionaryConvertor dictionaryFromMetadata:result];
-    [CLCacheManager insertFile:metaData
-        whereTraversingPointer:nil
-               inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
-                   ForViewType:viewType];
+    
+    //Insertion in Cache Remaining
 }
 
 - (void)restClient:(DBRestClient*)client movePathFailedWithError:(NSError*)error
@@ -241,7 +238,6 @@ loadedSharableLink:(NSString *)link
 
 - (void)restClient:(DBRestClient*)client deletedPath:(NSString *)pathStr
 {
-    [CLCacheManager deleteFileAtPath:pathStr];
     [self removeSelectedRowForPath:pathStr];
 }
 
@@ -263,7 +259,8 @@ loadedSharableLink:(NSString *)link
 
 
 
--(void) pathDidSelect:(NSString *) pathString ForViewController:(CLPathSelectionViewController *) viewController
+-(void) pathDidSelect:(NSString *) pathString
+    ForViewController:(CLPathSelectionViewController *) viewController
 {
     NSLog(@"path %@",pathString);
     NSArray *selectedData = [self getSelectedDataArray];
@@ -272,15 +269,14 @@ loadedSharableLink:(NSString *)link
             case DROPBOX:
             {
                 for (NSDictionary *data in selectedData) {
-                    NSString *fileName = [[[data objectForKey:@"path"] componentsSeparatedByString:@"/"] lastObject];
-                    
-                    switch (currentFileOperation) {
-                        case MOVE:
-                            [self.restClient moveFrom:[data objectForKey:@"path"]
+                    NSString *fileName = [data objectForKey:FILE_NAME];
+                    switch ([self getSelectedButton].tag) {
+                        case 1:
+                            [self.restClient moveFrom:[data objectForKey:FILE_PATH]
                                                toPath:[NSString stringWithFormat:@"%@/%@",pathString,fileName]];
                             break;
-                        case COPY:
-                            [self.restClient copyFrom:[data objectForKey:@"path"]
+                        case 2:
+                            [self.restClient copyFrom:[data objectForKey:FILE_PATH]
                                                toPath:[NSString stringWithFormat:@"%@/%@",pathString,fileName]];
                             break;
                             
@@ -292,23 +288,22 @@ loadedSharableLink:(NSString *)link
                 break;
             case SKYDRIVE:
             {
-                pathString = [NSString stringWithFormat:@"%@",[[pathString componentsSeparatedByString:@"/"] objectAtIndex:0]];
                 if (![pathString hasPrefix:@"folder."]) { //only folders are input here
                     pathString = [NSString stringWithFormat:@"folder.%@",pathString];
                 }
                 for (NSDictionary *data in selectedData) {
-                    switch (currentFileOperation) {
-                        case MOVE:
+                    switch ([self getSelectedButton].tag) {
+                        case 1:
                         {
-                            LiveOperation *moveOperation =                         [self.appDelegate.liveClient moveFromPath:[data objectForKey:@"id"]
-                                                                                                               toDestination:pathString delegate:self userState:[data objectForKey:@"id"]];
+                            LiveOperation *moveOperation =                         [self.appDelegate.liveClient moveFromPath:[data objectForKey:FILE_ID]
+                                                                                                               toDestination:pathString delegate:self userState:[data objectForKey:FILE_ID]];
                             [liveOperations addObject:moveOperation];
                         }
                             break;
-                        case COPY:
+                        case 2:
                         {
-                            LiveOperation *copyOperation =                          [self.appDelegate.liveClient copyFromPath:[data objectForKey:@"id"]
-                                                                                                                toDestination:pathString delegate:self userState:[data objectForKey:@"id"]];
+                            LiveOperation *copyOperation =                          [self.appDelegate.liveClient copyFromPath:[data objectForKey:FILE_ID]
+                                                                                                                toDestination:pathString delegate:self userState:[data objectForKey:FILE_ID]];
                             [liveOperations addObject:copyOperation];
                             
                         }
@@ -476,6 +471,7 @@ loadedSharableLink:(NSString *)link
                             forState:UIControlStateNormal];
     [deleteButton.titleLabel setFont:[UIFont boldSystemFontOfSize:12.f]];
     deleteButton.exclusiveTouch = YES;
+    [deleteButton setTag:0];
     [deleteButton addTarget:self
                      action:@selector(deleteButtonClicked:)
            forControlEvents:UIControlEventTouchUpInside];
@@ -491,6 +487,7 @@ loadedSharableLink:(NSString *)link
                           forState:UIControlStateNormal];
     [moveButton.titleLabel setFont:[UIFont boldSystemFontOfSize:12.f]];
     moveButton.exclusiveTouch = YES;
+    [moveButton setTag:1];
     [moveButton addTarget:self
                    action:@selector(moveButtonClicked:)
          forControlEvents:UIControlEventTouchUpInside];
@@ -506,6 +503,7 @@ loadedSharableLink:(NSString *)link
                           forState:UIControlStateNormal];
     [copyButton.titleLabel setFont:[UIFont boldSystemFontOfSize:12.f]];
     copyButton.exclusiveTouch = YES;
+    [copyButton setTag:2];
     [copyButton addTarget:self
                    action:@selector(copyButtonClicked:)
          forControlEvents:UIControlEventTouchUpInside];
@@ -521,6 +519,7 @@ loadedSharableLink:(NSString *)link
     [shareButton setBackgroundImage:buttonImage
                            forState:UIControlStateNormal];
     [shareButton.titleLabel setFont:[UIFont boldSystemFontOfSize:12.f]];
+    [shareButton setTag:3];
     [shareButton addTarget:self
                     action:@selector(shareButtonClicked:)
           forControlEvents:UIControlEventTouchUpInside];
@@ -612,26 +611,19 @@ loadedSharableLink:(NSString *)link
 {
     [super startAnimating];
     [self updateView];
-//    if (currentFileOperation != METADATA) {
-//        [self.navigationItem setHidesBackButton:YES animated:YES];
-//    }
 }
 
 -(void) stopAnimating
 {
     [super stopAnimating];
     [self updateView];
-//    if (currentFileOperation != METADATA) {
-//        [self.navigationItem setHidesBackButton:NO animated:YES];
-//    }
 }
 
 
 -(void) removeSelectedRowForPath:(NSString *)filePath
 {
     for (NSDictionary *data in selectedItems) {
-        if (([[data objectForKey:@"path"] isEqualToString:filePath]) ||
-            ([[data objectForKey:@"id"] isEqualToString:filePath])) {
+        if ([[data objectForKey:FILE_PATH] isEqualToString:filePath]) {
             [self removeSelectedRow:data];
             [selectedItems removeObject:data];
             break;
@@ -645,25 +637,20 @@ loadedSharableLink:(NSString *)link
 
 -(void) removeSelectedRow:(NSDictionary *) file
 {
-    [CLCacheManager deleteFile:file
-        whereTraversingPointer:nil
-               inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
-                   ForViewType:viewType];
-    __block int index = INFINITY;
-    [tableDataArray enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-        NSDictionary *objDict = (NSDictionary *)obj;
-        if ([[objDict objectForKey:@"id"] isEqualToString:[file objectForKey:@"id"]] || [[objDict objectForKey:@"path"] isEqualToString:[file objectForKey:@"path"]]) {
-            index = idx;
-            *stop = YES;
-        }
-    }];
+    int index = [tableDataArray indexOfObject:file];
     [tableDataArray removeObjectAtIndex:index];
-    if (index < [tableDataArray count]) {
-        NSIndexPath *indexPath = [NSIndexPath indexPathForRow:index
-                                                    inSection:0];
-        [dataTableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath]
-                             withRowAnimation:UITableViewRowAnimationLeft];
-    }
+    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:index
+                                                inSection:0];
+    [dataTableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath]
+                         withRowAnimation:UITableViewRowAnimationLeft];
+
+    NSMutableArray *tableDataCopy = [tableDataArray mutableCopy];
+    [currentFileData setObject:tableDataCopy forKey:FILE_CONTENTS];
+    [tableDataCopy release];
+    
+    [sharedManager updateMetadata:currentFileData
+                   WithUpdateType:UPDATE_DATA
+                 inParentMetadata:[sharedManager rootDictionary:viewType]];
 }
 
 
@@ -814,7 +801,7 @@ shouldReloadTableForSearchScope:(NSInteger)searchOption
     if ([selectedItems count]) {
         for (NSDictionary *data in selectedItems) {
             NSDictionary *tableData = [tableDataArray objectAtIndex:indexPath.row];
-            if ([[tableData objectForKey:@"path"] isEqualToString:[data objectForKey:@"path"]] || [[tableData objectForKey:@"id"] isEqualToString:[data objectForKey:@"id"]]) {
+            if ([tableData isEqualToDictionary:data]) {
                 [cell startAnimating];
             }
         }
@@ -855,6 +842,28 @@ shouldReloadTableForSearchScope:(NSInteger)searchOption
 
 #pragma mark - IBActions
 
+-(void) deselectAllBut:(UIButton *) btn
+{
+    moveButton.selected = NO;
+    shareButton.selected = NO;
+    copyButton.selected = NO;
+    deleteButton.selected = NO;
+    btn.selected = YES;
+}
+
+-(UIButton *) getSelectedButton
+{
+    for (UIBarButtonItem *barButtonItem in editingToolBarItems) {
+        UIButton *btn = (UIButton *)[barButtonItem customView];
+        if (btn) {
+            if (btn.selected) {
+                return btn;
+            }
+        } 
+    }
+    return nil;
+}
+
 -(void) uploadButtonClicked:(UIButton *) btn
 {
     AGImagePickerController *imagePicker = [[AGImagePickerController alloc] initWithDelegate:self];
@@ -866,7 +875,7 @@ shouldReloadTableForSearchScope:(NSInteger)searchOption
 
 -(void) shareButtonClicked:(UIButton *) sender
 {
-    currentFileOperation = SHARE;
+    [self deselectAllBut:sender];
     NSArray *selectedData = [self getSelectedDataArray];
     [barItem deselectAll];
     if ([selectedData count]) {
@@ -902,20 +911,20 @@ shouldReloadTableForSearchScope:(NSInteger)searchOption
 
 -(void) copyButtonClicked:(UIButton *) sender
 {
-    currentFileOperation = COPY;
+    [self deselectAllBut:sender];
     [self performFileOperation];
 }
 
 
 -(void) moveButtonClicked:(UIButton *) sender
 {
-    currentFileOperation = MOVE;
+    [self deselectAllBut:sender];
     [self performFileOperation];
 }
 
 -(void) deleteButtonClicked:(UIButton *) sender
 {
-    currentFileOperation = DELETE;
+    [self deselectAllBut:sender];
     NSArray *selectedData = [self getSelectedDataArray];
     [barItem deselectAll];
     if ([selectedData count]) {
@@ -923,16 +932,16 @@ shouldReloadTableForSearchScope:(NSInteger)searchOption
             case DROPBOX:
             {
                 for (NSDictionary *data in selectedData) {
-                    [self.restClient deletePath:[data objectForKey:@"path"]];
+                    [self.restClient deletePath:[data objectForKey:FILE_PATH]];
                 }
             }
                 break;
             case SKYDRIVE:
             {
                 for (NSDictionary *data in selectedData) {
-                    LiveOperation *deleteOperation =                 [self.appDelegate.liveClient deleteWithPath:[data objectForKey:@"id"]
+                    LiveOperation *deleteOperation =                 [self.appDelegate.liveClient deleteWithPath:[data objectForKey:FILE_ID]
                                                                                                         delegate:self
-                                                                                                       userState:[data objectForKey:@"id"]];
+                                                                                                       userState:[data objectForKey:FILE_ID]];
                     [liveOperations addObject:deleteOperation];
                 }
             }
