@@ -274,7 +274,11 @@
     [computedData removeObjectsInArray:files];
     [files release];
     
-    [super updateModel:computedData];
+    
+    NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:FILE_NAME ascending:YES];
+    
+    [super updateModel:[computedData sortedArrayUsingDescriptors:[NSArray arrayWithObject:sortDescriptor]]];
+    [sortDescriptor release];
     [computedData release];
 }
 

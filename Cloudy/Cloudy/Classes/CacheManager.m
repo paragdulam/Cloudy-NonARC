@@ -323,6 +323,9 @@
                 case DATA_METADATA:
                 {
                     NSArray *contents = [dictionary objectForKey:@"data"];
+                    NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"name" ascending:YES];
+                    contents = [contents sortedArrayUsingDescriptors:[NSArray arrayWithObject:sortDescriptor]];
+                    [sortDescriptor release];
                     if ([contents count]) {
                         NSMutableArray *mutableContents = [[NSMutableArray alloc] initWithCapacity:0];
                         for (NSDictionary *mdata in contents) {

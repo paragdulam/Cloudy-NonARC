@@ -23,6 +23,7 @@
     NSArray *editingToolBarItems;
     
     NSMutableArray *selectedItems;
+    NSMutableArray *urls;
     
     UISearchBar *fileSearchBar;
     UISearchDisplayController *searchController;
@@ -85,6 +86,7 @@
            WithInsets:UIEdgeInsetsMake(0, 10, 0, 5)];
     [barItem setTitle:@"Edit" forState:UIControlStateNormal];
     [barItem setTitle:@"Done" forState:UIControlStateSelected];
+    urls = [[NSMutableArray alloc] init];
 }
 
 
@@ -103,6 +105,9 @@
 
 -(void) dealloc
 {
+    [urls release];
+    urls = nil;
+    
     [searchController release];
     searchController = nil;
     
@@ -161,12 +166,11 @@
 loadedSharableLink:(NSString *)link
            forFile:(NSString *)pathStr
 {
-    NSMutableArray *urls = [[NSMutableArray alloc] init];
     NSDictionary *file = nil;
     for (NSDictionary *data in selectedItems) {
         if ([[data objectForKey:FILE_PATH] isEqualToString:pathStr]) {
             [urls addObject:[NSDictionary dictionaryWithObject:link
-                                                        forKey:[data objectForKey:@"filename"]]];
+                                                        forKey:[data objectForKey:FILE_NAME]]];
             file = data;
             break;
         }
@@ -176,7 +180,6 @@ loadedSharableLink:(NSString *)link
         [self stopAnimating];
         [self shareURLsThroughMail:urls];
     }
-    [urls release];  //released By Parag
 }
 
 
@@ -882,8 +885,9 @@ shouldReloadTableForSearchScope:(NSInteger)searchOption
         switch (viewType) {
             case DROPBOX:
             {
+                [urls removeAllObjects];
                 for (NSDictionary *data in selectedData) {
-                    [self.restClient loadSharableLinkForFile:[data objectForKey:@"path"] shortUrl:YES];
+                    [self.restClient loadSharableLinkForFile:[data objectForKey:FILE_PATH] shortUrl:YES];
                 }
                 
                 //Animation Delay Because we need to avoid sudden flickering of tableview happening
