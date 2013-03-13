@@ -63,17 +63,6 @@
 {
 	// Do any additional setup after loading the view.
     
-    [super viewDidLoad]; 
-    [self completeToolbarItems];
-    [fileOperationsToolbar setItems:toolBarItems animated:YES];
-    [self createEditingToolbarItems];
-    //currentFileOperation = INFINITY;
-    [barItem setFrame:CGRectMake(0, 0, 50, 30)];
-    [barItem setImage:[UIImage imageNamed:@"button_background_base.png"]
-           WithInsets:UIEdgeInsetsMake(0, 10, 0, 5)];
-    [barItem setTitle:@"Edit" forState:UIControlStateNormal];
-    [barItem setTitle:@"Done" forState:UIControlStateSelected];
-    
     fileSearchBar = [[UISearchBar alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 44.f)];
     [fileSearchBar setDelegate:self];
     fileSearchBar.tintColor = NAVBAR_COLOR;
@@ -84,6 +73,18 @@
     [searchController setSearchResultsDataSource:self];
     [searchController setDelegate:self];
     [searchController setSearchResultsDelegate:self];
+
+    [super viewDidLoad]; //sequence is important
+    
+    [self completeToolbarItems];
+    [fileOperationsToolbar setItems:toolBarItems animated:YES];
+    [self createEditingToolbarItems];
+    //currentFileOperation = INFINITY;
+    [barItem setFrame:CGRectMake(0, 0, 50, 30)];
+    [barItem setImage:[UIImage imageNamed:@"button_background_base.png"]
+           WithInsets:UIEdgeInsetsMake(0, 10, 0, 5)];
+    [barItem setTitle:@"Edit" forState:UIControlStateNormal];
+    [barItem setTitle:@"Done" forState:UIControlStateSelected];
 }
 
 
@@ -611,18 +612,18 @@ loadedSharableLink:(NSString *)link
 {
     [super startAnimating];
     [self updateView];
-    if (currentFileOperation != METADATA) {
-        [self.navigationItem setHidesBackButton:YES animated:YES];
-    }
+//    if (currentFileOperation != METADATA) {
+//        [self.navigationItem setHidesBackButton:YES animated:YES];
+//    }
 }
 
 -(void) stopAnimating
 {
     [super stopAnimating];
     [self updateView];
-    if (currentFileOperation != METADATA) {
-        [self.navigationItem setHidesBackButton:NO animated:YES];
-    }
+//    if (currentFileOperation != METADATA) {
+//        [self.navigationItem setHidesBackButton:NO animated:YES];
+//    }
 }
 
 
