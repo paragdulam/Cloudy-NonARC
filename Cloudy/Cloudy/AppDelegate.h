@@ -17,6 +17,7 @@
 
 @class CLFileBrowserTableViewController;
 @class CLUploadsTableViewController;
+@class CLAccountsTableViewController;
 
 @interface AppDelegate : UIResponder <UIApplicationDelegate,DBRestClientDelegate,LiveUploadOperationDelegate,BoxClientDelegate>
 {
@@ -30,10 +31,13 @@
     DBRestClient *restClient;
     BoxClient *boxClient;
     CLUploadsTableViewController *uploadsViewController;
+    CLAccountsTableViewController *callbackViewController;
 }
 
 @property (strong, nonatomic) UIWindow *window;
 @property (retain, nonatomic) DDMenuController *menuController;
+@property (assign, nonatomic) CLAccountsTableViewController *callbackViewController;
+
 @property (assign, nonatomic) CLFileBrowserTableViewController *rootFileBrowserViewController;
 @property (retain, nonatomic) DBSession *dropboxSession;
 @property (retain, nonatomic) LiveConnectClient *liveClient;

@@ -350,6 +350,12 @@
                                              FromDictionary:dictionary
                                                      forKey:@"size"];
                         
+                        [CacheManager setObjectInDictionary:retVal
+                                                     forKey:FILE_URL
+                                             FromDictionary:dictionary
+                                                     forKey:@"link"];
+
+                        
                         if ([[dictionary objectForKey:@"type"] isEqualToString:@"folder"] || [[dictionary objectForKey:@"type"] isEqualToString:@"album"]) {
                             [retVal setObject:[NSNumber numberWithInt:1]
                                        forKey:FILE_TYPE];

@@ -14,5 +14,7 @@
 -(void)authenticationDoneForSession:(DBSession *)session;
 -(void)  authenticationCancelledManuallyForSession:(DBSession *) session;
 -(void) authenticationDone;
+-(void) getSkyDriveQuotaForUserAccount:(NSDictionary *) account;
+
 @end
 

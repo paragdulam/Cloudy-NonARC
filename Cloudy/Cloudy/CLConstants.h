@@ -152,10 +152,14 @@ typedef enum DATA_TYPE {
 #define FILE_EXTENSION @"FILE_EXTENSION"
 #define FILE_THUMBNAIL @"FILE_THUMBNAIL"
 #define FILE_THUMBNAIL_URL @"FILE_THUMBNAIL_URL"
+#define FILE_URL @"FILE_URL"
 
 
 #define INVALID_INDEX -1
 
+#define MOVE_ @"MOVE_"
+#define COPY_ @"COPY_"
+#define DELETE_ @"DELETE_"
 
 
 #endif

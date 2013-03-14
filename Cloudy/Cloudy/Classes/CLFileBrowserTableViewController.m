@@ -8,6 +8,7 @@
 
 #import "CLFileBrowserTableViewController.h"
 #import "CLPathSelectionViewController.h"
+#import "CLAccountsTableViewController.h"
 
 
 @interface CLFileBrowserTableViewController ()
@@ -134,7 +135,38 @@
 
 - (void) liveOperationSucceeded:(LiveOperation *)operation
 {
-    [super liveOperationSucceeded:operation];
+    if ([operation.userState isKindOfClass:[NSString class]]) {
+        if ([operation.userState hasPrefix:MOVE_] || [operation.userState hasPrefix:COPY_] || [operation.userState hasPrefix:DELETE_]) {
+            NSString *userState = (NSString *)operation.userState;
+            if ([userState hasPrefix:MOVE_] || [userState hasPrefix:DELETE_]) {
+                NSString *idStr = [userState stringByReplacingOccurrencesOfString:MOVE_ withString:@""];
+                idStr = [idStr stringByReplacingOccurrencesOfString:DELETE_ withString:@""];
+                [self removeSelectedRowForPath:idStr];
+                if ([userState hasPrefix:DELETE_]) {
+                    [self.appDelegate.callbackViewController getSkyDriveQuotaForUserAccount:[sharedManager accountOfType:SKYDRIVE]];
+                }
+            } else if ([userState hasPrefix:COPY_]) {
+                int index = INVALID_INDEX;
+                for (NSDictionary *data in selectedItems) {
+                    if ([[data objectForKey:FILE_ID] isEqualToString:[userState stringByReplacingOccurrencesOfString:COPY_ withString:@""]]) {
+                        index = [selectedItems indexOfObject:data];
+                        break;
+                    }
+                }
+                if (index != INVALID_INDEX) {
+                    [selectedItems removeObjectAtIndex:index];
+                }
+                if (![selectedItems count]) {
+                    [self stopAnimating];
+                    [self.appDelegate.callbackViewController getSkyDriveQuotaForUserAccount:[sharedManager accountOfType:SKYDRIVE]];
+                }
+            }
+        } else {
+            [super liveOperationSucceeded:operation];
+        }
+    } else {
+        [super liveOperationSucceeded:operation];
+    }
 }
 
 - (void) liveOperationFailed:(NSError *)error
@@ -208,6 +240,7 @@ loadedSharableLink:(NSString *)link
     }
     if (![selectedItems count]) {
         [self stopAnimating];
+        [self.appDelegate.callbackViewController authenticationDoneForSession:[self.appDelegate dropboxSession]];
     }
 }
 
@@ -215,7 +248,9 @@ loadedSharableLink:(NSString *)link
 {
     [selectedItems removeAllObjects];
     [self stopAnimating];
-    [AppDelegate showError:error alertOnView:self.view];
+    [AppDelegate showMessage:[error.userInfo objectForKey:@"error"]
+                   withColor:[UIColor redColor]
+                 alertOnView:self.view];
 }
 
 
@@ -242,12 +277,15 @@ loadedSharableLink:(NSString *)link
 - (void)restClient:(DBRestClient*)client deletedPath:(NSString *)pathStr
 {
     [self removeSelectedRowForPath:pathStr];
+    [self.appDelegate.callbackViewController  authenticationDoneForSession:[self.appDelegate dropboxSession]];
 }
 
 - (void)restClient:(DBRestClient*)client deletePathFailedWithError:(NSError*)error
 {
     [self stopAnimating];
-    [AppDelegate showError:error alertOnView:self.view];
+    [AppDelegate showMessage:[error.userInfo objectForKey:@"error"]
+                   withColor:[UIColor redColor]
+                 alertOnView:self.view];
 }
 
 
@@ -265,7 +303,6 @@ loadedSharableLink:(NSString *)link
 -(void) pathDidSelect:(NSString *) pathString
     ForViewController:(CLPathSelectionViewController *) viewController
 {
-    NSLog(@"path %@",pathString);
     NSArray *selectedData = [self getSelectedDataArray];
     if (viewType == viewController.viewType) {
         switch (viewController.viewType) {
@@ -295,20 +332,20 @@ loadedSharableLink:(NSString *)link
                     pathString = [NSString stringWithFormat:@"folder.%@",pathString];
                 }
                 for (NSDictionary *data in selectedData) {
+                    NSString *idStr = [data objectForKey:FILE_ID];
                     switch ([self getSelectedButton].tag) {
                         case 1:
                         {
-                            LiveOperation *moveOperation =                         [self.appDelegate.liveClient moveFromPath:[data objectForKey:FILE_ID]
-                                                                                                               toDestination:pathString delegate:self userState:[data objectForKey:FILE_ID]];
+                            LiveOperation *moveOperation =                         [self.appDelegate.liveClient moveFromPath:idStr
+                                                                                                               toDestination:pathString delegate:self userState:[NSString stringWithFormat:@"%@%@",MOVE_,idStr]];
                             [liveOperations addObject:moveOperation];
                         }
                             break;
                         case 2:
                         {
-                            LiveOperation *copyOperation =                          [self.appDelegate.liveClient copyFromPath:[data objectForKey:FILE_ID]
-                                                                                                                toDestination:pathString delegate:self userState:[data objectForKey:FILE_ID]];
+                            LiveOperation *copyOperation =                          [self.appDelegate.liveClient copyFromPath:idStr
+                                                                                                                toDestination:pathString delegate:self userState:[NSString stringWithFormat:@"%@%@",COPY_,idStr]];
                             [liveOperations addObject:copyOperation];
-                            
                         }
                             break;
                         default:
@@ -361,8 +398,9 @@ loadedSharableLink:(NSString *)link
         case MFMailComposeResultCancelled:
             break;
         case MFMailComposeResultFailed:
-            [AppDelegate showError:error
-                       alertOnView:self.view];
+            [AppDelegate showMessage:[error localizedDescription]
+                           withColor:[UIColor redColor]
+                         alertOnView:self.view];
             break;
         case MFMailComposeResultSaved:
             [AppDelegate showMessage:@"Your Message is saved successfully"
@@ -626,7 +664,8 @@ loadedSharableLink:(NSString *)link
 -(void) removeSelectedRowForPath:(NSString *)filePath
 {
     for (NSDictionary *data in selectedItems) {
-        if ([[data objectForKey:FILE_PATH] isEqualToString:filePath]) {
+        if ([[data objectForKey:FILE_PATH] isEqualToString:filePath] ||
+            [[data objectForKey:FILE_ID] isEqualToString:filePath]) {
             [self removeSelectedRow:data];
             [selectedItems removeObject:data];
             break;
@@ -898,12 +937,11 @@ shouldReloadTableForSearchScope:(NSInteger)searchOption
                 break;
             case SKYDRIVE:
             {
-                NSMutableArray *urls = [[NSMutableArray alloc] init];
+                [urls removeAllObjects];
                 for (NSDictionary *data in selectedData) {
-                    [urls addObject:[NSDictionary dictionaryWithObject:[data objectForKey:@"link"] forKey:[data objectForKey:@"name"]]];
+                    [urls addObject:[NSDictionary dictionaryWithObject:[data objectForKey:FILE_URL] forKey:[data objectForKey:FILE_NAME]]];
                 }
                 [self shareURLsThroughMail:urls];
-                [urls release];
             }
                 break;
                 
@@ -943,9 +981,10 @@ shouldReloadTableForSearchScope:(NSInteger)searchOption
             case SKYDRIVE:
             {
                 for (NSDictionary *data in selectedData) {
-                    LiveOperation *deleteOperation =                 [self.appDelegate.liveClient deleteWithPath:[data objectForKey:FILE_ID]
+                    NSString *idStr = [data objectForKey:FILE_ID];
+                    LiveOperation *deleteOperation =                 [self.appDelegate.liveClient deleteWithPath:idStr
                                                                                                         delegate:self
-                                                                                                       userState:[data objectForKey:FILE_ID]];
+                                                                                                       userState:[NSString stringWithFormat:@"%@%@",DELETE_,idStr]];
                     [liveOperations addObject:deleteOperation];
                 }
             }

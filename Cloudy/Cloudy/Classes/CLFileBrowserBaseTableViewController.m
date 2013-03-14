@@ -499,9 +499,14 @@
 }
 
 
--(void) liveOperationFailed:(NSError *)error operation:(LiveDownloadOperation *)operation
+-(void) liveOperationFailed:(NSError *)error
+                  operation:(LiveOperation *)operation
 {
-   
+    [liveOperations removeObject:operation];
+    [self stopAnimating];
+   [AppDelegate showMessage:[error.userInfo objectForKey:@"error_description"]
+                  withColor:[UIColor redColor]
+                alertOnView:self.view];
 }
 
 #pragma mark - DBRestClientDelegate
@@ -606,7 +611,9 @@
 {
     [inputTextField resignFirstResponder];
     [self stopAnimating];
-    [AppDelegate showError:error alertOnView:self.view];
+    [AppDelegate showMessage:[error.userInfo objectForKey:@"error"]
+                   withColor:[UIColor redColor]
+                 alertOnView:self.view];
 }
 
 

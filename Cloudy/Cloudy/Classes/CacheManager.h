@@ -22,6 +22,7 @@
 
 
 +(CacheManager *) sharedManager;
+-(int) isAccountPresent:(NSDictionary *) account;
 -(BOOL) addAccount:(NSDictionary *) account;
 -(BOOL) updateAccount:(NSDictionary *)account;
 -(BOOL) deleteAccount:(NSDictionary *) account;

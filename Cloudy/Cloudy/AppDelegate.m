@@ -10,15 +10,12 @@
 #import "CLAccountsTableViewController.h"
 #import "CLFileBrowserTableViewController.h"
 #import "CLUploadsTableViewController.h"
-
+#import "CLAccountsTableViewController.h"
 
 
 
 
 @interface AppDelegate()
-{
-    CLAccountsTableViewController *callbackViewController;
-}
 
 
 @end
@@ -163,7 +160,7 @@
     
     CLAccountsTableViewController *accountsTableViewController = [[CLAccountsTableViewController alloc] initWithTableViewStyle:UITableViewStyleGrouped];
     UINavigationController *leftNavController = [[UINavigationController alloc] initWithRootViewController:accountsTableViewController];
-    callbackViewController = accountsTableViewController;
+    self.callbackViewController = accountsTableViewController;
     [accountsTableViewController release];
     
     DBSession *aSession = [[DBSession alloc] initWithAppKey:DROPBOX_APP_KEY
@@ -263,14 +260,13 @@
     finalFrame.size.height = size.height;
     alert.frame = finalFrame;
     [view addSubview:alert];
-    [alert release];
-    
     
     [UIView animateWithDuration:5.f
                      animations:^{
                          alert.alpha = 0.f;
                      } completion:^(BOOL finished) {
                          [alert removeFromSuperview];
+                         [alert release];
                      }];
 }
 

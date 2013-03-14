@@ -459,21 +459,28 @@
     NSDictionary *accountDictionary = [info original];
     NSDictionary *accountInfoDictionary = [sharedManager processDictionary:accountDictionary ForDataType:DATA_ACCOUNT AndViewType:DROPBOX];
 
-    BOOL isAccountStored = [sharedManager addAccount:accountInfoDictionary];
+    BOOL isAccountStored = NO;
+    int index = [sharedManager isAccountPresent:accountDictionary];
+    if (index == INVALID_INDEX) {
+       isAccountStored = [sharedManager addAccount:accountInfoDictionary];
+    } else {
+        [sharedManager updateAccount:accountDictionary];
+    }
 
     if (isAccountStored) {
         [self updateTableCellWithData:accountInfoDictionary
                           AtIndexPath:[NSIndexPath indexPathForRow:0 inSection:DROPBOX]
                     WithCellAnimation:UITableViewRowAnimationRight];
+        [self showDetailViewControllerForViewType:DROPBOX];
     }
     editButton.hidden = NO;
-    [self showDetailViewControllerForViewType:DROPBOX];
 }
 
 - (void)restClient:(DBRestClient*)client loadAccountInfoFailedWithError:(NSError*)error
 {
-    [AppDelegate showError:error
-               alertOnView:self.view];
+    [AppDelegate showMessage:[[error userInfo] objectForKey:@"error"]
+                   withColor:[UIColor redColor]
+                 alertOnView:self.view];
 }
 
 
@@ -522,7 +529,9 @@
 - (void) authFailed: (NSError *) error
           userState: (id)userState
 {
-    
+    [AppDelegate showMessage:[error.userInfo objectForKey:@"error_description"]
+                   withColor:[UIColor redColor]
+                 alertOnView:self.view];
 }
 
 
@@ -575,6 +584,9 @@
 - (void) liveOperationFailed:(NSError *)error
                    operation:(LiveOperation*)operation
 {
+    [AppDelegate showMessage:[error.userInfo objectForKey:@"error_description"]
+                   withColor:[UIColor redColor]
+                 alertOnView:self.view];
 }
 
 
