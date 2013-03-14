@@ -35,6 +35,7 @@
     [super viewDidLoad];
 	// Do any additional setup after loading the view.
     self.navigationController.navigationBar.tintColor = NAVBAR_COLOR;
+    sharedManager = [CacheManager sharedManager];
 //    backgroundImageView = [[UIImageView alloc] initWithFrame:self.view.bounds];
 //    [backgroundImageView setImage:[UIImage imageNamed:@"table_background.png"]];
 //    [self.view addSubview:backgroundImageView];

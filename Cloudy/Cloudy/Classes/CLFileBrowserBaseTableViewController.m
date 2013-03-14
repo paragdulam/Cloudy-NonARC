@@ -24,6 +24,7 @@
     
     NSArray *createFoldertoolBarItems;
     DDPopoverBackgroundView *popOverView;
+    
 }
 
 -(NSArray *) getCachedTableDataArrayForViewType:(VIEW_TYPE) type;
@@ -38,7 +39,7 @@
 @implementation CLFileBrowserBaseTableViewController
 @synthesize viewType;
 @synthesize path;
-
+@synthesize currentFileData;
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
@@ -65,13 +66,11 @@
 {
     [super viewDidLoad];
 	// Do any additional setup after loading the view.
-    
+
     CGRect tableFrame = dataTableView.frame;
     tableFrame.size.height -= TOOLBAR_HEIGHT;
     dataTableView.frame = tableFrame;
-//    dataTableView.backgroundColor = [UIColor clearColor];
     dataTableView.allowsMultipleSelectionDuringEditing = YES;
-//    dataTableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     
     [self createToolbarItems];
     [self createFolderToolbarItems];
@@ -106,8 +105,6 @@
     [self.navigationItem setRightBarButtonItem:rightBarButton];
     [rightBarButton release];
     
-//    [self createPopOverViewForUploads];
-    
     liveOperations = [[NSMutableArray alloc] init];
     
     [self loadFilesForPath:path WithInViewType:viewType];
@@ -119,6 +116,7 @@
 -(void) viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
+    
     if ([path length]) {
         [self readCacheUpdateView];
     }
@@ -132,6 +130,23 @@
 
 -(void) dealloc
 {
+    [currentFileData release];
+    currentFileData = nil;
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                    name:UIKeyboardWillShowNotification
+                                                  object:nil];
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                    name:UIKeyboardWillShowNotification
+                                                  object:nil];
+
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                    name:UIKeyboardWillShowNotification
+                                                  object:nil];
+
+    
     for (LiveOperation *operation in liveOperations) {
         [operation cancel];
     }
@@ -152,12 +167,14 @@
 }
 
 
+
 #pragma mark - IBActions
 
 
 
 -(void) createFolderButtonClicked:(UIButton *) btn
 {
+    btn.selected = !btn.selected;
     [fileOperationsToolbar setItems:createFoldertoolBarItems animated:YES];
     [inputTextField becomeFirstResponder];
 }
@@ -175,8 +192,14 @@
             case SKYDRIVE:
             {
                 NSDictionary *folder = [NSDictionary dictionaryWithObjectsAndKeys:inputTextField.text,@"name", nil];
-                LiveOperation *createFolderOperation = [self.appDelegate.liveClient postWithPath:path dictBody:folder delegate:self userState:[folder objectForKey:@"name"]];
+                LiveOperation *createFolderOperation = [self.appDelegate.liveClient postWithPath:path dictBody:folder delegate:self userState:folder];
                 [liveOperations addObject:createFolderOperation];
+            }
+                break;
+            case BOX:
+            {
+                [self.boxClient createFolderWithInFolderId:path
+                                                  WithName:inputTextField.text];
             }
                 break;
             default:
@@ -237,17 +260,18 @@
     NSValue* keyboardFrameBegin = [keyboardInfo valueForKey:UIKeyboardFrameBeginUserInfoKey];
     CGRect keyboardFrameBeginRect = [keyboardFrameBegin CGRectValue];
     float keyBoardHeight = keyboardFrameBeginRect.size.height;
-    
-    CGRect fileOperationsFrame = fileOperationsToolbar.frame;
-    fileOperationsFrame.origin.y = self.view.frame.size.height - keyBoardHeight - TOOLBAR_HEIGHT;
-    
-    [UIView beginAnimations:nil context:NULL];
-    [UIView setAnimationDuration:0.3f];
-    
-    [fileOperationsToolbar setFrame:fileOperationsFrame];
-    
-    [UIView commitAnimations];
-    dataTableView.userInteractionEnabled = NO;
+    if (createFolderButton.selected) {
+        CGRect fileOperationsFrame = fileOperationsToolbar.frame;
+        fileOperationsFrame.origin.y = self.view.frame.size.height - keyBoardHeight - TOOLBAR_HEIGHT;
+        
+        [UIView beginAnimations:nil context:NULL];
+        [UIView setAnimationDuration:0.3f];
+        
+        [fileOperationsToolbar setFrame:fileOperationsFrame];
+        
+        [UIView commitAnimations];
+        dataTableView.userInteractionEnabled = NO;
+    }
 }
 
 
@@ -255,13 +279,15 @@
 {
     CGRect fileOperationsFrame = fileOperationsToolbar.frame;
     fileOperationsFrame.origin.y = self.view.frame.size.height - TOOLBAR_HEIGHT;
-    
-    [UIView beginAnimations:nil context:NULL];
-    [UIView setAnimationDuration:0.3f];
-    
-    [fileOperationsToolbar setFrame:fileOperationsFrame];
-    
-    [UIView commitAnimations];
+    if (createFolderButton.selected) {
+        [UIView beginAnimations:nil context:NULL];
+        [UIView setAnimationDuration:0.3f];
+        
+        [fileOperationsToolbar setFrame:fileOperationsFrame];
+        
+        [UIView commitAnimations];
+    }
+    createFolderButton.selected = NO;
 }
 
 -(void) keyboardDidHide:(NSNotification *) notification
@@ -279,98 +305,51 @@
 }
 
 
+-(NSInteger) tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+    return [tableDataArray count];
+}
+
 -(UITableViewCell *) tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     CLFileBrowserCell *cell = (CLFileBrowserCell *)[tableView dequeueReusableCellWithIdentifier:@"CLFileBrowserCell"];
     if (!cell) {
         cell = [[[CLFileBrowserCell alloc] initWithStyle:UITableViewCellStyleSubtitle
                                          reuseIdentifier:@"CLFileBrowserCell"] autorelease];
-//        [cell setBackgroundImage:[UIImage imageNamed:@"cell_background.png"]];
     }
-    [cell setData:[tableDataArray objectAtIndex:indexPath.row]
-      ForViewType:viewType];
+    [cell setData:[tableDataArray objectAtIndex:indexPath.row]];
     return cell;
 }
 
 -(void) tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     if (!dataTableView.editing) {
-        switch (viewType) {
-            case DROPBOX:
+        NSDictionary *selectedFile = [tableDataArray objectAtIndex:indexPath.row];
+        switch ([[selectedFile objectForKey:FILE_TYPE] intValue]) {
+            case 0:
             {
-                NSDictionary *metadata = [tableDataArray objectAtIndex:indexPath.row];
-                if ([[metadata objectForKey:@"isDirectory"] boolValue]) {
-                    CLFileBrowserTableViewController *fileBrowserViewController = [[CLFileBrowserTableViewController alloc] initWithTableViewStyle:UITableViewStylePlain WherePath:[metadata objectForKey:@"path"] WithinViewType:DROPBOX];
-                    [self.navigationController pushViewController:fileBrowserViewController animated:YES];
-                    fileBrowserViewController.title = [metadata objectForKey:@"filename"];
-                    [fileBrowserViewController release];
-                } else if ([[metadata objectForKey:@"thumbnailExists"] boolValue]) {
-                    
-                    __block NSMutableArray *images = [[NSMutableArray alloc] init];
-                    [tableDataArray enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-                        NSDictionary *objDict = (NSDictionary *)obj;
-                        if ([[objDict objectForKey:@"thumbnailExists"] boolValue]) {
-                            [images addObject:objDict];
-                        }
-                    }];
-                    
-                    CLImageGalleryViewController *imageGalleryViewController = [[CLImageGalleryViewController alloc] initWithViewType:viewType ImagesArray:images CurrentImage:metadata];
-                    [images release];
-                    [self.navigationController pushViewController:imageGalleryViewController animated:YES];
-                    [imageGalleryViewController release];
-                } else if ([[metadata objectForKey:@"icon"] isEqualToString:@"page_white_film"] || [[metadata objectForKey:@"icon"] isEqualToString:@"page_white_sound"] ) {
-//                    CLMediaPlayerViewController *moviePlayer = [[CLMediaPlayerViewController alloc] initWithVideoFile:metadata withInViewType:viewType];
-//                    [self.navigationController pushViewController:moviePlayer animated:YES];
-//                    [moviePlayer release];
-                    
-                    CLWebMediaPlayerViewController *webMediaPlayer = [[CLWebMediaPlayerViewController alloc] initWithFile:metadata WithinViewType:viewType];
-                    [self.navigationController pushViewController:webMediaPlayer animated:YES];
-                    [webMediaPlayer release];
-                    
-                }else {
-                    CLFileDetailViewController *fileDetailViewController = [[CLFileDetailViewController alloc] initWithFile:metadata WithinViewType:DROPBOX];
-                    [self.navigationController pushViewController:fileDetailViewController animated:YES];
-                    [fileDetailViewController release];
-                }
+                //
             }
                 break;
-            case SKYDRIVE:
+            case 1:
             {
-                NSDictionary *metadata = [tableDataArray objectAtIndex:indexPath.row];
-                if ([[metadata objectForKey:@"type"] isEqualToString:@"album"] || [[metadata objectForKey:@"type"] isEqualToString:@"folder"]) {
-                    CLFileBrowserTableViewController *fileBrowserViewController = [[CLFileBrowserTableViewController alloc] initWithTableViewStyle:UITableViewStylePlain WherePath:[metadata objectForKey:@"id"] WithinViewType:SKYDRIVE];
-                    [self.navigationController pushViewController:fileBrowserViewController animated:YES];
-                    fileBrowserViewController.title = [metadata objectForKey:@"name"];
-                    [fileBrowserViewController release];
-                } else if ([[metadata objectForKey:@"type"] isEqualToString:@"photo"]) {
-                    
-                    __block NSMutableArray *images = [[NSMutableArray alloc] init];
-                    [tableDataArray enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-                        NSDictionary *objDict = (NSDictionary *)obj;
-                        if ([[objDict objectForKey:@"type"] isEqualToString:@"photo"]) {
-                            [images addObject:objDict];
-                        }
-                    }];
-                    CLImageGalleryViewController *imageGalleryViewController = [[CLImageGalleryViewController alloc] initWithViewType:SKYDRIVE ImagesArray:images CurrentImage:metadata];
-                    [images release];
-                    [self.navigationController pushViewController:imageGalleryViewController animated:YES];
-                    [imageGalleryViewController release];
-                } else if (([[metadata objectForKey:@"type"] isEqualToString:@"video"] || [[metadata objectForKey:@"type"] isEqualToString:@"audio"])) {
-//                    CLMediaPlayerViewController *moviePlayer = [[CLMediaPlayerViewController alloc] initWithVideoFile:metadata withInViewType:viewType];
-//                    [self.navigationController pushViewController:moviePlayer animated:YES];
-//                    [moviePlayer release];
-                    CLWebMediaPlayerViewController *webMediaPlayer = [[CLWebMediaPlayerViewController alloc] initWithFile:metadata WithinViewType:SKYDRIVE];
-                    [self.navigationController pushViewController:webMediaPlayer animated:YES];
-                    [webMediaPlayer release];
-
-                    
-                } else {
-                    CLFileDetailViewController *fileDetailViewController = [[CLFileDetailViewController alloc] initWithFile:metadata WithinViewType:SKYDRIVE];
-                    [self.navigationController pushViewController:fileDetailViewController animated:YES];
-                    [fileDetailViewController release];
+                NSString *pathStr = nil;
+                switch (viewType) {
+                    case DROPBOX:
+                        pathStr = [selectedFile objectForKey:FILE_PATH];
+                        break;
+                    case SKYDRIVE:
+                        pathStr = [selectedFile objectForKey:FILE_ID];
+                        break;
+                    default:
+                        break;
                 }
+                CLFileBrowserTableViewController *browserTableViewController = [[CLFileBrowserTableViewController alloc] initWithTableViewStyle:UITableViewStylePlain WherePath:pathStr WithinViewType:viewType];
+                [self.navigationController pushViewController:browserTableViewController animated:YES];
+                [browserTableViewController release];
             }
                 break;
+                
             default:
                 break;
         }
@@ -384,44 +363,49 @@
 }
 
 
-#pragma mark - LiveOperationDelegate
+#pragma mark - BoxClientDelegate
 
-- (void) liveOperationSucceeded:(LiveOperation *)operation
+#pragma mark - Create Folder Methods
+
+-(void) boxClient:(BoxClient *)client createdFolder:(NSDictionary *) folder
 {
-    [liveOperations removeObject:operation];
-    [self performFileOperation:operation];
+    NSDictionary *folderDictionary = [CLCacheManager processDataDictionary:folder WithinViewType:BOX];
+    [CLCacheManager insertFile:folderDictionary
+        whereTraversingPointer:nil
+               inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
+                   ForViewType:viewType];
+    
+    
+    //Updating UI
+    [self stopAnimating];
+    
+    [tableDataArray insertObject:folderDictionary atIndex:0];
+    [CLCacheManager arrangeFilesAndFolders:tableDataArray
+                               ForViewType:viewType];
+    
+    
+    [dataTableView beginUpdates];
+    [dataTableView insertRowsAtIndexPaths:[NSArray arrayWithObject:[NSIndexPath indexPathForRow:[tableDataArray indexOfObject:folderDictionary] inSection:0]]
+                         withRowAnimation:UITableViewRowAnimationBottom];
+    [dataTableView endUpdates];
+    //Updating UI
+
 }
 
-- (void) liveOperationFailed:(NSError *)error
-                   operation:(LiveOperation*)operation
+-(void) boxClient:(BoxClient *)client createFolderDidFailWithError:(NSError *) error
 {
-    [liveOperations removeObject:operation];
-    [self stopAnimating];
     [AppDelegate showError:error alertOnView:self.view];
 }
 
 
-
-#pragma mark - DBRestClientDelegate
-
 #pragma mark - Thumbnail Methods
-
-
--(void) restClient:(DBRestClient *)client
-   loadedThumbnail:(NSString *)destPath
-          metadata:(DBMetadata *)metadata
+-(void) boxClient:(BoxClient *)client loadedData:(NSData *) data withUserData:(id) uData
 {
-    NSMutableDictionary *mData = [NSMutableDictionary dictionaryWithDictionary:[CLDictionaryConvertor dictionaryFromMetadata:metadata]];
+    NSMutableDictionary *mData = (NSMutableDictionary *)uData;
     int index = [self getIndexOfObjectForKey:[CLCacheManager pathFiedForViewType:viewType]
-                                   withValue:[mData objectForKey:@"path"]];
-    UIImage *image = [UIImage imageWithContentsOfFile:destPath];
-//    NSData *imageData = UIImagePNGRepresentation(image);
-    NSData *imageData = UIImageJPEGRepresentation(image, 1);
-
-    [mData setObject:imageData
+                                   withValue:[mData objectForKey:@"id"]];
+    [mData setObject:data
               forKey:THUMBNAIL_DATA];
-    [CLCacheManager deleteFileAtPath:destPath];
-    
     [CLCacheManager updateFile:mData
         whereTraversingPointer:nil
                inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
@@ -436,7 +420,139 @@
                              withRowAnimation:UITableViewRowAnimationAutomatic];
         [dataTableView endUpdates];
     }
+}
+
+-(void) boxClient:(BoxClient *)client loadDataFailedWithError:(NSError *) error withUserData:(id) uData
+{
+    [AppDelegate showError:error alertOnView:self.view];
+}
+
+
+#pragma mark - Metadata Methods
+
+-(void) boxClient:(BoxClient *)client loadedMetadata:(NSDictionary *) metaData
+{
+    [self stopAnimating];
+    NSDictionary *folderData = [CLCacheManager processDataDictionary:metaData
+                                                      WithinViewType:BOX];
+    [CLCacheManager updateFile:folderData
+        whereTraversingPointer:nil
+               inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
+                   ForViewType:viewType];
     
+    [self updateModel:[folderData objectForKey:@"contents"]];
+    [self updateView];
+
+    for (NSDictionary *data in tableDataArray) {
+        NSString *urlString = [data objectForKey:@"thumbnail"];
+        if (urlString) {
+            [self.boxClient loadDataFromURLString:urlString
+                                      forUserData:data];
+        }
+    }
+}
+
+-(void) boxClient:(BoxClient *)client loadMetadataDidFailWithError:(NSError *) error
+{
+    [self stopAnimating];
+    [AppDelegate showError:error alertOnView:self.view];
+}
+
+#pragma mark - LiveOperationDelegate
+
+
+-(void) liveOperationSucceeded:(LiveOperation *)operation
+{
+    [liveOperations removeObject:operation];
+    
+    if ([operation.userState isKindOfClass:[NSString class]]) {
+        if ([operation.userState isEqualToString:path]) {
+            NSDictionary *compatibleMetaData = [self getCompatibleDictionary:operation.result ForDataType:DATA_METADATA];
+            if (![[compatibleMetaData objectForKey:FILE_LAST_UPDATED_TIME] isEqualToString:[currentFileData objectForKey:FILE_LAST_UPDATED_TIME]] || ![[currentFileData objectForKey:FILE_CONTENTS] count]) {
+                NSString *pathStr = [NSString stringWithFormat:@"%@/files",operation.userState];
+                [liveOperations addObject:[self.appDelegate.liveClient getWithPath:pathStr delegate:self userState:compatibleMetaData]];
+            } else {
+                [self stopAnimating];
+            }
+        }
+    } else if ([operation isKindOfClass:[LiveDownloadOperation class]]) {
+        LiveDownloadOperation *downloadOperation = (LiveDownloadOperation *)operation;
+        NSDictionary *data = (NSDictionary *)downloadOperation.userState;
+        [downloadOperation.data writeToFile:[NSString stringWithFormat:@"%@/%@_%@",[CacheManager getTemporaryDirectory],SKYDRIVE_STRING,[[data objectForKey:FILE_PATH] stringByReplacingOccurrencesOfString:@"/" withString:@""]] atomically:YES];
+        [self reloadRowForMetadata:data];
+    } else if ([operation.userState isKindOfClass:[NSDictionary class]]){
+        [self stopAnimating];
+        if (([[operation.userState allKeys] count] == 1)) {
+            [self handlecreatedFolder:operation.result];
+        } else { //metadata condition
+            NSMutableDictionary *finalMetaData = [NSMutableDictionary dictionaryWithDictionary:operation.userState];
+            NSDictionary *compatibleMetaData = [self getCompatibleDictionary:operation.result ForDataType:DATA_METADATA];
+            if ([[compatibleMetaData objectForKey:FILE_CONTENTS] count]) {
+                [finalMetaData addEntriesFromDictionary:compatibleMetaData];
+                self.currentFileData = finalMetaData;
+                [self loadThumbnailForMetadata:currentFileData];
+                [self writeCacheUpdateView];
+            }
+        }
+    }
+}
+
+
+-(void) liveOperationFailed:(NSError *)error
+                  operation:(LiveOperation *)operation
+{
+    [liveOperations removeObject:operation];
+    [self stopAnimating];
+   [AppDelegate showMessage:[error.userInfo objectForKey:@"error_description"]
+                  withColor:[UIColor redColor]
+                alertOnView:self.view];
+}
+
+#pragma mark - DBRestClientDelegate
+
+#pragma mark - Thumbnail Methods
+
+-(void) loadThumbnailForMetadata:(NSDictionary *) dictionary
+{
+    NSArray *contents = [dictionary objectForKey:FILE_CONTENTS];
+    for (NSDictionary *data in contents) {
+        if ([[data objectForKey:FILE_THUMBNAIL] boolValue]) {
+            NSString *thumbPath = nil;
+            switch (viewType) {
+                case DROPBOX:
+                    thumbPath = [NSString stringWithFormat:@"%@%@_%@",[CacheManager getTemporaryDirectory],DROPBOX_STRING,[[data objectForKey:FILE_PATH] stringByReplacingOccurrencesOfString:@"/" withString:@""]];
+                    break;
+                case SKYDRIVE:
+                    thumbPath = [NSString stringWithFormat:@"%@%@_%@",[CacheManager getTemporaryDirectory],SKYDRIVE_STRING,[[data objectForKey:FILE_PATH] stringByReplacingOccurrencesOfString:@"/" withString:@""]];
+                    break;
+                    
+                default:
+                    break;
+            }
+            if (![CacheManager fileExistsAtPath:thumbPath]) {
+                switch (viewType) {
+                    case DROPBOX:
+                        [self.restClient loadThumbnail:[data objectForKey:FILE_PATH]
+                                                ofSize:@"small"
+                                              intoPath:thumbPath];
+                        break;
+                    case SKYDRIVE:
+                        [liveOperations addObject:[self.appDelegate.liveClient downloadFromPath:[data objectForKey:FILE_THUMBNAIL_URL] delegate:self userState:data]];
+                    default:
+                        break;
+                }
+            }
+        }
+    }
+}
+
+
+-(void) restClient:(DBRestClient *)client
+   loadedThumbnail:(NSString *)destPath
+          metadata:(DBMetadata *)metadata
+{
+    NSDictionary *compatibleMetaData = [self getCompatibleDictionary:[metadata original] ForDataType:DATA_METADATA];
+    [self reloadRowForMetadata:compatibleMetaData];
 }
 
 
@@ -447,35 +563,56 @@
 
 #pragma mark - Create Folder Methods
 
--(void) restClient:(DBRestClient *)client createdFolder:(DBMetadata *)folder
+-(void) updateContentsForCurrentDataWithArray:(NSArray *) contents
 {
-    NSDictionary *folderDictionary = [CLDictionaryConvertor dictionaryFromMetadata:folder];
-    [CLCacheManager insertFile:folderDictionary
-        whereTraversingPointer:nil
-               inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
-                   ForViewType:viewType];
+    NSMutableArray *updatedContents = [NSMutableArray arrayWithArray:contents];
+    [currentFileData setObject:updatedContents forKey:FILE_CONTENTS];
     
+    [sharedManager updateMetadata:currentFileData
+                   WithUpdateType:UPDATE_DATA
+                 inParentMetadata:[sharedManager rootDictionary:viewType]]; //
+}
+
+
+-(void) createFolderUpdateUI:(NSDictionary *) folder
+{
+    NSDictionary *compatibleMetadata = [self getCompatibleDictionary:folder
+                                                         ForDataType:DATA_METADATA];
     
     //Updating UI
     [self stopAnimating];
-
-    [tableDataArray insertObject:folderDictionary atIndex:0];
-    [CLCacheManager arrangeFilesAndFolders:tableDataArray
-                               ForViewType:viewType];
     
-
+    [tableDataArray insertObject:compatibleMetadata atIndex:0];
+    
     [dataTableView beginUpdates];
-    [dataTableView insertRowsAtIndexPaths:[NSArray arrayWithObject:[NSIndexPath indexPathForRow:[tableDataArray indexOfObject:folderDictionary] inSection:0]]
+    [dataTableView insertRowsAtIndexPaths:[NSArray arrayWithObject:[NSIndexPath indexPathForRow:[tableDataArray indexOfObject:compatibleMetadata] inSection:0]]
                          withRowAnimation:UITableViewRowAnimationBottom];
     [dataTableView endUpdates];
     //Updating UI
+}
+
+
+-(void) handlecreatedFolder:(NSDictionary *) folder
+{
+    [self createFolderUpdateUI:folder];
+    [self updateContentsForCurrentDataWithArray:[[tableDataArray mutableCopy]
+                                                 autorelease]];
+    
+
+}
+
+-(void) restClient:(DBRestClient *)client createdFolder:(DBMetadata *)folder
+{
+    [self handlecreatedFolder:[folder original]];
 }
 
 -(void) restClient:(DBRestClient *)client createFolderFailedWithError:(NSError *)error
 {
     [inputTextField resignFirstResponder];
     [self stopAnimating];
-    [AppDelegate showError:error alertOnView:self.view];
+    [AppDelegate showMessage:[error.userInfo objectForKey:@"error"]
+                   withColor:[UIColor redColor]
+                 alertOnView:self.view];
 }
 
 
@@ -484,217 +621,49 @@
 - (void)restClient:(DBRestClient*)client loadedMetadata:(DBMetadata*)metadata
 {
     [self stopAnimating];
-    NSDictionary *metadataDictionary = [CLDictionaryConvertor dictionaryFromMetadata:metadata];
-    [CLCacheManager updateFile:metadataDictionary
-        whereTraversingPointer:nil
-               inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
-                   ForViewType:viewType];
-    
-    //Reading Cache is skipped only reading Table Contents Starts
-    if (viewType == DROPBOX) { //cache is not referred
-        NSArray *contents = [metadataDictionary objectForKey:@"contents"];
-        [self updateModel:contents];
-        [self updateView];
-        
-        //Look for images in current directory and load thumbnails for them
-        NSString *dropboxCachePath = [CLCacheManager getDropboxCacheFolderPath];
-        for (NSDictionary *data in contents) {
-            if ([[data objectForKey:@"thumbnailExists"] boolValue]) {
-                [self.restClient loadThumbnail:[data objectForKey:@"path"]
-                                        ofSize:@"small"
-                                      intoPath:[NSString stringWithFormat:@"%@/%@",dropboxCachePath,[data objectForKey:@"filename"]]];
-            }
-        }
-        //Look for images in current directory and load thumbnails for them
-    }
-    //Reading Cache is skipped only reading Table Contents Ends
-    
-    
+    NSDictionary *compatibleMetaData = [sharedManager processDictionary:[metadata original] ForDataType:DATA_METADATA AndViewType:DROPBOX];
+    [currentFileData addEntriesFromDictionary:compatibleMetaData];
+    [self loadThumbnailForMetadata:currentFileData];
+    [self writeCacheUpdateView];
 }
 
-- (void)restClient:(DBRestClient*)client metadataUnchangedAtPath:(NSString*)path
+-(void) restClient:(DBRestClient *)client metadataUnchangedAtPath:(NSString *)path
 {
     [self stopAnimating];
-    [tableDataArray enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-        NSDictionary *objDict = (NSDictionary *)obj;
-        if ([[objDict objectForKey:@"thumbnailExists"] boolValue]) {
-            if (![objDict objectForKey:THUMBNAIL_DATA]) {
-                [self.restClient loadThumbnail:[objDict objectForKey:@"path"]
-                                        ofSize:@"small"
-                                      intoPath:[NSString stringWithFormat:@"%@/%@",[CLCacheManager getDropboxCacheFolderPath],[objDict objectForKey:@"filename"]]];
-            }
-        }
-    }];
+    [self loadThumbnailForMetadata:currentFileData];
 }
 
-- (void)restClient:(DBRestClient*)client loadMetadataFailedWithError:(NSError*)error
+
+-(void) restClient:(DBRestClient *)client loadMetadataFailedWithError:(NSError *)error
 {
-    [self stopAnimating];
-    [AppDelegate showError:error alertOnView:self.view];
+    
 }
-
-
 
 #pragma mark - Helper Methods
 
 
--(int) getIndexOfObjectForKey:(NSString *) key
-                    withValue:(NSString *) value
+
+
+-(NSDictionary *) getCompatibleDictionary:(NSDictionary *) metadata
+                              ForDataType:(TYPE_DATA) type
 {
-    __block NSInteger index = INFINITY;
-    __block NSString *valueString = value;
-    __block NSString *keyString = key;
-    [tableDataArray enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-        NSDictionary *objDict = (NSDictionary *)obj;
-        if ([[objDict objectForKey:keyString] isEqualToString:valueString]) {
-            index = idx;
-        }
-    }];
-    return index;
+    return [sharedManager processDictionary:metadata
+                                ForDataType:type
+                                AndViewType:viewType];
 }
 
--(CLFileBrowserCell *) cellAtIndexPath:(NSIndexPath *)indexPath
+-(void) reloadRowForMetadata:(NSDictionary *) metadata
 {
-    return (CLFileBrowserCell *)[dataTableView cellForRowAtIndexPath:indexPath];
-}
-
--(void) startAnimatingCellAtIndexPath:(NSIndexPath *) indexPath
-{
-    CLFileBrowserCell *cell = [self cellAtIndexPath:indexPath];
-    [cell startAnimating];
-}
-
--(void) stopAnimatingCellAtIndexPath:(NSIndexPath *) indexPath
-{
-    CLFileBrowserCell *cell = [self cellAtIndexPath:indexPath];
-    [cell stopAnimating];
-}
-
-
-
--(void) createPopOverViewForUploads
-{
-    popOverView = [[DDPopoverBackgroundView alloc] initWithFrame:CGRectMake(0, 0, 300, 300)];
-    [self.view addSubview:popOverView];
-    [popOverView setArrowDirection:UIPopoverArrowDirectionDown];
-    [popOverView setArrowOffset:-70.f];
-    [popOverView release];
-    popOverView.center = CGPointMake(self.view.center.x,
-                                     self.view.frame.size.height - (TOOLBAR_HEIGHT *2) - (popOverView.frame.size.height / 2));
-    popOverView.hidden = YES;
-    
-}
-
-
--(void) performFileOperation:(LiveOperation *) operation
-{
-    switch (currentFileOperation) {
-        case METADATA:
-        {
-            [self stopAnimating];
-            [CLCacheManager updateFile:operation.result
-                whereTraversingPointer:nil
-                       inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
-                           ForViewType:viewType];
-            //    //Reading Cache is skipped only reading Table Contents Starts
-            if (viewType == SKYDRIVE) { //cache is not referred
-//                NSArray *contents = [operation.result objectForKey:@"data"];
-                NSArray *contents = [self getCachedTableDataArrayForViewType:SKYDRIVE];
-                [self updateModel:contents];
-                [self updateView];
-                //Looking For images and then downloading thumnails Starts
-                for (NSDictionary *data in contents) {
-                    if ([[data objectForKey:@"type"] isEqualToString:@"photo"]) {
-                        NSData *thumbData = [data objectForKey:THUMBNAIL_DATA];
-                        if (!thumbData) {
-                            NSArray *images = [data objectForKey:@"images"];
-                            if ([images count]) {
-                                NSDictionary *image = [images objectAtIndex:2];
-                                LiveDownloadOperation *downloadOperation =                         [self.appDelegate.liveClient downloadFromPath:[image objectForKey:@"source"] delegate:self userState:[data objectForKey:@"name"]];
-                                [liveOperations addObject:downloadOperation];
-                                currentFileOperation = DOWNLOAD;
-                                break;
-                            }
-                        }
-                    }
-                }
-                //Looking For images and then downloading thumnails Ends
-            }
-            
-            //    //Reading Cache is skipped only reading Table Contents Ends
-
-        }
-            break;
-        case CREATE:
-        {
-            [self stopAnimating];
-            [CLCacheManager insertFile:operation.result
-                whereTraversingPointer:nil
-                       inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
-                           ForViewType:viewType];
-            //Updating UI
-
-            [tableDataArray insertObject:operation.result atIndex:0];
-            [CLCacheManager arrangeFilesAndFolders:tableDataArray
-                                       ForViewType:viewType];
-            
-            
-            [dataTableView beginUpdates];
-            [dataTableView insertRowsAtIndexPaths:[NSArray arrayWithObject:[NSIndexPath indexPathForRow:[tableDataArray indexOfObject:operation.result] inSection:0]]
-                                 withRowAnimation:UITableViewRowAnimationBottom];
-            [dataTableView endUpdates];
-            //Updating UI
-
-        }
-            break;
-        case DOWNLOAD:
-        {
-            LiveDownloadOperation *downloadOperation = (LiveDownloadOperation *) operation;
-            int index = [self getIndexOfObjectForKey:@"name"
-                                           withValue:operation.userState];
-            if (index < [tableDataArray count]) {
-                NSDictionary *data = [tableDataArray objectAtIndex:index];
-                NSMutableDictionary *updatedData = [NSMutableDictionary dictionaryWithDictionary:data];
-                [updatedData setObject:downloadOperation.data
-                                forKey:THUMBNAIL_DATA];
-                
-                
-                [CLCacheManager updateFile:updatedData
-                    whereTraversingPointer:nil
-                           inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
-                               ForViewType:viewType];
-                
-                NSIndexPath *indexPath = [NSIndexPath indexPathForRow:index
-                                                            inSection:0];
-                [tableDataArray replaceObjectAtIndex:index withObject:updatedData];
-                [dataTableView beginUpdates];
-                [dataTableView reloadRowsAtIndexPaths:[NSArray arrayWithObject:indexPath]
-                                     withRowAnimation:UITableViewRowAnimationAutomatic];
-                [dataTableView endUpdates];
-                
-                //Looking For images and then downloading thumnails Starts
-                for (NSDictionary *data in tableDataArray) {
-                    if ([[data objectForKey:@"type"] isEqualToString:@"photo"]) {
-                        NSData *thumbData = [data objectForKey:THUMBNAIL_DATA];
-                        if (!thumbData) {
-                            NSArray *images = [data objectForKey:@"images"];
-                            if ([images count]) {
-                                NSDictionary *image = [images objectAtIndex:2];
-                                LiveDownloadOperation *downloadOperation =                         [self.appDelegate.liveClient downloadFromPath:[image objectForKey:@"source"] delegate:self userState:[data objectForKey:@"name"]];
-                                [liveOperations addObject:downloadOperation];
-                                currentFileOperation = DOWNLOAD;
-                                break;
-                            }
-                        }
-                    }
-                }
-                //Looking For images and then downloading thumnails Ends
-            }
-        }
-            break;
-        default:
-            break;
-            //currentFileOperation = INFINITY;
+    int index = [tableDataArray indexOfObject:metadata];
+    if (index < [tableDataArray count]) {
+        [tableDataArray replaceObjectAtIndex:index withObject:metadata];
+        NSIndexPath *indexPath = [NSIndexPath indexPathForRow:index
+                                                    inSection:0];
+        
+        [dataTableView beginUpdates];
+        [dataTableView reloadRowsAtIndexPaths:[NSArray arrayWithObject:indexPath]
+                             withRowAnimation:UITableViewRowAnimationAutomatic];
+        [dataTableView endUpdates];
     }
 }
 
@@ -798,44 +767,37 @@
 };
 
 
+
 -(void) loadFilesForPath:(NSString *) pathString WithInViewType:(VIEW_TYPE) type
 {
-    dataTableView.tableHeaderView = nil;
     dataTableView.separatorStyle = UITableViewCellSeparatorStyleSingleLine;
+    
     self.path = pathString;
     self.viewType = type;
-    
-    //Read Cache Starts
+
+    //read Cache code
     [self readCacheUpdateView];
-    //Read Cache Ends
     
-    //Web Request Starts
     switch (viewType) {
         case DROPBOX:
         {
-            NSString *hash = [self readCachedHash];
             [self.restClient loadMetadata:path
-                                 withHash:hash];
-            currentFileOperation = METADATA;
+                                 withHash:[currentFileData objectForKey:FILE_HASH]]; //previous hash should be sent
         }
             break;
+            
         case SKYDRIVE:
         {
-            NSString *aPathString = [NSString stringWithFormat:@"%@/files",path];
-            LiveOperation *operation = [self.appDelegate.liveClient
-                                        getWithPath:aPathString
-                                           delegate:self
-                                          userState:aPathString];
-            [liveOperations addObject:operation];
-            currentFileOperation = METADATA;
+            LiveOperation *metadataOperation = [self.appDelegate.liveClient getWithPath:path delegate:self userState:path];
+            [liveOperations addObject:metadataOperation];
         }
             break;
         default:
             break;
     }
-    [self startAnimating];
-    //Web Request Ends
+    
 
+    [self startAnimating];
 }
 
 
@@ -855,6 +817,9 @@
         case SKYDRIVE:
             [self.appDelegate.menuController setLeftButtonImage:[UIImage imageNamed:@"SkyDriveIconBlack_32x32.png"]];
             break;
+        case BOX:
+            [self.appDelegate.menuController setLeftButtonImage:[UIImage imageNamed:@"box_cellImage.png"]];
+            break;
         default:
             [self.appDelegate.menuController setLeftButtonImage:[UIImage imageNamed:@"nav_menu_icon.png"]];
             break;
@@ -862,59 +827,31 @@
 }
 
 
--(NSDictionary *) readCachedFileStructure
+-(void) writeCacheUpdateView
 {
-    return [CLCacheManager metaDataForPath:path
-                    whereTraversingPointer:nil
-                       WithinFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
-                                   ForView:viewType];
-}
-
--(NSArray *) getCachedTableDataArrayForViewType:(VIEW_TYPE) type
-{
-    NSDictionary *cachedFileStructure = [self readCachedFileStructure];
-    NSArray *contents = nil;
-    switch (type) {
-        case DROPBOX:
-            contents = [cachedFileStructure objectForKey:@"contents"];
-            break;
-        case SKYDRIVE:
-            contents = [cachedFileStructure objectForKey:@"data"];
-            break;
-        default:
-            break;
-    }
-    return contents;
+    [sharedManager updateMetadata:currentFileData
+                   WithUpdateType:UPDATE_DATA
+                 inParentMetadata:[sharedManager rootDictionary:viewType]]; //updates cache
+    [self readCacheUpdateView];
 }
 
 
 -(void) readCacheUpdateView
 {
-    //Temp Root Path Setting
-    if ([CLCacheManager isRootPath:path
-                    WithinViewType:viewType]) {
-        switch (viewType) {
-            case DROPBOX:
-                [self.navigationItem setTitle:DROPBOX_STRING];
-                break;
-            case SKYDRIVE:
-                [self.navigationItem setTitle:SKYDRIVE_STRING];
-                break;
-            default:
-                break;
-        }
+    NSDictionary *cachedMetadata = [sharedManager metadata:[sharedManager rootDictionary:viewType]
+                                                    AtPath:path
+                                                InViewType:viewType];
+    self.currentFileData = [NSMutableDictionary dictionaryWithDictionary:cachedMetadata];
+    NSString *titleText = [currentFileData objectForKey:FILE_NAME];
+    if ([titleText length]) {
+        [self.navigationItem setTitle:[titleText isEqualToString:ROOT_DROPBOX_PATH] ? DROPBOX_STRING : titleText];
     }
-    //Temp Root Path Setting
-
-    [self updateModel:[self getCachedTableDataArrayForViewType:viewType]];
+    NSArray *contents = [currentFileData objectForKey:FILE_CONTENTS];
+    [self updateModel:contents];
     [self updateView];
 }
 
 
--(NSString *) readCachedHash
-{
-    return [[self readCachedFileStructure] objectForKey:@"hash"];
-}
 
 
 -(void) startAnimating
@@ -928,6 +865,210 @@
     [barItem stopAnimating];
     [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
 }
+
+
+
+
+#pragma mark - Unused Methods
+
+-(NSString *) readCachedHash
+{
+    return [[self readCachedFileStructure] objectForKey:@"hash"];
+}
+
+
+-(NSArray *) getCachedTableDataArrayForViewType:(VIEW_TYPE) type
+{
+    NSDictionary *cachedFileStructure = [self readCachedFileStructure];
+    NSArray *contents = nil;
+    switch (type) {
+        case DROPBOX:
+            contents = [cachedFileStructure objectForKey:@"contents"];
+            break;
+        case SKYDRIVE:
+            contents = [cachedFileStructure objectForKey:@"data"];
+            break;
+        case BOX:
+            contents = [cachedFileStructure objectForKey:@"contents"];
+            break;
+        default:
+            break;
+    }
+    return contents;
+}
+
+
+-(NSDictionary *) readCachedFileStructure
+{
+    return [CLCacheManager metaDataForPath:path
+                    whereTraversingPointer:nil
+                       WithinFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
+                                   ForView:viewType];
+}
+
+
+-(void) createPopOverViewForUploads
+{
+    popOverView = [[DDPopoverBackgroundView alloc] initWithFrame:CGRectMake(0, 0, 300, 300)];
+    [self.view addSubview:popOverView];
+    [popOverView setArrowDirection:UIPopoverArrowDirectionDown];
+    [popOverView setArrowOffset:-70.f];
+    [popOverView release];
+    popOverView.center = CGPointMake(self.view.center.x,
+                                     self.view.frame.size.height - (TOOLBAR_HEIGHT *2) - (popOverView.frame.size.height / 2));
+    popOverView.hidden = YES;
+    
+}
+
+
+-(int) getIndexOfObjectForKey:(NSString *) key
+                    withValue:(NSString *) value
+{
+    __block NSInteger index = INFINITY;
+    __block NSString *valueString = value;
+    __block NSString *keyString = key;
+    [tableDataArray enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        NSDictionary *objDict = (NSDictionary *)obj;
+        if ([[objDict objectForKey:keyString] isEqualToString:valueString]) {
+            index = idx;
+            *stop = YES;
+        }
+    }];
+    return index;
+}
+
+-(CLFileBrowserCell *) cellAtIndexPath:(NSIndexPath *)indexPath
+{
+    return (CLFileBrowserCell *)[dataTableView cellForRowAtIndexPath:indexPath];
+}
+
+-(void) startAnimatingCellAtIndexPath:(NSIndexPath *) indexPath
+{
+    CLFileBrowserCell *cell = [self cellAtIndexPath:indexPath];
+    [cell startAnimating];
+}
+
+-(void) stopAnimatingCellAtIndexPath:(NSIndexPath *) indexPath
+{
+    CLFileBrowserCell *cell = [self cellAtIndexPath:indexPath];
+    [cell stopAnimating];
+}
+
+
+
+
+-(void) performFileOperation:(LiveOperation *) operation
+{
+    switch (currentFileOperation) {
+        case METADATA:
+        {
+            [self stopAnimating];
+            [CLCacheManager updateFile:operation.result
+                whereTraversingPointer:nil
+                       inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
+                           ForViewType:viewType];
+            //    //Reading Cache is skipped only reading Table Contents Starts
+            if (viewType == SKYDRIVE) { //cache is not referred
+                //                NSArray *contents = [operation.result objectForKey:@"data"];
+                NSArray *contents = [self getCachedTableDataArrayForViewType:SKYDRIVE];
+                [self updateModel:contents];
+                [self updateView];
+                //Looking For images and then downloading thumnails Starts
+                for (NSDictionary *data in contents) {
+                    if ([[data objectForKey:@"type"] isEqualToString:@"photo"]) {
+                        NSData *thumbData = [data objectForKey:THUMBNAIL_DATA];
+                        if (!thumbData) {
+                            NSArray *images = [data objectForKey:@"images"];
+                            if ([images count]) {
+                                NSDictionary *image = [images objectAtIndex:2];
+                                LiveDownloadOperation *downloadOperation =                         [self.appDelegate.liveClient downloadFromPath:[image objectForKey:@"source"] delegate:self userState:[data objectForKey:@"name"]];
+                                [liveOperations addObject:downloadOperation];
+                                currentFileOperation = DOWNLOAD;
+                                break;
+                            }
+                        }
+                    }
+                }
+                //Looking For images and then downloading thumnails Ends
+            }
+            
+            //    //Reading Cache is skipped only reading Table Contents Ends
+            
+        }
+            break;
+        case CREATE:
+        {
+            [self stopAnimating];
+            [CLCacheManager insertFile:operation.result
+                whereTraversingPointer:nil
+                       inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
+                           ForViewType:viewType];
+            //Updating UI
+            
+            [tableDataArray insertObject:operation.result atIndex:0];
+            [CLCacheManager arrangeFilesAndFolders:tableDataArray
+                                       ForViewType:viewType];
+            
+            
+            [dataTableView beginUpdates];
+            [dataTableView insertRowsAtIndexPaths:[NSArray arrayWithObject:[NSIndexPath indexPathForRow:[tableDataArray indexOfObject:operation.result] inSection:0]]
+                                 withRowAnimation:UITableViewRowAnimationBottom];
+            [dataTableView endUpdates];
+            //Updating UI
+            
+        }
+            break;
+        case DOWNLOAD:
+        {
+            LiveDownloadOperation *downloadOperation = (LiveDownloadOperation *) operation;
+            int index = [self getIndexOfObjectForKey:@"name"
+                                           withValue:operation.userState];
+            if (index < [tableDataArray count]) {
+                NSDictionary *data = [tableDataArray objectAtIndex:index];
+                NSMutableDictionary *updatedData = [NSMutableDictionary dictionaryWithDictionary:data];
+                [updatedData setObject:downloadOperation.data
+                                forKey:THUMBNAIL_DATA];
+                
+                
+                [CLCacheManager updateFile:updatedData
+                    whereTraversingPointer:nil
+                           inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
+                               ForViewType:viewType];
+                
+                NSIndexPath *indexPath = [NSIndexPath indexPathForRow:index
+                                                            inSection:0];
+                [tableDataArray replaceObjectAtIndex:index withObject:updatedData];
+                [dataTableView beginUpdates];
+                [dataTableView reloadRowsAtIndexPaths:[NSArray arrayWithObject:indexPath]
+                                     withRowAnimation:UITableViewRowAnimationAutomatic];
+                [dataTableView endUpdates];
+                
+                //Looking For images and then downloading thumnails Starts
+                for (NSDictionary *data in tableDataArray) {
+                    if ([[data objectForKey:@"type"] isEqualToString:@"photo"]) {
+                        NSData *thumbData = [data objectForKey:THUMBNAIL_DATA];
+                        if (!thumbData) {
+                            NSArray *images = [data objectForKey:@"images"];
+                            if ([images count]) {
+                                NSDictionary *image = [images objectAtIndex:2];
+                                LiveDownloadOperation *downloadOperation =                         [self.appDelegate.liveClient downloadFromPath:[image objectForKey:@"source"] delegate:self userState:[data objectForKey:@"name"]];
+                                [liveOperations addObject:downloadOperation];
+                                currentFileOperation = DOWNLOAD;
+                                break;
+                            }
+                        }
+                    }
+                }
+                //Looking For images and then downloading thumnails Ends
+            }
+        }
+            break;
+        default:
+            break;
+            //currentFileOperation = INFINITY;
+    }
+}
+
 
 
 

@@ -266,11 +266,6 @@
     [UIView setAnimationDuration:1.f];
     [UIView setAnimationDelegate:self];
     [UIView setAnimationDidStopSelector:@selector(animationDidFinish:finished:context:)];
-    
-//    [UIView setAnimationTransition:103 forView:mainImageView cache:YES];
-//    [UIView setAnimationPosition:CGPointMake(saveButton.center.x, CGRectGetMaxY(anImageView.frame))];
-//    [anImageView removeFromSuperview];
-    
     anImageView.transform = CGAffineTransformMakeScale(0.05, 0.05);
     anImageView.center = CGPointMake(saveButton.center.x, self.view.frame.size.height - TOOLBAR_HEIGHT + saveButton.center.y);
     [UIView commitAnimations];

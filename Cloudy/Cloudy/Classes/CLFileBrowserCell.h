@@ -20,6 +20,7 @@
 @property (nonatomic,assign) UIImage *backgroundImage;
 
 -(void) setData:(id) data ForViewType:(VIEW_TYPE) type;
+-(void) setData:(id)data;
 -(void) startAnimating;
 -(void) stopAnimating;
 @end

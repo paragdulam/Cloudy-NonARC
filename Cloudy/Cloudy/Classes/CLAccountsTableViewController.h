@@ -8,11 +8,18 @@
 
 #import "CLBaseTableViewController.h"
 #import "CLAccountCell.h"
+#import "CLCloudPlatformsListViewController.h"
 
-@interface CLAccountsTableViewController : CLBaseTableViewController<DBSessionDelegate,LiveAuthDelegate,LiveOperationDelegate>
+@interface CLAccountsTableViewController : CLBaseTableViewController<DBSessionDelegate,LiveAuthDelegate,LiveOperationDelegate,CLCloudPlatformListViewControllerDelegate>
 {
     UIButton *editButton;
 }
+
+
 -(void)authenticationDoneForSession:(DBSession *)session;
 -(void)  authenticationCancelledManuallyForSession:(DBSession *) session;
+-(void) authenticationDone;
+-(void) getSkyDriveQuotaForUserAccount:(NSDictionary *) account;
+
 @end
+

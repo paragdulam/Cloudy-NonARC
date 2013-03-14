@@ -24,6 +24,11 @@
 #define SKYDRIVE_CLIENT_ID @"000000004C0C6832"
 #define SCOPE_ARRAY [NSArray arrayWithObjects:@"wl.signin",@"wl.basic",@"wl.skydrive",@"wl.offline_access",@"wl.skydrive_update", nil]
 
+#define BOX_API_KEY @"ux3ux0v2rl17tppcfry7ddnuj57h3bl8"
+#define BOX_CREDENTIALS @"BOX_CREDENTIALS"
+#define TICKET @"ticket"
+#define AUTH_TOKEN @"auth_token"
+
 
 #define GOOGLE_DRIVE_KEYCHAIN_ITEM_NAME @"Drive-Box"
 #define GOOGLE_DRIVE_CLIENT_ID @"1029215508929.apps.googleusercontent.com"
@@ -32,6 +37,8 @@
 
 
 #define ACCOUNTS_PLIST @"Accounts.plist"
+#define METADATA_PLIST @"Metadata.plist"
+
 #define OFFSET 40.f
 
 #define ACCOUNTS @"Accounts"
@@ -59,8 +66,17 @@
 
 typedef enum CLOUD_PROVIDERS {
     DROPBOX = 0,
-    SKYDRIVE
+    SKYDRIVE,
+    BOX
 } VIEW_TYPE;
+
+
+typedef enum DATA_MANIPULATION_TYPE {
+    UPDATE_DATA = 10000,
+    INSERT_DATA,
+    DELETE_DATA
+} DATA_MANIPULATION_TYPE;
+
 
 typedef enum FILE_TYPE {
     PDF_FILE,
@@ -89,6 +105,8 @@ typedef enum FILE_FOLDER_OPERATIONS {
 #define ROOT_DROPBOX_PATH @"/"
 #define ROOT_SKYDRIVE_PATH [NSString stringWithFormat:@"%@/skydrive",[CLCacheManager getSkyDriveAccountId]]
 #define ROOT_SKYDRIVE_FOLDER_ID [NSString stringWithFormat:@"folder.%@",[CLCacheManager getSkyDriveAccountId]]
+#define ROOT_BOX_PATH @"0"
+
 
 #define DROPBOX_SORTDESCRIPTOR_KEY @"filename"
 #define SKYDRIVE_SORTDESCRIPTOR_KEY @"name"
@@ -111,5 +129,45 @@ typedef enum FILE_FOLDER_OPERATIONS {
 #define URL_PARAM @"URL"
 #define TYPE @"TYPE"
 
-//abc
+typedef enum DATA_TYPE {
+    DATA_ACCOUNT,
+    DATA_METADATA,
+    DATA_QUOTA,
+} TYPE_DATA;
+
+
+//Account Keys
+#define NAME @"NAME"
+#define ID @"ID"
+#define USERNAME @"USERNAME"
+#define EMAIL @"EMAIL"
+#define USED @"USED"
+#define TOTAL @"TOTAL"
+
+
+//Metadata Keys
+#define FILE_ID @"FILE_ID"
+#define FILE_PARENT_ID @"FILE_PARENT_ID"
+#define FILE_NAME @"FILE_NAME"
+#define FILE_SIZE @"FILE_SIZE"
+#define FILE_TYPE @"FILE_TYPE"
+#define FILE_LAST_UPDATED_TIME @"FILE_LAST_UPDATED_TIME"
+#define FILE_CREATED_TIME @"FILE_CREATED_TIME"
+#define FILE_CONTENTS @"FILE_CONTENTS"
+#define FILE_HASH @"FILE_HASH"
+#define FILE_PATH @"FILE_PATH"
+#define FILE_IS_DIRECTORY @"FILE_IS_DIRECTORY"
+#define FILE_EXTENSION @"FILE_EXTENSION"
+#define FILE_THUMBNAIL @"FILE_THUMBNAIL"
+#define FILE_THUMBNAIL_URL @"FILE_THUMBNAIL_URL"
+#define FILE_URL @"FILE_URL"
+
+
+#define INVALID_INDEX -1
+
+#define MOVE_ @"MOVE_"
+#define COPY_ @"COPY_"
+#define DELETE_ @"DELETE_"
+
+
 #endif

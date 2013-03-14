@@ -12,30 +12,43 @@
 
 
 
-@interface CLFileBrowserBaseTableViewController : CLBaseTableViewController<LiveOperationDelegate,CLBrowserBarItemDelegate,UITextFieldDelegate,LiveDownloadOperationDelegate>
+@interface CLFileBrowserBaseTableViewController : CLBaseTableViewController<LiveOperationDelegate,CLBrowserBarItemDelegate,UITextFieldDelegate,LiveDownloadOperationDelegate,UISearchBarDelegate,UISearchDisplayDelegate>
 {
     NSString *path;
     VIEW_TYPE viewType;
+    
     UIToolbar *fileOperationsToolbar;
     CLBrowserBarItem *barItem;
+    UIButton *createFolderButton;
+    
     NSMutableArray *liveOperations;
     NSMutableArray *toolBarItems;
     
     FILE_FOLDER_OPERATION currentFileOperation;
-    UIButton *createFolderButton;
+    NSMutableDictionary *currentFileData;
 }
 
 @property(nonatomic,retain) NSString *path;
 @property(nonatomic,assign) VIEW_TYPE viewType;
+@property (nonatomic,retain) NSMutableDictionary *currentFileData;
 
 
--(id) initWithTableViewStyle:(UITableViewStyle)style WherePath:(NSString *) pathString WithinViewType:(VIEW_TYPE) type;
 
--(void) loadFilesForPath:(NSString *) pathString WithInViewType:(VIEW_TYPE) type;
+-(id) initWithTableViewStyle:(UITableViewStyle)style
+                   WherePath:(NSString *) pathString
+              WithinViewType:(VIEW_TYPE) type;
+
+-(void) loadFilesForPath:(NSString *) pathString
+          WithInViewType:(VIEW_TYPE) type;
+
 -(void) startAnimating;
 -(void) stopAnimating;
 -(void) readCacheUpdateView;
 -(void) updateModel:(NSArray *) model;
+-(void) createFolderUpdateUI:(NSDictionary *) folder;
+-(void) updateContentsForCurrentDataWithArray:(NSArray *) contents;
+-(void) handlecreatedFolder:(NSDictionary *) folder;
+
 -(void) performFileOperation:(LiveOperation *) operation;
 
 -(CLFileBrowserCell *) cellAtIndexPath:(NSIndexPath *)indexPath;

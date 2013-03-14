@@ -14,7 +14,6 @@
 }
 @end
 
-
 @implementation LiveAuthDialog
 
 
@@ -91,6 +90,14 @@
     
     self.webView.delegate = self;
     self.title = @"SkyDrive";
+    
+    activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
+    [activityIndicator setHidesWhenStopped:YES];
+    UIBarButtonItem *rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:activityIndicator];
+    [activityIndicator release];
+    [self.navigationItem setRightBarButtonItem:rightBarButtonItem];
+    [rightBarButtonItem release];
+    
     // Override the left button to show a back button
     // which is used to dismiss the modal view    
     UIImage *buttonImage = [LiveAuthHelper getBackButtonImage]; 

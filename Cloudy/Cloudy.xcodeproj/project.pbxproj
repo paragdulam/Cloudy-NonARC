@@ -19,8 +19,6 @@
 		F10169F3164D470D002AE454 /* dropbox_cell_Image.png in Resources */ = {isa = PBXBuildFile; fileRef = F10169F1164D470D002AE454 /* dropbox_cell_Image.png */; };
 		F10169F5164D48F3002AE454 /* SkyDriveIconBlue_32x32.png in Resources */ = {isa = PBXBuildFile; fileRef = F10169F4164D48F3002AE454 /* SkyDriveIconBlue_32x32.png */; };
 		F14CC06516773B8D002E2807 /* CLAboutViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F14CC06416773B8C002E2807 /* CLAboutViewController.m */; };
-		F150216D1674AC9D0018E3DB /* app_icon.png in Resources */ = {isa = PBXBuildFile; fileRef = F150216C1674AC9D0018E3DB /* app_icon.png */; };
-		F150216F1674ACAC0018E3DB /* app_icon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = F150216E1674ACAC0018E3DB /* app_icon@2x.png */; };
 		F15021711674ACCE0018E3DB /* app_icon.png in Resources */ = {isa = PBXBuildFile; fileRef = F15021701674ACCD0018E3DB /* app_icon.png */; };
 		F15021731674ACD90018E3DB /* app_icon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = F15021721674ACD80018E3DB /* app_icon@2x.png */; };
 		F1502175167526800018E3DB /* SkyDriveIconBlack_32x32.png in Resources */ = {isa = PBXBuildFile; fileRef = F1502174167526800018E3DB /* SkyDriveIconBlack_32x32.png */; };
@@ -98,6 +96,10 @@
 		F154BEAC169D518500467E46 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F154BEAB169D518500467E46 /* SystemConfiguration.framework */; };
 		F16011B7164E1AAF00098D8C /* SkyDriveIconWhite_32x32@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = F16011B6164E1AAF00098D8C /* SkyDriveIconWhite_32x32@2x.png */; };
 		F16011B9164E1BA300098D8C /* dropbox_cell_Image@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = F16011B8164E1BA300098D8C /* dropbox_cell_Image@2x.png */; };
+		F173F56516F24540004252AC /* BoxClient.m in Sources */ = {isa = PBXBuildFile; fileRef = F173F56016F24540004252AC /* BoxClient.m */; };
+		F173F56616F24540004252AC /* XMLDownloader.m in Sources */ = {isa = PBXBuildFile; fileRef = F173F56216F24540004252AC /* XMLDownloader.m */; };
+		F173F56716F24540004252AC /* XMLReader.m in Sources */ = {isa = PBXBuildFile; fileRef = F173F56416F24540004252AC /* XMLReader.m */; };
+		F173F56D16F24602004252AC /* CacheManager.m in Sources */ = {isa = PBXBuildFile; fileRef = F173F56C16F24602004252AC /* CacheManager.m */; };
 		F18309C41658F8ED00FF6C64 /* CLUploadProgressButton.m in Sources */ = {isa = PBXBuildFile; fileRef = F18309C31658F8ED00FF6C64 /* CLUploadProgressButton.m */; };
 		F18309C61659730200FF6C64 /* cell_background.png in Resources */ = {isa = PBXBuildFile; fileRef = F18309C51659730200FF6C64 /* cell_background.png */; };
 		F18309C81659730A00FF6C64 /* cell_background@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = F18309C71659730A00FF6C64 /* cell_background@2x.png */; };
@@ -285,8 +287,6 @@
 		F10169F4164D48F3002AE454 /* SkyDriveIconBlue_32x32.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = SkyDriveIconBlue_32x32.png; sourceTree = "<group>"; };
 		F14CC06316773B8C002E2807 /* CLAboutViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CLAboutViewController.h; sourceTree = "<group>"; };
 		F14CC06416773B8C002E2807 /* CLAboutViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CLAboutViewController.m; sourceTree = "<group>"; };
-		F150216C1674AC9D0018E3DB /* app_icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = app_icon.png; sourceTree = "<group>"; };
-		F150216E1674ACAC0018E3DB /* app_icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "app_icon@2x.png"; sourceTree = "<group>"; };
 		F15021701674ACCD0018E3DB /* app_icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = app_icon.png; sourceTree = "<group>"; };
 		F15021721674ACD80018E3DB /* app_icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "app_icon@2x.png"; sourceTree = "<group>"; };
 		F1502174167526800018E3DB /* SkyDriveIconBlack_32x32.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = SkyDriveIconBlack_32x32.png; sourceTree = "<group>"; };
@@ -370,6 +370,14 @@
 		F154BEAB169D518500467E46 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		F16011B6164E1AAF00098D8C /* SkyDriveIconWhite_32x32@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "SkyDriveIconWhite_32x32@2x.png"; sourceTree = "<group>"; };
 		F16011B8164E1BA300098D8C /* dropbox_cell_Image@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "dropbox_cell_Image@2x.png"; sourceTree = "<group>"; };
+		F173F55F16F24540004252AC /* BoxClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BoxClient.h; sourceTree = "<group>"; };
+		F173F56016F24540004252AC /* BoxClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BoxClient.m; sourceTree = "<group>"; };
+		F173F56116F24540004252AC /* XMLDownloader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XMLDownloader.h; sourceTree = "<group>"; };
+		F173F56216F24540004252AC /* XMLDownloader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XMLDownloader.m; sourceTree = "<group>"; };
+		F173F56316F24540004252AC /* XMLReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XMLReader.h; sourceTree = "<group>"; };
+		F173F56416F24540004252AC /* XMLReader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XMLReader.m; sourceTree = "<group>"; };
+		F173F56B16F24601004252AC /* CacheManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CacheManager.h; sourceTree = "<group>"; };
+		F173F56C16F24602004252AC /* CacheManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CacheManager.m; sourceTree = "<group>"; };
 		F18309C21658F8ED00FF6C64 /* CLUploadProgressButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CLUploadProgressButton.h; sourceTree = "<group>"; };
 		F18309C31658F8ED00FF6C64 /* CLUploadProgressButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CLUploadProgressButton.m; sourceTree = "<group>"; };
 		F18309C51659730200FF6C64 /* cell_background.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cell_background.png; sourceTree = "<group>"; };
@@ -671,6 +679,19 @@
 			path = Reachability;
 			sourceTree = "<group>";
 		};
+		F173F55E16F24540004252AC /* BoxSDK */ = {
+			isa = PBXGroup;
+			children = (
+				F173F55F16F24540004252AC /* BoxClient.h */,
+				F173F56016F24540004252AC /* BoxClient.m */,
+				F173F56116F24540004252AC /* XMLDownloader.h */,
+				F173F56216F24540004252AC /* XMLDownloader.m */,
+				F173F56316F24540004252AC /* XMLReader.h */,
+				F173F56416F24540004252AC /* XMLReader.m */,
+			);
+			path = BoxSDK;
+			sourceTree = "<group>";
+		};
 		F18B7D15165A20B600D2EECF /* File_Thumbnails */ = {
 			isa = PBXGroup;
 			children = (
@@ -807,6 +828,8 @@
 		F194DB2D164A657B00631792 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				F173F56B16F24601004252AC /* CacheManager.h */,
+				F173F56C16F24602004252AC /* CacheManager.m */,
 				F194DB33164A665400631792 /* CLBaseViewController.h */,
 				F194DB34164A665400631792 /* CLBaseViewController.m */,
 				F194DB36164A66C700631792 /* CLBaseTableViewController.h */,
@@ -867,7 +890,6 @@
 		F194DB2F164A659300631792 /* Normal */ = {
 			isa = PBXGroup;
 			children = (
-				F150216C1674AC9D0018E3DB /* app_icon.png */,
 				F1DC76071666A1710043965A /* save.png */,
 				F153306F165F7DEF00CD2E23 /* editButton.png */,
 				F18B7D8E165A25DA00D2EECF /* folder.png */,
@@ -889,7 +911,6 @@
 		F194DB30164A659300631792 /* Retina */ = {
 			isa = PBXGroup;
 			children = (
-				F150216E1674ACAC0018E3DB /* app_icon@2x.png */,
 				F1DC76091666A17D0043965A /* save@2x.png */,
 				F152EEF4166249930093E423 /* File_Thumbnails */,
 				F1533071165F7DFC00CD2E23 /* editButton@2x.png */,
@@ -911,6 +932,7 @@
 		F194DB31164A65AB00631792 /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
+				F173F55E16F24540004252AC /* BoxSDK */,
 				F154BEA5169D50ED00467E46 /* Reachability */,
 				F1FA4F2816561F6C0027E4CC /* DDPopoverBackgroundView */,
 				F194DBDA164AED2800631792 /* DropboxSDK.xcodeproj */,
@@ -1331,8 +1353,6 @@
 				F152EF6A166249940093E423 /* zip@2x.png in Resources */,
 				F1DC76081666A1710043965A /* save.png in Resources */,
 				F1DC760A1666A17D0043965A /* save@2x.png in Resources */,
-				F150216D1674AC9D0018E3DB /* app_icon.png in Resources */,
-				F150216F1674ACAC0018E3DB /* app_icon@2x.png in Resources */,
 				F15021711674ACCE0018E3DB /* app_icon.png in Resources */,
 				F15021731674ACD90018E3DB /* app_icon@2x.png in Resources */,
 				F1502175167526800018E3DB /* SkyDriveIconBlack_32x32.png in Resources */,
@@ -1406,6 +1426,10 @@
 				F153E113167A24D200F5EE49 /* CLWebMediaPlayerViewController.m in Sources */,
 				F1549A66169BF5F8008A69A0 /* CLCloudPlatformSelectionViewController.m in Sources */,
 				F154BEA8169D50ED00467E46 /* Reachability.m in Sources */,
+				F173F56516F24540004252AC /* BoxClient.m in Sources */,
+				F173F56616F24540004252AC /* XMLDownloader.m in Sources */,
+				F173F56716F24540004252AC /* XMLReader.m in Sources */,
+				F173F56D16F24602004252AC /* CacheManager.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

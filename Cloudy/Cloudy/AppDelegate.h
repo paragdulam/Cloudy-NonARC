@@ -12,14 +12,16 @@
 #import <DropboxSDK/DropboxSDK.h>
 #import "CLUploadProgressButton.h"
 #import "CLConstants.h"
+#import "BoxClient.h"
 
 
 
 @class CLFileBrowserTableViewController;
 @class CLUploadsTableViewController;
 @class CLPathSelectionViewController;
+@class CLAccountsTableViewController;
 
-@interface AppDelegate : UIResponder <UIApplicationDelegate,DBRestClientDelegate,LiveUploadOperationDelegate>
+@interface AppDelegate : UIResponder <UIApplicationDelegate,DBRestClientDelegate,LiveUploadOperationDelegate,BoxClientDelegate>
 {
     DDMenuController *menuController;
     CLFileBrowserTableViewController *rootFileBrowserViewController;
@@ -29,13 +31,17 @@
     CLUploadProgressButton *uploadProgressButton;
     NSMutableArray *uploads;
     DBRestClient *restClient;
+    BoxClient *boxClient;
     CLUploadsTableViewController *uploadsViewController;
     UIBackgroundTaskIdentifier backgroundTaskIdentifier;
     LiveOperation *currentUploadOperation;
+    CLAccountsTableViewController *callbackViewController;
 }
 
 @property (strong, nonatomic) UIWindow *window;
 @property (retain, nonatomic) DDMenuController *menuController;
+@property (assign, nonatomic) CLAccountsTableViewController *callbackViewController;
+
 @property (assign, nonatomic) CLFileBrowserTableViewController *rootFileBrowserViewController;
 @property (retain, nonatomic) DBSession *dropboxSession;
 @property (retain, nonatomic) LiveConnectClient *liveClient;
@@ -43,6 +49,7 @@
 @property (nonatomic,retain) CLUploadProgressButton *uploadProgressButton;
 @property (nonatomic,retain) NSMutableArray *uploads;
 @property (nonatomic,retain) DBRestClient *restClient;
+@property (nonatomic,retain) BoxClient *boxClient;
 @property (nonatomic,assign) CLUploadsTableViewController *uploadsViewController;
 @property (nonatomic,assign) UIBackgroundTaskIdentifier backgroundTaskIdentifier;
 @property (retain, nonatomic) LiveOperation *currentUploadOperation;

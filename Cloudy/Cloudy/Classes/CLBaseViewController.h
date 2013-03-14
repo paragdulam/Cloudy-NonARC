@@ -10,11 +10,12 @@
 #import "CLCacheManager.h"
 #import "CLDictionaryConvertor.h"
 #import "AppDelegate.h"
-
+#import "CacheManager.h"
 
 @interface CLBaseViewController : UIViewController
 {
     AppDelegate *appDelegate;
+    CacheManager *sharedManager;
 }
 
 @property (nonatomic,assign) AppDelegate *appDelegate;

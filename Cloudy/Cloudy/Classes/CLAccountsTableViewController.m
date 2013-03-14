@@ -10,25 +10,28 @@
 #import "CLFileBrowserBaseTableViewController.h"
 #import "CLAboutViewController.h"
 #import "Reachability.h"
+#import "CacheManager.h"
 
 @interface CLAccountsTableViewController ()
 {
     UIButton *aboutButton;
     NSString *initialUserState;
+    NSIndexPath *animatingIndexPath;
 }
 -(void) initialModelSetup;
--(void) performTableViewAnimationForIndexPath:(NSIndexPath *) indexPath withAnimationSequence:(NSArray *) sequence;
--(void) startAnimatingCellAtIndexPath:(NSIndexPath *) indexPath;
--(void) stopAnimatingCellAtIndexPath:(NSIndexPath *) indexPath;
--(CLAccountCell *) cellAtIndexPath:(NSIndexPath *)indexPath;
+-(void) updateTableCellWithData:(id) data
+                    AtIndexPath:(NSIndexPath *)index
+              WithCellAnimation:(UITableViewRowAnimation) animation;
 -(void) updateModel:(NSArray *) model;
 
+@property (nonatomic,retain) NSIndexPath *animatingIndexPath;
 
 
 
 @end
 
 @implementation CLAccountsTableViewController
+@synthesize animatingIndexPath;
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
@@ -87,7 +90,6 @@
     //Setting Up About Button End
 
     
-    
     [self initialModelSetup];
     [self updateView];
 }
@@ -96,13 +98,8 @@
 -(void) viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-    if (![CLCacheManager getAccountForType:DROPBOX] && [self.appDelegate.dropboxSession isLinked]) {
+    if ([self.appDelegate.dropboxSession isLinked] && ![sharedManager accountOfType:DROPBOX]) {
         [self authenticationDoneForSession:self.appDelegate.dropboxSession];
-    }
-    
-    if (!self.appDelegate.liveClient.session && [CLCacheManager getAccountForType:SKYDRIVE] && ![[Reachability reachabilityForInternetConnection] connectionRequired]) {
-        [self startAnimatingCellAtIndexPath:[NSIndexPath indexPathForRow:0
-                                                               inSection:SKYDRIVE]];
     }
 }
 
@@ -110,6 +107,15 @@
 {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
+}
+
+
+-(void) dealloc
+{
+    [animatingIndexPath release];
+    animatingIndexPath = nil;
+    
+    [super dealloc];
 }
 
 #pragma mark - IBActions
@@ -133,22 +139,7 @@
 #pragma mark - Helper Methods
 
 
--(CLAccountCell *) cellAtIndexPath:(NSIndexPath *)indexPath
-{
-    return (CLAccountCell *)[dataTableView cellForRowAtIndexPath:indexPath];
-}
 
--(void) startAnimatingCellAtIndexPath:(NSIndexPath *) indexPath
-{
-    CLAccountCell *cell = [self cellAtIndexPath:indexPath];
-    [cell startAnimating];
-}
-
--(void) stopAnimatingCellAtIndexPath:(NSIndexPath *) indexPath
-{
-    CLAccountCell *cell = [self cellAtIndexPath:indexPath];
-    [cell stopAnimating];
-}
 
 -(void) performTableViewAnimationForIndexPath:(NSIndexPath *) indexPath withAnimationSequence:(NSArray *) sequence
 {
@@ -168,52 +159,14 @@
 -(void) initialModelSetup
 {
     NSMutableArray *accounts = nil;
-    NSArray *storedAccounts = [CLCacheManager accounts];
-    if (![storedAccounts count]) {
-        accounts = [[NSMutableArray alloc] initWithObjects:DROPBOX_STRING,SKYDRIVE_STRING, nil];
-    } else {
-        accounts = [[NSMutableArray alloc] initWithArray:storedAccounts];
-        switch ([storedAccounts count]) {
-            case 0:
-                break;
-            case 1:
-            {
-                NSDictionary *account = [accounts objectAtIndex:0];
-                VIEW_TYPE accountType = [[account objectForKey:ACCOUNT_TYPE] intValue];
-                switch (accountType) {
-                    case DROPBOX:
-                        [accounts insertObject:SKYDRIVE_STRING atIndex:1];
-                        break;
-                    case SKYDRIVE:
-                        [accounts insertObject:DROPBOX_STRING atIndex:0];
-                        break;
-                    default:
-                        break;
-                }
-            }
-                break;
-            case 2:
-            {
-                NSDictionary *account = [accounts objectAtIndex:0];
-                VIEW_TYPE accountType = [[account objectForKey:ACCOUNT_TYPE] intValue];
-                switch (accountType) {
-                    case SKYDRIVE:
-                    {
-                        [accounts exchangeObjectAtIndex:0 withObjectAtIndex:1];
-                    }
-                        break;
-                        
-                    default:
-                        break;
-                }
-
-            }
-                break;
-        }
+    NSArray *storedAccounts = [sharedManager accounts];
+    accounts = [[NSMutableArray alloc] initWithObjects:DROPBOX_STRING,SKYDRIVE_STRING, nil];
+    for (NSDictionary *account in storedAccounts) {
+        VIEW_TYPE accountType = [[account objectForKey:ACCOUNT_TYPE] intValue];
+        [accounts replaceObjectAtIndex:accountType withObject:account];
     }
     [self updateModel:accounts];
     [accounts release];
-    
     editButton.hidden = [storedAccounts count] ? NO : YES ;
 }
 
@@ -226,7 +179,56 @@
 -(void) updateView
 {
     [super updateView];
-    [dataTableView reloadData];
+}
+
+-(void) getSkyDriveQuotaForUserAccount:(NSDictionary *) account
+{
+    NSMutableDictionary *accountDictionary = [NSMutableDictionary dictionaryWithDictionary:account];
+    [accountDictionary removeObjectForKey:TOTAL];
+    NSString *quotaPathString = [NSString stringWithFormat:@"%@/skydrive/quota",[account objectForKey:ID]];
+    [self.appDelegate.liveClient getWithPath:quotaPathString
+                                    delegate:self
+                                   userState:account];
+    
+    [self updateTableCellWithData:accountDictionary
+                      AtIndexPath:[NSIndexPath indexPathForRow:0 inSection:SKYDRIVE]
+                WithCellAnimation:UITableViewRowAnimationAutomatic];
+}
+
+-(void) updateTableCellWithData:(id) data
+                    AtIndexPath:(NSIndexPath *)index
+              WithCellAnimation:(UITableViewRowAnimation) animation
+{
+    [tableDataArray replaceObjectAtIndex:index.section withObject:data];
+    [dataTableView reloadRowsAtIndexPaths:[NSArray arrayWithObject:index]
+                         withRowAnimation:animation];
+}
+
+
+-(void) showDetailViewControllerForViewType:(VIEW_TYPE) type
+{
+    UINavigationController *navController = (UINavigationController *)self.appDelegate.menuController.rootViewController;
+    [navController popToRootViewControllerAnimated:NO];
+    [self.appDelegate.menuController setRootController:navController animated:YES];
+    
+    NSString *rootPath = nil;
+    switch (type) {
+        case DROPBOX:
+            rootPath = ROOT_DROPBOX_PATH;
+            break;
+        case SKYDRIVE:
+        {
+            NSDictionary *skyDriveAccount = [sharedManager accountOfType:type];
+            rootPath = [NSString stringWithFormat:@"folder.%@",[skyDriveAccount objectForKey:ID]];
+        }
+            break;
+            
+        default:
+            break;
+    }
+    
+    [self.appDelegate.rootFileBrowserViewController loadFilesForPath:rootPath
+                                                      WithInViewType:type];
 }
 
 #pragma mark - UITableViewDataSource & UITableViewDelegate
@@ -248,7 +250,13 @@
     if (!cell) {
         cell = [[[CLAccountCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:@"CLAccountCell"] autorelease];
     }
-    [cell setData:[tableDataArray objectAtIndex:indexPath.section] forCellAtIndexPath:indexPath];
+    id object = [tableDataArray objectAtIndex:indexPath.section];
+    [cell setData:object];
+    if ([object isKindOfClass:[NSString class]]) {
+        if ([animatingIndexPath isEqual:indexPath]) {
+            [cell startAnimating];
+        }
+    }
     return cell;
 }
 
@@ -266,34 +274,41 @@
             if (![self.appDelegate.dropboxSession isLinked]) {
                 [self.appDelegate.dropboxSession linkFromController:self.appDelegate.menuController];
             } else {
-                UINavigationController *navController = (UINavigationController *)self.appDelegate.menuController.rootViewController;
-                [navController popToRootViewControllerAnimated:NO];
-                [self.appDelegate.menuController setRootController:navController animated:YES];
-                
-                [self.appDelegate.rootFileBrowserViewController loadFilesForPath:@"/" WithInViewType:DROPBOX];
+                [self showDetailViewControllerForViewType:DROPBOX];
             }
             break;
         }
         case SKYDRIVE:
         {
-            if (![[self.appDelegate.liveClient.session accessToken] length] && ![[Reachability reachabilityForInternetConnection] connectionRequired]) {
+            if (![self.appDelegate.liveClient isRefreshTokenAvailable]) {
                 [self.appDelegate.liveClient login:self.appDelegate.menuController
                                             scopes:SCOPE_ARRAY
-                                          delegate:self];
+                                          delegate:self
+                                         userState:@"LOGIN_ACCOUNT_VC"];
+            } else {
+                [self showDetailViewControllerForViewType:SKYDRIVE];
+            }
+            break;
+        }
+        case BOX:
+        {
+            if (![self.boxClient auth_token]) {
+                [self.boxClient login];
+                CLAccountCell *cell = (CLAccountCell *)[dataTableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:BOX]];
+                [cell startAnimating];
             } else {
                 UINavigationController *navController = (UINavigationController *)self.appDelegate.menuController.rootViewController;
                 [navController popToRootViewControllerAnimated:NO];
                 [self.appDelegate.menuController setRootController:navController animated:YES];
-                
-                [self.appDelegate.rootFileBrowserViewController loadFilesForPath:ROOT_SKYDRIVE_PATH WithInViewType:SKYDRIVE];
+                //load root folder Metadata here
+                [self.appDelegate.rootFileBrowserViewController loadFilesForPath:@"0" WithInViewType:BOX];
+
             }
-            break;
         }
         default:
             break;
     }
 }
-
 
 - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
 {
@@ -343,81 +358,129 @@
 
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    NSDictionary *account = [CLCacheManager getAccountForType:indexPath.section];
-    [CLCacheManager deleteAccount:account];
-    [CLCacheManager deleteFileStructureForView:indexPath.section];
-    
-    NSMutableArray *uploadsToBeRemoved = [[NSMutableArray alloc] init];
-    for (NSDictionary *upload in self.appDelegate.uploads) {
-        if ([[upload objectForKey:TYPE] integerValue] == indexPath.section) {
-            [uploadsToBeRemoved addObject:upload];
+    BOOL success = [sharedManager deleteAccount:[sharedManager accountOfType:indexPath.section]];
+    [sharedManager deleteMetadata:indexPath.section];
+    NSString *data = nil;
+    if (success) {
+        switch (indexPath.section) {
+            case DROPBOX:
+            {
+                data = DROPBOX_STRING;
+                DBSession *sharedSession = self.appDelegate.dropboxSession;
+                NSString *userId = [[sharedSession userIds] objectAtIndex:0];
+                [sharedSession unlinkUserId:userId];
+            }
+                break;
+            case SKYDRIVE:
+            {
+                data = SKYDRIVE_STRING;
+                [self.appDelegate.liveClient logoutWithDelegate:self
+                                                    userState:@"LOGOUT_SKYDRIVE"];
+            }
+                break;
+            case BOX:
+            {
+                data = BOX_STRING;
+                [self.boxClient logout];
+            }
+                break;
+                
+            default:
+                break;
         }
-    }
-    [self.appDelegate removeUploads:uploadsToBeRemoved ForViewType:indexPath.section];
-    [uploadsToBeRemoved release];
-    
-    [self.appDelegate updateUploads:nil
-                       FolderAtPath:nil
-                        ForViewType:INFINITY];
-
-
-    switch (indexPath.section) {
-        case 0:
-        {
-            [tableDataArray replaceObjectAtIndex:0 withObject:DROPBOX_STRING];
-            DBSession *sharedSession = self.appDelegate.dropboxSession;
-            NSString *userId = [[sharedSession userIds] objectAtIndex:0];
-            [sharedSession unlinkUserId:userId];
+        self.animatingIndexPath = nil;
+        [self updateTableCellWithData:data
+                          AtIndexPath:indexPath
+                    WithCellAnimation:UITableViewRowAnimationLeft];
+        
+        VIEW_TYPE type = INFINITY;
+        if (![[sharedManager accounts] count]) {
+            editButton.hidden = YES;
+        } else {
+            NSDictionary *account = [[sharedManager accounts] objectAtIndex:0];
+            type = [[account objectForKey:ACCOUNT_TYPE] intValue];
         }
-            break;
-        case 1:
-        {
-            [tableDataArray replaceObjectAtIndex:1 withObject:SKYDRIVE_STRING];
-            [self.appDelegate.liveClient logoutWithDelegate:self
-                                                  userState:@"LOGOUT_SKYDRIVE"];
-        }
-            break;
-        default:
-            break;
-    }
-
-    NSArray *sequenceArray = [NSArray arrayWithObjects:[NSNumber numberWithInteger:UITableViewRowAnimationRight],[NSNumber numberWithInteger:UITableViewRowAnimationLeft], nil];
-    [self performTableViewAnimationForIndexPath:indexPath withAnimationSequence:sequenceArray];
-    [self editButtonTapped:editButton];
-    [self.appDelegate initialSetup];
-    if (![[CLCacheManager accounts] count]) {
-        editButton.hidden = YES;
-    }
-    
+        [self showDetailViewControllerForViewType:type];
+     }
 }
 
 
+#pragma mark - BoxClientDelegate
 
-#pragma mark - DBRestClientDelegate
-
-- (void)restClient:(DBRestClient*)client loadedAccountInfo:(DBAccountInfo*)info
+-(void) authenticationDone
 {
-    NSDictionary *accountDictionary = [CLDictionaryConvertor dictionaryFromAccountInfo:info];
-    BOOL isAccountStored = [CLCacheManager storeAccount:accountDictionary];
-    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:0 inSection:DROPBOX];
-    [self stopAnimatingCellAtIndexPath:indexPath];
+    [self.boxClient getAccountInfo];
+}
+
+
+-(void) boxClient:(BoxClient *)client didLoadAccountInfo:(NSDictionary *)accountInfo
+{
+    //Compatible Dictionary Conversion Starts
+    NSMutableDictionary *accountData = [[NSMutableDictionary alloc] init];
+    [accountData addEntriesFromDictionary:accountInfo];
+    [accountData setObject:[NSNumber numberWithInt:BOX] forKey:ACCOUNT_TYPE];
+    BOOL isAccountStored = [CLCacheManager storeAccount:accountData];
+    [accountData release];
+    //Compatible Dictionary Conversion Ends
+    
+    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:0 inSection:BOX];
     if (isAccountStored) {
-        [tableDataArray replaceObjectAtIndex:DROPBOX withObject:accountDictionary];
+        [tableDataArray replaceObjectAtIndex:BOX withObject:accountInfo];
         NSArray *sequenceArray = [NSArray arrayWithObjects:[NSNumber numberWithInteger:UITableViewRowAnimationLeft],[NSNumber numberWithInteger:UITableViewRowAnimationRight], nil];
         [self performTableViewAnimationForIndexPath:indexPath
                               withAnimationSequence:sequenceArray];
     }
     editButton.hidden = NO;
-    [self tableView:dataTableView didSelectRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:DROPBOX]];
+    [self tableView:dataTableView didSelectRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:BOX]];
+
+}
+
+
+-(void) boxClient:(BoxClient *)client didLoadFailedAccountInfoWithError:(NSError *)error
+{
+    [AppDelegate showError:error alertOnView:self.view];
+}
+
+
+-(void) boxClient:(BoxClient *)client DidLogOutWithData:(NSDictionary *)data
+{
+    
+}
+
+-(void) boxClient:(BoxClient *)client DidLogOutFailWithError:(NSError *)error
+{
+    [AppDelegate showError:error alertOnView:self.view];
+}
+
+#pragma mark - DBRestClientDelegate
+
+- (void)restClient:(DBRestClient*)client loadedAccountInfo:(DBAccountInfo*)info
+{
+    NSDictionary *accountDictionary = [info original];
+    NSDictionary *accountInfoDictionary = [sharedManager processDictionary:accountDictionary ForDataType:DATA_ACCOUNT AndViewType:DROPBOX];
+
+    BOOL isAccountStored = NO;
+    int index = [sharedManager isAccountPresent:accountDictionary];
+    if (index == INVALID_INDEX) {
+       isAccountStored = [sharedManager addAccount:accountInfoDictionary];
+    } else {
+        [sharedManager updateAccount:accountDictionary];
+    }
+
+    if (isAccountStored) {
+        [self updateTableCellWithData:accountInfoDictionary
+                          AtIndexPath:[NSIndexPath indexPathForRow:0 inSection:DROPBOX]
+                    WithCellAnimation:UITableViewRowAnimationRight];
+        [self showDetailViewControllerForViewType:DROPBOX];
+    }
+    editButton.hidden = NO;
 }
 
 - (void)restClient:(DBRestClient*)client loadAccountInfoFailedWithError:(NSError*)error
 {
-    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:0
-                                                inSection:DROPBOX];
-    [self stopAnimatingCellAtIndexPath:indexPath];
-    [AppDelegate showError:error
-               alertOnView:self.view];
+    [AppDelegate showMessage:[[error userInfo] objectForKey:@"error"]
+                   withColor:[UIColor redColor]
+                 alertOnView:self.view];
 }
 
 
@@ -427,9 +490,9 @@
 
 -(void)authenticationDoneForSession:(DBSession *)session
 {
+    self.animatingIndexPath = [NSIndexPath indexPathForRow:0 inSection:DROPBOX];
+    [self updateView];
     [self.restClient loadAccountInfo];
-    [self startAnimatingCellAtIndexPath:[NSIndexPath indexPathForRow:0
-                                                           inSection:DROPBOX]];
 }
 
 -(void)  authenticationCancelledManuallyForSession:(DBSession *) session
@@ -450,20 +513,25 @@
                session: (LiveConnectSession *) session
              userState: (id) userState
 {
-    initialUserState = [userState retain];
-    [self.appDelegate.liveClient getWithPath:@"/me"
-                                    delegate:self
-                                   userState:@"/me"];
-    [self startAnimatingCellAtIndexPath:[NSIndexPath indexPathForRow:0
-                                                           inSection:SKYDRIVE]];
+    if ([userState isEqualToString:@"LOGIN_ACCOUNT_VC"] ||
+        ([userState isEqualToString:@"InitialAllocation"] && [self.appDelegate.liveClient isRefreshTokenAvailable])) {
+        self.animatingIndexPath = [NSIndexPath indexPathForRow:0
+                                                     inSection:SKYDRIVE];
+        [self updateView];
+        [self.appDelegate.liveClient getWithPath:@"/me"
+                                        delegate:self
+                                       userState:userState];
+    } else if ([userState isEqualToString:@"LOGOUT_SKYDRIVE"]) {
+        
+    }
 }
 
 - (void) authFailed: (NSError *) error
           userState: (id)userState
 {
-    [AppDelegate showMessage:[error localizedDescription]
+    [AppDelegate showMessage:[error.userInfo objectForKey:@"error_description"]
                    withColor:[UIColor redColor]
-                 alertOnView:self.appDelegate.window.rootViewController.view];
+                 alertOnView:self.view];
 }
 
 
@@ -471,43 +539,44 @@
 
 - (void) liveOperationSucceeded:(LiveOperation *)operation
 {
-    if ([operation.userState isEqualToString:@"/me"]) {
-        NSDictionary *accountDictionary = [CLDictionaryConvertor dictionaryFromAccountInfo:operation.result];
-        BOOL isAccountStored = [CLCacheManager storeAccount:accountDictionary];
-        NSIndexPath *indexPath = [NSIndexPath indexPathForRow:0
-                                                    inSection:SKYDRIVE];
-        CLAccountCell *cell = [self cellAtIndexPath:indexPath];
-        [cell stopAnimating:YES];
-        if (isAccountStored) {
-            [tableDataArray replaceObjectAtIndex:SKYDRIVE withObject:accountDictionary];
-            NSArray *sequenceArray = [NSArray arrayWithObjects:[NSNumber numberWithInteger:UITableViewRowAnimationLeft],[NSNumber numberWithInteger:UITableViewRowAnimationRight], nil];
-            [self performTableViewAnimationForIndexPath:indexPath
-                                  withAnimationSequence:sequenceArray];
+    if ([operation.userState isKindOfClass:[NSString class]]) {
+        if ([operation.userState isEqualToString:@"LOGIN_ACCOUNT_VC"] || [operation.userState isEqualToString:@"InitialAllocation"]) {
+            
+            NSDictionary *accountDictionary = [sharedManager processDictionary:operation.result ForDataType:DATA_ACCOUNT AndViewType:SKYDRIVE];
+            
+            BOOL isAccountAdded = [sharedManager addAccount:accountDictionary];
+            
+            if (isAccountAdded) {
+                //perform UI Operations
+                [self updateTableCellWithData:accountDictionary
+                                  AtIndexPath:[NSIndexPath indexPathForRow:0 inSection:SKYDRIVE]
+                            WithCellAnimation:UITableViewRowAnimationRight];
+            }
+            [self getSkyDriveQuotaForUserAccount:accountDictionary];
+            
+            //calls only after login
+            if ([operation.userState isEqualToString:@"LOGIN_ACCOUNT_VC"])
+                [self showDetailViewControllerForViewType:SKYDRIVE];
+        } else if ([operation.userState isEqualToString:@"LOGOUT_SKYDRIVE"]) {
         }
-        editButton.hidden = NO;
-        [self.appDelegate.liveClient getWithPath:@"/me/skydrive/quota"
-                                        delegate:self
-                                       userState:@"/me/skydrive/quota"];
-    } else if ([operation.userState isEqualToString:@"/me/skydrive/quota"]) {
-        //read the quota dictionary
-        NSDictionary *quotaDictionary = operation.result;
+    } else { //quota dictionary with account dictionary UserState
+        NSDictionary *resultDictionary = operation.result;
         
-        //Read the current skydrive account
-        NSMutableDictionary *skyDriveAccount = [[NSMutableDictionary alloc] initWithDictionary:[CLCacheManager getAccountForType:SKYDRIVE]];
+        NSDictionary *quota = [sharedManager processDictionary:resultDictionary
+                                                  ForDataType:DATA_QUOTA
+                                                  AndViewType:SKYDRIVE];
         
-        //Add the quota dictionary to the current skydrive account
-        [skyDriveAccount setObject:quotaDictionary forKey:@"quota"];
+        NSMutableDictionary *finalAccountDictionary = [NSMutableDictionary dictionaryWithDictionary:operation.userState];
         
-        //update the account dictionary
-        [CLCacheManager updateAccount:skyDriveAccount];
-        [skyDriveAccount release];
-        [self initialModelSetup];
-        [self updateView];
-        if (![initialUserState isEqualToString:@"InitialAllocation"]) {
-            [self tableView:dataTableView didSelectRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:SKYDRIVE]];
-        } else {
-            [initialUserState release];
-            initialUserState = nil;
+        [finalAccountDictionary addEntriesFromDictionary:quota];
+        
+        BOOL isAccountUpdated = [sharedManager updateAccount:finalAccountDictionary];
+        
+        if (isAccountUpdated) {
+            self.animatingIndexPath = nil;
+            [self updateTableCellWithData:finalAccountDictionary
+                              AtIndexPath:[NSIndexPath indexPathForRow:0 inSection:SKYDRIVE]
+                        WithCellAnimation:UITableViewRowAnimationAutomatic];
         }
     }
 }
@@ -515,10 +584,40 @@
 - (void) liveOperationFailed:(NSError *)error
                    operation:(LiveOperation*)operation
 {
-    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:0 inSection:SKYDRIVE];
-    [self stopAnimatingCellAtIndexPath:indexPath];
+    [AppDelegate showMessage:[error.userInfo objectForKey:@"error_description"]
+                   withColor:[UIColor redColor]
+                 alertOnView:self.view];
 }
 
+
+
+#pragma mark - Unused For Now
+#pragma mark - CLCloudPlatformListViewControllerDelegate
+
+
+-(void) login:(NSNumber *) number
+{
+    switch ([number intValue]) {
+        case DROPBOX:
+            [self.appDelegate.dropboxSession linkFromController:self.appDelegate.menuController];
+            break;
+        case SKYDRIVE:
+            [self.appDelegate.liveClient login:self.appDelegate.menuController
+                                        scopes:SCOPE_ARRAY
+                                      delegate:self];
+        default:
+            break;
+    }
+}
+
+
+-(void) cloudPlatformListViewController:(CLCloudPlatformsListViewController *) viewController didSelectPlatForm:(VIEW_TYPE) type
+{
+    [viewController dismissModalViewControllerAnimated:YES];
+    [self performSelector:@selector(login:)
+               withObject:[NSNumber numberWithInt:type]
+               afterDelay:.5f];
+}
 
 
 @end

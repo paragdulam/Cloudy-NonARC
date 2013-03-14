@@ -7,6 +7,7 @@
 //
 
 #import "CLFileBrowserCell.h"
+#import "CacheManager.h"
 
 @interface CLFileBrowserCell()
 {
@@ -109,6 +110,47 @@
 }
 
 
+
+-(void) setData:(id)data
+{
+    NSDictionary *dataDictionary = (NSDictionary *)data;
+    NSString *titleText = nil;
+    NSString *detailText = nil;
+    UIImage *cellImage = nil;
+    
+    titleText = [dataDictionary objectForKey:FILE_NAME];
+    
+    id size = [dataDictionary objectForKey:FILE_SIZE];
+    detailText = [size isKindOfClass:[NSNumber class]] ? [NSString stringWithFormat:@"%.2f MB",[size floatValue]/(1024*1024)] : size;
+    
+    switch ([[dataDictionary objectForKey:FILE_TYPE] intValue]) {
+        case 0: //file
+        {
+            NSString *cloudDataType = [[dataDictionary objectForKey:ACCOUNT_TYPE] intValue] ? SKYDRIVE_STRING : DROPBOX_STRING;
+            NSString *thumbPath = [NSString stringWithFormat:@"%@%@_%@",[CacheManager getTemporaryDirectory],cloudDataType,[[data objectForKey:FILE_PATH] stringByReplacingOccurrencesOfString:@"/" withString:@""]];
+            if ([[data objectForKey:FILE_THUMBNAIL] boolValue] && [CacheManager fileExistsAtPath:thumbPath]) {
+                cellImage = [UIImage imageWithContentsOfFile:thumbPath];
+            } else {
+                NSString *extention = [[titleText pathExtension] lowercaseString];
+                cellImage = [UIImage imageNamed:[NSString stringWithFormat:@"%@.png",extention]];
+                if (!cellImage) {
+                    cellImage = [UIImage imageNamed:[NSString stringWithFormat:@"_blank.png"]];
+                }
+            }
+        }
+            break;
+        case 1: //folder
+            cellImage = [UIImage imageNamed:@"folder.png"];
+            break;
+        default:
+            break;
+    }
+    
+    [self.textLabel setText:titleText];
+    [self.detailTextLabel setText:detailText];
+    [self.imageView setImage:cellImage];
+}
+
 -(void) setData:(id) data ForViewType:(VIEW_TYPE) type
 {
     NSDictionary *dataDictionary = (NSDictionary *)data;
@@ -155,15 +197,32 @@
             }
         }
             break;
-
+        case BOX:
+        {
+            titleText = [dataDictionary objectForKey:@"file_name"];
+            if (!titleText) {
+                titleText = [dataDictionary objectForKey:@"name"];
+                cellImage = [UIImage imageNamed:@"folder.png"];
+            } else {
+                cellImage = [UIImage imageWithData:[dataDictionary objectForKey:THUMBNAIL_DATA]];
+                if (!cellImage) {
+                    NSString *extention = [[titleText pathExtension] lowercaseString];
+                    cellImage = [UIImage imageNamed:[NSString stringWithFormat:@"%@.png",extention]];
+                    if (!cellImage) {
+                        cellImage = [UIImage imageNamed:[NSString stringWithFormat:@"_blank.png"]];
+                    }
+                }
+            }
+            float sizeValue = [[dataDictionary objectForKey:@"size"] floatValue]/(1024*1024);
+            detailText = [NSString stringWithFormat:@"%.2f MB",sizeValue];
+        }
+            break;
         default:
             break;
     }
-    
     [self.textLabel setText:titleText];
     [self.detailTextLabel setText:detailText];
     [self.imageView setImage:cellImage];
-
 }
 
 @end

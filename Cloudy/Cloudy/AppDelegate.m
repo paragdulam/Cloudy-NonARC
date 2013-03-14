@@ -11,13 +11,13 @@
 #import "CLFileBrowserTableViewController.h"
 #import "CLUploadsTableViewController.h"
 #import "CLCloudPlatformSelectionViewController.h"
+#import "CLAccountsTableViewController.h"
 
 
 
 
 @interface AppDelegate()
 {
-    CLAccountsTableViewController *callbackViewController;
     NSURL *externalFileURL;
 }
 
@@ -33,6 +33,7 @@
 @synthesize liveClientFlag;
 @synthesize uploadProgressButton;
 @synthesize restClient;
+@synthesize boxClient;
 @synthesize uploads;
 @synthesize uploadsViewController;
 @synthesize externalFileURL;
@@ -49,6 +50,8 @@
     externalFileURL = nil;
     
     uploadsViewController = nil;
+    [boxClient release];
+    boxClient = nil;
     
     [restClient release];
     restClient = nil;
@@ -80,17 +83,25 @@
   sourceApplication:(NSString *)sourceApplication
          annotation:(id)annotation
 {
-    if ([dropboxSession handleOpenURL:url]) {
-        if ([dropboxSession isLinked]) {
-            //auth Done
-            if (![[[[url absoluteString] componentsSeparatedByString:@"/"] lastObject] isEqualToString:@"cancel"]) {
-                [callbackViewController authenticationDoneForSession:dropboxSession];
-                return YES;
-            } else {
-                [callbackViewController authenticationCancelledManuallyForSession:dropboxSession];
-                return NO;
-            }
+    if ([[url absoluteString] hasPrefix:[NSString stringWithFormat:@"box-%@",BOX_API_KEY]]) {
+        NSLog(@"url %@",url);
+        NSArray *callBackMainURLs = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleURLTypes"] ;
+        NSDictionary *callBackUrlsDictionary = [callBackMainURLs objectAtIndex:0];
+        NSArray *callBackUrls = [callBackUrlsDictionary objectForKey:@"CFBundleURLSchemes"];
+        NSString *callBackURL = [NSString stringWithFormat:@"%@://auth_token_recieved?",[callBackUrls objectAtIndex:1]];
+        NSString *absoluteURLString = [url absoluteString];
+        NSString *contentString = [absoluteURLString stringByReplacingOccurrencesOfString:callBackURL withString:@""];
+        NSArray *components = [contentString componentsSeparatedByString:@"&"];
+        NSMutableDictionary *boxCredentials = [[NSMutableDictionary alloc] init];
+        for (NSString *component in components) {
+            NSArray *subComponents = [component componentsSeparatedByString:@"="];
+            [boxCredentials setObject:[subComponents objectAtIndex:1]
+                               forKey:[subComponents objectAtIndex:0]];
         }
+        [[NSUserDefaults standardUserDefaults] setObject:boxCredentials
+                                                  forKey:BOX_CREDENTIALS];
+        [boxCredentials release];
+        [callbackViewController authenticationDone];
     } else if ([[url absoluteString] hasPrefix:@"file://"]) { //call from another application
         [self.window.rootViewController.modalViewController dismissModalViewControllerAnimated:NO];
         self.externalFileURL = url;
@@ -99,13 +110,26 @@
         [platformSelectionViewController release];
         [self.window.rootViewController presentModalViewController:navController animated:NO];
         [navController release];
+    } else {
+        if ([dropboxSession handleOpenURL:url]) {
+            if ([dropboxSession isLinked]) {
+                //auth Done
+                if (![[[[url absoluteString] componentsSeparatedByString:@"/"] lastObject] isEqualToString:@"cancel"]) {
+                    [callbackViewController authenticationDoneForSession:dropboxSession];
+                    return YES;
+                } else {
+                    [callbackViewController authenticationCancelledManuallyForSession:dropboxSession];
+                    return NO;
+                }
+            }
+        }
     }
     return NO;
 }
 
 -(void) initialSetup
 {
-    NSArray *accounts = [CLCacheManager accounts];
+    NSArray *accounts = [[CacheManager sharedManager] accounts];
     NSString *path = nil;
     NSDictionary *accountData = nil;
     if ([accounts count]) {
@@ -115,7 +139,10 @@
                 path = ROOT_DROPBOX_PATH;
                 break;
             case SKYDRIVE:
-                path = ROOT_SKYDRIVE_PATH;
+                path = [NSString stringWithFormat:@"folder.%@",[accountData objectForKey:ID]];
+                break;
+            case BOX:
+                path = ROOT_BOX_PATH;
                 break;
             default:
                 break;
@@ -128,7 +155,7 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    [CLCacheManager initialSetup];
+//    [CLCacheManager initialSetup];
 
     CLUploadProgressButton *aButton = [[CLUploadProgressButton alloc] init];
     aButton.frame = CGRectMake(0, 0, 30, 30);
@@ -155,7 +182,7 @@
     
     CLAccountsTableViewController *accountsTableViewController = [[CLAccountsTableViewController alloc] initWithTableViewStyle:UITableViewStyleGrouped];
     UINavigationController *leftNavController = [[UINavigationController alloc] initWithRootViewController:accountsTableViewController];
-    callbackViewController = accountsTableViewController;
+    self.callbackViewController = accountsTableViewController;
     [accountsTableViewController release];
     
     DBSession *aSession = [[DBSession alloc] initWithAppKey:DROPBOX_APP_KEY
@@ -171,6 +198,11 @@
     [aRestClient release];
     
     dropboxSession.delegate = callbackViewController;
+    
+    BoxClient *aBoxClient = [[BoxClient alloc] initWithAPIKey:BOX_API_KEY];
+    self.boxClient = aBoxClient;
+    [aBoxClient release];
+    boxClient.delegate = self;
     
     self.liveClientFlag = YES;
     LiveConnectClient *aClient = [[LiveConnectClient alloc] initWithClientId:SKYDRIVE_CLIENT_ID delegate:callbackViewController userState:@"InitialAllocation"];
@@ -254,22 +286,14 @@
     finalFrame.size.height = size.height;
     alert.frame = finalFrame;
     [view addSubview:alert];
-    [alert release];
     
-    
-    [UIView beginAnimations:@"alert.fade" context:alert];
-    [UIView setAnimationDuration:5.f];
-    [UIView setAnimationDelegate:self];
-    [UIView setAnimationDidStopSelector:@selector(animationWithId:finished:context:)];
-    alert.alpha = 0.f;
-    [UIView commitAnimations];
-
-//    [UIView animateWithDuration:5.f
-//                     animations:^{
-//                         alert.alpha = 0.f;
-//                     } completion:^(BOOL finished) {
-//                         [alert removeFromSuperview];
-//                     }];
+    [UIView animateWithDuration:5.f
+                     animations:^{
+                         alert.alpha = 0.f;
+                     } completion:^(BOOL finished) {
+                         [alert removeFromSuperview];
+                         [alert release];
+                     }];
 }
 
 

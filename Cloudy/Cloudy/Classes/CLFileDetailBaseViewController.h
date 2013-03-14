@@ -8,7 +8,7 @@
 
 #import "CLDetailBaseViewController.h"
 
-@interface CLFileDetailBaseViewController : CLDetailBaseViewController<UIGestureRecognizerDelegate,UIWebViewDelegate,DBRestClientDelegate>
+@interface CLFileDetailBaseViewController : CLDetailBaseViewController<UIGestureRecognizerDelegate,UIWebViewDelegate,DBRestClientDelegate,BoxClientDelegate>
 {
     UIWebView *webView;
     VIEW_TYPE viewType;

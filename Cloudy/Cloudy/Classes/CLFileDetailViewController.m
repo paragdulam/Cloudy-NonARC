@@ -74,6 +74,10 @@
             downloadOperation = [[self.appDelegate.liveClient downloadFromPath:[file objectForKey:@"source"]
                                                                       delegate:self userState:[file objectForKey:@"name"]] retain] ;
             break;
+        case BOX:
+            [self.appDelegate.boxClient loadDataForFileId:[file objectForKey:@"id"]
+                                              forUserData:file];
+            break;
         default:
             break;
     }
@@ -172,6 +176,31 @@
     }
 }
 
+#pragma mark - BoxClientDelegate
+
+
+-(void) boxClient:(BoxClient *)client
+       loadedData:(NSData *) data
+     withUserData:(id) uData
+{
+    NSString *filePath = [NSString stringWithFormat:@"%@%@",[CLCacheManager getTemporaryDirectory],[uData objectForKey:@"file_name"]];
+    [data writeToFile:filePath
+           atomically:YES];
+    NSURL *fileURL = [NSURL fileURLWithPath:filePath];
+    [webView loadRequest:[NSURLRequest requestWithURL:fileURL]];
+    progressView.hidden = YES;
+}
+
+-(void) boxClient:(BoxClient *)client loadDataProgress:(float) progress withUserData:(id) uData
+{
+    progressView.progress = progress;
+}
+
+-(void) boxClient:(BoxClient *)client loadDataFailedWithError:(NSError *) error
+     withUserData:(id) uData
+{
+    [AppDelegate showError:error alertOnView:self.view];
+}
 
 #pragma mark - UIDocumentInteractionControllerDelegate
 

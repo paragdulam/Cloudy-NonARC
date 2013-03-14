@@ -38,6 +38,12 @@
 }
 
 
++(NSString *) getBoxCacheFolderPath
+{
+    return [NSString stringWithFormat:@"%@/%@",[CLCacheManager getAppCacheFolderPath],BOX_STRING];
+}
+
+
 +(NSString *) getFileStructurePath:(VIEW_TYPE) type
 {
     switch (type) {
@@ -46,6 +52,9 @@
             break;
         case SKYDRIVE:
             return [NSString stringWithFormat:@"%@/%@",[CLCacheManager getSkyDriveCacheFolderPath],FILE_STRUCTURE_PLIST];
+            break;
+        case BOX:
+            return [NSString stringWithFormat:@"%@/%@",[CLCacheManager getBoxCacheFolderPath],FILE_STRUCTURE_PLIST];
             break;
         default:
             break;
@@ -85,6 +94,45 @@
 
 #pragma mark - Helper Methods
 
++(NSDictionary *) processDataDictionary:(NSDictionary *) dictionary
+                         WithinViewType:(VIEW_TYPE) type
+{
+    switch (type) {
+        case DROPBOX:
+            break;
+        case SKYDRIVE:
+            break;
+        case BOX:
+        {
+            NSMutableDictionary *folderData = [NSMutableDictionary dictionaryWithDictionary:[[[dictionary objectForKey:@"response"] objectForKey:@"tree"] objectForKey:@"folder"]];
+            NSString *file_path_ids = [folderData objectForKey:@"folder_path_ids"];
+            NSString *parent = [file_path_ids length] ? [[file_path_ids componentsSeparatedByString:@"/"] lastObject] : @"0";
+            NSMutableArray *tableData = [[NSMutableArray alloc] init];
+            id object = [[folderData objectForKey:@"folders"] objectForKey:@"folder"];
+            if ([object isKindOfClass:[NSDictionary class]]) {
+                [tableData addObject:object];
+            } else {
+                [tableData addObjectsFromArray:object];
+            }
+            object = [[folderData objectForKey:@"files"] objectForKey:@"file"];
+            if ([object isKindOfClass:[NSDictionary class]]) {
+                [tableData addObject:object];
+            } else {
+                [tableData addObjectsFromArray:object];
+            }
+            [folderData setObject:tableData forKey:@"contents"];
+            [tableData release];
+            [folderData setObject:parent forKey:@"parent"];
+            [folderData removeObjectForKey:@"folders"];
+            [folderData removeObjectForKey:@"files"];
+            return folderData;
+        }
+            break;
+        default:
+            break;
+    }
+    return nil;
+}
 
 +(void) deleteAllContentsOfFolderAtPath:(NSString *) path
 {
@@ -103,7 +151,9 @@
         case SKYDRIVE:
             return @"id";
             break;
-            
+        case BOX:
+            return @"id";
+            break;
         default:
             break;
     }
@@ -172,12 +222,6 @@ return nil;
 {
     NSMutableArray *accounts = [NSMutableArray arrayWithArray:[CLCacheManager accounts]];
     BOOL retVal = YES;
-//    [accounts enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-//        NSDictionary *objDict = (NSDictionary *)obj;
-//        if ([[objDict objectForKey:ACCOUNT_TYPE] integerValue] == [[account objectForKey:ACCOUNT_TYPE] integerValue]) {
-//            retVal = NO;
-//        }
-//    }];
     for (NSDictionary *anAccount in accounts) {
         if ([[anAccount objectForKey:ACCOUNT_TYPE] integerValue] == [[account objectForKey:ACCOUNT_TYPE] integerValue]) {
             retVal = NO;
@@ -228,6 +272,9 @@ return nil;
     return [skyDriveAccount objectForKey:@"id"];
 }
 
+
+
+
 #pragma mark - Initial Setup
 
 
@@ -273,6 +320,19 @@ return nil;
     }
     if (error) {
         NSLog(@"error creating Uploads Folder %@",error);
+    }
+
+    NSString *boxFolderCachePath = [CLCacheManager getBoxCacheFolderPath];
+    aBool = YES;
+    BOOL isBoxFolderAlreadyPresent = [[NSFileManager defaultManager] fileExistsAtPath:boxFolderCachePath isDirectory:&aBool];
+    if (!isBoxFolderAlreadyPresent) {
+        [[NSFileManager defaultManager] createDirectoryAtPath:boxFolderCachePath
+                                  withIntermediateDirectories:YES
+                                                   attributes:nil
+                                                        error:&error];
+    }
+    if (error) {
+        NSLog(@"error creating Box Folder %@",error);
     }
 
     
@@ -359,6 +419,18 @@ ContainsFileWithPath:(NSString *) filePath
             }
         }
             break;
+        case BOX:
+        {
+            for (NSDictionary *data in array) {
+                //                NSString *folderId = [CLCacheManager fileIdForSkyDriveFile:data];
+                NSString *folderId = [data objectForKey:@"id"];
+                if ([folderId isEqualToString:filePath]) {
+                    retVal = [array indexOfObject:data];
+                    break;
+                }
+            }
+        }
+            break;
         default:
             break;
     }
@@ -401,6 +473,12 @@ ContainsFileWithPath:(NSString *) filePath
             retVal = [folderId isEqualToString:[file objectForKey:@"parent_id"]];
         }
             break;
+        case BOX:
+        {
+            NSString *folderId = [folder objectForKey:@"id"];
+            retVal = [folderId isEqualToString:[file objectForKey:@"parent"]];
+        }
+            break;
         default:
             break;
     }
@@ -428,6 +506,9 @@ ContainsFileWithPath:(NSString *) filePath
         case SKYDRIVE:
             return [folder objectForKey:@"data"];
             break;
+        case BOX:
+            return [folder objectForKey:@"contents"];
+            break;
         default:
             return nil;
             break;
@@ -442,6 +523,9 @@ ContainsFileWithPath:(NSString *) filePath
             break;
         case SKYDRIVE:
             return [CLCacheManager fileIdForSkyDriveFile:file];
+            break;
+        case BOX:
+            return [file objectForKey:@"id"];
             break;
         default:
             break;
@@ -462,6 +546,11 @@ ContainsFileWithPath:(NSString *) filePath
         {
             retVal = [filePath isEqualToString:ROOT_SKYDRIVE_PATH] ||
                      [filePath isEqualToString:ROOT_SKYDRIVE_FOLDER_ID];
+        }
+            break;
+        case BOX:
+        {
+            retVal = [filePath isEqualToString:ROOT_BOX_PATH];
         }
             break;
         default:
@@ -489,6 +578,9 @@ ContainsFileWithPath:(NSString *) filePath
             retVal = [array objectAtIndex:index];
             break;
         case SKYDRIVE:
+            retVal = [array objectAtIndex:index];
+            break;
+        case BOX:
             retVal = [array objectAtIndex:index];
             break;
         default:
@@ -592,6 +684,7 @@ whereTraversingPointer:(NSMutableDictionary *)traversingDictionary
         default:
             break;
     }
+    return nil;
 }
 
 
@@ -695,6 +788,11 @@ whereTraversingPointer:(NSMutableDictionary *)traversingDictionary
             }
         }
             break;
+        case BOX:
+        {
+            [array replaceObjectAtIndex:index withObject:file];
+        }
+            break;
         default:
             break;
     }
@@ -721,6 +819,13 @@ whereTraversingPointer:(NSMutableDictionary *)traversingDictionary
             contentKey = @"data";
             idKey = @"id";
             updationKey = @"updated_time";
+        }
+            break;
+        case BOX:
+        {
+            contentKey = @"contents";
+            idKey = @"id";
+            updationKey = @"updated";
         }
             break;
         default:

@@ -15,6 +15,16 @@
 @implementation CLBaseTableViewController
 @synthesize tableViewStyle;
 
+
+-(BoxClient *) boxClient
+{
+    if (!boxClient) {
+        boxClient = [[BoxClient alloc] initWithAPIKey:BOX_API_KEY];
+        boxClient.delegate = self;
+    }
+    return boxClient;
+}
+
 -(DBRestClient *) restClient
 {
     if (!restClient) {
@@ -75,6 +85,9 @@
 
 -(void) dealloc
 {
+    [boxClient release];
+    boxClient = nil;
+    
     [restClient release];
     restClient = nil;
     

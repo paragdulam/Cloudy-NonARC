@@ -74,6 +74,51 @@
 }
 
 
+-(void) setData:(id)data
+{
+    NSString *titleText = nil;
+    NSString *detailText = nil;
+    UIImage *cellImage = nil;
+    UITableViewCellAccessoryType type = UITableViewCellAccessoryNone;
+
+    if ([data isKindOfClass:[NSString class]]) {
+        titleText = (NSString *)data;
+        [self stopAnimating];
+    } else if ([data isKindOfClass:[NSDictionary class]]) {
+        NSDictionary *dataDictionary = (NSDictionary *)data;
+        titleText = [dataDictionary objectForKey:NAME];
+        
+        double used = [[dataDictionary objectForKey:USED] doubleValue]/(1024 * 1024 * 1024);
+        double total = [[dataDictionary objectForKey:TOTAL] doubleValue]/(1024 * 1024 * 1024);
+        if (!total) {
+            detailText = @"Getting Usage Info...";
+            [self startAnimating];
+        } else {
+            detailText = [NSString stringWithFormat:@"%.2f of %.2f GB Used",used,total];
+            [self stopAnimating:YES];
+        }
+        
+        switch ([[dataDictionary objectForKey:ACCOUNT_TYPE] integerValue]) {
+            case DROPBOX:
+                cellImage = [UIImage imageNamed:@"dropbox_cell_Image.png"];
+                break;
+            case SKYDRIVE:
+                cellImage = [UIImage imageNamed:@"SkyDriveIconBlack_32x32.png"];
+                break;
+            default:
+                break;
+        }
+        
+        type = UITableViewCellAccessoryDisclosureIndicator;
+    }
+    
+    [self.textLabel setText:titleText];
+    [self.detailTextLabel setText:detailText];
+    [self.imageView setImage:cellImage];
+    [self setAccessoryType:type];
+
+}
+
 -(void) setData:(id) data forCellAtIndexPath:(NSIndexPath *)indexPath
 {
     NSString *titleText = nil;
@@ -87,6 +132,7 @@
         [self setAccessoryView:activityIndicator];
     } else if ([data isKindOfClass:[NSDictionary class]]) {
         NSDictionary *dataDictionary = (NSDictionary *)data;
+        titleText = [dataDictionary objectForKey:@"displayName"];
         NSDictionary *quotaDictionary = [dataDictionary objectForKey:@"quota"];
         double totalConsumedBytes = 0;
         double totalBytes = 0;
@@ -106,6 +152,13 @@
                 cellImage = [UIImage imageNamed:@"SkyDriveIconBlack_32x32.png"];
             }
                 break;
+            case BOX:
+            {
+                titleText = [[[[dataDictionary objectForKey:@"response"] objectForKey:@"user"] objectForKey:@"email"] objectForKey:@"text"];
+                totalConsumedBytes = [[[[[dataDictionary objectForKey:@"response"] objectForKey:@"user"] objectForKey:@"space_used"] objectForKey:@"text"] floatValue] / (1024 * 1024 * 1024);
+                totalBytes = [[[[[dataDictionary objectForKey:@"response"] objectForKey:@"user"] objectForKey:@"space_amount"] objectForKey:@"text"] floatValue] / (1024 * 1024 * 1024);
+                cellImage = [UIImage imageNamed:@"box_cellImage.png"];
+            }
             default:
                 break;
         }
@@ -114,7 +167,6 @@
         } else {
             detailText = @"Calculating...";
         }
-        titleText = [dataDictionary objectForKey:@"displayName"];
         [self setAccessoryView:nil];
         [self setAccessoryType:UITableViewCellAccessoryDisclosureIndicator];
     }
