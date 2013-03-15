@@ -329,6 +329,22 @@
             case 0:
             {
                 //
+                if ([[selectedFile objectForKey:FILE_THUMBNAIL] boolValue]) {
+                    __block NSMutableArray *images = [[NSMutableArray alloc] init];
+                    [tableDataArray enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+                        NSDictionary *objDict = (NSDictionary *)obj;
+                        if ([[objDict objectForKey:FILE_THUMBNAIL] boolValue]) {
+                            [images addObject:objDict];
+                        }
+                    }];
+                    
+                    CLImageGalleryViewController *imageGalleryViewController = [[CLImageGalleryViewController alloc] initWithViewType:viewType ImagesArray:images CurrentImage:selectedFile];
+                    [images release];
+                    [self.navigationController pushViewController:imageGalleryViewController animated:YES];
+                    [imageGalleryViewController release];
+                } else {
+                    
+                }
             }
                 break;
             case 1:
@@ -553,6 +569,10 @@
 {
     NSDictionary *compatibleMetaData = [self getCompatibleDictionary:[metadata original] ForDataType:DATA_METADATA];
     [self reloadRowForMetadata:compatibleMetaData];
+    
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"thumbnail.loaded"
+                                                        object:compatibleMetaData];
+    
 }
 
 

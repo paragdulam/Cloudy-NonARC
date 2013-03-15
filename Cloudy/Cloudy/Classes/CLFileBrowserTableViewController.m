@@ -618,10 +618,10 @@ loadedSharableLink:(NSString *)link
     [items release];
 }
 
--(void) shareURLsThroughMail:(NSArray *) urls
+-(void) shareURLsThroughMail:(NSArray *) urlsArray
 {
     NSMutableString *htmlString = [[NSMutableString alloc] init];
-    for (NSDictionary *dict in urls) {
+    for (NSDictionary *dict in urlsArray) {
         [htmlString appendFormat:@"<a href=\"%@\">%@</a><br/>",[[dict allValues] objectAtIndex:0],[[dict allKeys] objectAtIndex:0]];
     }
     

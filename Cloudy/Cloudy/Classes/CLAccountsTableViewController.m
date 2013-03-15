@@ -360,6 +360,10 @@
 {
     BOOL success = [sharedManager deleteAccount:[sharedManager accountOfType:indexPath.section]];
     [sharedManager deleteMetadata:indexPath.section];
+    
+    //delete all temp data
+    //remove all uploads
+    
     NSString *data = nil;
     if (success) {
         switch (indexPath.section) {

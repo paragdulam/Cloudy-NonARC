@@ -665,6 +665,21 @@
 
 #pragma mark - File Folder Operations
 
++(NSArray *) contentsOfDirectoryAtPath:(NSString *) path
+{
+    return [[NSFileManager defaultManager] contentsAtPath:path];
+}
+
++(void) deleteAllContentsOfFolderAtPath:(NSString *) path
+{
+    NSArray *contents = [CacheManager contentsOfDirectoryAtPath:path];
+    for (NSString *fileName in contents) {
+        [CacheManager deleteFileAtPath:[path stringByAppendingPathComponent:fileName]];
+    }
+}
+
+
+
 +(BOOL) deleteFileAtPath:(NSString *) path
 {
     return [[NSFileManager defaultManager] removeItemAtPath:path

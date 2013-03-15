@@ -67,8 +67,10 @@
     mainImageView.userInteractionEnabled = YES;
     mainImageView.contentMode = UIViewContentModeScaleAspectFit;
     [zoomImageScrollView addSubview:mainImageView];
-    [self.view addSubview:zoomImageScrollView];
     [mainImageView release];
+
+    [self.view addSubview:zoomImageScrollView];
+    [zoomImageScrollView release];
     
     
     UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc ] initWithTarget:self action:@selector(tapGesture:)];
@@ -94,9 +96,14 @@
         currentDownloadIndex = [images indexOfObject:currentImage];
         [self downloadImageAtIndex:currentDownloadIndex];
     }
-    [self showImage];
+    [self showImage:currentImage];
     
 	// Do any additional setup after loading the view.
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(thumbnailLoadedFromNotification:)
+                                                 name:@"thumbnail.loaded"
+                                               object:nil];
+    
 }
 
 
@@ -124,6 +131,11 @@
 
 -(void) dealloc
 {
+    [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                    name:@"thumbnail.loaded"
+                                                  object:nil];
+    
+    
     self.appDelegate.restClient.delegate = nil;
     for (LiveOperation *operation in liveOperations) {
         [operation cancel];
@@ -150,18 +162,7 @@
 
 -(void) saveButtonClicked:(UIButton *) btn
 {
-    NSString *key = nil;
-    switch (viewType) {
-        case DROPBOX:
-            key = @"filename";
-            break;
-        case SKYDRIVE:
-            key = @"name";
-            break;
-        default:
-            break;
-    }
-    UIImage *imageToBeSaved = [UIImage imageWithContentsOfFile:[NSString stringWithFormat:@"%@/%@",[CLCacheManager getTemporaryDirectory],[currentImage objectForKey:key]]];
+    UIImage *imageToBeSaved = [UIImage imageWithContentsOfFile:[self getImagePath:currentImage]];
     UIImageWriteToSavedPhotosAlbum(imageToBeSaved,
                                    nil,
                                    nil,
@@ -199,7 +200,7 @@
 {
     [downloadProgressButton setProgress:0];
     [downloadProgressButton setProgressViewHidden:YES];
-    [self showImage];
+    [self showImage:currentImage];
     [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
 }
 
@@ -208,7 +209,9 @@
 {
     [downloadProgressButton setProgress:0];
     [downloadProgressButton setProgressViewHidden:YES];
-    [AppDelegate showError:error alertOnView:self.view];
+    [AppDelegate showMessage:[error.userInfo objectForKey:@"error"]
+                   withColor:[UIColor redColor]
+                 alertOnView:self.view];
     [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
 }
 
@@ -216,11 +219,11 @@
 
 - (void) liveOperationSucceeded:(LiveDownloadOperation *)operation
 {
-    NSString *filePath = [NSString stringWithFormat:@"%@/%@",[CLCacheManager getTemporaryDirectory],operation.userState];
+    NSString *filePath = [self getImagePath:currentImage];
     [operation.data writeToFile:filePath atomically:YES];
     [downloadProgressButton setProgress:0];
     [downloadProgressButton setProgressViewHidden:YES];
-    [self showImage];
+    [self showImage:currentImage];
     [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
 }
 
@@ -237,12 +240,22 @@
                                     data:(NSData *)receivedData
                                operation:(LiveDownloadOperation *)operation
 {
-    if ([operation.userState isEqualToString:[currentImage objectForKey:@"name"]]) {
+    if ([operation.userState isEqualToString:[currentImage objectForKey:FILE_NAME]]) {
         downloadProgressButton.progress = progress.progressPercentage;
     }
 }
 
 #pragma mark - Helper methods
+
+
+-(void) thumbnailLoadedFromNotification:(NSNotification *) notification
+{
+    NSDictionary *data = [notification object];
+    if ([images indexOfObject:data] == currentDownloadIndex) {
+        [self updateDownloadProgressButtonImage:data];
+        [self showImage:data];
+    }
+}
 
 
 -(void) animationDidFinish:(id) obj
@@ -272,31 +285,35 @@
 }
 
 
+-(void) updateDownloadProgressButtonImage:(NSDictionary *) image
+{
+    UIImage *imageToBeShown = [UIImage imageWithContentsOfFile:[self getImageThumbnailPath:image]];
+    if (!imageToBeShown) {
+        NSString *fileExtention = [[[[image objectForKey:FILE_NAME] componentsSeparatedByString:@"."] lastObject] lowercaseString];
+        imageToBeShown = [UIImage imageNamed:[NSString stringWithFormat:@"%@.png",fileExtention]];
+    }
+    [downloadProgressButton setImage:imageToBeShown forState:UIControlStateNormal];
+}
 
 -(void) downloadImageAtIndex:(int) index
 {
     NSDictionary *data = [images objectAtIndex:index];
-    [downloadProgressButton setImage:[UIImage imageWithData:[data objectForKey:THUMBNAIL_DATA]] forState:UIControlStateNormal];
+    [self updateDownloadProgressButtonImage:data];
     [downloadProgressButton setProgressViewHidden:NO];
     [currentImageIndexLabel setTextColor:NAVBAR_COLOR];
     switch (viewType) {
         case DROPBOX:
         {
-            NSString *fileName = [data objectForKey:@"filename"];
-            NSString *filePath = [NSString stringWithFormat:@"%@%@",[CLCacheManager getTemporaryDirectory],fileName];
-            [self.appDelegate.restClient loadFile:[data objectForKey:@"path"]
-                                            atRev:[data objectForKey:@"rev"]
+            NSString *filePath = [self getImagePath:data];
+            [self.appDelegate.restClient loadFile:[data objectForKey:FILE_PATH]
+                                            atRev:nil
                                          intoPath:filePath];
         }
             break;
         case SKYDRIVE:
         {
-            NSArray *imagesArray = [data objectForKey:@"images"];
-            if ([imagesArray count]) {
-                NSDictionary *image = [imagesArray objectAtIndex:0];
-                LiveDownloadOperation *downloadOperation = [self.appDelegate.liveClient downloadFromPath:[image objectForKey:@"source"] delegate:self userState:[data objectForKey:@"name"]];
-                [liveOperations addObject:downloadOperation];
-            }
+            LiveDownloadOperation *downloadOperation = [self.appDelegate.liveClient downloadFromPath:[data objectForKey:FILE_URL] delegate:self userState:[data objectForKey:FILE_NAME]];
+            [liveOperations addObject:downloadOperation];
         }
             break;
             
@@ -314,42 +331,47 @@
     }
 }
 
-
-
--(void) showImage
+-(NSString *) getCloudType:(VIEW_TYPE) type
 {
-    NSString *fileName = nil;
-    switch (viewType) {
+    NSString *cloudDataType = nil;
+    switch (type) {
         case DROPBOX:
-            fileName = [currentImage objectForKey:@"filename"];
+        {
+            cloudDataType = DROPBOX_STRING;
+        }
             break;
         case SKYDRIVE:
-            fileName = [currentImage objectForKey:@"name"];
+        {
+            cloudDataType = SKYDRIVE_STRING;
+        }
             break;
         default:
             break;
     }
-    [self setTitle:fileName];
-    NSString *filePath = [NSString stringWithFormat:@"%@/%@",[CLCacheManager getTemporaryDirectory],fileName];
-    UIImage *imageToBeShown = [UIImage imageWithContentsOfFile:filePath];
-    downloadProgressButton.hidden = YES;
-    saveButton.hidden = NO;
-    if (!imageToBeShown) {
-        imageToBeShown = [UIImage imageWithData:[currentImage objectForKey:THUMBNAIL_DATA]];
-        if (!imageToBeShown) {
-            imageToBeShown = [UIImage imageNamed:[NSString stringWithFormat:@"%@.png",[[[fileName componentsSeparatedByString:@"."] lastObject] lowercaseString]]];
-        }
-        if (!imageToBeShown) {
-            imageToBeShown = [UIImage imageNamed:@"_blank.png"];
-        }
-        downloadProgressButton.hidden = NO;
-        saveButton.hidden = YES;
-        if ([downloadProgressButton progressViewHidden]) {
-            [downloadProgressButton setImage:imageToBeShown
-                                    forState:UIControlStateNormal];
-        }
-    }
-    int index = [images indexOfObject:currentImage];
+    return cloudDataType;
+}
+
+
+-(NSString *) getImagePath:(NSDictionary *) image
+{
+    NSString *fileName = [image objectForKey:FILE_NAME];
+    NSString *imagePath = [NSString stringWithFormat:@"%@%@",[CacheManager getTemporaryDirectory],fileName];
+    return imagePath;
+}
+
+
+-(NSString *) getImageThumbnailPath:(NSDictionary *) image
+{
+    NSString *fileName = [[image objectForKey:FILE_PATH] stringByReplacingOccurrencesOfString:@"/" withString:@""];
+    NSString *cloudDataType = [self getCloudType:viewType];
+    NSString *thumbPath = [NSString stringWithFormat:@"%@%@_%@",[CacheManager getTemporaryDirectory],cloudDataType,fileName];
+    return thumbPath;
+}
+
+
+-(void) updateLabelTextForImage:(NSDictionary *)image
+{
+    int index = [images indexOfObject:image];
     if (index == currentDownloadIndex) {
         [currentImageIndexLabel setTextColor:NAVBAR_COLOR];
     } else {
@@ -357,7 +379,31 @@
     }
     [currentImageIndexLabel setText:[NSString stringWithFormat:@"%d/%d",index + 1,[images count]]];
     [currentImageIndexLabel sizeToFit];
+}
+
+
+-(void) showImage:(NSDictionary *) image
+{
+    NSString *fileName = [image objectForKey:FILE_NAME];
+    [self setTitle:fileName];
+    NSString *filePath = [self getImagePath:image];
+    UIImage *imageToBeShown = [UIImage imageWithContentsOfFile:filePath];
+    downloadProgressButton.hidden = YES;
+    saveButton.hidden = NO;
+    if (!imageToBeShown) {
+        NSString *thumbPath = [self getImageThumbnailPath:image];
+        imageToBeShown = [UIImage imageWithContentsOfFile:thumbPath];
+        if (!imageToBeShown) {
+            imageToBeShown = [UIImage imageNamed:[NSString stringWithFormat:@"%@.png",[[[fileName componentsSeparatedByString:@"."] lastObject] lowercaseString]]];
+        }
+        downloadProgressButton.hidden = NO;
+        saveButton.hidden = YES;
+        if ([downloadProgressButton progressViewHidden]) {
+            [self updateDownloadProgressButtonImage:image];
+        }
+    }
     [mainImageView setImage:imageToBeShown];
+    [self updateLabelTextForImage:image];
 }
 
 
@@ -424,7 +470,7 @@
         CGPoint touchPoint = [gesture locationInView:view];
         int index = touchPoint.x / ratio;
         self.currentImage = [images objectAtIndex:index];
-        [self showImage];
+        [self showImage:currentImage];
     }
 }
 
