@@ -25,8 +25,8 @@
 -(void) setTag:(NSInteger)tag
 {
     [super setTag:tag];
-    [label setText:[NSString stringWithFormat:@"%d",tag]];
-    [label sizeToFit];
+//    [label setText:[NSString stringWithFormat:@"%d",tag]];
+//    [label sizeToFit];
 }
 
 -(UIImage *) image
@@ -52,13 +52,13 @@
         [zoomScrollView addSubview:imageView];
         [imageView release];
         
-        label = [[UILabel alloc] initWithFrame:CGRectZero];
-        [label setFont:[UIFont boldSystemFontOfSize:72.f]];
-        [label setBackgroundColor:[UIColor clearColor]];
-        [label setTextColor:[UIColor whiteColor]];
-        [imageView addSubview:label];
-        label.center = imageView.center;
-        [label release];
+//        label = [[UILabel alloc] initWithFrame:CGRectZero];
+//        [label setFont:[UIFont boldSystemFontOfSize:72.f]];
+//        [label setBackgroundColor:[UIColor clearColor]];
+//        [label setTextColor:[UIColor whiteColor]];
+//        [imageView addSubview:label];
+//        label.center = imageView.center;
+//        [label release];
         
 
     }

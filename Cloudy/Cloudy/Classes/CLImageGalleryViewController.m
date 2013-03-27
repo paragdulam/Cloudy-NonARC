@@ -35,7 +35,7 @@ typedef enum ScrollDirection {
     ScrollDirection scrollDirection;
     int viewCount;
     int previousIndex;
-    BOOL flag;
+    BOOL shouldCallScrollViewDelegate;
 }
 
 -(void) downloadImageAtIndex:(int) index;
@@ -125,7 +125,6 @@ typedef enum ScrollDirection {
         } else {
             multiplier = i + currentDownloadIndex - index;
         }
-        NSLog(@"multiplier %d",multiplier);
         CGRect frame = CGRectMake(mainScrollView.frame.size.width * multiplier,
                                   mainScrollView.frame.origin.y,
                                   mainScrollView.frame.size.width,
@@ -134,13 +133,13 @@ typedef enum ScrollDirection {
         CLZoomableImageView * aView = [[CLZoomableImageView alloc] initWithFrame:frame];
         aView.tag = i;
         
-        CGFloat hue = ( arc4random() % 256 / 256.0 ); // 0.0 to 1.0
-        CGFloat saturation = ( arc4random() % 128 / 256.0 ) + 0.5; // 0.5 to 1.0, away from white
-        CGFloat brightness = ( arc4random() % 128 / 256.0 ) + 0.5; // 0.5 to 1.0, away from black
-        UIColor *color = [UIColor colorWithHue:hue saturation:saturation brightness:brightness alpha:1];
-        aView.backgroundColor = color;
+//        CGFloat hue = ( arc4random() % 256 / 256.0 ); // 0.0 to 1.0
+//        CGFloat saturation = ( arc4random() % 128 / 256.0 ) + 0.5; // 0.5 to 1.0, away from white
+//        CGFloat brightness = ( arc4random() % 128 / 256.0 ) + 0.5; // 0.5 to 1.0, away from black
+//        UIColor *color = [UIColor colorWithHue:hue saturation:saturation brightness:brightness alpha:1];
+//        aView.backgroundColor = color;
+        aView.backgroundColor = [UIColor clearColor];
         NSDictionary *image = [images objectAtIndex:multiplier];
-        NSLog(@"image Name %@",[image objectForKey:FILE_NAME]);
         [aView setImage:[self getImageForImageDictionary:image]];
         [mainScrollView addSubview:aView];
         [scrollViews addObject:aView];
@@ -174,9 +173,8 @@ typedef enum ScrollDirection {
     
     CGRect bounds = self.appDelegate.window.bounds;
     mainScrollView = [[UIScrollView alloc] initWithFrame:bounds];
-    mainScrollView.contentSize = CGSizeMake(bounds.size.width * [images count],
-                                            bounds.size.height);
-    [mainScrollView setContentOffset:CGPointMake(currentDownloadIndex * mainScrollView.frame.size.width, mainScrollView.frame.origin.y)];
+    [self.view addSubview:mainScrollView];
+    [mainScrollView release];
 
     mainScrollView.delegate = self;
     mainScrollView.minimumZoomScale = 1.0;
@@ -186,9 +184,14 @@ typedef enum ScrollDirection {
     mainScrollView.backgroundColor = [UIColor blackColor];
     [mainScrollView setShowsHorizontalScrollIndicator:NO];
     [mainScrollView setShowsVerticalScrollIndicator:NO];
+    
+    mainScrollView.contentSize = CGSizeMake(bounds.size.width * [images count],
+                                            bounds.size.height);
+    shouldCallScrollViewDelegate = NO;
+    [mainScrollView setContentOffset:CGPointMake(currentDownloadIndex * mainScrollView.frame.size.width, mainScrollView.frame.origin.y)];
+    shouldCallScrollViewDelegate = YES;
 
-    [self.view addSubview:mainScrollView];
-    [mainScrollView release];
+
     
     progressToolBar = [[UIToolbar alloc] initWithFrame:CGRectMake(0, self.view.frame.size.height - (TOOLBAR_HEIGHT - [[UIApplication sharedApplication] statusBarFrame].size.height), self.view.frame.size.width, TOOLBAR_HEIGHT)];
     [self.view addSubview:progressToolBar];
@@ -210,6 +213,7 @@ typedef enum ScrollDirection {
     dispatch_async(dispatch_get_main_queue(), ^{
         [self createImageViews];
         [self updateUIForImageDictionaryAtIndex:currentDownloadIndex];
+        [self downloadImageAtIndex:currentDownloadIndex];
     });
 }
 
@@ -249,9 +253,11 @@ typedef enum ScrollDirection {
     
     
     self.appDelegate.restClient.delegate = nil;
-    
-    for (LiveOperation *operation in liveOperations) {
-        [operation cancel];
+
+    if (viewType == SKYDRIVE) {
+        for (LiveOperation *operation in liveOperations) {
+            [operation cancel];
+        }
     }
     
     [liveOperations release];
@@ -275,7 +281,7 @@ typedef enum ScrollDirection {
 
 -(void) saveButtonClicked:(UIButton *) btn
 {
-    UIImage *imageToBeSaved = [UIImage imageWithContentsOfFile:[self getImagePath:currentImage]];
+    UIImage *imageToBeSaved = [UIImage imageWithContentsOfFile:[self getImagePath:[images objectAtIndex:currentDownloadIndex]]];
     UIImageWriteToSavedPhotosAlbum(imageToBeSaved,
                                    nil,
                                    nil,
@@ -310,8 +316,6 @@ typedef enum ScrollDirection {
 -(void) restClient:(DBRestClient *)client loadedFile:(NSString *)destPath
 {
     [self downloadCompletionHandler];
-    [downloadProgressButton setProgress:0];
-    [downloadProgressButton setProgressViewHidden:YES];
     [self showImage];
     [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
 }
@@ -322,7 +326,6 @@ typedef enum ScrollDirection {
     [self downloadCompletionHandler];
     [downloadProgressButton setProgress:0];
     [downloadProgressButton setProgressViewHidden:YES];
-    NSLog(@"userInfo %@",[error userInfo]);
     NSString *errorMessage = [[error.userInfo objectForKey:@"error"] length] ? [error.userInfo objectForKey:@"error"] : [error localizedDescription];
     [AppDelegate showMessage:errorMessage
                    withColor:[UIColor redColor]
@@ -362,11 +365,14 @@ typedef enum ScrollDirection {
                    forPath:operation.userState];
 }
 
+
+
 #pragma mark - Helper methods
 
 -(void) downloadCompletionHandler
 {
     if ([liveOperations count]) {
+        [liveOperations removeObjectAtIndex:0];
         [self downloadImageAtIndex:[images indexOfObject:[liveOperations objectAtIndex:0]]];
     }
 }
@@ -398,9 +404,9 @@ typedef enum ScrollDirection {
 
 -(void)imageDidSave
 {
-    UIImageView *anImageView = [[UIImageView alloc] initWithFrame:mainImageView.bounds];
+    UIImageView *anImageView = [[UIImageView alloc] initWithFrame:mainScrollView.bounds];
     anImageView.contentMode = UIViewContentModeScaleAspectFit;
-    [mainImageView addSubview:anImageView];
+    [mainScrollView addSubview:anImageView];
     [anImageView release];
     [anImageView setImage:mainImageView.image];
     
@@ -441,7 +447,7 @@ typedef enum ScrollDirection {
                 ![self.appDelegate.restClient requestCount]) {
                 [self.appDelegate.restClient loadFile:filePath
                                                 atRev:[data objectForKey:FILE_REV]
-                                             intoPath:filePath];
+                                             intoPath:downloadPath];
                 [self updateDownloadProgressButtonImage:data];
                 NSLog(@"Download Started in Dropbox");
             } else if ([self.appDelegate.restClient requestCount]) {
@@ -522,6 +528,27 @@ typedef enum ScrollDirection {
 
 -(void) updateLabelTextForImage:(NSDictionary *)image
 {
+    [currentImageIndexLabel setTextColor:[UIColor whiteColor]];
+    if ([liveOperations count]) {
+        switch (viewType) {
+            case DROPBOX:
+            {
+                if ([image isEqualToDictionary:[liveOperations objectAtIndex:0]]) {
+                    [currentImageIndexLabel setTextColor:NAVBAR_COLOR];
+                }
+            }
+                break;
+            case SKYDRIVE:
+            {
+                if ([[self getImagePath:image] isEqualToString:[[liveOperations objectAtIndex:0] userState]]) {
+                    [currentImageIndexLabel setTextColor:NAVBAR_COLOR];
+                }
+            }
+                break;
+            default:
+                break;
+        }
+    }
     [self.navigationItem setTitle:[image objectForKey:FILE_NAME]];
     [currentImageIndexLabel setText:[NSString stringWithFormat:@"%d/%d",currentDownloadIndex + 1,[images count]]];
     [currentImageIndexLabel sizeToFit];
@@ -555,8 +582,6 @@ typedef enum ScrollDirection {
 {
     NSDictionary *image = [images objectAtIndex:index];
     [self updateLabelTextForImage:image];
-    CLZoomableImageView *scrollView = [scrollViews objectAtIndex:[self getScrollViewIndexForIndex:index]];
-    [scrollView setImage:[self getImageForImageDictionary:image]];
 }
 
 -(void) updateUIForImageDictionaryAtIndex:(int) index
@@ -752,7 +777,9 @@ typedef enum ScrollDirection {
 //            NSLog(@"Right at %d",index);
 //        }
         currentDownloadIndex = index;
-        [self adjustScrollView:scrollView];
+        if (shouldCallScrollViewDelegate) {
+            [self adjustScrollView:scrollView];
+        }
     } else {
         // same index
 //        NSLog(@"Same at %d",index);
@@ -764,7 +791,6 @@ typedef enum ScrollDirection {
 
 -(void) adjustScrollView:(UIScrollView *) scrollView
 {
-    NSLog(@"currentDownloadIndex %d",currentDownloadIndex);
     CLZoomableImageView *firstScrollView = [scrollViews objectAtIndex:0];
     CLZoomableImageView *lastScrollView = [scrollViews lastObject];
     
@@ -791,13 +817,10 @@ typedef enum ScrollDirection {
                     index += (viewCount/2);
                     if (index < [images count]) {
                         NSDictionary *image = [images objectAtIndex:index];
-                        NSLog(@"name %@",[image objectForKey:FILE_NAME]);
                         [firstScrollView setImage:[self getImageForImageDictionary:image]];
                     }
                 });
-                NSLog(@"Moving Done");
             } else {
-                NSLog(@"No Move Required");
                 // first should become last
             }
         }
@@ -805,7 +828,7 @@ typedef enum ScrollDirection {
         case ScrollDirectionRight:
         {
             if (firstScrollView.frame.origin.x > minScrollContentX &&
-                currentDownloadIndex < [images count] - (viewCount/2)) {
+                currentDownloadIndex < [images count] - (viewCount/2) - 1) {
                 lastScrollView.frame = CGRectMake(minFirstScrollViewX - lastScrollView.frame.size.width,
                                                    lastScrollView.frame.origin.y,
                                                    lastScrollView.frame.size.width,
@@ -816,13 +839,10 @@ typedef enum ScrollDirection {
                     index -= (viewCount/2);
                     if (index > INVALID_INDEX) {
                         NSDictionary *image = [images objectAtIndex:index];
-                        NSLog(@"name %@",[image objectForKey:FILE_NAME]);
                         [lastScrollView setImage:[self getImageForImageDictionary:image]];
                     }
                 });
-                NSLog(@"Moving Done");
             } else {
-                NSLog(@"No Move Required");
                 // first should become last
             }
         }
@@ -833,8 +853,6 @@ typedef enum ScrollDirection {
 }
 
 
-
-
 - (void)scrollViewWillBeginDecelerating:(UIScrollView *)scrollView
 {
 }
@@ -842,7 +860,25 @@ typedef enum ScrollDirection {
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
 {
+//    int index;
+//    switch (scrollDirection) {
+//        case ScrollDirectionLeft:
+//            index = currentDownloadIndex + (viewCount/2);
+//            if (index > [images count] - 1) {
+//                return;
+//            }
+//            break;
+//        case ScrollDirectionRight:
+//            index = currentDownloadIndex - (viewCount/2);
+//            if (index < 0) {
+//                return;
+//            }
+//            break;
+//        default:
+//            break;
+//    }
     [self updateUIForImageDictionaryAtIndex:currentDownloadIndex];
+    [self downloadImageAtIndex:currentDownloadIndex];
 }
 
 
