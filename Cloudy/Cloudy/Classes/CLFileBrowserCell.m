@@ -126,8 +126,8 @@
     switch ([[dataDictionary objectForKey:FILE_TYPE] intValue]) {
         case 0: //file
         {
-            NSString *cloudDataType = [[dataDictionary objectForKey:ACCOUNT_TYPE] intValue] ? SKYDRIVE_STRING : DROPBOX_STRING;
-            NSString *thumbPath = [NSString stringWithFormat:@"%@%@_%@",[CacheManager getTemporaryDirectory],cloudDataType,[[data objectForKey:FILE_PATH] stringByReplacingOccurrencesOfString:@"/" withString:@""]];
+            NSString *thumbPath = nil;
+            thumbPath = [NSString stringWithFormat:@"%@/%@",[[CacheManager sharedManager ] getThumbnailPath:[[dataDictionary objectForKey:ACCOUNT_TYPE] intValue]],[dataDictionary objectForKey:FILE_ID]];
             if ([[data objectForKey:FILE_THUMBNAIL] boolValue] && [CacheManager fileExistsAtPath:thumbPath]) {
                 cellImage = [UIImage imageWithContentsOfFile:thumbPath];
             } else {

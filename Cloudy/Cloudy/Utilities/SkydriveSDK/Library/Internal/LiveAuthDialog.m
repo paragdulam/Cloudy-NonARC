@@ -52,12 +52,6 @@
         _endUrl =  [endUrl retain];
         _delegate = delegate;
         canDismiss = NO;
-        
-        UIWebView *aWebView = [[UIWebView alloc] initWithFrame:self.view.frame];
-        self.webView = aWebView;
-        [aWebView release];
-        
-        [self.view addSubview:webView];
     }
     
     return self;
@@ -87,6 +81,13 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    
+    UIWebView *aWebView = [[UIWebView alloc] initWithFrame:self.view.bounds];
+    self.webView = aWebView;
+    [aWebView release];
+    
+    [self.view addSubview:webView];
+
     
     self.webView.delegate = self;
     self.title = @"SkyDrive";

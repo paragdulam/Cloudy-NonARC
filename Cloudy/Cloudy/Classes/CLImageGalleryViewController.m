@@ -7,18 +7,35 @@
 //
 
 #import "CLImageGalleryViewController.h"
+#define VIEW_COUNT 5
+
+
+typedef enum ScrollDirection {
+    ScrollDirectionNone,
+    ScrollDirectionRight,
+    ScrollDirectionLeft,
+    ScrollDirectionUp,
+    ScrollDirectionDown,
+    ScrollDirectionCrazy,
+} ScrollDirection;
 
 @interface CLImageGalleryViewController ()
 {
     UIImageView *mainImageView;
     NSMutableArray *liveOperations;
+    NSMutableArray *scrollViews;
     CGRect originalViewRect;
     int currentDownloadIndex;
     UIToolbar *progressToolBar;
     UIButton *saveButton;
     CLUploadProgressButton *downloadProgressButton;
     UILabel *currentImageIndexLabel;
-    UIScrollView *zoomImageScrollView;
+    UIScrollView *mainScrollView;
+    CGPoint previousContentOffset;
+    ScrollDirection scrollDirection;
+    int viewCount;
+    int previousIndex;
+    BOOL flag;
 }
 
 -(void) downloadImageAtIndex:(int) index;
@@ -49,62 +66,153 @@
         self.viewType = type;
         self.images = imagesArray;
         self.currentImage = imageDictionary;
+        scrollViews = [[NSMutableArray alloc] init];
+        liveOperations = [[NSMutableArray alloc] init];
+        currentDownloadIndex = [images indexOfObject:currentImage];
     }
     return self;
+}
+
+-(id) initWithViewType:(VIEW_TYPE) type
+           ImagesArray:(NSArray *)imagesArray
+     CurrentImageIndex:(int) index
+{
+    if (self = [super init]) {
+        self.viewType = type;
+        self.images = imagesArray;
+        scrollViews = [[NSMutableArray alloc] init];
+        liveOperations = [[NSMutableArray alloc] init];
+        currentDownloadIndex = index;
+    }
+    return self;
+}
+
+
+-(void) layoutImageViews
+{
+    for (CLZoomableImageView *scrollView in scrollViews) {
+        [self layoutImageView:scrollView];
+    }
+}
+
+
+
+-(void) layoutImageView:(CLZoomableImageView *)scrollView
+{
+    int origin = scrollView.frame.size.width;
+    if (currentDownloadIndex >= viewCount/2 &&
+        currentDownloadIndex <= ([images count] - 1 - (viewCount/2))) {
+        origin = scrollView.frame.size.width * (currentDownloadIndex + scrollView.tag);
+    } else if (currentDownloadIndex < viewCount/2) {
+        origin = scrollView.frame.size.width * [scrollViews indexOfObject:scrollView];
+    } else if (currentDownloadIndex > ([images count] - 1 - (viewCount/2))) {
+        int diff = currentDownloadIndex - ([images count] - 1 - (viewCount/2));
+        origin = scrollView.frame.size.width * (currentDownloadIndex + scrollView.tag - diff);
+    }
+    scrollView.frame = CGRectMake(origin,
+                                  scrollView.frame.origin.y,
+                                  scrollView.frame.size.width,
+                                  scrollView.frame.size.height);
+}
+
+-(void) createImageViews
+{
+    int multiplier;
+    int index = [self getScrollViewIndexForIndex:currentDownloadIndex];
+    for (int i = 0; i < viewCount; i++) {
+        if ([images count] <= VIEW_COUNT) {
+            multiplier = i;
+        } else {
+            multiplier = i + currentDownloadIndex - index;
+        }
+        NSLog(@"multiplier %d",multiplier);
+        CGRect frame = CGRectMake(mainScrollView.frame.size.width * multiplier,
+                                  mainScrollView.frame.origin.y,
+                                  mainScrollView.frame.size.width,
+                                  mainScrollView.frame.size.height);
+        
+        CLZoomableImageView * aView = [[CLZoomableImageView alloc] initWithFrame:frame];
+        aView.tag = i;
+        
+        CGFloat hue = ( arc4random() % 256 / 256.0 ); // 0.0 to 1.0
+        CGFloat saturation = ( arc4random() % 128 / 256.0 ) + 0.5; // 0.5 to 1.0, away from white
+        CGFloat brightness = ( arc4random() % 128 / 256.0 ) + 0.5; // 0.5 to 1.0, away from black
+        UIColor *color = [UIColor colorWithHue:hue saturation:saturation brightness:brightness alpha:1];
+        aView.backgroundColor = color;
+        NSDictionary *image = [images objectAtIndex:multiplier];
+        NSLog(@"image Name %@",[image objectForKey:FILE_NAME]);
+        [aView setImage:[self getImageForImageDictionary:image]];
+        [mainScrollView addSubview:aView];
+        [scrollViews addObject:aView];
+        [aView release];
+    }
+}
+
+
+-(void) setImagesInitially
+{
+    if (currentDownloadIndex >= (viewCount/2) &&
+        currentDownloadIndex <= [images count] - 1 - (viewCount/2)) {
+        int index = -(viewCount/2);
+        for (CLZoomableImageView *scrollView in scrollViews) {
+            NSDictionary *image = [images objectAtIndex:currentDownloadIndex + (index++)];
+            [scrollView setImage:[self getImageForImageDictionary:image]];
+        }
+    }
 }
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
     
+    viewCount = [images count];
+    if (viewCount > VIEW_COUNT) {
+        viewCount = VIEW_COUNT;
+    }
+    
     self.view.backgroundColor = [UIColor blackColor];
     
-    zoomImageScrollView = [[UIScrollView alloc] initWithFrame:self.view.bounds];
-    zoomImageScrollView.delegate = self;
-    zoomImageScrollView.minimumZoomScale = 1.0;
-    zoomImageScrollView.maximumZoomScale = 2.0;
-    mainImageView = [[UIImageView alloc] initWithFrame:zoomImageScrollView.bounds];
-    mainImageView.userInteractionEnabled = YES;
-    mainImageView.contentMode = UIViewContentModeScaleAspectFit;
-    [zoomImageScrollView addSubview:mainImageView];
-    [mainImageView release];
+    CGRect bounds = self.appDelegate.window.bounds;
+    mainScrollView = [[UIScrollView alloc] initWithFrame:bounds];
+    mainScrollView.contentSize = CGSizeMake(bounds.size.width * [images count],
+                                            bounds.size.height);
+    [mainScrollView setContentOffset:CGPointMake(currentDownloadIndex * mainScrollView.frame.size.width, mainScrollView.frame.origin.y)];
 
-    [self.view addSubview:zoomImageScrollView];
-    [zoomImageScrollView release];
+    mainScrollView.delegate = self;
+    mainScrollView.minimumZoomScale = 1.0;
+    mainScrollView.maximumZoomScale = 2.0;
+    mainScrollView.pagingEnabled = YES;
+    mainScrollView.scrollEnabled = YES;
+    mainScrollView.backgroundColor = [UIColor blackColor];
+    [mainScrollView setShowsHorizontalScrollIndicator:NO];
+    [mainScrollView setShowsVerticalScrollIndicator:NO];
+
+    [self.view addSubview:mainScrollView];
+    [mainScrollView release];
     
-    
-    UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc ] initWithTarget:self action:@selector(tapGesture:)];
-    tapGesture.delegate = self;
-    [mainImageView addGestureRecognizer:tapGesture];
-    [tapGesture release];
-    
-    
-    UIPanGestureRecognizer *panGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panGesture:)];
-    panGesture.delegate = self;
-    [mainImageView addGestureRecognizer:panGesture];
-    [panGesture release];
-    
-    progressToolBar = [[UIToolbar alloc] initWithFrame:CGRectMake(0, self.appDelegate.window.frame.size.height - TOOLBAR_HEIGHT, self.view.frame.size.width, TOOLBAR_HEIGHT)];
-    progressToolBar.barStyle = UIBarStyleBlackTranslucent;
+    progressToolBar = [[UIToolbar alloc] initWithFrame:CGRectMake(0, self.view.frame.size.height - (TOOLBAR_HEIGHT - [[UIApplication sharedApplication] statusBarFrame].size.height), self.view.frame.size.width, TOOLBAR_HEIGHT)];
     [self.view addSubview:progressToolBar];
+    progressToolBar.tintColor = [UIColor blackColor];
     [progressToolBar release];
     
     [self createToolBarItems];
     
-    liveOperations = [[NSMutableArray alloc] init];
-    if ([images count]) {
-        currentDownloadIndex = [images indexOfObject:currentImage];
-        [self downloadImageAtIndex:currentDownloadIndex];
-    }
-    [self showImage:currentImage];
+    UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapGesture:)];
+    [self.view addGestureRecognizer:tapGesture];
+    [tapGesture release];
     
-	// Do any additional setup after loading the view.
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(thumbnailLoadedFromNotification:)
-                                                 name:@"thumbnail.loaded"
-                                               object:nil];
+//    UISwipeGestureRecognizer *swipeGesture = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(swipeGesture:)];
+//    swipeGesture.direction = UISwipeGestureRecognizerDirectionLeft | UISwipeGestureRecognizerDirectionRight;
+//    [mainScrollView addGestureRecognizer:swipeGesture];
+//    [swipeGesture release];
+
     
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self createImageViews];
+        [self updateUIForImageDictionaryAtIndex:currentDownloadIndex];
+    });
 }
+
 
 
 
@@ -116,6 +224,7 @@
 
 -(void) viewWillDisappear:(BOOL)animated
 {
+    [CacheManager deleteAllContentsOfFolderAtPath:[sharedManager getTempPath:viewType]];
     [super viewWillDisappear:animated];
 }
 
@@ -131,12 +240,16 @@
 
 -(void) dealloc
 {
+    [scrollViews release];
+    scrollViews = nil;
+    
     [[NSNotificationCenter defaultCenter] removeObserver:self
                                                     name:@"thumbnail.loaded"
                                                   object:nil];
     
     
     self.appDelegate.restClient.delegate = nil;
+    
     for (LiveOperation *operation in liveOperations) {
         [operation cancel];
     }
@@ -171,21 +284,19 @@
 }
 
 
--(void) downloadProgressButtonClicked:(UIButton *) btn
-{
-    if ([downloadProgressButton progressViewHidden]) {
-        currentDownloadIndex = [images indexOfObject:currentImage];
-        [self downloadImageAtIndex:currentDownloadIndex];
-    }
-}
 
 
 
 #pragma mark - DBRestClientDelegate
 
--(void) restClient:(DBRestClient *)client loadProgress:(CGFloat)progress forFile:(NSString *)destPath
+
+
+-(void) restClient:(DBRestClient *)client
+      loadProgress:(CGFloat)progress
+           forFile:(NSString *)destPath
 {
-    downloadProgressButton.progress = progress;
+    [self downloadProgress:progress
+                   forPath:destPath];
 }
 
 -(void) restClient:(DBRestClient *)client
@@ -198,18 +309,22 @@
 
 -(void) restClient:(DBRestClient *)client loadedFile:(NSString *)destPath
 {
+    [self downloadCompletionHandler];
     [downloadProgressButton setProgress:0];
     [downloadProgressButton setProgressViewHidden:YES];
-    [self showImage:currentImage];
+    [self showImage];
     [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
 }
 
 
 -(void) restClient:(DBRestClient *)client loadFileFailedWithError:(NSError *)error
 {
+    [self downloadCompletionHandler];
     [downloadProgressButton setProgress:0];
     [downloadProgressButton setProgressViewHidden:YES];
-    [AppDelegate showMessage:[error.userInfo objectForKey:@"error"]
+    NSLog(@"userInfo %@",[error userInfo]);
+    NSString *errorMessage = [[error.userInfo objectForKey:@"error"] length] ? [error.userInfo objectForKey:@"error"] : [error localizedDescription];
+    [AppDelegate showMessage:errorMessage
                    withColor:[UIColor redColor]
                  alertOnView:self.view];
     [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
@@ -219,11 +334,14 @@
 
 - (void) liveOperationSucceeded:(LiveDownloadOperation *)operation
 {
-    NSString *filePath = [self getImagePath:currentImage];
+    [liveOperations removeObject:operation];
+    NSString *filePath = operation.userState;
     [operation.data writeToFile:filePath atomically:YES];
+
     [downloadProgressButton setProgress:0];
     [downloadProgressButton setProgressViewHidden:YES];
-    [self showImage:currentImage];
+    [self showImage];
+//    [self showImage:currentImage];
     [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
 }
 
@@ -240,21 +358,32 @@
                                     data:(NSData *)receivedData
                                operation:(LiveDownloadOperation *)operation
 {
-    if ([operation.userState isEqualToString:[currentImage objectForKey:FILE_NAME]]) {
-        downloadProgressButton.progress = progress.progressPercentage;
-    }
+    [self downloadProgress:progress.progressPercentage
+                   forPath:operation.userState];
 }
 
 #pragma mark - Helper methods
 
+-(void) downloadCompletionHandler
+{
+    if ([liveOperations count]) {
+        [self downloadImageAtIndex:[images indexOfObject:[liveOperations objectAtIndex:0]]];
+    }
+}
+
+-(void) downloadProgress:(float) progress
+                 forPath:(NSString *) destPath
+{
+    downloadProgressButton.progress = progress;
+}
 
 -(void) thumbnailLoadedFromNotification:(NSNotification *) notification
 {
-    NSDictionary *data = [notification object];
-    if ([images indexOfObject:data] == currentDownloadIndex) {
-        [self updateDownloadProgressButtonImage:data];
-        [self showImage:data];
-    }
+//    NSDictionary *data = [notification object];
+//    if ([images indexOfObject:data] == currentDownloadIndex) {
+//        [self updateDownloadProgressButtonImage:data];
+//        [self showImage:data];
+//    }
 }
 
 
@@ -298,22 +427,53 @@
 -(void) downloadImageAtIndex:(int) index
 {
     NSDictionary *data = [images objectAtIndex:index];
-    [self updateDownloadProgressButtonImage:data];
-    [downloadProgressButton setProgressViewHidden:NO];
-    [currentImageIndexLabel setTextColor:NAVBAR_COLOR];
+    [self updateLabelTextForImage:data];
+    
+    NSString *downloadPath = [self getImagePath:data];
+    
     switch (viewType) {
         case DROPBOX:
         {
-            NSString *filePath = [self getImagePath:data];
-            [self.appDelegate.restClient loadFile:[data objectForKey:FILE_PATH]
-                                            atRev:nil
-                                         intoPath:filePath];
+            NSString *filePath = [data objectForKey:FILE_PATH];
+
+            if (![self.appDelegate.restClient isRequestAlreadyQueued:filePath] &&
+                ![CacheManager fileExistsAtPath:downloadPath] &&
+                ![self.appDelegate.restClient requestCount]) {
+                [self.appDelegate.restClient loadFile:filePath
+                                                atRev:[data objectForKey:FILE_REV]
+                                             intoPath:filePath];
+                [self updateDownloadProgressButtonImage:data];
+                NSLog(@"Download Started in Dropbox");
+            } else if ([self.appDelegate.restClient requestCount]) {
+                int index = [liveOperations indexOfObject:data];
+                if (index < [liveOperations count]) {
+                    NSLog(@"Download already added in queue in Dropbox");
+                } else {
+                    [liveOperations addObject:data];
+                    NSLog(@"Download added in queue in Dropbox");
+                }
+            } else {
+                NSLog(@"Download already in Progress in Dropbox");
+            }
         }
             break;
         case SKYDRIVE:
         {
-            LiveDownloadOperation *downloadOperation = [self.appDelegate.liveClient downloadFromPath:[data objectForKey:FILE_URL] delegate:self userState:[data objectForKey:FILE_NAME]];
-            [liveOperations addObject:downloadOperation];
+            int index = INVALID_INDEX;
+            for (LiveDownloadOperation *op in liveOperations) {
+                if ([op.path isEqualToString:[data objectForKey:FILE_ID]]) {
+                    index = [liveOperations indexOfObject:op];
+                    break;
+                }
+            }
+            
+            if (index != INVALID_INDEX) {
+                NSLog(@"Already");
+            } else if (![CacheManager fileExistsAtPath:downloadPath] && index == INVALID_INDEX){
+                LiveDownloadOperation *downloadOperation = [self.appDelegate.liveClient downloadFromPath:[data objectForKey:FILE_IMAGE_URL] delegate:self userState:downloadPath];
+                [liveOperations addObject:downloadOperation];
+                NSLog(@"Started");
+            }
         }
             break;
             
@@ -324,12 +484,6 @@
 }
 
 
--(void) downloadImages
-{
-    for (int i = 0; i < [images count]; i++) {
-        [self downloadImageAtIndex:i];
-    }
-}
 
 -(NSString *) getCloudType:(VIEW_TYPE) type
 {
@@ -354,38 +508,29 @@
 
 -(NSString *) getImagePath:(NSDictionary *) image
 {
-    NSString *fileName = [image objectForKey:FILE_NAME];
-    NSString *imagePath = [NSString stringWithFormat:@"%@%@",[CacheManager getTemporaryDirectory],fileName];
+    NSString *imagePath = [NSString stringWithFormat:@"%@/%@",[sharedManager getTempPath:[[image objectForKey:ACCOUNT_TYPE] intValue]],[image objectForKey:FILE_ID]];
     return imagePath;
 }
 
 
 -(NSString *) getImageThumbnailPath:(NSDictionary *) image
 {
-    NSString *fileName = [[image objectForKey:FILE_PATH] stringByReplacingOccurrencesOfString:@"/" withString:@""];
-    NSString *cloudDataType = [self getCloudType:viewType];
-    NSString *thumbPath = [NSString stringWithFormat:@"%@%@_%@",[CacheManager getTemporaryDirectory],cloudDataType,fileName];
+    NSString *thumbPath = [NSString stringWithFormat:@"%@/%@",[sharedManager getThumbnailPath:[[image objectForKey:ACCOUNT_TYPE] intValue]],[image objectForKey:FILE_ID]];
     return thumbPath;
 }
 
 
 -(void) updateLabelTextForImage:(NSDictionary *)image
 {
-    int index = [images indexOfObject:image];
-    if (index == currentDownloadIndex) {
-        [currentImageIndexLabel setTextColor:NAVBAR_COLOR];
-    } else {
-        [currentImageIndexLabel setTextColor:[UIColor whiteColor]];
-    }
-    [currentImageIndexLabel setText:[NSString stringWithFormat:@"%d/%d",index + 1,[images count]]];
+    [self.navigationItem setTitle:[image objectForKey:FILE_NAME]];
+    [currentImageIndexLabel setText:[NSString stringWithFormat:@"%d/%d",currentDownloadIndex + 1,[images count]]];
     [currentImageIndexLabel sizeToFit];
 }
 
 
--(void) showImage:(NSDictionary *) image
+-(UIImage *) getImageForImageDictionary:(NSDictionary *) image
 {
     NSString *fileName = [image objectForKey:FILE_NAME];
-    [self setTitle:fileName];
     NSString *filePath = [self getImagePath:image];
     UIImage *imageToBeShown = [UIImage imageWithContentsOfFile:filePath];
     downloadProgressButton.hidden = YES;
@@ -402,11 +547,75 @@
             [self updateDownloadProgressButtonImage:image];
         }
     }
-    [mainImageView setImage:imageToBeShown];
-    [self updateLabelTextForImage:image];
+    return imageToBeShown;
 }
 
 
+-(void) updateUIForImageDictionaryAtIndex:(int) index
+{
+    NSDictionary *image = [images objectAtIndex:index];
+    [self updateLabelTextForImage:image];
+    CLZoomableImageView *scrollView = [scrollViews objectAtIndex:[self getScrollViewIndexForIndex:index]];
+    [scrollView setImage:[self getImageForImageDictionary:image]];
+}
+
+-(void) updateUIForImageDictionaryAtIndex:(int) index
+                             inScrollView:(CLZoomableImageView *) scrollView
+{
+    NSDictionary *image = [images objectAtIndex:index];
+    [self updateLabelTextForImage:image];
+    UIImage *imageToBeShown = [self getImageForImageDictionary:image];
+    [downloadProgressButton setImage:imageToBeShown forState:UIControlStateNormal];
+    [scrollView setImage:imageToBeShown];
+}
+
+-(void) showImage:(NSDictionary *) image
+{
+    [mainImageView setImage:[self getImageForImageDictionary:image]];
+    [self updateLabelTextForImage:image];
+}
+
+-(int) getScrollViewIndexForIndex:(int) index
+{
+    int min = (viewCount/2);
+    int max = ([images count] - 1 - (viewCount/2));
+    
+    int scrollViewIndex = min;
+    
+    if (index > max) {
+        int diff = index - max;
+        scrollViewIndex += diff;
+    } else if (index < min) {
+        int diff = min - index;
+        scrollViewIndex -= diff;
+    }
+    
+    return scrollViewIndex;
+}
+
+
+
+
+-(void) showImage
+{
+    int currentIndex = currentDownloadIndex;
+    int min = (viewCount/2);
+    int max = ([images count] - 1 - (viewCount/2));
+    
+    if (currentIndex >= min &&
+        currentIndex <= max) {
+        currentIndex = viewCount/2;
+    } else if (currentIndex > max) {
+        int diff = currentIndex - max;
+        currentIndex = (viewCount/2) + diff;
+        if (currentIndex >= [scrollViews count]) {
+            currentIndex = [scrollViews count] - 1;
+        }
+    }
+
+    [self updateUIForImageDictionaryAtIndex:currentDownloadIndex
+                               inScrollView:[scrollViews objectAtIndex:currentIndex]];
+}
 
 -(void) createToolBarItems
 {
@@ -444,9 +653,9 @@
     downloadProgressButton = [[CLUploadProgressButton alloc] init];
 //    [downloadProgressButton setFrame:CGRectMake(0, 0, 30, 30)];
     downloadProgressButton.frame = CGRectMake(0, 0, 30, 30);
-    [downloadProgressButton addTarget:self
-                               action:@selector(downloadProgressButtonClicked:)
-                     forControlEvents:UIControlEventTouchUpInside];
+//    [downloadProgressButton addTarget:self
+//                               action:@selector(downloadProgressButtonClicked:)
+//                     forControlEvents:UIControlEventTouchUpInside];
     UIBarButtonItem *progressBarbuttonItem = [[UIBarButtonItem alloc] initWithCustomView:downloadProgressButton];
     [items addObject:progressBarbuttonItem];
     [progressBarbuttonItem release];
@@ -472,6 +681,11 @@
         self.currentImage = [images objectAtIndex:index];
         [self showImage:currentImage];
     }
+}
+
+-(void) swipeGesture:(UIGestureRecognizer *) gesture
+{
+    NSLog(@"swiping");
 }
 
 -(void) tapGesture:(UIGestureRecognizer *) gesture
@@ -513,14 +727,129 @@
 }
 
 
-#pragma mark 
+#pragma mark - UIScrollViewDelegate
 
-- (UIView *)viewForZoomingInScrollView:(UIScrollView *)scrollView
+
+
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
-    return mainImageView;
+    if (previousContentOffset.x > scrollView.contentOffset.x)
+    {
+        scrollDirection = ScrollDirectionRight;
+    }
+    else if (previousContentOffset.x < scrollView.contentOffset.x)
+    {
+        scrollDirection = ScrollDirectionLeft;
+    }
+    previousContentOffset = scrollView.contentOffset;
+    
+    int index = previousContentOffset.x/scrollView.frame.size.width;
+    if (index != previousIndex) {
+        // new Index
+//        if (index > previousIndex) {
+//            NSLog(@"Left at %d",index);
+//        } else {
+//            NSLog(@"Right at %d",index);
+//        }
+        currentDownloadIndex = index;
+        [self adjustScrollView:scrollView];
+    } else {
+        // same index
+//        NSLog(@"Same at %d",index);
+    }
+    previousIndex = index;
 }
 
 
+
+-(void) adjustScrollView:(UIScrollView *) scrollView
+{
+    NSLog(@"currentDownloadIndex %d",currentDownloadIndex);
+    CLZoomableImageView *firstScrollView = [scrollViews objectAtIndex:0];
+    CLZoomableImageView *lastScrollView = [scrollViews lastObject];
+    
+    float minFirstScrollViewX = CGRectGetMinX(firstScrollView.frame);
+    float maxLastScrollViewX = CGRectGetMaxX(lastScrollView.frame);
+    
+    float minScrollContentX = 0;
+    float maxScrollContentX = scrollView.contentSize.width;
+    
+    __block int index = currentDownloadIndex;
+    
+    switch (scrollDirection) {
+        case ScrollDirectionLeft:
+        {
+            if (currentDownloadIndex > (viewCount/2) &&
+                lastScrollView.frame.origin.x < maxScrollContentX - lastScrollView.frame.size.width) {
+                firstScrollView.frame = CGRectMake(maxLastScrollViewX,
+                                                   firstScrollView.frame.origin.y,
+                                                   firstScrollView.frame.size.width,
+                                                   firstScrollView.frame.size.height);
+                [scrollViews removeObject:firstScrollView];
+                [scrollViews addObject:firstScrollView];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    index += (viewCount/2);
+                    if (index < [images count]) {
+                        NSDictionary *image = [images objectAtIndex:index];
+                        NSLog(@"name %@",[image objectForKey:FILE_NAME]);
+                        [firstScrollView setImage:[self getImageForImageDictionary:image]];
+                    }
+                });
+                NSLog(@"Moving Done");
+            } else {
+                NSLog(@"No Move Required");
+                // first should become last
+            }
+        }
+            break;
+        case ScrollDirectionRight:
+        {
+            if (firstScrollView.frame.origin.x > minScrollContentX &&
+                currentDownloadIndex < [images count] - (viewCount/2)) {
+                lastScrollView.frame = CGRectMake(minFirstScrollViewX - lastScrollView.frame.size.width,
+                                                   lastScrollView.frame.origin.y,
+                                                   lastScrollView.frame.size.width,
+                                                   lastScrollView.frame.size.height);
+                [scrollViews removeObject:lastScrollView];
+                [scrollViews insertObject:lastScrollView atIndex:0];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    index -= (viewCount/2);
+                    if (index > INVALID_INDEX) {
+                        NSDictionary *image = [images objectAtIndex:index];
+                        NSLog(@"name %@",[image objectForKey:FILE_NAME]);
+                        [lastScrollView setImage:[self getImageForImageDictionary:image]];
+                    }
+                });
+                NSLog(@"Moving Done");
+            } else {
+                NSLog(@"No Move Required");
+                // first should become last
+            }
+        }
+            break;
+        default:
+            break;
+    }
+}
+
+
+
+
+- (void)scrollViewWillBeginDecelerating:(UIScrollView *)scrollView
+{
+}
+
+
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
+{
+    [self updateUIForImageDictionaryAtIndex:currentDownloadIndex];
+}
+
+
+- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView
+                  willDecelerate:(BOOL)decelerate
+{
+}
 
 
 @end

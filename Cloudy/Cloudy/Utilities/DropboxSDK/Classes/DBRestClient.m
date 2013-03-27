@@ -332,6 +332,16 @@
     [loadRequests setObject:request forKey:path];
 }
 
+
+
+-(BOOL) isRequestAlreadyQueued:(NSString *) path
+{
+    if ([[loadRequests allKeys] containsObject:path]) {
+        return YES;
+    }
+    return NO;
+}
+
 - (void)loadFile:(NSString *)path intoPath:(NSString *)destPath {
     [self loadFile:path atRev:nil intoPath:destPath];
 }

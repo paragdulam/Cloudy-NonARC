@@ -31,6 +31,7 @@
 
 /* Cancels all outstanding requests. No callback for those requests will be sent */
 - (void)cancelAllRequests;
+-(BOOL) isRequestAlreadyQueued:(NSString *) path;
 
 
 /* Loads metadata for the object at the given root/path and returns the result to the delegate as a 
@@ -127,6 +128,7 @@
 @protocol DBRestClientDelegate <NSObject>
 
 @optional
+
 
 - (void)restClient:(DBRestClient*)client loadedMetadata:(DBMetadata*)metadata;
 - (void)restClient:(DBRestClient*)client metadataUnchangedAtPath:(NSString*)path;

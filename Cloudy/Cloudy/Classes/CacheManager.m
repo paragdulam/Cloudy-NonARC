@@ -19,6 +19,7 @@
 
 +(NSString *) getAccountsPlistPath;
 -(void) readCache;
+-(NSString *) getRootStringForViewType:(VIEW_TYPE) type; //VIEW_TYPE DEPENDANT
 
 
 @end
@@ -144,34 +145,6 @@
     }
 }
 
-/*
--(NSString *) pathForMetadata:(NSDictionary *) mdata
-             inParentMetadata:(NSDictionary *) parent
-{
-    if (![mdata objectForKey:FILE_PARENT_ID] || [[mdata objectForKey:FILE_PARENT_ID] isEqualToString:@"null"] || !parent) {
-        return ROOT_DROPBOX_PATH;
-    } else {
-        if ([[mdata objectForKey:FILE_PARENT_ID] isEqualToString:[parent objectForKey:FILE_ID]]) {
-            NSString *path = [parent objectForKey:FILE_PATH];
-            if ([path isEqualToString:ROOT_DROPBOX_PATH]) {
-                return [NSString stringWithFormat:@"%@%@",path,[mdata objectForKey:FILE_NAME]];
-            } else {
-                return [NSString stringWithFormat:@"%@/%@",path,[mdata objectForKey:FILE_NAME]];
-            }
-        } else {
-            NSArray *contents = [parent objectForKey:FILE_CONTENTS];
-            for (NSDictionary *data in contents) {
-                NSString *path = [self pathForMetadata:mdata
-                                      inParentMetadata:data];
-                if (path) {
-                    return path;
-                }
-            }
-        }
-    }
-    return nil;
-}
- */
 
 +(void) setObjectInDictionary:(NSMutableDictionary *) toDict
                        forKey:(NSString *) aKey
@@ -183,6 +156,7 @@
         [toDict setObject:object forKey:aKey];
     }
 }
+
 
 -(NSDictionary *) processDictionary:(NSDictionary *) dictionary
                         ForDataType:(TYPE_DATA) dataType
@@ -230,6 +204,11 @@
                 case DATA_METADATA:
                 {
                     [CacheManager setObjectInDictionary:retVal
+                                                 forKey:FILE_REV
+                                         FromDictionary:dictionary
+                                                 forKey:@"rev"];
+                    
+                    [CacheManager setObjectInDictionary:retVal
                                                  forKey:FILE_THUMBNAIL
                                          FromDictionary:dictionary
                                                  forKey:@"thumb_exists"];
@@ -248,6 +227,10 @@
                                                  forKey:FILE_PATH
                                          FromDictionary:dictionary
                                                  forKey:@"path"];
+                    
+                    [retVal setObject:[CacheManager uuid]
+                               forKey:FILE_ID];
+                    
                     NSArray *components = [CacheManager trimmedArrayForPath:[dictionary objectForKey:@"path"]];
                     NSString *fileName = [components lastObject];
                     if (![fileName length]) {
@@ -381,6 +364,9 @@
                                        forKey:FILE_THUMBNAIL];
                             [retVal setObject:[[images objectAtIndex:2] objectForKey:@"source"]
                                        forKey:FILE_THUMBNAIL_URL];
+                            [retVal setObject:[[images objectAtIndex:0] objectForKey:@"source"]
+                                       forKey:FILE_IMAGE_URL];
+
                         }
                         
                         NSString *path = [self pathForMetadata:retVal
@@ -633,6 +619,7 @@
     [accounts removeObjectAtIndex:index];
     if (![accounts count]) {
         [CacheManager deleteFileAtPath:[CacheManager getAccountsPlistPath]];
+        return YES;
     }
     [self updateAccounts];
     return YES;
@@ -665,9 +652,24 @@
 
 #pragma mark - File Folder Operations
 
++ (NSString *)uuid
+{
+    CFUUIDRef uuidRef = CFUUIDCreate(NULL);
+    CFStringRef uuidStringRef = CFUUIDCreateString(NULL, uuidRef);
+    CFRelease(uuidRef);
+    return [(NSString *)uuidStringRef autorelease];
+}
+
+
 +(NSArray *) contentsOfDirectoryAtPath:(NSString *) path
 {
-    return [[NSFileManager defaultManager] contentsAtPath:path];
+    NSError *error = nil;
+    NSArray *retVal = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:path
+                                                                          error:&error];
+    if (error) {
+        NSLog(@"error %@ getting contents at path %@",error,path);
+    }
+    return retVal;
 }
 
 +(void) deleteAllContentsOfFolderAtPath:(NSString *) path
@@ -682,16 +684,104 @@
 
 +(BOOL) deleteFileAtPath:(NSString *) path
 {
-    return [[NSFileManager defaultManager] removeItemAtPath:path
-                                                      error:nil];
+    NSError *error = nil;
+    BOOL retVal = [[NSFileManager defaultManager] removeItemAtPath:path
+                                                             error:&error];
+    if (error) {
+        NSLog(@"error %@ deleting path %@",error,path);
+    }
+    return retVal;
 }
 
 #pragma mark - Folder Paths
+
++(void) initialSetup
+{
+    //create main Folders
+    //create thumbnails folder in that
+    //create favourites Folder in that
+    //create temporary downloads in that
+    [CacheManager createFoldersForString:DROPBOX_STRING];
+    [CacheManager createFoldersForString:SKYDRIVE_STRING];
+}
+
+-(NSString *) getRootStringForViewType:(VIEW_TYPE) type //VIEW_TYPE DEPENDANT
+{
+    switch (type) {
+        case DROPBOX:
+            return DROPBOX_STRING;
+            break;
+        case SKYDRIVE:
+            return SKYDRIVE_STRING;
+            break;
+        default:
+            break;
+    }
+    return nil;
+}
+
+
++(void) loggedOut:(VIEW_TYPE) type
+{
+    NSString *root = nil;
+    switch (type) {
+        case DROPBOX:
+            root = DROPBOX_STRING;
+            break;
+        case SKYDRIVE:
+            root = SKYDRIVE_STRING;
+            break;
+        default:
+            break;
+    }
+    if (root) {
+        [CacheManager deleteFileAtPath:[NSString stringWithFormat:@"%@/%@",[CacheManager getContentsPath],root]];
+        [CacheManager createFoldersForString:root];
+    }
+}
+
+
+-(NSString *) getThumbnailPath:(VIEW_TYPE) type
+{
+    NSString *rootPath = [self getRootStringForViewType:type];
+    return [NSString stringWithFormat:@"%@/%@/Thumbnails",[CacheManager getContentsPath],rootPath];
+}
+
+-(NSString *) getFavouritesPath:(VIEW_TYPE) type
+{
+    NSString *rootPath = [self getRootStringForViewType:type];
+    return [NSString stringWithFormat:@"%@/%@/Favourites",[CacheManager getContentsPath],rootPath];
+}
+
+-(NSString *) getTempPath:(VIEW_TYPE) type
+{
+    NSString *rootPath = [self getRootStringForViewType:type];
+    return [NSString stringWithFormat:@"%@/%@/Temp",[CacheManager getContentsPath],rootPath];
+}
+
+
++(void) createFoldersForString:(NSString *) root
+{
+    NSString *mainFolderPath = [NSString stringWithFormat:@"%@/%@",[CacheManager getContentsPath],root];
+    [CacheManager createFolderAtPath:mainFolderPath];
+    NSString *thumbnailsPath = [NSString stringWithFormat:@"%@/Thumbnails",mainFolderPath];
+    [CacheManager createFolderAtPath:thumbnailsPath];
+    NSString *favouritesPath = [NSString stringWithFormat:@"%@/Favourites",mainFolderPath];
+    [CacheManager createFolderAtPath:favouritesPath];
+    NSString *tempDownloadsPath = [NSString stringWithFormat:@"%@/Temp",mainFolderPath];
+    [CacheManager createFolderAtPath:tempDownloadsPath];
+}
+
 
 
 +(NSString *) getMetadataPlistPath
 {
     return [NSString stringWithFormat:@"%@/%@",[CacheManager getSystemDirectoryPath:NSLibraryDirectory],METADATA_PLIST];
+}
+
++(NSString *) getContentsPath
+{
+    return [NSString stringWithFormat:@"%@/Contents",[CacheManager getSystemDirectoryPath:NSLibraryDirectory]];
 }
 
 
@@ -700,6 +790,19 @@
     return [NSString stringWithFormat:@"%@/%@",[CacheManager getSystemDirectoryPath:NSLibraryDirectory],ACCOUNTS_PLIST];
 }
 
++(BOOL) createFolderAtPath:(NSString *) path
+{
+    NSError *error = nil;
+    BOOL retVal = NO;
+    retVal =     [[NSFileManager defaultManager] createDirectoryAtPath:path
+                                           withIntermediateDirectories:YES
+                                                            attributes:nil
+                                                                 error:&error];
+    if (error) {
+        NSLog(@"error Creating Folder %@",error);
+    }
+    return retVal;
+}
 
 +(BOOL) fileExistsAtPath:(NSString *) path
 {

@@ -45,5 +45,15 @@
 +(NSString *) getTemporaryDirectory;
 +(BOOL) fileExistsAtPath:(NSString *) path;
 -(NSString *) skyDriveRootPath;
++(void) initialSetup;
+
+-(NSString *) getThumbnailPath:(VIEW_TYPE) type;
+-(NSString *) getFavouritesPath:(VIEW_TYPE) type;
+-(NSString *) getTempPath:(VIEW_TYPE) type;
++(void) createFoldersForString:(NSString *) root;
++(BOOL) deleteFileAtPath:(NSString *) path;
++(void) loggedOut:(VIEW_TYPE) type;
++(void) deleteAllContentsOfFolderAtPath:(NSString *) path;
+
 
 @end

@@ -66,6 +66,7 @@
     [super viewWillDisappear:animated];
     
 //    [CLCacheManager deleteAllContentsOfFolderAtPath:[CLCacheManager getTemporaryDirectory]]; //Clearing Cache will be in Settings
+    
 
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
     self.navigationController.navigationBar.tintColor = NAVBAR_COLOR;

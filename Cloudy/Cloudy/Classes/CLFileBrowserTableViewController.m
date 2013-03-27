@@ -758,7 +758,8 @@ loadedSharableLink:(NSString *)link
 }
 
 
--(void) loadFilesForPath:(NSString *)pathString WithInViewType:(VIEW_TYPE)type
+-(void) loadFilesForPath:(NSString *)pathString
+          WithInViewType:(VIEW_TYPE)type
 {
     if (!pathString) {
         if (![[sharedManager accounts] count]) {

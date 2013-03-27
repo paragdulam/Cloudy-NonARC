@@ -96,6 +96,7 @@
 		F154BEAC169D518500467E46 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F154BEAB169D518500467E46 /* SystemConfiguration.framework */; };
 		F16011B7164E1AAF00098D8C /* SkyDriveIconWhite_32x32@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = F16011B6164E1AAF00098D8C /* SkyDriveIconWhite_32x32@2x.png */; };
 		F16011B9164E1BA300098D8C /* dropbox_cell_Image@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = F16011B8164E1BA300098D8C /* dropbox_cell_Image@2x.png */; };
+		F1632B9616F7527C005EC602 /* CLZoomableImageView.m in Sources */ = {isa = PBXBuildFile; fileRef = F1632B9516F7527C005EC602 /* CLZoomableImageView.m */; };
 		F173F56516F24540004252AC /* BoxClient.m in Sources */ = {isa = PBXBuildFile; fileRef = F173F56016F24540004252AC /* BoxClient.m */; };
 		F173F56616F24540004252AC /* XMLDownloader.m in Sources */ = {isa = PBXBuildFile; fileRef = F173F56216F24540004252AC /* XMLDownloader.m */; };
 		F173F56716F24540004252AC /* XMLReader.m in Sources */ = {isa = PBXBuildFile; fileRef = F173F56416F24540004252AC /* XMLReader.m */; };
@@ -370,6 +371,8 @@
 		F154BEAB169D518500467E46 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		F16011B6164E1AAF00098D8C /* SkyDriveIconWhite_32x32@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "SkyDriveIconWhite_32x32@2x.png"; sourceTree = "<group>"; };
 		F16011B8164E1BA300098D8C /* dropbox_cell_Image@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "dropbox_cell_Image@2x.png"; sourceTree = "<group>"; };
+		F1632B9416F7527C005EC602 /* CLZoomableImageView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CLZoomableImageView.h; sourceTree = "<group>"; };
+		F1632B9516F7527C005EC602 /* CLZoomableImageView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CLZoomableImageView.m; sourceTree = "<group>"; };
 		F173F55F16F24540004252AC /* BoxClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BoxClient.h; sourceTree = "<group>"; };
 		F173F56016F24540004252AC /* BoxClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BoxClient.m; sourceTree = "<group>"; };
 		F173F56116F24540004252AC /* XMLDownloader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XMLDownloader.h; sourceTree = "<group>"; };
@@ -874,6 +877,8 @@
 				F153E112167A24D100F5EE49 /* CLWebMediaPlayerViewController.m */,
 				F1549A64169BF5F8008A69A0 /* CLCloudPlatformSelectionViewController.h */,
 				F1549A65169BF5F8008A69A0 /* CLCloudPlatformSelectionViewController.m */,
+				F1632B9416F7527C005EC602 /* CLZoomableImageView.h */,
+				F1632B9516F7527C005EC602 /* CLZoomableImageView.m */,
 			);
 			path = Classes;
 			sourceTree = "<group>";
@@ -1430,6 +1435,7 @@
 				F173F56616F24540004252AC /* XMLDownloader.m in Sources */,
 				F173F56716F24540004252AC /* XMLReader.m in Sources */,
 				F173F56D16F24602004252AC /* CacheManager.m in Sources */,
+				F1632B9616F7527C005EC602 /* CLZoomableImageView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

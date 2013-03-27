@@ -8,6 +8,7 @@
 
 #import "CLDetailBaseViewController.h"
 #import "CLUploadProgressButton.h"
+#import "CLZoomableImageView.h"
 
 @interface CLImageGalleryViewController : CLDetailBaseViewController<UIGestureRecognizerDelegate,DBRestClientDelegate,LiveDownloadOperationDelegate,UIScrollViewDelegate>
 {
@@ -23,6 +24,11 @@
 -(id) initWithViewType:(VIEW_TYPE) type
            ImagesArray:(NSArray *)imagesArray
           CurrentImage:(NSDictionary *) imageDictionary;
+
+-(id) initWithViewType:(VIEW_TYPE) type
+           ImagesArray:(NSArray *)imagesArray
+     CurrentImageIndex:(int) index;
+
 
 
 

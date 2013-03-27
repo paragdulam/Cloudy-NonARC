@@ -338,7 +338,7 @@
                         }
                     }];
                     
-                    CLImageGalleryViewController *imageGalleryViewController = [[CLImageGalleryViewController alloc] initWithViewType:viewType ImagesArray:images CurrentImage:selectedFile];
+                    CLImageGalleryViewController *imageGalleryViewController = [[CLImageGalleryViewController alloc] initWithViewType:viewType ImagesArray:images CurrentImageIndex:indexPath.row];
                     [images release];
                     [self.navigationController pushViewController:imageGalleryViewController animated:YES];
                     [imageGalleryViewController release];
@@ -489,13 +489,21 @@
                 [liveOperations addObject:[self.appDelegate.liveClient getWithPath:pathStr delegate:self userState:compatibleMetaData]];
             } else {
                 [self stopAnimating];
+                [self loadThumbnailForMetadata:currentFileData];
             }
         }
     } else if ([operation isKindOfClass:[LiveDownloadOperation class]]) {
+        //thumbnail data
+        
         LiveDownloadOperation *downloadOperation = (LiveDownloadOperation *)operation;
         NSDictionary *data = (NSDictionary *)downloadOperation.userState;
-        [downloadOperation.data writeToFile:[NSString stringWithFormat:@"%@/%@_%@",[CacheManager getTemporaryDirectory],SKYDRIVE_STRING,[[data objectForKey:FILE_PATH] stringByReplacingOccurrencesOfString:@"/" withString:@""]] atomically:YES];
+        
+        NSString *thumbPath = [NSString stringWithFormat:@"%@/%@",[sharedManager getThumbnailPath:viewType],[data objectForKey:FILE_ID]];
+        
+        [downloadOperation.data writeToFile:thumbPath atomically:YES];
+        
         [self reloadRowForMetadata:data];
+        
     } else if ([operation.userState isKindOfClass:[NSDictionary class]]){
         [self stopAnimating];
         if (([[operation.userState allKeys] count] == 1)) {
@@ -536,10 +544,10 @@
             NSString *thumbPath = nil;
             switch (viewType) {
                 case DROPBOX:
-                    thumbPath = [NSString stringWithFormat:@"%@%@_%@",[CacheManager getTemporaryDirectory],DROPBOX_STRING,[[data objectForKey:FILE_PATH] stringByReplacingOccurrencesOfString:@"/" withString:@""]];
+                    thumbPath = [NSString stringWithFormat:@"%@/%@",[sharedManager getThumbnailPath:viewType],[data objectForKey:FILE_ID]];
                     break;
                 case SKYDRIVE:
-                    thumbPath = [NSString stringWithFormat:@"%@%@_%@",[CacheManager getTemporaryDirectory],SKYDRIVE_STRING,[[data objectForKey:FILE_PATH] stringByReplacingOccurrencesOfString:@"/" withString:@""]];
+                    thumbPath = [NSString stringWithFormat:@"%@/%@",[sharedManager getThumbnailPath:viewType],[data objectForKey:FILE_ID]];
                     break;
                     
                 default:
@@ -567,12 +575,16 @@
    loadedThumbnail:(NSString *)destPath
           metadata:(DBMetadata *)metadata
 {
-    NSDictionary *compatibleMetaData = [self getCompatibleDictionary:[metadata original] ForDataType:DATA_METADATA];
-    [self reloadRowForMetadata:compatibleMetaData];
-    
-    [[NSNotificationCenter defaultCenter] postNotificationName:@"thumbnail.loaded"
-                                                        object:compatibleMetaData];
-    
+    [tableDataArray enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        NSDictionary *data = (NSDictionary *)obj;
+        if ([[data objectForKey:FILE_PATH] isEqualToString:metadata.path]) {
+            NSDictionary *compatibleMetaData = data;
+            [self reloadRowForMetadata:compatibleMetaData];
+            [[NSNotificationCenter defaultCenter] postNotificationName:@"thumbnail.loaded"
+                              object:compatibleMetaData];
+            *stop = YES;
+        }
+    }];
 }
 
 
@@ -617,8 +629,6 @@
     [self createFolderUpdateUI:folder];
     [self updateContentsForCurrentDataWithArray:[[tableDataArray mutableCopy]
                                                  autorelease]];
-    
-
 }
 
 -(void) restClient:(DBRestClient *)client createdFolder:(DBMetadata *)folder

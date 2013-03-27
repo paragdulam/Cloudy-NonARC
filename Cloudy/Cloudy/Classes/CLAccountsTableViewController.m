@@ -360,7 +360,7 @@
 {
     BOOL success = [sharedManager deleteAccount:[sharedManager accountOfType:indexPath.section]];
     [sharedManager deleteMetadata:indexPath.section];
-    
+    [CacheManager loggedOut:indexPath.section];
     //delete all temp data
     //remove all uploads
     

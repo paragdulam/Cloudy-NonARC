@@ -41,7 +41,7 @@
     progressBarView.frame = progressBarRect;
     
     self.imageView.frame = self.bounds;
-    self.imageView.contentMode = UIViewContentModeScaleAspectFit;
+    self.imageView.contentMode = UIViewContentModeScaleToFill;
     self.imageView.clipsToBounds = YES;
 
     

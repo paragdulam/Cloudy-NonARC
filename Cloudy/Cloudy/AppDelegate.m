@@ -39,6 +39,7 @@
 @synthesize externalFileURL;
 @synthesize backgroundTaskIdentifier;
 @synthesize currentUploadOperation;
+@synthesize callbackViewController;
 
 - (void)dealloc
 {
@@ -156,6 +157,7 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
 //    [CLCacheManager initialSetup];
+    [CacheManager initialSetup];
 
     CLUploadProgressButton *aButton = [[CLUploadProgressButton alloc] init];
     aButton.frame = CGRectMake(0, 0, 30, 30);
@@ -516,10 +518,10 @@
                 break;
             case SKYDRIVE:
             {
-                self.currentUploadOperation =                 [self.liveClient uploadToPath:toPath
-                                                                                   fileName:fileName
-                                                                                       data:fileData
-                                                                                   delegate:self];
+                self.currentUploadOperation = [self.liveClient uploadToPath:toPath
+                                                                   fileName:fileName
+                                                                       data:fileData
+                                                                   delegate:self];
 
             }
                 break;
