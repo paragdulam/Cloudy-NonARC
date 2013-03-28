@@ -163,6 +163,8 @@ typedef enum DATA_TYPE {
 #define FILE_URL @"FILE_URL"
 #define FILE_IMAGE_URL @"FILE_IMAGE_URL"
 #define FILE_REV @"FILE_REV"
+#define OPERATION @"OPERATION"
+#define IMAGE @"IMAGE"
 
 
 
