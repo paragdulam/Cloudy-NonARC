@@ -54,6 +54,6 @@
 +(BOOL) deleteFileAtPath:(NSString *) path;
 +(void) loggedOut:(VIEW_TYPE) type;
 +(void) deleteAllContentsOfFolderAtPath:(NSString *) path;
-
++(NSString *) getUploadsFolderPath;
 
 @end

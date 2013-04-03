@@ -39,7 +39,6 @@ typedef enum ScrollDirection {
     LiveDownloadOperation *downloadOperation;
 }
 
--(void) downloadImageAtIndex:(int) index;
 -(void) createToolBarItems;
 
 @property(nonatomic,retain) LiveDownloadOperation *downloadOperation;
@@ -218,8 +217,9 @@ typedef enum ScrollDirection {
     
     dispatch_async(dispatch_get_main_queue(), ^{
         [self createImageViews];
+        [self updateDownloadsAtIndex:currentDownloadIndex];
         [self updateUIForImageDictionaryAtIndex:currentDownloadIndex];
-        [self downloadImageAtIndex:currentDownloadIndex];
+        [self downloadNextImage];
     });
 }
 
@@ -383,13 +383,64 @@ typedef enum ScrollDirection {
 
 #pragma mark - Helper methods
 
+-(void) downloadNextImage
+{
+    if ([liveOperations count]) {
+        NSDictionary *data = [liveOperations objectAtIndex:0];
+        NSString *downloadPath = [NSString stringWithFormat:@"%@/%@",[sharedManager getTempPath:viewType],[data objectForKey:FILE_ID]];
+        
+        if (![CacheManager fileExistsAtPath:downloadPath]) {
+            downloadProgressButton.hidden =  NO;
+            saveButton.hidden = YES;
+            downloadProgressButton.progress = 0;
+            [self updateDownloadProgressButtonImage:data];
+            [self updateLabelTextForImage:data];
+            switch (viewType) {
+                case DROPBOX:
+                    [self.appDelegate.restClient loadFile:[data objectForKey:FILE_PATH]
+                                                    atRev:[data objectForKey:FILE_REV]
+                                                 intoPath:downloadPath];
+                    break;
+                case SKYDRIVE:
+                    [self.appDelegate.liveClient downloadFromPath:[data objectForKey:FILE_ID]
+                                                         delegate:self
+                                                        userState:downloadPath];
+                    break;
+                    
+                default:
+                    break;
+            }
+        } else {
+        }
+    } else {
+    }
+}
+
+
+
+-(void) updateDownloadsAtIndex:(int) index
+{
+    NSDictionary *data = [images objectAtIndex:index];
+    NSString *downloadPath = [NSString stringWithFormat:@"%@/%@",[sharedManager getTempPath:viewType],[data objectForKey:FILE_ID]];
+    if (![liveOperations containsObject:data] &&
+        ![CacheManager fileExistsAtPath:downloadPath]) {
+        [liveOperations addObject:data];
+        saveButton.hidden = YES;
+        NSLog(@"Name %@",[data objectForKey:FILE_NAME]);
+    } else if ([CacheManager fileExistsAtPath:downloadPath]) {
+        saveButton.hidden = NO;
+    }
+}
+
+
+
 -(void) downloadCompletionHandler
 {
     self.downloadOperation = nil;
     if ([liveOperations count]) {
         [liveOperations removeObjectAtIndex:0];
         if ([liveOperations count]) {
-            [self downloadImageAtIndex:[images indexOfObject:[liveOperations objectAtIndex:0]]];
+            [self downloadNextImage];
         } else {
             downloadProgressButton.hidden = YES;
         }
@@ -404,11 +455,11 @@ typedef enum ScrollDirection {
 
 -(void) thumbnailLoadedFromNotification:(NSNotification *) notification
 {
-//    NSDictionary *data = [notification object];
-//    if ([images indexOfObject:data] == currentDownloadIndex) {
-//        [self updateDownloadProgressButtonImage:data];
-//        [self showImage:data];
-//    }
+    NSDictionary *data = [notification object];
+    if ([images indexOfObject:data] == currentDownloadIndex) {
+        [self updateDownloadProgressButtonImage:data];
+        [self showImage];
+    }
 }
 
 
@@ -452,69 +503,9 @@ typedef enum ScrollDirection {
         NSString *fileExtention = [[[[image objectForKey:FILE_NAME] componentsSeparatedByString:@"."] lastObject] lowercaseString];
         imageToBeShown = [UIImage imageNamed:[NSString stringWithFormat:@"%@.png",fileExtention]];
     }
-    downloadProgressButton.hidden = NO;
     [downloadProgressButton setImage:imageToBeShown forState:UIControlStateNormal];
 }
 
--(void) downloadImageAtIndex:(int) index
-{
-    NSDictionary *data = [images objectAtIndex:index];
-    [self updateLabelTextForImage:data];
-    saveButton.hidden = YES;
-    
-    NSString *downloadPath = [self getImagePath:data];
-    
-    switch (viewType) {
-        case DROPBOX:
-        {
-            NSString *filePath = [data objectForKey:FILE_PATH];
-
-            if ([CacheManager fileExistsAtPath:downloadPath]) {
-                NSLog(@"Download completed in queue in Dropbox");
-                saveButton.hidden = NO;
-            } else if (![self.appDelegate.restClient isRequestAlreadyQueued:filePath] &&
-                       ![CacheManager fileExistsAtPath:downloadPath] &&
-                       ![self.appDelegate.restClient requestCount]) {
-                [self.appDelegate.restClient loadFile:filePath
-                                                atRev:[data objectForKey:FILE_REV]
-                                             intoPath:downloadPath];
-                [self updateDownloadProgressButtonImage:data];
-                NSLog(@"Download Started in Dropbox");
-            } else if ([self.appDelegate.restClient requestCount]) {
-                int index = [liveOperations indexOfObject:data];
-                if (index < [liveOperations count]) {
-                    NSLog(@"Download already added in queue in Dropbox");
-                } else {
-                    [liveOperations addObject:data];
-                    NSLog(@"Download added in queue in Dropbox");
-                }
-            } else {
-                NSLog(@"Download already in Progress in Dropbox");
-            }
-        }
-            break;
-        case SKYDRIVE:
-        {
-            if ([liveOperations containsObject:data]) {
-                NSLog(@"Already");
-            } else if (![CacheManager fileExistsAtPath:downloadPath]){
-                [liveOperations addObject:data];
-                NSLog(@"Added");
-                if (!downloadOperation) {
-                    self.downloadOperation = [self.appDelegate.liveClient downloadFromPath:[data objectForKey:FILE_IMAGE_URL] delegate:self userState:downloadPath];
-                    [self updateDownloadProgressButtonImage:data];
-                }
-                NSLog(@"Started");
-            } else if ([CacheManager fileExistsAtPath:downloadPath]) {
-                NSLog(@"Already Downloaded");
-            }
-        }
-            break;
-            
-        default:
-            break;
-    }
-}
 
 
 
@@ -593,9 +584,7 @@ typedef enum ScrollDirection {
                              inScrollView:(CLZoomableImageView *) scrollView
 {
     NSDictionary *image = [images objectAtIndex:index];
-    [self updateLabelTextForImage:image];
     UIImage *imageToBeShown = [self getImageForImageDictionary:image];
-    [downloadProgressButton setImage:imageToBeShown forState:UIControlStateNormal];
     [scrollView setImage:imageToBeShown];
 }
 
@@ -865,25 +854,8 @@ typedef enum ScrollDirection {
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
 {
-//    int index;
-//    switch (scrollDirection) {
-//        case ScrollDirectionLeft:
-//            index = currentDownloadIndex + (viewCount/2);
-//            if (index > [images count] - 1) {
-//                return;
-//            }
-//            break;
-//        case ScrollDirectionRight:
-//            index = currentDownloadIndex - (viewCount/2);
-//            if (index < 0) {
-//                return;
-//            }
-//            break;
-//        default:
-//            break;
-//    }
     [self updateUIForImageDictionaryAtIndex:currentDownloadIndex];
-    [self downloadImageAtIndex:currentDownloadIndex];
+    [self updateDownloadsAtIndex:currentDownloadIndex];
 }
 
 

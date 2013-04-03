@@ -9,7 +9,9 @@
 #import "CLDetailBaseViewController.h"
 
 @interface CLDetailBaseViewController ()
-
+{
+    BOOL isViewAppeared;
+}
 @end
 
 @implementation CLDetailBaseViewController
@@ -30,7 +32,6 @@
     [self setWantsFullScreenLayout:YES];
     [self setHidesBottomBarWhenPushed:YES];
 
-
 }
 
 - (void)didReceiveMemoryWarning
@@ -42,22 +43,23 @@
 -(void) viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-    
-    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleBlackTranslucent animated:YES];
-    self.navigationController.navigationBar.tintColor = [UIColor blackColor];
-    self.navigationController.navigationBar.barStyle = UIBarStyleBlackTranslucent;
-    [self.navigationController.navigationBar setTranslucent:YES];
-    
-    
-    
-    originalViewRect = self.appDelegate.window.rootViewController.view.frame;
-    self.appDelegate.window.rootViewController.view.frame = self.appDelegate.window.bounds;
-    self.navigationController.view.frame = self.appDelegate.window.rootViewController.view.bounds;
-    self.view.frame = self.navigationController.view.bounds;
-    
-    CGRect rect = self.navigationController.navigationBar.frame;
-    rect.origin.y = CGRectGetMaxY([[UIApplication sharedApplication] statusBarFrame]);
-    self.navigationController.navigationBar.frame = rect;
+    if (!isViewAppeared) {
+        [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleBlackTranslucent animated:YES];
+        self.navigationController.navigationBar.tintColor = [UIColor blackColor];
+        self.navigationController.navigationBar.barStyle = UIBarStyleBlackTranslucent;
+        [self.navigationController.navigationBar setTranslucent:YES];
+        
+        originalViewRect = self.appDelegate.window.rootViewController.view.frame;
+        self.appDelegate.window.rootViewController.view.frame = self.appDelegate.window.bounds;
+        self.navigationController.view.frame = self.appDelegate.window.rootViewController.view.bounds;
+        self.view.frame = self.navigationController.view.bounds;
+        
+        CGRect rect = self.navigationController.navigationBar.frame;
+        rect.origin.y = CGRectGetMaxY([[UIApplication sharedApplication] statusBarFrame]);
+        self.navigationController.navigationBar.frame = rect;
+        
+        isViewAppeared = YES;
+    }
 }
 
 
@@ -65,9 +67,9 @@
 {
     [super viewWillDisappear:animated];
     
+
 //    [CLCacheManager deleteAllContentsOfFolderAtPath:[CLCacheManager getTemporaryDirectory]]; //Clearing Cache will be in Settings
     
-
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
     self.navigationController.navigationBar.tintColor = NAVBAR_COLOR;
     self.navigationController.navigationBar.barStyle = UIBarStyleDefault;

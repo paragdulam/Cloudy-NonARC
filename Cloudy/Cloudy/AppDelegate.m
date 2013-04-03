@@ -402,7 +402,7 @@
                    destPath:(NSString *) path
                 ForViewType:(VIEW_TYPE) type
 {
-    NSString *uploadsFolderPath = [CLCacheManager getUploadsFolderPath];
+    NSString *uploadsFolderPath = [CacheManager getUploadsFolderPath];
     NSArray *cachedUploads = [NSArray arrayWithContentsOfFile:[NSString stringWithFormat:@"%@/Uploads.plist",uploadsFolderPath]];
     NSMutableArray *images = [[NSMutableArray alloc] init];
     for (id obj in cachedUploads) {

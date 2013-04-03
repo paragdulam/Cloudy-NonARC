@@ -16,6 +16,7 @@
     NSURL *fileURL;
     UIBarButtonItem *exportBarButton;
     UIDocumentInteractionController *interactionController;
+    UILabel *percentageLabel;
 }
 
 
@@ -64,15 +65,16 @@
 
 -(void) downloadFile
 {
+    NSString *downloadPath = [NSString stringWithFormat:@"%@/%@",[sharedManager getTempPath:viewType],[file objectForKey:FILE_ID]];
     switch (viewType) {
         case DROPBOX:
-            [self.appDelegate.restClient loadFile:[file objectForKey:@"path"]
-                                            atRev:[file objectForKey:@"rev"]
-                                         intoPath:[NSString stringWithFormat:@"%@%@",[CLCacheManager getTemporaryDirectory],[file objectForKey:@"filename"]]];
+            [self.appDelegate.restClient loadFile:[file objectForKey:FILE_PATH]
+                                            atRev:[file objectForKey:FILE_REV]
+                                         intoPath:downloadPath];
             break;
         case SKYDRIVE:
-            downloadOperation = [[self.appDelegate.liveClient downloadFromPath:[file objectForKey:@"source"]
-                                                                      delegate:self userState:[file objectForKey:@"name"]] retain] ;
+            downloadOperation = [[self.appDelegate.liveClient downloadFromPath:[file objectForKey:FILE_URL]
+                                                                      delegate:self userState:downloadPath] retain] ;
             break;
         case BOX:
             [self.appDelegate.boxClient loadDataForFileId:[file objectForKey:@"id"]
@@ -125,6 +127,15 @@
 -(void) createToolBarItems
 {
     NSMutableArray *items = [[NSMutableArray alloc] init];
+    percentageLabel = [[UILabel alloc] init];
+    [percentageLabel setFont:[UIFont boldSystemFontOfSize:14.f]];
+    percentageLabel.textColor = [UIColor whiteColor];
+    percentageLabel.backgroundColor = [UIColor clearColor];
+    UIBarButtonItem *labelBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:percentageLabel];
+    [percentageLabel release];
+    [items addObject:labelBarButtonItem];
+    [labelBarButtonItem release];
+    
     UIBarButtonItem *flexiSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
     [items addObject:flexiSpace];
     [flexiSpace release];
@@ -259,6 +270,8 @@
 -(void) restClient:(DBRestClient *)client loadProgress:(CGFloat)progress forFile:(NSString *)destPath
 {
     progressView.progress = progress;
+    percentageLabel.text = [NSString stringWithFormat:@"%.2f %%",progress * 100];
+    [percentageLabel sizeToFit];
 }
 
 
@@ -267,7 +280,7 @@
 
 - (void) liveOperationSucceeded:(LiveDownloadOperation *)operation
 {
-    NSString *filePath = [NSString stringWithFormat:@"%@%@",[CLCacheManager getTemporaryDirectory],operation.userState];
+    NSString *filePath = operation.userState;
     [operation.data writeToFile:filePath
                      atomically:YES];
     [self loadInWebViewURL:[NSURL fileURLWithPath:filePath]];
@@ -286,6 +299,8 @@
                                operation:(LiveDownloadOperation *)operation
 {
     progressView.progress = progress.progressPercentage;
+    percentageLabel.text = [NSString stringWithFormat:@"%.2f %%",progress.progressPercentage * 100];
+    [percentageLabel sizeToFit];
 }
 
 

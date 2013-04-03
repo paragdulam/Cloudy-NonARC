@@ -343,7 +343,9 @@
                     [self.navigationController pushViewController:imageGalleryViewController animated:YES];
                     [imageGalleryViewController release];
                 } else {
-                    
+                    CLFileDetailViewController *detailViewController = [[CLFileDetailViewController alloc] initWithFile:selectedFile WithinViewType:viewType];
+                    [self.navigationController pushViewController:detailViewController animated:YES];
+                    [detailViewController release];
                 }
             }
                 break;
@@ -538,7 +540,8 @@
 
 -(void) loadThumbnailForMetadata:(NSDictionary *) dictionary
 {
-    NSArray *contents = [dictionary objectForKey:FILE_CONTENTS];
+    NSDictionary *copiedData = [dictionary copy];
+    NSArray *contents = [copiedData objectForKey:FILE_CONTENTS];
     for (NSDictionary *data in contents) {
         if ([[data objectForKey:FILE_THUMBNAIL] boolValue]) {
             NSString *thumbPath = nil;
@@ -568,6 +571,7 @@
             }
         }
     }
+    [copiedData release];
 }
 
 

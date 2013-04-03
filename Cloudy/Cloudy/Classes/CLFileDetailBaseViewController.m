@@ -46,10 +46,10 @@
     NSString *titleString = nil;
     switch (viewType) {
         case DROPBOX:
-            titleString = [file objectForKey:@"filename"];
+            titleString = [file objectForKey:FILE_NAME];
             break;
         case SKYDRIVE:
-            titleString = [file objectForKey:@"name"];
+            titleString = [file objectForKey:FILE_NAME];
             break;
         case BOX:
             titleString = [file objectForKey:@"file_name"];

@@ -701,8 +701,16 @@
     //create thumbnails folder in that
     //create favourites Folder in that
     //create temporary downloads in that
+    //create uploads folder
     [CacheManager createFoldersForString:DROPBOX_STRING];
     [CacheManager createFoldersForString:SKYDRIVE_STRING];
+    [CacheManager createFolderAtPath:[CacheManager getUploadsFolderPath]];
+}
+
+
++(NSString *) getUploadsFolderPath
+{
+    return [NSString stringWithFormat:@"%@/%@",[CacheManager getSystemDirectoryPath:NSLibraryDirectory],UPLOAD_STRING];
 }
 
 -(NSString *) getRootStringForViewType:(VIEW_TYPE) type //VIEW_TYPE DEPENDANT
