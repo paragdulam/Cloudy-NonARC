@@ -361,6 +361,21 @@
     BOOL success = [sharedManager deleteAccount:[sharedManager accountOfType:indexPath.section]];
     [sharedManager deleteMetadata:indexPath.section];
     [CacheManager loggedOut:indexPath.section];
+    
+    //Uploads Removal
+    NSMutableArray *uploadsToBeRemoved = [[NSMutableArray alloc] init];
+    for (NSDictionary *upload in self.appDelegate.uploads) {
+        if ([[upload objectForKey:TYPE] integerValue] == indexPath.section) {
+            [uploadsToBeRemoved addObject:upload];
+        }
+    }
+    [self.appDelegate removeUploads:uploadsToBeRemoved ForViewType:indexPath.section];
+    [uploadsToBeRemoved release];
+    
+    [self.appDelegate updateUploads:nil
+                       FolderAtPath:nil
+                        ForViewType:INFINITY];
+    
     //delete all temp data
     //remove all uploads
     

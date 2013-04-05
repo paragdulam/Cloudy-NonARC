@@ -82,7 +82,7 @@
 {
     [super viewDidLoad];
     
-    UIWebView *aWebView = [[UIWebView alloc] initWithFrame:self.view.bounds];
+    UIWebView *aWebView = [[UIWebView alloc] initWithFrame:self.view.frame];
     self.webView = aWebView;
     [aWebView release];
     

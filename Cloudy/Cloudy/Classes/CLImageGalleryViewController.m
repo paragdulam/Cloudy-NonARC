@@ -368,7 +368,9 @@ typedef enum ScrollDirection {
 {
     [self downloadCompletionHandler];
     [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
-    [AppDelegate showError:error alertOnView:self.view];
+    [AppDelegate showMessage:[error localizedDescription]
+                   withColor:[UIColor redColor]
+                 alertOnView:self.view];
 }
 
 - (void) liveDownloadOperationProgressed:(LiveOperationProgress *)progress
@@ -402,7 +404,7 @@ typedef enum ScrollDirection {
                                                  intoPath:downloadPath];
                     break;
                 case SKYDRIVE:
-                    [self.appDelegate.liveClient downloadFromPath:[data objectForKey:FILE_ID]
+                    [self.appDelegate.liveClient downloadFromPath:[data objectForKey:FILE_IMAGE_URL]
                                                          delegate:self
                                                         userState:downloadPath];
                     break;
@@ -856,6 +858,9 @@ typedef enum ScrollDirection {
 {
     [self updateUIForImageDictionaryAtIndex:currentDownloadIndex];
     [self updateDownloadsAtIndex:currentDownloadIndex];
+    if ([liveOperations count] == 1) {
+        [self downloadNextImage];
+    }
 }
 
 

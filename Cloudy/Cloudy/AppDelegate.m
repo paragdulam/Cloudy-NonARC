@@ -376,7 +376,7 @@
 
 -(void) removeUploads:(NSArray *) uploadsToBeRemoved ForViewType:(VIEW_TYPE) type
 {
-    NSString *uploadsFolderPath = [CLCacheManager getUploadsFolderPath];
+    NSString *uploadsFolderPath = [CacheManager getUploadsFolderPath];
     NSString *uploadsPath = [NSString stringWithFormat:@"%@/Uploads.plist",uploadsFolderPath];
     switch (type) {
         case DROPBOX:
@@ -405,6 +405,7 @@
     NSString *uploadsFolderPath = [CacheManager getUploadsFolderPath];
     NSArray *cachedUploads = [NSArray arrayWithContentsOfFile:[NSString stringWithFormat:@"%@/Uploads.plist",uploadsFolderPath]];
     NSMutableArray *images = [[NSMutableArray alloc] init];
+    
     for (id obj in cachedUploads) {
         if ([obj isKindOfClass:[NSDictionary class]]) {
             [images addObject:obj];
@@ -419,7 +420,7 @@
             NSURL *url = [properties objectForKey:@"public.jpeg"];
             UIImage *assetThumnail = [UIImage imageWithCGImage:[asset thumbnail]];
             NSString *fileName = [assetRepresentation filename];
-            NSString *filePath = [NSString stringWithFormat:@"%@/%@",[CLCacheManager getUploadsFolderPath],fileName];
+            NSString *filePath = [NSString stringWithFormat:@"%@/%@",[CacheManager getUploadsFolderPath],fileName];
             NSData *imageThumbnailData = UIImageJPEGRepresentation(assetThumnail, 0);
             NSDictionary *imageToBeUploaded = [NSDictionary dictionaryWithObjectsAndKeys:fileName,NAME,
                                                filePath,FROMPATH,
@@ -462,8 +463,8 @@
                            UIImage *assetImage = [UIImage imageWithCGImage:[assetRepresentation CGImageWithOptions:nil]
                                                                      scale:[assetRepresentation scale]
                                                                orientation:[assetRepresentation orientation]];
-                           NSData *imageData = UIImageJPEGRepresentation(assetImage, 1);
-                           if (![CLCacheManager fileExistsAtPath:fromPath]) {
+                           NSData *imageData = UIImageJPEGRepresentation(assetImage, 0);
+                           if (![CacheManager fileExistsAtPath:fromPath]) {
                                [imageData writeToFile:fromPath atomically:YES];
                            }
                            switch (type) {
@@ -539,10 +540,6 @@
          FolderAtPath:(NSString *)path
           ForViewType:(VIEW_TYPE) type
 {
-//    UIApplication *app = [UIApplication sharedApplication];
-//    self.backgroundTaskIdentifier = [app beginBackgroundTaskWithExpirationHandler:^{
-//        [app endBackgroundTask:backgroundTaskIdentifier];
-//    }];
     [self updateUploadsFolder:info destPath:path ForViewType:type];
     if ([uploads count]) {
         NSDictionary *imageToBeUploaded = [uploads objectAtIndex:0];
@@ -564,9 +561,9 @@
     if ([uploads count]) {
         NSDictionary *imageToBeUploaded = [uploads objectAtIndex:0];
         [self uploadDictionary:imageToBeUploaded];
-        [uploads writeToFile:[NSString stringWithFormat:@"%@/Uploads.plist",[CLCacheManager getUploadsFolderPath]] atomically:YES];
+        [uploads writeToFile:[NSString stringWithFormat:@"%@/Uploads.plist",[CacheManager getUploadsFolderPath]] atomically:YES];
     } else {
-        [CLCacheManager deleteFileAtPath:[NSString stringWithFormat:@"%@/Uploads.plist",[CLCacheManager getUploadsFolderPath]]];
+        [CLCacheManager deleteFileAtPath:[NSString stringWithFormat:@"%@/Uploads.plist",[CacheManager getUploadsFolderPath]]];
         uploadProgressButton.hidden = YES;
     }
     [self.uploadsViewController removeFirstRowWithAnimation];
@@ -630,10 +627,10 @@
 
 -(void) liveOperationSucceeded:(LiveOperation *)operation
 {
-    [CLCacheManager insertFile:operation.result
-        whereTraversingPointer:nil
-               inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:SKYDRIVE]
-                   ForViewType:SKYDRIVE];
+//    [CLCacheManager insertFile:operation.result
+//        whereTraversingPointer:nil
+//               inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:SKYDRIVE]
+//                   ForViewType:SKYDRIVE];
     [self uploadCompletionHandler:YES];
 }
 
@@ -652,11 +649,11 @@
               from:(NSString*)srcPath
           metadata:(DBMetadata*)metadata
 {
-    NSDictionary *metadataDictionary = [CLDictionaryConvertor dictionaryFromMetadata:metadata];
-    [CLCacheManager insertFile:metadataDictionary
-        whereTraversingPointer:nil
-               inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:SKYDRIVE]
-                   ForViewType:SKYDRIVE];
+//    NSDictionary *metadataDictionary = [CLDictionaryConvertor dictionaryFromMetadata:metadata];
+//    [CLCacheManager insertFile:metadataDictionary
+//        whereTraversingPointer:nil
+//               inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:SKYDRIVE]
+//                   ForViewType:SKYDRIVE];
     [self uploadCompletionHandler:YES];
 }
 
