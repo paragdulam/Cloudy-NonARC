@@ -334,9 +334,9 @@
                                                      forKey:@"size"];
                         
                         [CacheManager setObjectInDictionary:retVal
-                                                     forKey:FILE_URL
+                                                     forKey:FILE_SOURCE_URL
                                              FromDictionary:dictionary
-                                                     forKey:@"link"];
+                                                     forKey:@"source"];
 
                         
                         if ([[dictionary objectForKey:@"type"] isEqualToString:@"folder"] || [[dictionary objectForKey:@"type"] isEqualToString:@"album"]) {

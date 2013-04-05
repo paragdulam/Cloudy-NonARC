@@ -65,7 +65,7 @@
 
 -(void) downloadFile
 {
-    NSString *downloadPath = [NSString stringWithFormat:@"%@/%@",[sharedManager getTempPath:viewType],[file objectForKey:FILE_ID]];
+    NSString *downloadPath = [NSString stringWithFormat:@"%@/%@.%@",[sharedManager getTempPath:viewType],[file objectForKey:FILE_ID],[[[file objectForKey:FILE_NAME] componentsSeparatedByString:@"."] lastObject]];
     switch (viewType) {
         case DROPBOX:
             [self.appDelegate.restClient loadFile:[file objectForKey:FILE_PATH]
@@ -73,7 +73,7 @@
                                          intoPath:downloadPath];
             break;
         case SKYDRIVE:
-            downloadOperation = [[self.appDelegate.liveClient downloadFromPath:[file objectForKey:FILE_URL]
+            downloadOperation = [[self.appDelegate.liveClient downloadFromPath:[file objectForKey:FILE_SOURCE_URL]
                                                                       delegate:self userState:downloadPath] retain] ;
             break;
         case BOX:

@@ -879,6 +879,8 @@
     NSString *titleText = [currentFileData objectForKey:FILE_NAME];
     if ([titleText length]) {
         [self.navigationItem setTitle:[titleText isEqualToString:ROOT_DROPBOX_PATH] ? [sharedManager getRootStringForViewType:viewType] : titleText];
+    } else {
+        [self.navigationItem setTitle:[sharedManager getRootStringForViewType:viewType]];
     }
     NSArray *contents = [currentFileData objectForKey:FILE_CONTENTS];
     [self updateModel:contents];
