@@ -685,7 +685,14 @@ loadedSharableLink:(NSString *)link
 
 -(void) removeSelectedRow:(NSDictionary *) file
 {
-    int index = [tableDataArray indexOfObject:file];
+    __block int index = INVALID_INDEX;
+    [tableDataArray enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        NSDictionary *data = (NSDictionary *)obj;
+        if ([[data objectForKey:FILE_ID] isEqualToString:[file objectForKey:FILE_ID]]) {
+            index = idx;
+            *stop = YES;
+        }
+    }];
     [tableDataArray removeObjectAtIndex:index];
     NSIndexPath *indexPath = [NSIndexPath indexPathForRow:index
                                                 inSection:0];

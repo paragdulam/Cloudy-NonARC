@@ -82,7 +82,10 @@
 {
     [super viewDidLoad];
     
-    UIWebView *aWebView = [[UIWebView alloc] initWithFrame:self.view.frame];
+    CGRect frame = self.view.bounds;
+    frame.size.height -= self.navigationController.navigationBar.frame.size.height;
+    
+    UIWebView *aWebView = [[UIWebView alloc] initWithFrame:frame];
     self.webView = aWebView;
     [aWebView release];
     

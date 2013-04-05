@@ -424,10 +424,10 @@ typedef enum ScrollDirection {
 {
     NSDictionary *data = [images objectAtIndex:index];
     NSString *downloadPath = [NSString stringWithFormat:@"%@/%@",[sharedManager getTempPath:viewType],[data objectForKey:FILE_ID]];
+    saveButton.hidden = YES;
     if (![liveOperations containsObject:data] &&
         ![CacheManager fileExistsAtPath:downloadPath]) {
         [liveOperations addObject:data];
-        saveButton.hidden = YES;
         NSLog(@"Name %@",[data objectForKey:FILE_NAME]);
     } else if ([CacheManager fileExistsAtPath:downloadPath]) {
         saveButton.hidden = NO;
@@ -856,7 +856,8 @@ typedef enum ScrollDirection {
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
 {
-    [self updateUIForImageDictionaryAtIndex:currentDownloadIndex];
+//    [self updateUIForImageDictionaryAtIndex:currentDownloadIndex];
+    [self showImage];
     [self updateDownloadsAtIndex:currentDownloadIndex];
     if ([liveOperations count] == 1) {
         [self downloadNextImage];

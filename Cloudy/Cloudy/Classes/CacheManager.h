@@ -55,5 +55,6 @@
 +(void) loggedOut:(VIEW_TYPE) type;
 +(void) deleteAllContentsOfFolderAtPath:(NSString *) path;
 +(NSString *) getUploadsFolderPath;
+-(NSString *) getRootStringForViewType:(VIEW_TYPE) type;
 
 @end

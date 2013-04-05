@@ -878,7 +878,7 @@
     self.currentFileData = [NSMutableDictionary dictionaryWithDictionary:cachedMetadata];
     NSString *titleText = [currentFileData objectForKey:FILE_NAME];
     if ([titleText length]) {
-        [self.navigationItem setTitle:[titleText isEqualToString:ROOT_DROPBOX_PATH] ? DROPBOX_STRING : titleText];
+        [self.navigationItem setTitle:[titleText isEqualToString:ROOT_DROPBOX_PATH] ? [sharedManager getRootStringForViewType:viewType] : titleText];
     }
     NSArray *contents = [currentFileData objectForKey:FILE_CONTENTS];
     [self updateModel:contents];
