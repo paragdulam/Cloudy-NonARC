@@ -497,7 +497,9 @@
 
 - (void)restClient:(DBRestClient*)client loadAccountInfoFailedWithError:(NSError*)error
 {
-    [AppDelegate showMessage:[[error userInfo] objectForKey:@"error"]
+    self.animatingIndexPath = nil;
+    [self updateView];
+    [AppDelegate showMessage:[error localizedDescription]
                    withColor:[UIColor redColor]
                  alertOnView:self.view];
 }
@@ -603,9 +605,11 @@
 - (void) liveOperationFailed:(NSError *)error
                    operation:(LiveOperation*)operation
 {
-    [AppDelegate showMessage:[error.userInfo objectForKey:@"error_description"]
+    [AppDelegate showMessage:[error localizedDescription]
                    withColor:[UIColor redColor]
                  alertOnView:self.view];
+    self.animatingIndexPath = nil;
+    [self updateView];
 }
 
 

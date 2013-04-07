@@ -532,7 +532,7 @@
         [liveOperations removeObject:operation];
     }
    [self stopAnimating];
-   [AppDelegate showMessage:[error.userInfo objectForKey:@"error_description"]
+   [AppDelegate showMessage:[error localizedDescription]
                   withColor:[UIColor redColor]
                 alertOnView:self.view];
 }
@@ -676,7 +676,10 @@
 
 -(void) restClient:(DBRestClient *)client loadMetadataFailedWithError:(NSError *)error
 {
-    
+    [self stopAnimating];
+    [AppDelegate showMessage:[error localizedDescription]
+                   withColor:[UIColor redColor]
+                 alertOnView:self.view];
 }
 
 #pragma mark - Helper Methods
