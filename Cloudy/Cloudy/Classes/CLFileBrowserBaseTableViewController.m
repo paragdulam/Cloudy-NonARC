@@ -24,7 +24,6 @@
     
     NSArray *createFoldertoolBarItems;
     DDPopoverBackgroundView *popOverView;
-    
 }
 
 -(NSArray *) getCachedTableDataArrayForViewType:(VIEW_TYPE) type;
@@ -130,6 +129,12 @@
 
 -(void) dealloc
 {
+    if ([liveOperations count]) {
+        for (LiveOperation *operation in liveOperations) {
+            [operation cancel];
+        }
+    }
+    
     [currentFileData release];
     currentFileData = nil;
     
@@ -145,11 +150,6 @@
     [[NSNotificationCenter defaultCenter] removeObserver:self
                                                     name:UIKeyboardWillShowNotification
                                                   object:nil];
-
-    
-    for (LiveOperation *operation in liveOperations) {
-        [operation cancel];
-    }
     
     [createFoldertoolBarItems release];
     createFoldertoolBarItems = nil;
@@ -486,7 +486,8 @@
     if ([operation.userState isKindOfClass:[NSString class]]) {
         if ([operation.userState isEqualToString:path]) {
             NSDictionary *compatibleMetaData = [self getCompatibleDictionary:operation.result ForDataType:DATA_METADATA];
-            if (![[compatibleMetaData objectForKey:FILE_LAST_UPDATED_TIME] isEqualToString:[currentFileData objectForKey:FILE_LAST_UPDATED_TIME]] || ![[currentFileData objectForKey:FILE_CONTENTS] count]) {
+            if (![[compatibleMetaData objectForKey:FILE_LAST_UPDATED_TIME] isEqualToString:[currentFileData objectForKey:FILE_LAST_UPDATED_TIME]] ||
+                ![[currentFileData objectForKey:FILE_CONTENTS] count]) {
                 NSString *pathStr = [NSString stringWithFormat:@"%@/files",operation.userState];
                 [liveOperations addObject:[self.appDelegate.liveClient getWithPath:pathStr delegate:self userState:compatibleMetaData]];
             } else {
@@ -527,8 +528,10 @@
 -(void) liveOperationFailed:(NSError *)error
                   operation:(LiveOperation *)operation
 {
-    [liveOperations removeObject:operation];
-    [self stopAnimating];
+    if (![[error.userInfo objectForKey:@"error"] isEqualToString:@"request_canceled"]) {
+        [liveOperations removeObject:operation];
+    }
+   [self stopAnimating];
    [AppDelegate showMessage:[error.userInfo objectForKey:@"error_description"]
                   withColor:[UIColor redColor]
                 alertOnView:self.view];
@@ -564,7 +567,10 @@
                                               intoPath:thumbPath];
                         break;
                     case SKYDRIVE:
-                        [liveOperations addObject:[self.appDelegate.liveClient downloadFromPath:[data objectForKey:FILE_THUMBNAIL_URL] delegate:self userState:data]];
+                    {
+                        LiveDownloadOperation *downloadOperation = [self.appDelegate.liveClient downloadFromPath:[data objectForKey:FILE_THUMBNAIL_URL] delegate:self userState:data];
+                        [liveOperations addObject:downloadOperation];
+                    }
                     default:
                         break;
                 }
@@ -907,6 +913,16 @@
 
 #pragma mark - Unused Methods
 
+
+-(NSDictionary *) readCachedFileStructure
+{
+    return [CLCacheManager metaDataForPath:path
+                    whereTraversingPointer:nil
+                       WithinFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
+                                   ForView:viewType];
+}
+
+
 -(NSString *) readCachedHash
 {
     return [[self readCachedFileStructure] objectForKey:@"hash"];
@@ -934,13 +950,6 @@
 }
 
 
--(NSDictionary *) readCachedFileStructure
-{
-    return [CLCacheManager metaDataForPath:path
-                    whereTraversingPointer:nil
-                       WithinFileStructure:[CLCacheManager makeFileStructureMutableForViewType:viewType]
-                                   ForView:viewType];
-}
 
 
 -(void) createPopOverViewForUploads

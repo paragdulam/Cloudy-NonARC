@@ -12,6 +12,7 @@
 {
     UIButton *selectButton;
     UIButton *toolBarButton;
+    UILabel *selectPathLabel;
 }
 
 -(void) completeToolbarItems;
@@ -64,7 +65,7 @@
     tableFrame.size.height = self.view.frame.size.height - navBarFrame.size.height ;
     dataTableView.frame = tableFrame;
     
-    UILabel *selectPathLabel = [[UILabel alloc] init];
+    selectPathLabel = [[UILabel alloc] init];
     selectPathLabel.backgroundColor = [UIColor clearColor];
     selectPathLabel.textColor = [UIColor whiteColor];
     selectPathLabel.font = [UIFont systemFontOfSize:14.f];
@@ -80,6 +81,13 @@
 -(void) viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
+}
+
+
+-(void) viewWillDisappear:(BOOL)animated
+{
+    [selectPathLabel removeFromSuperview];
+    [super viewWillDisappear:animated];
 }
 
 - (void)didReceiveMemoryWarning

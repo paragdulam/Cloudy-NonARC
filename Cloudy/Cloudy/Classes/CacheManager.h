@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import "CLConstants.h"
-
+//#import "LiveConnectClient.h"
 
 
 @interface CacheManager : NSObject

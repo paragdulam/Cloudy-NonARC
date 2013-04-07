@@ -81,9 +81,14 @@
     return self;
 }
 
+
+
+
+
 - (void)dealloc 
 {
-    _delegate = nil; //added By Parag
+//    _delegate = nil; //added By Parag
+    
     [_method release];
     [_path release];
     [_requestBody release];

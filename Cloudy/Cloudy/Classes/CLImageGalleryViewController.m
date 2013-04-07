@@ -856,8 +856,8 @@ typedef enum ScrollDirection {
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
 {
-//    [self updateUIForImageDictionaryAtIndex:currentDownloadIndex];
-    [self showImage];
+    [self updateUIForImageDictionaryAtIndex:currentDownloadIndex];
+//    [self showImage];
     [self updateDownloadsAtIndex:currentDownloadIndex];
     if ([liveOperations count] == 1) {
         [self downloadNextImage];

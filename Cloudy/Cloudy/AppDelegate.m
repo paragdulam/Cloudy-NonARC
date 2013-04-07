@@ -392,9 +392,10 @@
     if ([uploads count]) {
         [uploads writeToFile:uploadsPath atomically:YES];
     } else {
-        [CLCacheManager deleteFileAtPath:uploadsPath];
+        [CacheManager deleteFileAtPath:uploadsPath];
         uploadProgressButton.hidden = YES;
     }
+    [[UIApplication sharedApplication] setApplicationIconBadgeNumber:[uploads count]];
 }
 
 
@@ -507,8 +508,8 @@
         switch (type) {
             case DROPBOX:
             {
-                fromPath = [NSString stringWithFormat:@"%@/%@",[CLCacheManager getUploadsFolderPath],fileName];
-                if (![CLCacheManager fileExistsAtPath:fromPath]) {
+                fromPath = [NSString stringWithFormat:@"%@/%@",[CacheManager getUploadsFolderPath],fileName];
+                if (![CacheManager fileExistsAtPath:fromPath]) {
                     [fileData writeToFile:fromPath atomically:YES];
                 }
                 [self.restClient uploadFile:fileName
@@ -553,7 +554,7 @@
 //    NSLog(@"backgroundTimeRemaining: %f", ti); // just for debug
     if ([uploads count]) {
         NSDictionary *uploadedImage = [uploads objectAtIndex:0];
-        [CLCacheManager deleteFileAtPath:[uploadedImage objectForKey:@"FROMPATH"]];
+        [CacheManager deleteFileAtPath:[uploadedImage objectForKey:@"FROMPATH"]];
         if (!remove) [uploads addObject:[uploads objectAtIndex:0]];
         [uploads removeObjectAtIndex:0];
     }
@@ -563,7 +564,7 @@
         [self uploadDictionary:imageToBeUploaded];
         [uploads writeToFile:[NSString stringWithFormat:@"%@/Uploads.plist",[CacheManager getUploadsFolderPath]] atomically:YES];
     } else {
-        [CLCacheManager deleteFileAtPath:[NSString stringWithFormat:@"%@/Uploads.plist",[CacheManager getUploadsFolderPath]]];
+        [CacheManager deleteFileAtPath:[NSString stringWithFormat:@"%@/Uploads.plist",[CacheManager getUploadsFolderPath]]];
         uploadProgressButton.hidden = YES;
     }
     [self.uploadsViewController removeFirstRowWithAnimation];
@@ -589,7 +590,8 @@
 
 #pragma mark - CLPathSelectionViewControllerDelegate
 
--(void) pathDidSelect:(NSString *) pathString ForViewController:(CLPathSelectionViewController *) viewController
+-(void) pathDidSelect:(NSString *) pathString
+    ForViewController:(CLPathSelectionViewController *) viewController
 {
     NSLog(@"path %@ Appdelegate",pathString);
     NSString *fileName = [[[externalFileURL absoluteString] componentsSeparatedByString:@"/"] lastObject];
@@ -627,10 +629,6 @@
 
 -(void) liveOperationSucceeded:(LiveOperation *)operation
 {
-//    [CLCacheManager insertFile:operation.result
-//        whereTraversingPointer:nil
-//               inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:SKYDRIVE]
-//                   ForViewType:SKYDRIVE];
     [self uploadCompletionHandler:YES];
 }
 
@@ -649,11 +647,6 @@
               from:(NSString*)srcPath
           metadata:(DBMetadata*)metadata
 {
-//    NSDictionary *metadataDictionary = [CLDictionaryConvertor dictionaryFromMetadata:metadata];
-//    [CLCacheManager insertFile:metadataDictionary
-//        whereTraversingPointer:nil
-//               inFileStructure:[CLCacheManager makeFileStructureMutableForViewType:SKYDRIVE]
-//                   ForViewType:SKYDRIVE];
     [self uploadCompletionHandler:YES];
 }
 

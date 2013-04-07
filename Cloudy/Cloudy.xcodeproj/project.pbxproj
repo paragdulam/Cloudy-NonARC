@@ -1477,8 +1477,8 @@
 		F14E019516785BE2005411EA /* Testflight */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "iPhone Distribution: Parag Dulam";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Parag Dulam";
+				CODE_SIGN_IDENTITY = "iPhone Developer: Parag Dulam (NLA62T2KBR)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Parag Dulam (NLA62T2KBR)";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)\"",
@@ -1493,8 +1493,8 @@
 					"-all_load",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "FC51FBFF-7E77-4976-8894-86D3F84EBBEB";
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "FC51FBFF-7E77-4976-8894-86D3F84EBBEB";
+				PROVISIONING_PROFILE = "655FFA5C-326F-4106-8B11-9A46BCFF1BE9";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "655FFA5C-326F-4106-8B11-9A46BCFF1BE9";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Testflight;
@@ -1550,8 +1550,8 @@
 		F194DB2B164A64BC00631792 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "iPhone Distribution: Parag Dulam";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Parag Dulam";
+				CODE_SIGN_IDENTITY = "iPhone Developer: Parag Dulam (NLA62T2KBR)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Parag Dulam (NLA62T2KBR)";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)\"",
@@ -1566,8 +1566,8 @@
 					"-all_load",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "FC51FBFF-7E77-4976-8894-86D3F84EBBEB";
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "FC51FBFF-7E77-4976-8894-86D3F84EBBEB";
+				PROVISIONING_PROFILE = "655FFA5C-326F-4106-8B11-9A46BCFF1BE9";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "655FFA5C-326F-4106-8B11-9A46BCFF1BE9";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -1575,8 +1575,8 @@
 		F194DB2C164A64BC00631792 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "iPhone Distribution: Parag Dulam";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Parag Dulam";
+				CODE_SIGN_IDENTITY = "iPhone Developer: Parag Dulam (NLA62T2KBR)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Parag Dulam (NLA62T2KBR)";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)\"",
@@ -1591,8 +1591,8 @@
 					"-all_load",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "FC51FBFF-7E77-4976-8894-86D3F84EBBEB";
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "FC51FBFF-7E77-4976-8894-86D3F84EBBEB";
+				PROVISIONING_PROFILE = "655FFA5C-326F-4106-8B11-9A46BCFF1BE9";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "655FFA5C-326F-4106-8B11-9A46BCFF1BE9";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;

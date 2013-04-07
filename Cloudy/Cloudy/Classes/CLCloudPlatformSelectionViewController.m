@@ -97,7 +97,9 @@
                 path = ROOT_DROPBOX_PATH;
                 break;
             case SKYDRIVE:
-                path = ROOT_SKYDRIVE_PATH;
+            {
+                path = [NSString stringWithFormat:@"folder.%@",[[sharedManager accountOfType:indexPath.section] objectForKey:ID]];
+            }
                 break;
             default:
                 break;

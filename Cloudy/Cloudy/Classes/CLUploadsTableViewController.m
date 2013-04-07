@@ -170,7 +170,9 @@
 commitEditingStyle:(UITableViewCellEditingStyle)editingStyle
  forRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    [self.appDelegate removeUploads:[NSArray arrayWithObject:[tableDataArray objectAtIndex:indexPath.row]]];
+    NSDictionary *data = [tableDataArray objectAtIndex:indexPath.row];
+    [self.appDelegate removeUploads:[NSArray arrayWithObject:data]
+                        ForViewType:[[data objectForKey:TYPE] intValue]];
     [tableDataArray removeObjectAtIndex:indexPath.row];
     [dataTableView beginUpdates];
     [dataTableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath]

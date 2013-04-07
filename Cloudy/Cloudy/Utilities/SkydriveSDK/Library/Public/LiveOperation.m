@@ -25,9 +25,10 @@
 
 - (void)dealloc 
 {
-    liveOpCore.publicOperation = nil;
-    liveOpCore.delegate = nil; //added By Parag
+//    liveOpCore.publicOperation = nil;
+//    liveOpCore.delegate = nil; //added By Parag
     [liveOpCore release];
+    liveOpCore = nil;
     
     [super dealloc];
 }

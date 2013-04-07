@@ -832,4 +832,18 @@
 
 
 
+
+//#pragma mark - LiveOperationDelegate
+//
+//
+//-(void) liveOperationSucceeded:(LiveOperation *)operation
+//{
+//    
+//}
+//
+//-(void) liveOperationFailed:(NSError *)error operation:(LiveOperation *)operation
+//{
+//    
+//}
+
 @end
