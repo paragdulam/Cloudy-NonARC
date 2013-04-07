@@ -723,6 +723,7 @@
             return SKYDRIVE_STRING;
             break;
         default:
+            return @"OverClouded";
             break;
     }
     return nil;
