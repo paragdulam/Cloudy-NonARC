@@ -215,12 +215,12 @@ typedef enum ScrollDirection {
 //    [swipeGesture release];
 
     
-    dispatch_async(dispatch_get_main_queue(), ^{
+//    dispatch_async(dispatch_get_main_queue(), ^{
         [self createImageViews];
         [self updateDownloadsAtIndex:currentDownloadIndex];
         [self updateUIForImageDictionaryAtIndex:currentDownloadIndex];
         [self downloadNextImage];
-    });
+//    });
 }
 
 
@@ -234,8 +234,8 @@ typedef enum ScrollDirection {
 
 -(void) viewWillDisappear:(BOOL)animated
 {
-    [CacheManager deleteAllContentsOfFolderAtPath:[sharedManager getTempPath:viewType]];
     [super viewWillDisappear:animated];
+    [CacheManager deleteAllContentsOfFolderAtPath:[sharedManager getTempPath:viewType]];
 }
 
 - (void)didReceiveMemoryWarning
@@ -265,6 +265,7 @@ typedef enum ScrollDirection {
 
 -(void) dealloc
 {
+    [liveOperations removeAllObjects];
     [downloadOperation cancel];
     
     [downloadOperation release];
@@ -404,9 +405,9 @@ typedef enum ScrollDirection {
                                                  intoPath:downloadPath];
                     break;
                 case SKYDRIVE:
-                    [self.appDelegate.liveClient downloadFromPath:[data objectForKey:FILE_IMAGE_URL]
-                                                         delegate:self
-                                                        userState:downloadPath];
+                    self.downloadOperation = [self.appDelegate.liveClient downloadFromPath:[data objectForKey:FILE_IMAGE_URL]
+                                                                                                      delegate:self
+                                                                                                     userState:downloadPath];
                     break;
                     
                 default:
@@ -615,6 +616,27 @@ typedef enum ScrollDirection {
 }
 
 
+-(void) showImageAtIndex:(int) index
+{
+    int currentIndex = index;
+    int min = (viewCount/2);
+    int max = ([images count] - 1 - (viewCount/2));
+    
+    if (currentIndex >= min &&
+        currentIndex <= max) {
+        currentIndex = viewCount/2;
+    } else if (currentIndex > max) {
+        int diff = currentIndex - max;
+        currentIndex = (viewCount/2) + diff;
+        if (currentIndex >= [scrollViews count]) {
+            currentIndex = [scrollViews count] - 1;
+        }
+    }
+    
+    [self updateUIForImageDictionaryAtIndex:currentDownloadIndex
+                               inScrollView:[scrollViews objectAtIndex:currentIndex]];
+}
+
 
 
 -(void) showImage
@@ -809,13 +831,25 @@ typedef enum ScrollDirection {
                                                    firstScrollView.frame.size.height);
                 [scrollViews removeObject:firstScrollView];
                 [scrollViews addObject:firstScrollView];
-                dispatch_async(dispatch_get_main_queue(), ^{
+                
+//                dispatch_async(dispatch_get_current_queue(), ^{
+//                    index += (viewCount/2);
+//                    if (index < [images count]) {
+//                        NSDictionary *image = [images objectAtIndex:index];
+//                        [firstScrollView setImage:[self getImageForImageDictionary:image]];
+//                    }
+//                });
+                dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
                     index += (viewCount/2);
                     if (index < [images count]) {
                         NSDictionary *image = [images objectAtIndex:index];
-                        [firstScrollView setImage:[self getImageForImageDictionary:image]];
+                        UIImage *imageTobeShown = [self getImageForImageDictionary:image];
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            [firstScrollView setImage:imageTobeShown];
+                        });
                     }
                 });
+                
             } else {
                 // first should become last
             }
@@ -831,11 +865,22 @@ typedef enum ScrollDirection {
                                                    lastScrollView.frame.size.height);
                 [scrollViews removeObject:lastScrollView];
                 [scrollViews insertObject:lastScrollView atIndex:0];
-                dispatch_async(dispatch_get_main_queue(), ^{
+//                dispatch_async(dispatch_get_current_queue(), ^{
+//                    index -= (viewCount/2);
+//                    if (index > INVALID_INDEX) {
+//                        NSDictionary *image = [images objectAtIndex:index];
+//                        [lastScrollView setImage:[self getImageForImageDictionary:image]];
+//                    }
+//                });
+                
+                dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
                     index -= (viewCount/2);
                     if (index > INVALID_INDEX) {
                         NSDictionary *image = [images objectAtIndex:index];
-                        [lastScrollView setImage:[self getImageForImageDictionary:image]];
+                        UIImage *imageTobeShown = [self getImageForImageDictionary:image];
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            [lastScrollView setImage:imageTobeShown];
+                        });
                     }
                 });
             } else {
@@ -857,7 +902,7 @@ typedef enum ScrollDirection {
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
 {
     [self updateUIForImageDictionaryAtIndex:currentDownloadIndex];
-//    [self showImage];
+    [self showImage];
     [self updateDownloadsAtIndex:currentDownloadIndex];
     if ([liveOperations count] == 1) {
         [self downloadNextImage];

@@ -97,6 +97,8 @@
 		F16011B7164E1AAF00098D8C /* SkyDriveIconWhite_32x32@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = F16011B6164E1AAF00098D8C /* SkyDriveIconWhite_32x32@2x.png */; };
 		F16011B9164E1BA300098D8C /* dropbox_cell_Image@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = F16011B8164E1BA300098D8C /* dropbox_cell_Image@2x.png */; };
 		F1632B9616F7527C005EC602 /* CLZoomableImageView.m in Sources */ = {isa = PBXBuildFile; fileRef = F1632B9516F7527C005EC602 /* CLZoomableImageView.m */; };
+		F165259C1714253C00B7028E /* ImageIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F165259B1714253C00B7028E /* ImageIO.framework */; };
+		F16525A11714254D00B7028E /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F16525A01714254D00B7028E /* MobileCoreServices.framework */; };
 		F173F56516F24540004252AC /* BoxClient.m in Sources */ = {isa = PBXBuildFile; fileRef = F173F56016F24540004252AC /* BoxClient.m */; };
 		F173F56616F24540004252AC /* XMLDownloader.m in Sources */ = {isa = PBXBuildFile; fileRef = F173F56216F24540004252AC /* XMLDownloader.m */; };
 		F173F56716F24540004252AC /* XMLReader.m in Sources */ = {isa = PBXBuildFile; fileRef = F173F56416F24540004252AC /* XMLReader.m */; };
@@ -373,6 +375,8 @@
 		F16011B8164E1BA300098D8C /* dropbox_cell_Image@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "dropbox_cell_Image@2x.png"; sourceTree = "<group>"; };
 		F1632B9416F7527C005EC602 /* CLZoomableImageView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CLZoomableImageView.h; sourceTree = "<group>"; };
 		F1632B9516F7527C005EC602 /* CLZoomableImageView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CLZoomableImageView.m; sourceTree = "<group>"; };
+		F165259B1714253C00B7028E /* ImageIO.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ImageIO.framework; path = System/Library/Frameworks/ImageIO.framework; sourceTree = SDKROOT; };
+		F16525A01714254D00B7028E /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
 		F173F55F16F24540004252AC /* BoxClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BoxClient.h; sourceTree = "<group>"; };
 		F173F56016F24540004252AC /* BoxClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BoxClient.m; sourceTree = "<group>"; };
 		F173F56116F24540004252AC /* XMLDownloader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XMLDownloader.h; sourceTree = "<group>"; };
@@ -590,6 +594,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F16525A11714254D00B7028E /* MobileCoreServices.framework in Frameworks */,
+				F165259C1714253C00B7028E /* ImageIO.framework in Frameworks */,
 				F154BEAC169D518500467E46 /* SystemConfiguration.framework in Frameworks */,
 				F100AF89167352AF0065E1A9 /* AVFoundation.framework in Frameworks */,
 				F100AF78167329120065E1A9 /* MediaPlayer.framework in Frameworks */,
@@ -786,6 +792,8 @@
 		F194DB0F164A64BC00631792 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				F16525A01714254D00B7028E /* MobileCoreServices.framework */,
+				F165259B1714253C00B7028E /* ImageIO.framework */,
 				F154BEAB169D518500467E46 /* SystemConfiguration.framework */,
 				F100AF88167352AF0065E1A9 /* AVFoundation.framework */,
 				F100AF77167329120065E1A9 /* MediaPlayer.framework */,

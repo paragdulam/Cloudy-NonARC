@@ -13,6 +13,9 @@
 #import "CLCloudPlatformSelectionViewController.h"
 #import "CLAccountsTableViewController.h"
 
+#import <ImageIO/ImageIO.h>
+#import <MobileCoreServices/MobileCoreServices.h>
+
 
 
 
@@ -154,9 +157,31 @@
 }
 
 
+- (void)exportAnimatedGif
+{
+    UIImage *shacho = [UIImage imageNamed:@"save.png"];
+    UIImage *bucho = [UIImage imageNamed:@"editButton.png"];
+    NSString *path = [[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:@"animated.gif"];
+    CGImageDestinationRef destination = CGImageDestinationCreateWithURL((CFURLRef)[NSURL fileURLWithPath:path],
+                                                                        kUTTypeGIF,
+                                                                        2,
+                                                                        NULL);
+    NSDictionary *frameProperties = [NSDictionary dictionaryWithObject:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:2] forKey:(NSString *)kCGImagePropertyGIFDelayTime]
+                                                                forKey:(NSString *)kCGImagePropertyGIFDictionary];
+    NSDictionary *gifProperties = [NSDictionary dictionaryWithObject:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:0] forKey:(NSString *)kCGImagePropertyGIFLoopCount]
+                                                              forKey:(NSString *)kCGImagePropertyGIFDictionary];
+    CGImageDestinationAddImage(destination, shacho.CGImage, (CFDictionaryRef)frameProperties);
+    CGImageDestinationAddImage(destination, bucho.CGImage, (CFDictionaryRef)frameProperties);
+    CGImageDestinationSetProperties(destination, (CFDictionaryRef)gifProperties);
+    CGImageDestinationFinalize(destination);
+    CFRelease(destination);
+    NSLog(@"animated GIF file created at %@", path);
+}
+
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
 //    [CLCacheManager initialSetup];
+//    [self exportAnimatedGif];
     [CacheManager initialSetup];
 
     CLUploadProgressButton *aButton = [[CLUploadProgressButton alloc] init];
